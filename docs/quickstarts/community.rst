@@ -1,11 +1,13 @@
 Community quickstarts & samples
 ===============================
 
+Various ASP.NET Core security samples
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+https://github.com/leastprivilege/AspNetCoreSecuritySamples
+
 IdentityServer4 EF and ASP.NET Identity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This sample combines the EF and ASP.NET Identity quickstarts (#6 and #8).
-
-https://github.com/IdentityServer/IdentityServer4.Samples/tree/release/Quickstarts/Combined_AspNetIdentity_and_EntityFrameworkStorage
+`This <https://github.com/IdentityServer/IdentityServer4.Samples/tree/release/Quickstarts/Combined_AspNetIdentity_and_EntityFrameworkStorage>`_ sample combines the EF and ASP.NET Identity quickstarts (#6 and #8).
 
 Co-hosting IdentityServer4 and a Web API
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
