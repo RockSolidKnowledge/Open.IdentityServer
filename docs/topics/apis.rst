@@ -105,7 +105,7 @@ Typically, you don't want to do a roundtrip to the introspection endpoint for ea
         options.CacheDuration = TimeSpan.FromMinutes(10); // that's the default
     })
 
-The handler will use whatever `IDistributedCache` implementation is registered in the DI container (e.g. the standad `IDistributedInMemoryCache`).
+The handler will use whatever `IDistributedCache` implementation is registered in the DI container (e.g. the standad `MemoryDistributedCache`).
 
 Validating scopes
 ^^^^^^^^^^^^^^^^^
