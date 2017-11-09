@@ -22,7 +22,7 @@ Start by creating a new "ASP.NET Core Web Application" project.
 
 .. image:: images/6_new_web_project.png
 
-Then select the "Web Application Template" option.
+Then select the "Web Application Template (Model-View-Controller)" option.
 
 .. image:: images/6_web_app_template.png
 
