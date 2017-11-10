@@ -183,7 +183,7 @@ And then we can invoke this from the ``Configure`` method::
     }
 
 Now if you run the IdentityServer project, the database should be created and seeded with the quickstart configuration data.
-You should be able to use SqlServer Management Studio or Visual Studio to connect and inspect the data.
+You should be able to use SQL Server Management Studio or Visual Studio to connect and inspect the data.
 
 .. image:: images/8_database.png
 
@@ -192,3 +192,5 @@ Run the client applications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You should now be able to run any of the existing client applications and sign-in, get tokens, and call the API -- all based upon the database configuration.
+
+.. Note:: The code as it stands in this section still relies upon Config.cs and its fictitious users Alice and Bob. If your user list is short and static, an adjusted version of Config.cs may suffice, however you may wish to manage a larger and more fluid user list dynamically within a database. ASP.NET Identity is one option to consider, and a sample implementation of this solution is listed among the quickstarts in the next section.
