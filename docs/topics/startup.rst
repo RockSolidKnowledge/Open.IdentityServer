@@ -19,7 +19,8 @@ Optionally you can pass in options into this call. See :ref:`here <refOptions>` 
 This will return you a builder object that in turn has a number of convenience methods to wire up additional services.
 
 .. _refStartupKeyMaterial:
-**Key material**
+Key material
+^^^^^^^^^^^^
 
 * ``AddSigningCredential``
     Adds a signing key service that provides the specified key material to the various token creation/validation services.
@@ -33,7 +34,8 @@ This will return you a builder object that in turn has a number of convenience m
     You can pass in either an ``X509Certificate2``, a ``SigningCredential`` or a reference to a certificate from the certificate store.
     This is useful for key roll-over scenarios.
 
-**In-Memory configuration stores**
+In-Memory configuration stores
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The various "in-memory" configuration APIs allow for configuring IdentityServer from an in-memory list of configuration objects.
 These "in-memory" collections can be hard-coded in the hosting application, or could be loaded dynamically from a configuration file or a database.
@@ -49,7 +51,8 @@ This style of configuration might also be appropriate for production scenarios i
 * ``AddInMemoryApiResources``
     Registers ``IResourceStore`` implementation based on the in-memory collection of ``ApiResource`` configuration objects.
 
-**Test stores**
+Test stores
+^^^^^^^^^^^
 
 The ``TestUser`` class models a user, their credentials, and claims in IdentityServer. 
 Use of ``TestUser`` is simiar to the use of the "in-memory" stores in that it is intended for when prototyping, developing, and/or testing.
@@ -60,7 +63,8 @@ The use of ``TestUser`` is not recommended in production.
     ``TestUserStore`` is used by the default quickstart UI.
     Also registers implementations of ``IProfileService`` and ``IResourceOwnerPasswordValidator``.
 
-**Additional services**
+Additional services
+^^^^^^^^^^^^^^^^^^^
 
 * ``AddExtensionGrantValidator``
     Adds ``IExtensionGrantValidator`` implementation for use with extension grants.
@@ -97,7 +101,8 @@ The use of ``TestUser`` is not recommended in production.
 * ``AddJwtBearerClientAuthentication``
     Adds support for client authentication using JWT bearer assertions.
 
-**Caching**
+Caching
+^^^^^^^
 
 Client and resource configuration data is used frequently by IdentityServer.
 If this data is being loaded from a database or other external store, then it might be expensive to frequently re-load the same data.
