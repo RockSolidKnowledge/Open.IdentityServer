@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.4" />
-    <PackageReference Include="IdentityModel" Version="2.13.0" />
+    <PackageReference Include="IdentityModel" Version="2.15.0" />
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     <PackageReference Include="SourceLink.Embed.AllSourceFiles" Version="2.5.0" PrivateAssets="all" />
