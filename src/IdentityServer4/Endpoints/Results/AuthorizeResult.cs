@@ -114,7 +114,7 @@ namespace IdentityServer4.Endpoints.Results
             else if (Response.Request.ResponseMode == OidcConstants.ResponseModes.FormPost)
             {
                 context.Response.SetNoCache();
-                AddCspHeaders(context);
+                AddSecurityHeaders(context);
                 await context.Response.WriteHtmlAsync(GetFormPostHtml());
             }
             else
@@ -124,19 +124,25 @@ namespace IdentityServer4.Endpoints.Results
             }
         }
 
-        private void AddCspHeaders(HttpContext context)
+        private void AddSecurityHeaders(HttpContext context)
         {
             var formOrigin = Response.Request.RedirectUri.GetOrigin();
-            var value = $"default-src 'none'; frame-ancestors {formOrigin}; form-action {formOrigin}; script-src 'sha256-VuNUSJ59bpCpw62HM2JG/hCyGiqoPN3NqGvNXQPU+rY='; ";
+            var csp = $"default-src 'none'; frame-ancestors {formOrigin}; form-action {formOrigin}; script-src 'sha256-VuNUSJ59bpCpw62HM2JG/hCyGiqoPN3NqGvNXQPU+rY='; ";
 
             if (!context.Response.Headers.ContainsKey("Content-Security-Policy"))
             {
-                context.Response.Headers.Add("Content-Security-Policy", value);
+                context.Response.Headers.Add("Content-Security-Policy", csp);
             }
 
             if (!context.Response.Headers.ContainsKey("X-Content-Security-Policy"))
             {
-                context.Response.Headers.Add("X-Content-Security-Policy", value);
+                context.Response.Headers.Add("X-Content-Security-Policy", csp);
+            }
+
+            var referrer_policy = "no-referrer";
+            if (!context.Response.Headers.ContainsKey("Referrer-Policy"))
+            {
+                context.Response.Headers.Add("Referrer-Policy", referrer_policy);
             }
         }
 
