@@ -40,8 +40,7 @@ namespace IdentityServer4.Endpoints.Results
 
         private void AddCspHeaders(HttpContext context)
         {
-            // 'unsafe-inline' for edge
-            var value = "default-src 'none'; script-src 'unsafe-inline' 'sha256-VDXN0nOpFPQ102CIVz+eimHA5e+wTeoUUQj5ZYbtn8w='";
+            var value = "default-src 'none'; script-src 'sha256-VDXN0nOpFPQ102CIVz+eimHA5e+wTeoUUQj5ZYbtn8w='";
 
             if (!context.Response.Headers.ContainsKey("Content-Security-Policy"))
             {
