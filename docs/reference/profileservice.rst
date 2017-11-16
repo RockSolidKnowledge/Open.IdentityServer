@@ -23,7 +23,7 @@ ProfileDataRequestContext
 Models the request for user claims and is the vehicle to return those claims. It contains these properties:
 
 ``Subject``
-    The ``ClaimsPrincipal`` modeling the user. If the request The claims from the user's cooke will be in the ``ClaimsPrincipal``.
+    The ``ClaimsPrincipal`` modeling the user. If the request The claims from the user's cookie will be in the ``ClaimsPrincipal``.
 ``Client``
     The ``Client`` for which the claims are being requested.
 ``RequestedClaimTypes``
@@ -31,7 +31,7 @@ Models the request for user claims and is the vehicle to return those claims. It
 ``Caller``
     An identifier for the context in which the claims are being requested (e.g. an identity token, an access token, or the user info endpoint). The constant ``IdentityServerConstants.ProfileDataCallers`` contains the different constant values.
 ``IssuedClaims``
-    The list of ``Claim``s that will be returned. This is expected to be populated by the custom ``IProfileService`` implementation.
+    The list of ``Claim`` s that will be returned. This is expected to be populated by the custom ``IProfileService`` implementation.
 ``AddRequestedClaims``
     Extension method on the ``ProfileDataRequestContext`` to populate the ``IssuedClaims``, but first filters the claims based on ``RequestedClaimTypes``.
 
@@ -41,7 +41,7 @@ IsActiveContext
 Models the request to determine is the user is currently allowed to obtain tokens. It contains these properties:
 
 ``Subject``
-    The ``ClaimsPrincipal`` modeling the user. If the request The claims from the user's cooke will be in the ``ClaimsPrincipal``.
+    The ``ClaimsPrincipal`` modeling the user. If the request The claims from the user's cookie will be in the ``ClaimsPrincipal``.
 ``Client``
     The ``Client`` for which the claims are being requested.
 ``Caller``
