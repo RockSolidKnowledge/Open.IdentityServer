@@ -35,6 +35,15 @@ Models the request for user claims and is the vehicle to return those claims. It
 ``AddRequestedClaims``
     Extension method on the ``ProfileDataRequestContext`` to populate the ``IssuedClaims``, but first filters the claims based on ``RequestedClaimTypes``.
 
+**Requested scopes and claims mapping**
+
+The scopes requested by the client control what user claims are returned in the tokens to the client. 
+The ``GetProfileDataAsync`` method is responsible for dynamically obtaining those claims based on the ``RequestedClaimTypes`` collection on the ``ProfileDataRequestContext``.
+
+The ``RequestedClaimTypes`` collection is populated based on the user claims defined on the :ref:`resources <refResources>` that model the scopes.
+If the scopes requested are an :ref:`identity resources <refIdentityResource>`, then the claims in the ``RequestedClaimTypes`` will be populated based on the user claim types defined in the ``IdentityResource``.
+If the scopes requested are an :ref:`API resources <refApiResource>`, then the claims in the ``RequestedClaimTypes`` will be populated based on the user claim types defined in the ``ApiResource`` and/or the ``Scope``.
+
 IsActiveContext
 ^^^^^^^^^^^^^^^
 
