@@ -33,3 +33,17 @@ ASP.NET Core MVC RazorPages template for IdentityServer4 Quickstart UI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 `Razor Pages based QuickStart sample <https://github.com/IdentityServer4Contrib/IdentityServer4.Contrib.Templates.RazorPages>`_ by `Martin Fletcher <https://github.com/martinfletcher>`_.
+
+
+.NET Core and ASP.NET Core "Platform" scenario
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Shows an interaction of trusted "internal" applications and "external" applications with .NET Core 2.0 and ASP.NET Core 2.0 applications
+https://github.com/BenjaminAbt/Samples.AspNetCore-IdentityServer4
+
+
+Securing a Node API with tokens from IdentityServer4 using JWKS
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Shows how to secure a Node (Express) API using the JWKS endpoint and RS256 algorithm from IdentityServer4.
+* Provides an alternative to the NodeJsApi sample from IdentityServer4.Samples using higher quality - production ready modules.
+
+https://github.com/lyphtec/idsvr4-node-jwks

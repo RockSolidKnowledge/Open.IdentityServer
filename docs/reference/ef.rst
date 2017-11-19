@@ -42,7 +42,7 @@ ConfigurationStoreOptions
 This options class contains properties to control the configuration store and ``ConfigurationDbContext``.
 
 ``ConfigureDbContext``
-    Delegate of type ``ConfigurationDbContext<DbContextOptionsBuilder>`` used as a callback to configure the underlying ``ConfigurationDbContext``.
+    Delegate of type ``Action<DbContextOptionsBuilder>`` used as a callback to configure the underlying ``ConfigurationDbContext``.
     The delegate can configure the ``ConfigurationDbContext`` in the same way if EF were being used directly with ``AddDbContext``, which allows any EF-supported database to be used.
 ``DefaultSchema``
     Allows setting the default database schema name for all the tables in the ``ConfigurationDbContext``.
@@ -84,8 +84,8 @@ OperationalStoreOptions
 This options class contains properties to control the operational store and ``PersistedGrantDbContext``.
 
 ``ConfigureDbContext``
-    Delegate of type ``ConfigurationDbContext<DbContextOptionsBuilder>`` used as a callback to configure the underlying ``PersistedGrantDbContext``.
-    The delegate can configure the ``ConfigurationDbContext`` in the same way if EF were being used directly with ``AddDbContext``, which allows any EF-supported database to be used.
+    Delegate of type ``Action<DbContextOptionsBuilder>`` used as a callback to configure the underlying ``PersistedGrantDbContext``.
+    The delegate can configure the ``PersistedGrantDbContext`` in the same way if EF were being used directly with ``AddDbContext``, which allows any EF-supported database to be used.
 ``DefaultSchema``
     Allows setting the default database schema name for all the tables in the ``PersistedGrantDbContext``.
 ``EnableTokenCleanup``
