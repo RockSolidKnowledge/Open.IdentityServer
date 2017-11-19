@@ -28,3 +28,8 @@ Exchanging external tokens from Facebook, Google and Twitter
 * Shows how to exchange an external authentication token to an identity server acesss token using an extension grant
 
 https://github.com/waqaskhan540/IdentityServerExternalAuth
+
+ASP.NET Core MVC RazorPages template for IdentityServer4 Quickstart UI
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Razor Pages based QuickStart sample <https://github.com/IdentityServer4Contrib/IdentityServer4.Contrib.Templates.RazorPages>`_ by `Martin Fletcher <https://github.com/martinfletcher>`_.
