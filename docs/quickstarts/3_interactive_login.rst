@@ -17,9 +17,9 @@ While the look & feel as well as the exact workflows will probably always differ
 IdentityServer implementation, we provide an MVC-based sample UI that you can use as a starting point.
 
 This UI can be found in the `Quickstart UI repo <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/tree/release>`_.
-You can either clone or download this repo and drop the controllers, views, models and CSS into your web application.
+You can either clone or download this repo and drop the controllers, views, models and CSS into your IdentityServer web application.
 
-Alternatively you can run this command from the command line in your web application to
+Alternatively you can run this command from the command line in the same directory as your IdentityServer web application to
 automate the download::
 
     iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/IdentityServer/IdentityServer4.Quickstart.UI/release/get.ps1'))
