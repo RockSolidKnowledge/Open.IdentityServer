@@ -24,6 +24,37 @@ automate the download::
 
     iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/IdentityServer/IdentityServer4.Quickstart.UI/release/get.ps1'))
 
+Once you have added the MVC UI assets, you will also need to add MVC to the hosting application, both in the DI system and in the pipeline.
+Add MVC to ``ConfigureServices`` with the ``AddMvc`` extension method::
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddMvc();
+
+        // configure identity server with in-memory stores, keys, clients and scopes
+        services.AddIdentityServer()
+            .AddDeveloperSigningCredential()
+            .AddInMemoryApiResources(Config.GetApiResources())
+            .AddInMemoryClients(Config.GetClients())
+            .AddTestUsers(Config.GetUsers());
+    }
+
+Add MVC as the last middleware in the pipeline in ``Configure`` with the ``UseMvc`` extension method::
+
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+
+        app.UseIdentityServer();
+
+        app.UseMvcWithDefaultRoute();
+
+        app.UseMvc();
+    }
+
 See the `readme <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/blob/release/README.md>`_ for the quickstart UI for more information. 
 
 .. note:: The ``release`` branch of the UI repo has the UI that matches the latest stable release. The ``dev`` branch goes along with the current dev build of IdentityServer4. If you are looking for a specific version of the UI - check the tags.
