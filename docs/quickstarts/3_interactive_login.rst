@@ -50,9 +50,8 @@ Add MVC as the last middleware in the pipeline in ``Configure`` with the ``UseMv
 
         app.UseIdentityServer();
 
+        app.UseStaticFiles();
         app.UseMvcWithDefaultRoute();
-
-        app.UseMvc();
     }
 
 See the `readme <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/blob/release/README.md>`_ for the quickstart UI for more information. 
