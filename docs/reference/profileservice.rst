@@ -35,7 +35,8 @@ Models the request for user claims and is the vehicle to return those claims. It
 ``AddRequestedClaims``
     Extension method on the ``ProfileDataRequestContext`` to populate the ``IssuedClaims``, but first filters the claims based on ``RequestedClaimTypes``.
 
-**Requested scopes and claims mapping**
+Requested scopes and claims mapping
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The scopes requested by the client control what user claims are returned in the tokens to the client. 
 The ``GetProfileDataAsync`` method is responsible for dynamically obtaining those claims based on the ``RequestedClaimTypes`` collection on the ``ProfileDataRequestContext``.
