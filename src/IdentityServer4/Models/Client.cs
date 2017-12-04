@@ -75,7 +75,7 @@ namespace IdentityServer4.Models
         public bool AllowRememberConsent { get; set; } = true;
 
         /// <summary>
-        /// Specifies the allowed grant types (legal combinations of AuthorizationCode, Implicit, Hybrid, ResourceOwner, ClientCredentials). Defaults to Implicit.
+        /// Specifies the allowed grant types (legal combinations of AuthorizationCode, Implicit, Hybrid, ResourceOwner, ClientCredentials).
         /// </summary>
         public ICollection<string> AllowedGrantTypes
         {
