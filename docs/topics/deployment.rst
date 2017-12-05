@@ -28,6 +28,9 @@ For databases we provide support for `Entity Framework Core <https://github.com/
 
 You can also build your own configuration stores by implementing ``IResourceStore`` and ``IClientStore``.
 
+Key material
+^^^^^^^^^^^^
+
 Another important piece of startup configuration is your key material, see :ref:`here <refCrypto>` for more details on key material and cryptography.
 
 Operational data

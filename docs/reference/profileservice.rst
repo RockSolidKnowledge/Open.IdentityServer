@@ -23,7 +23,7 @@ ProfileDataRequestContext
 Models the request for user claims and is the vehicle to return those claims. It contains these properties:
 
 ``Subject``
-    The ``ClaimsPrincipal`` modeling the user. If the request The claims from the user's cookie will be in the ``ClaimsPrincipal``.
+    The ``ClaimsPrincipal`` modeling the user.
 ``Client``
     The ``Client`` for which the claims are being requested.
 ``RequestedClaimTypes``
@@ -51,7 +51,7 @@ IsActiveContext
 Models the request to determine is the user is currently allowed to obtain tokens. It contains these properties:
 
 ``Subject``
-    The ``ClaimsPrincipal`` modeling the user. If the request The claims from the user's cookie will be in the ``ClaimsPrincipal``.
+    The ``ClaimsPrincipal`` modeling the user.
 ``Client``
     The ``Client`` for which the claims are being requested.
 ``Caller``
