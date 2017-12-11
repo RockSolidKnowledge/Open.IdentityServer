@@ -35,14 +35,14 @@ Also check the `contribution <https://github.com/IdentityServer/IdentityServer4/
 Commercial support
 ^^^^^^^^^^^^^^^^^^
 We are doing consulting, mentoring and custom software development around identity & access control architecture in general, and IdentityServer in particular.
-Please `get in touch <mailto:identity@leastprivilege.com>`_ with us to discuss possible options.
+Please `get in touch <mailto:contact@identityserver.io>`_ with us to discuss possible options.
 
 **Training**
 
 We are regularly doing workshops around identity & acess control for modern applications.
 Check the agenda and upcoming public dates  `here <https://identityserver.io/training>`_.
 We can also perform the training privately at your company. 
-`Contact us <mailto:identity@leastprivilege.com>`_ to request the training on-site. 
+`Contact us <mailto:contact@identityserver.io>`_ to request the training on-site. 
 
 **Admin UI, Identity Express and SAML2p support**
 
