@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -147,14 +147,48 @@ namespace IdentityServer4.Extensions
         [DebuggerStepThrough]
         public static bool IsLocalUrl(this string url)
         {
-            return
-                !String.IsNullOrEmpty(url) &&
+            if (string.IsNullOrEmpty(url))
+            {
+                return false;
+            }
 
-                // Allows "/" or "/foo" but not "//" or "/\".
-                ((url[0] == '/' && (url.Length == 1 || (url[1] != '/' && url[1] != '\\'))) ||
+            // Allows "/" or "/foo" but not "//" or "/\".
+            if (url[0] == '/')
+            {
+                // url is exactly "/"
+                if (url.Length == 1)
+                {
+                    return true;
+                }
 
-                // Allows "~/" or "~/foo".
-                (url.Length > 1 && url[0] == '~' && url[1] == '/'));
+                // url doesn't start with "//" or "/\"
+                if (url[1] != '/' && url[1] != '\\')
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            // Allows "~/" or "~/foo" but not "~//" or "~/\".
+            if (url[0] == '~' && url.Length > 1 && url[1] == '/')
+            {
+                // url is exactly "~/"
+                if (url.Length == 2)
+                {
+                    return true;
+                }
+
+                // url doesn't start with "~//" or "~/\"
+                if (url[2] != '/' && url[2] != '\\')
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            return false;
         }
 
         [DebuggerStepThrough]
