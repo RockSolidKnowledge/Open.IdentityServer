@@ -17,7 +17,7 @@ The following code sets up a hashed shared secret::
 
     var secret = new Secret("secret".Sha256());
 
-This secret can now be assigned to either a ``Client`` or a ``Scope``. 
+This secret can now be assigned to either a ``Client`` or an ``ApiResource``. 
 Notice that both do not only support a single secret, but multiple. This is useful for secret rollover and rotation::
 
     var client = new Client
