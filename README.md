@@ -1,19 +1,12 @@
-# IdentityServer4
+## About IdentityServer4
 
-OpenID Connect and OAuth 2.0 Framework for ASP.NET Core
+[<img align="right" width="100px" src="https://dotnetfoundation.org/images/logo_big.svg" />](https://dotnetfoundation.org)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/x4t8sk0n6gna0c7w?svg=true)](https://ci.appveyor.com/project/leastprivilege/identityserver4)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/IdentityServer/IdentityServer4?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+IdentityServer is a free, open source [OpenID Connect](http://openid.net/connect/) and [OAuth 2.0](https://tools.ietf.org/html/rfc6749) framework for ASP.NET Core.
+Founded and maintained by [Dominick Baier](https://twitter.com/leastprivilege) and [Brock Allen](https://twitter.com/brocklallen), IdentityServer4 incorporates all the protocol implementations and extensibility points needed to implement token-based authentication, single-sign-on and API access control in your applications.
+It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and operates under their [code of conduct](https://www.dotnetfoundation.org/code-of-conduct). It is licensed under [Apache 2](https://opensource.org/licenses/Apache-2.0) (an OSI approved license).
 
-This is the main repo for IdentityServer4 - but there's more:
-
-* [Documentation](https://identityserver4.readthedocs.io)
-* [Consulting, training and support](https://www.identityserver.io/)
-* [Samples](https://github.com/IdentityServer/IdentityServer4.Samples)
-* [Access token validation](https://github.com/IdentityServer/IdentityServer4.AccessTokenValidation)
-* [Quickstart UI](https://github.com/IdentityServer/IdentityServer4.Quickstart.UI)
-* [ASP.NET Identity integration](https://github.com/IdentityServer/IdentityServer4.AspNetIdentity)
-* [EntityFramework integration](https://github.com/IdentityServer/IdentityServer4.EntityFramework)
+For project documentation, please visit [readthedocs](https://identityserver4.readthedocs.io).
 
 ### Platform
 
@@ -35,6 +28,16 @@ IdentityServer4 is built using the following great open source projects
 * [Cake](http://cakebuild.net/)
 * [XUnit](https://xunit.github.io/)
 * [Fluent Assertions](http://www.fluentassertions.com/)
+
+This is the main repo for IdentityServer4 - but there's more:
+
+* [Documentation](https://identityserver4.readthedocs.io)
+* [Consulting, training and support](https://www.identityserver.io/)
+* [Samples](https://github.com/IdentityServer/IdentityServer4.Samples)
+* [Access token validation](https://github.com/IdentityServer/IdentityServer4.AccessTokenValidation)
+* [Quickstart UI](https://github.com/IdentityServer/IdentityServer4.Quickstart.UI)
+* [ASP.NET Identity integration](https://github.com/IdentityServer/IdentityServer4.AspNetIdentity)
+* [EntityFramework integration](https://github.com/IdentityServer/IdentityServer4.EntityFramework)
 
 IdentityServer4 is a [.NET Foundation](http://www.dotnetfoundation.org/) project
 
