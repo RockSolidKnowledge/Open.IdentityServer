@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -9,10 +9,10 @@ using IdentityServer4.Models;
 namespace IdentityServer4.Validation
 {
     /// <summary>
-    /// Default resource owner password validator (not implementation == not supported)
+    /// Default resource owner password validator (no implementation == not supported)
     /// </summary>
     /// <seealso cref="IdentityServer4.Validation.IResourceOwnerPasswordValidator" />
-    internal class NotSupportedResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
+    public class NotSupportedResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
     {
         private readonly ILogger _logger;
 
