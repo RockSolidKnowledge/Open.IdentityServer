@@ -5,7 +5,6 @@ We thank those who [support](https://www.patreon.com/identityserver) IdentitySer
 ## Individuals
 
 Khalid Abuhakmeh
-
 Rasika Weliwita
 
 ## Corporate
