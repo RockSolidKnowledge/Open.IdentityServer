@@ -4,6 +4,8 @@ We thank those who [support](https://www.patreon.com/identityserver) IdentitySer
 
 ## Corporate
 
+### Silver
+
 Green Elephant IT Consulting
 
 ## Individuals
