@@ -6,13 +6,13 @@ We thank those who [support](https://www.patreon.com/identityserver) IdentitySer
 
 ### Silver
 
-Green Elephant IT Consulting
+Green Elephant IT Consulting ([@Schwamster](https://twitter.com/Schwamster))
 
 ## Individuals
 
-Khalid Abuhakmeh ([@buhakmeh](https://twitter.com/buhakmeh)  
-Rasika Weliwita  
+Khalid Abuhakmeh ([@buhakmeh](https://twitter.com/buhakmeh))  
+Rasika Weliwita ([@rasikaweliwita](https://twitter.com/rasikaweliwita))  
 Arun David Shelly  
-Reece Williams  
-Alexander Zeitler  
-Tobias Höft  
+Reece Williams ([@AnEmptyReece](https://twitter.com/AnEmptyReece))  
+Alexander Zeitler ([@alexzeitler_](https://twitter.com/alexzeitler_))  
+Tobias Höft ([@tobiashoeft](https://twitter.com/tobiashoeft))  
