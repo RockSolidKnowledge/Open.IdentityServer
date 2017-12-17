@@ -10,7 +10,7 @@ Green Elephant IT Consulting
 
 ## Individuals
 
-Khalid Abuhakmeh  
+Khalid Abuhakmeh ([@buhakmeh](https://twitter.com/buhakmeh)  
 Rasika Weliwita  
 Arun David Shelly  
 Reece Williams  
