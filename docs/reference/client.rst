@@ -71,7 +71,7 @@ Token
 ``RefreshTokenUsage``
     ``ReUse`` the refresh token handle will stay the same when refreshing tokens
     
-    ``OneTime`` the refresh token handle will be updated when refreshing tokens
+    ``OneTime`` the refresh token handle will be updated when refreshing tokens. This is the default.
 ``RefreshTokenExpiration``
     ``Absolute`` the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime)
     
