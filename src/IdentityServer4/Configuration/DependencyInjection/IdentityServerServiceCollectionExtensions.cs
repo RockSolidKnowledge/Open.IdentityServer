@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // provide default in-memory implementation, not suitable for most production scenarios
             builder.AddInMemoryPersistedGrants();
 
-            return new IdentityServerBuilder(services);
+            return builder;
         }
 
         /// <summary>

@@ -194,7 +194,7 @@ namespace Host.Configuration
                 },
 
                 ///////////////////////////////////////////
-                // MVC Hybrid Flow Samples
+                // MVC Hybrid Flow Sample
                 //////////////////////////////////////////
                 new Client
                 {
@@ -218,6 +218,37 @@ namespace Host.Configuration
                     AllowOfflineAccess = true,
 
                     AllowedScopes = 
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        "api1", "api2.read_only"
+                    }
+                },
+                ///////////////////////////////////////////
+                // MVC Hybrid Flow Sample (Back Channel logout)
+                //////////////////////////////////////////
+                new Client
+                {
+                    ClientId = "mvc.hybrid.backchannel",
+                    ClientName = "MVC Hybrid (with BackChannel logout)",
+                    ClientUri = "http://identityserver.io",
+
+                    ClientSecrets =
+                    {
+                        new Secret("secret".Sha256())
+                    },
+
+                    AllowedGrantTypes = GrantTypes.Hybrid,
+                    AllowAccessTokensViaBrowser = false,
+
+                    RedirectUris = { "http://localhost:21403/signin-oidc" },
+                    BackChannelLogoutUri = "http://localhost:21403/logout",
+                    PostLogoutRedirectUris = { "http://localhost:21403/signout-callback-oidc" },
+
+                    AllowOfflineAccess = true,
+
+                    AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,

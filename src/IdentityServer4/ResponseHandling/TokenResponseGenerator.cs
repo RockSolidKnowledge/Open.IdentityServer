@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -134,7 +134,8 @@ namespace IdentityServer4.ResponseHandling
             var response = new TokenResponse
             {
                 AccessToken = accessToken,
-                AccessTokenLifetime = request.ValidatedRequest.AccessTokenLifetime
+                AccessTokenLifetime = request.ValidatedRequest.AccessTokenLifetime,
+                Custom = request.CustomResponse
             };
 
             //////////////////////////
@@ -221,7 +222,8 @@ namespace IdentityServer4.ResponseHandling
                 IdentityToken = await CreateIdTokenFromRefreshTokenRequestAsync(request.ValidatedRequest, accessTokenString),
                 AccessToken = accessTokenString,
                 AccessTokenLifetime = request.ValidatedRequest.AccessTokenLifetime,
-                RefreshToken = handle
+                RefreshToken = handle,
+                Custom = request.CustomResponse
             };
         }
 

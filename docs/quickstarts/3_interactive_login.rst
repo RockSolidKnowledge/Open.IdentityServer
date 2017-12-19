@@ -104,7 +104,7 @@ We then use ``AddCookie`` to add the handler that can process cookies.
 
 Finally, ``AddOpenIdConnect`` is used to configure the handler that perform the OpenID Connect protocol.
 The ``Authority`` indicates that we are trusting IdentityServer.
-We then identity this client via the ``ClientId``.
+We then identify this client via the ``ClientId``.
 ``SignInScheme`` is used to issue a cookie using the cookie handler once the OpenID Connect protocol is complete.
 And ``SaveTokens`` is used to persist the tokens from IdentityServer in the cookie (as they will be needed later).
 

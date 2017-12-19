@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>OpenID Connect and OAuth 2.0 Framework for ASP.NET Core</Description>
-    <VersionPrefix>2.0.5</VersionPrefix>
+    <VersionPrefix>2.0.6</VersionPrefix>
     <!--<VersionSuffix>rc1-update1</VersionSuffix>-->
     <Authors>Brock Allen;Dominick Baier</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -24,7 +24,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.5" />
-    <PackageReference Include="IdentityModel" Version="2.16.0" />
+    <PackageReference Include="IdentityModel" Version="2.16.1" />
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     <PackageReference Include="SourceLink.Embed.AllSourceFiles" Version="2.6.0" PrivateAssets="all" />
