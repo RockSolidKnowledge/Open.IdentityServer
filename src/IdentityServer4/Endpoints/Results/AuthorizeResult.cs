@@ -192,6 +192,13 @@ namespace IdentityServer4.Endpoints.Results
                 DisplayMode = Response.Request?.DisplayMode
             };
 
+            if (Response.RedirectUri != null && Response.Request?.ResponseMode != null)
+            {
+                // if we have a valid redirect uri, then include it to the error page
+                errorModel.RedirectUri = BuildRedirectUri();
+                errorModel.ResponseMode = Response.Request.ResponseMode;
+            }
+
             var message = new Message<ErrorMessage>(errorModel, _clock.UtcNow.UtcDateTime);
             var id = await _errorMessageStore.WriteAsync(message);
 

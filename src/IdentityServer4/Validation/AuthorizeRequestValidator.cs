@@ -141,9 +141,6 @@ namespace IdentityServer4.Validation
                 return Invalid(request, description: "Invalid redirect_uri");
             }
 
-            request.RedirectUri = redirectUri;
-
-
             //////////////////////////////////////////////////////////
             // check for valid client
             //////////////////////////////////////////////////////////
@@ -168,11 +165,13 @@ namespace IdentityServer4.Validation
             //////////////////////////////////////////////////////////
             // check if redirect_uri is valid
             //////////////////////////////////////////////////////////
-            if (await _uriValidator.IsRedirectUriValidAsync(request.RedirectUri, request.Client) == false)
+            if (await _uriValidator.IsRedirectUriValidAsync(redirectUri, request.Client) == false)
             {
-                LogError("Invalid redirect_uri: " + request.RedirectUri, request);
+                LogError("Invalid redirect_uri: " + redirectUri, request);
                 return Invalid(request, OidcConstants.AuthorizeErrors.UnauthorizedClient, "Invalid redirect_uri");
             }
+
+            request.RedirectUri = redirectUri;
 
             return Valid(request);
         }
