@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -34,9 +34,13 @@ namespace IdentityServer4.Configuration
         /// </summary>
         public string CheckSessionCookieName { get; set; } = IdentityServerConstants.DefaultCheckSessionCookieName;
 
-        /// <summary>
         /// Gets or sets the timeout on the back channel logout HTTP call.
         /// </summary>
         public TimeSpan BackChannelLogoutTimeOut { get; set; } = TimeSpan.FromSeconds(30);
+
+        /// <summary>
+        /// If set, will require frame-src CSP headers being emitting on the end session callback endpoint which renders iframes to clients for front-channel signout notification.
+        /// </summary>
+        public bool RequireCspFrameSrcForSignout { get; set; } = true;
     }
 }
