@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4;
 using IdentityServer4.Models;
@@ -234,6 +234,47 @@ namespace IdentityServer.UnitTests.Services.Default
             var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
 
             newHandle.Should().NotBeNull().And.Be(handle);
+
+            var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
+
+            newRefreshToken.Should().NotBeNull();
+            newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
+        }
+
+        [Fact]
+        public async Task UpdateRefreshToken_for_onetime_and_sliding_with_zero_absolute_should_update_lifetime()
+        {
+            var client = new Client
+            {
+                ClientId = "client1",
+                RefreshTokenUsage = TokenUsage.OneTimeOnly,
+                RefreshTokenExpiration = TokenExpiration.Sliding,
+                SlidingRefreshTokenLifetime = 10,
+                AbsoluteRefreshTokenLifetime = 0
+            };
+
+            var now = DateTime.UtcNow;
+            _clock.UtcNowFunc = () => now;
+
+            var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
+            {
+                CreationTime = now.AddSeconds(-1000),
+                AccessToken = new Token
+                {
+                    ClientId = client.ClientId,
+                    Audiences = { "aud" },
+                    CreationTime = DateTime.UtcNow,
+                    Claims = new List<Claim>()
+                    {
+                        new Claim("sub", "123")
+                    }
+                }
+            });
+
+            var refreshToken = await _store.GetRefreshTokenAsync(handle);
+            var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
+
+            newHandle.Should().NotBeNull().And.NotBe(handle);
 
             var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
 

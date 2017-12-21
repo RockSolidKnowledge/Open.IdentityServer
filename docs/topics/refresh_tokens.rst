@@ -8,7 +8,7 @@ The clients needs to be explicitly authorized to request refresh tokens by setti
 Additional client settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 ``AbsoluteRefreshTokenLifetime``
-    Maximum lifetime of a refresh token in seconds. Defaults to 2592000 seconds / 30 days. Zero allows refresh tokens that never expire when used with ``RefreshTokenUsage = ReUse`` and ``RefreshTokenExpiration = Sliding``.
+    Maximum lifetime of a refresh token in seconds. Defaults to 2592000 seconds / 30 days. Zero allows refresh tokens that never expire when used with ``RefreshTokenExpiration = Sliding``.
 ``SlidingRefreshTokenLifetime``
     Sliding lifetime of a refresh token in seconds. Defaults to 1296000 seconds / 15 days
 ``RefreshTokenUsage``
