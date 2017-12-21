@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -417,7 +417,7 @@ namespace IdentityServer4.Validation
                     errorDescription = resourceOwnerContext.Result.ErrorDescription;
                 }
                
-                LogError("User authentication failed: {error}", errorDescription ?? resourceOwnerContext.Result.Error);
+                LogInfo("User authentication failed: {error}", errorDescription ?? resourceOwnerContext.Result.Error);
                 await RaiseFailedResourceOwnerAuthenticationEventAsync(userName, errorDescription);
 
                 return Invalid(OidcConstants.TokenErrors.InvalidGrant, errorDescription, resourceOwnerContext.Result.CustomResponse);
@@ -701,6 +701,24 @@ namespace IdentityServer4.Validation
 
             var details = new TokenRequestValidationLog(_validatedRequest);
             _logger.LogError("{details}", details);
+        }
+
+        private void LogInfo(string message = null, params object[] values)
+        {
+            if (message.IsPresent())
+            {
+                try
+                {
+                    _logger.LogInformation(message, values);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError("Error logging {exception}", ex.Message);
+                }
+            }
+
+            var details = new TokenRequestValidationLog(_validatedRequest);
+            _logger.LogInformation("{details}", details);
         }
 
         private void LogSuccess()
