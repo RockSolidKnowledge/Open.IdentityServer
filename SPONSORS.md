@@ -23,3 +23,4 @@ Gusztav Varga ([@gusztavvargadr](https://twitter.com/gusztavvargadr))
 William Grow  
 Espen Medbø ([@emedbo](https://twitter.com/emedbo))  
 John Korsnes ([@johnkors](https://twitter.com/johnkors))  
+James Roberts  
