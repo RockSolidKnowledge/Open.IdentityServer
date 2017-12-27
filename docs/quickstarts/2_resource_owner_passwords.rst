@@ -21,7 +21,7 @@ Just like there are in-memory stores for resources (aka scopes) and clients, the
 The class ``TestUser`` represents a test user and its claims. Let's create a couple of users
 by adding the following code to our config class:
 
-First add the following using statement to the config.cs file::
+First add the following using statement to the ``Config.cs`` file::
 
     using IdentityServer4.Test;
 
@@ -68,7 +68,7 @@ You could simply add support for the grant type to our existing client by changi
 ``AllowedGrantTypes`` property. If you need your client to be able to use both grant types
 that is absolutely supported.
 
-Typically you want to create a separate client for the resource owner use case, 
+Typically you want to create a separate client for the resource owner use case,
 add the following to your clients configuration::
 
     public static IEnumerable<Client> GetClients()
@@ -83,7 +83,7 @@ add the following to your clients configuration::
                 ClientId = "ro.client",
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
 
-                ClientSecrets = 
+                ClientSecrets =
                 {
                     new Secret("secret".Sha256())
                 },
@@ -95,7 +95,7 @@ add the following to your clients configuration::
 Requesting a token using the password grant
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The client looks very similar to what we did for the client credentials grant.
-The main difference is now that the client would collect the user's password somehow, 
+The main difference is now that the client would collect the user's password somehow,
 and send it to the token service during the token request.
 
 Again IdentityModel's ``TokenClient`` can help out here::
@@ -115,7 +115,7 @@ Again IdentityModel's ``TokenClient`` can help out here::
 
 When you send the token to the identity API endpoint, you will notice one small
 but important difference compared to the client credentials grant. The access token will
-now contain a ``sub`` claim which uniquely identifies the user. This "sub" claim can be seen by examining the content variable after the call to the API and also will be displayed on the screen by the console application. 
+now contain a ``sub`` claim which uniquely identifies the user. This "sub" claim can be seen by examining the content variable after the call to the API and also will be displayed on the screen by the console application.
 
 The presence (or absence) of the ``sub`` claim lets the API distinguish between calls on behalf
 of clients and calls on behalf of users.
