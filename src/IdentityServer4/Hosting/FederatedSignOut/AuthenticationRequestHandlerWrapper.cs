@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -13,7 +13,6 @@ namespace IdentityServer4.Hosting.FederatedSignOut
 {
     internal class AuthenticationRequestHandlerWrapper : IAuthenticationRequestHandler
     {
-        private const string DocumentHtml = "<!DOCTYPE html><html><body>{0}</body></html>";
         private const string IframeHtml = "<iframe style='display:none' width='0' height='0' src='{0}'></iframe>";
 
         private readonly IAuthenticationRequestHandler _inner;
@@ -90,9 +89,8 @@ namespace IdentityServer4.Hosting.FederatedSignOut
             if (_context.Response.Body.CanWrite)
             {
                 var iframe = String.Format(IframeHtml, iframeUrl);
-                var doc = String.Format(DocumentHtml, iframe);
                 _context.Response.ContentType = "text/html";
-                await _context.Response.WriteAsync(doc);
+                await _context.Response.WriteAsync(iframe);
             }
         }
     }
