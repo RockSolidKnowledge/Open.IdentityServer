@@ -27,7 +27,7 @@ namespace Host
         {
             services.AddMvc();
 
-            services.Configure<IISOptions>(iis => 
+            services.Configure<IISOptions>(iis =>
             {
                 iis.AuthenticationDisplayName = "Windows";
                 iis.AutomaticAuthentication = false;
@@ -60,7 +60,7 @@ namespace Host
             app.UseDeveloperExceptionPage();
 
             app.UseIdentityServer();
-            
+
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
         }
@@ -90,9 +90,9 @@ namespace Host
                     options.ClientId = "implicit";
                     options.ResponseType = "id_token";
                     options.SaveTokens = true;
-                    options.CallbackPath = new PathString("/signin-idsrv");
-                    options.SignedOutCallbackPath = new PathString("/signout-callback-idsrv");
-                    options.RemoteSignOutPath = new PathString("/signout-idsrv");
+                    options.CallbackPath = "/signin-idsrv";
+                    options.SignedOutCallbackPath = "/signout-callback-idsrv";
+                    options.RemoteSignOutPath = "/signout-idsrv";
 
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -104,13 +104,13 @@ namespace Host
                 {
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                     options.SignOutScheme = IdentityServerConstants.SignoutScheme;
-                
+
                     options.Authority = "https://login.windows.net/4ca9cb4c-5e5f-4be9-b700-c532992a3705";
                     options.ClientId = "96e3c53e-01cb-4244-b658-a42164cb67a9";
                     options.ResponseType = "id_token";
-                    options.CallbackPath = new PathString("/signin-aad");
-                    options.SignedOutCallbackPath = new PathString("/signout-callback-aad");
-                    options.RemoteSignOutPath = new PathString("/signout-aad");
+                    options.CallbackPath = "/signin-aad";
+                    options.SignedOutCallbackPath = "/signout-callback-aad";
+                    options.RemoteSignOutPath = "/signout-aad";
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         NameClaimType = "name",
@@ -126,9 +126,9 @@ namespace Host
                     options.ClientId = "c0ea8d99-f1e7-43b0-a100-7dee3f2e5c3c";
                     options.ResponseType = "id_token";
 
-                    options.CallbackPath = new PathString("/signin-adfs");
-                    options.SignedOutCallbackPath = new PathString("/signout-callback-adfs");
-                    options.RemoteSignOutPath = new PathString("/signout-adfs");
+                    options.CallbackPath = "/signin-adfs";
+                    options.SignedOutCallbackPath = "/signout-callback-adfs";
+                    options.RemoteSignOutPath = "/signout-adfs";
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         NameClaimType = "name",
