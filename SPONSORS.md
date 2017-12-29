@@ -28,3 +28,4 @@ William Grow
 Espen Medbø ([@emedbo](https://twitter.com/emedbo))  
 John Korsnes ([@johnkors](https://twitter.com/johnkors))  
 James Roberts  
+Chris Simmons  
