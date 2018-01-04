@@ -53,7 +53,7 @@ Scopes and Clients Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Despite this being a new project for IdentityServer, we still need the same scope and client configuration as the prior quickstarts.
-Copy the configuration class (in `Config.cs <https://github.com/IdentityServer/IdentityServer4.Samples/blob/dev/Quickstarts/1_ClientCredentials/src/QuickstartIdentityServer/Config.cs>`_) you used for the previous quickstarts into this new project.
+Copy the configuration class (in `Config.cs <https://github.com/IdentityServer/IdentityServer4.Samples/blob/release/Quickstarts/5_HybridFlowAuthenticationWithApiAccess/src/QuickstartIdentityServer/Config.cs>`_) you used for the previous quickstarts into this new project.
 
 One change to the configuration that is necessary (for now) is to disable consent for the MVC client.
 We've not yet copied over the consent code from the prior IdentityServer project, so for now make this one modification to the MVC client and set ``RequireConsent=false``::
