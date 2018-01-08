@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -97,7 +97,7 @@ namespace IdentityServer4.Stores
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError("Failed to deserailize JSON from grant store. Exception: {0}", ex.Message);
+                    Logger.LogError(ex, "Failed to deserialize JSON from grant store.");
                 }
             }
             else

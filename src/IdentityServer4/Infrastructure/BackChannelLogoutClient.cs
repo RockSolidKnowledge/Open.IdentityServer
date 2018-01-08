@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -64,7 +64,7 @@ namespace IdentityServer4.Infrastructure
             }
             catch(Exception ex)
             {
-                _logger.LogError("Exception invoking back channel logout for client id: {0} to URI: {1}, message: {2}", client.ClientId, client.LogoutUri, ex.Message);
+                _logger.LogError(ex, "Exception invoking back channel logout for client id: {0} to URI: {1}", client.ClientId, client.LogoutUri);
             }
         }
 

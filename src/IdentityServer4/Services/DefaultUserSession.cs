@@ -269,7 +269,7 @@ namespace IdentityServer4.Services
             }
             catch (Exception ex)
             {
-                Logger.LogError("Error decoding client list: {0}", ex.Message);
+                Logger.LogError(ex, "Error decoding client list");
                 // clear so we don't keep failing
                 await SetClientsAsync(null);
             }

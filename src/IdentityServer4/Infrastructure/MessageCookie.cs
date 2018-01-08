@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -113,7 +113,7 @@ namespace IdentityServer4
                 }
                 catch(Exception ex)
                 {
-                    _logger.LogError("Error unprotecting message cookie: {exception}", ex.Message);
+                    _logger.LogError(ex, "Error unprotecting message cookie");
                     ClearByCookieName(name);
                 }
             }
@@ -157,7 +157,7 @@ namespace IdentityServer4
             catch (CryptographicException e)
             {   
                 // cookie was protected with a different key/algorithm
-                _logger.LogDebug("Unable to unprotect cookie {0}: {1}", name, e.Message);
+                _logger.LogDebug(e, "Unable to unprotect cookie {0}", name);
             }
             
             return rank;

@@ -69,7 +69,7 @@ namespace IdentityServer4.Validation
             }
             catch (Exception e)
             {
-                _logger.LogError("Could not parse assertion as JWT token: {e}", e);
+                _logger.LogError(e, "Could not parse assertion as JWT token");
                 return fail;
             }
 
@@ -109,7 +109,7 @@ namespace IdentityServer4.Validation
             }
             catch (Exception e)
             {
-                _logger.LogError("JWT token validation error: " + e.Message);
+                _logger.LogError(e, "JWT token validation error");
                 return fail;
             }
         }
