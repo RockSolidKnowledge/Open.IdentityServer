@@ -30,7 +30,7 @@ The next step is to define a client that can access this API.
 
 For this scenario, the client will not have an interactive user, and will authenticate
 using the so called client secret with IdentityServer.
-Add the following code to your configuration::
+Add the following code to your `Config.cs` file::
 
     public static IEnumerable<Client> GetClients()
     {
