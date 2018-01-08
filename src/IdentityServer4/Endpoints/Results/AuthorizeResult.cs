@@ -127,7 +127,7 @@ namespace IdentityServer4.Endpoints.Results
         private void AddSecurityHeaders(HttpContext context)
         {
             var formOrigin = Response.Request.RedirectUri.GetOrigin();
-            var csp = $"default-src 'none'; frame-ancestors {formOrigin}; script-src 'sha256-VuNUSJ59bpCpw62HM2JG/hCyGiqoPN3NqGvNXQPU+rY='; ";
+            var csp = $"default-src 'none'; script-src 'sha256-VuNUSJ59bpCpw62HM2JG/hCyGiqoPN3NqGvNXQPU+rY='; ";
 
             if (!context.Response.Headers.ContainsKey("Content-Security-Policy"))
             {
