@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>OpenID Connect and OAuth 2.0 Framework for ASP.NET Core</Description>
-    <VersionPrefix>2.1.0</VersionPrefix>
+    <VersionPrefix>2.1.1</VersionPrefix>
     <!--<VersionSuffix>rc1-update1</VersionSuffix>-->
     <Authors>Brock Allen;Dominick Baier</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
