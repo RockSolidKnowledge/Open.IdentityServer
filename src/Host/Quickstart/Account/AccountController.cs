@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IdentityServer4.Quickstart.UI
 {
@@ -27,6 +28,7 @@ namespace IdentityServer4.Quickstart.UI
     /// The interaction service provides a way for the UI to communicate with identityserver for validation and context retrieval
     /// </summary>
     [SecurityHeaders]
+    [AllowAnonymous]
     public class AccountController : Controller
     {
         private readonly TestUserStore _users;
