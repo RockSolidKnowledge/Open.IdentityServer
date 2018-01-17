@@ -131,6 +131,8 @@ It should look something like this:
 You should now see a `~/Data/Migrations/IdentityServer` folder in the project. 
 This contains the code for the newly created migrations.
 
+.. Note:: If your database project is a separate class library and you fixed the error 'Unable to create an object of type ‘<your-name>DbContext’. Add an implementation of ‘IDesignTimeDbContextFactory’ to the project, or see https://go.microsoft.com/fwlink/?linkid=851728 for additional patterns supported at design time.' by adding implementations of the IDesignTimeDbContextFactory, you will also need implementations of the factory for both the PersistedGrantDbContext as well as the ConfigurationDbContext. 
+
 Initialize the database
 ^^^^^^^^^^^^^^^^^^^^^^^
 
