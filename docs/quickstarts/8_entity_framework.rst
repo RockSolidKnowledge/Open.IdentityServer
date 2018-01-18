@@ -196,6 +196,7 @@ You should be able to use SQL Server Management Studio or Visual Studio to conne
 
 .. image:: images/8_database.png
 
+.. Note:: The above ``InitializeDatabase`` helper API is convenient to seed the database, but this approach is not ideal to leave in to execute each time the applicaion runs. Once your database is populated, consider removing the call to the API.
 
 Run the client applications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
