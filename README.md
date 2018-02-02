@@ -35,6 +35,10 @@ See [here](https://identityserver4.readthedocs.io/en/release/intro/support.html)
 If you are a fan of the project or a company that relies on IdentityServer, you might want to consider sponsoring.
 This will help us devote more time to answering questions and doing feature development. If you are interested please head to our [Patreon](https://www.patreon.com/identityserver) page which has further details.
 
+### Current corporate sponsors
+
+[Thinktecture AG](https://www.thinktecture.com)
+
 You can see a list of our current sponsors [here](https://github.com/IdentityServer/IdentityServer4/blob/release/SPONSORS.md) - and for companies we have some nice advertisement options as well.
 
 ### Acknowledgements

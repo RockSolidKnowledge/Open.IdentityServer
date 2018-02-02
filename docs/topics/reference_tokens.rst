@@ -13,7 +13,7 @@ The API receiving this reference must then open a back-channel communication to 
 
 You can switch the token type of a client using the following setting::
 
-    client.AccessTokenType = AccessTokenTypes.Reference;
+    client.AccessTokenType = AccessTokenType.Reference;
 
 IdentityServer provides an implementation of the OAuth 2.0 introspection specification which allows APIs to dereference the tokens.
 You can either use our dedicated `introspection middleware <https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection>`_

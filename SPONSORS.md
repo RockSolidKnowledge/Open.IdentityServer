@@ -4,11 +4,17 @@ We thank those who [support](https://www.patreon.com/identityserver) IdentitySer
 
 ## Corporate
 
+### Gold
+
+[Thinktecture AG](https://www.thinktecture.com)
+
 ### Silver
 
 Green Elephant IT Consulting ([@Schwamster](https://twitter.com/Schwamster))  
 Jacobus Roos  
 Tomer Dvir  
+Steinar	Noem  
+Effectory ([@effectory](https://twitter.com/effectory))  
 
 ## Individuals
 
@@ -24,4 +30,11 @@ William Grow
 Espen Medbø ([@emedbo](https://twitter.com/emedbo))  
 John Korsnes ([@johnkors](https://twitter.com/johnkors))  
 James Roberts  
-Chris Simmons  
+Chris Simmons ([@netchrisdotcom](https://twitter.com/netchrisdotcom))  
+Shawn Wildermuth  
+Thomas C  
+黃嘉華  
+David Christiansen ([@dotnetopenauth](https://twitter.com/dotnetopenauth))  
+Christian Riedl  
+Ben	Cull  
+Johan Boström ([@zarx](https://twitter.com/zarx))  

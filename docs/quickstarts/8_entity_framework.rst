@@ -5,6 +5,8 @@ Using EntityFramework Core for configuration and operational data
 IdentityServer is designed for extensibility, and one of the extensibility points is the storage mechanism used for data that IdentityServer needs.
 This quickstart shows how to configure IdentityServer to use EntityFramework (EF) as the storage mechanism for this data (rather than using the in-memory implementations we had been using up until now).
 
+.. Note:: In addition to manually configuring EF support, there is also an IdentityServer template to create a new project with EF support. Use ``dotnet new is4ef`` to create it. See `here <https://www.github.com/IdentityServer/IdentityServer.Templates>`_ for more information.
+
 IdentityServer4.EntityFramework
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -131,6 +133,8 @@ It should look something like this:
 You should now see a `~/Data/Migrations/IdentityServer` folder in the project. 
 This contains the code for the newly created migrations.
 
+.. Note:: If your database project is a separate class library and you fixed the error 'Unable to create an object of type ‘<your-name>DbContext’. Add an implementation of ‘IDesignTimeDbContextFactory’ to the project, or see https://go.microsoft.com/fwlink/?linkid=851728 for additional patterns supported at design time.' by adding implementations of the IDesignTimeDbContextFactory, you will also need implementations of the factory for both the PersistedGrantDbContext as well as the ConfigurationDbContext. 
+
 Initialize the database
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -192,6 +196,7 @@ You should be able to use SQL Server Management Studio or Visual Studio to conne
 
 .. image:: images/8_database.png
 
+.. Note:: The above ``InitializeDatabase`` helper API is convenient to seed the database, but this approach is not ideal to leave in to execute each time the applicaion runs. Once your database is populated, consider removing the call to the API.
 
 Run the client applications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
