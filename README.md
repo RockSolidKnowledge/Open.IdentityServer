@@ -26,7 +26,7 @@ IdentityServer is built against the latest ASP.NET Core 2.
 * Run `build.ps1` (Powershell) or `build.sh` (bash)
 
 ## ASP.NET Core 1.x
-For using IdentityServer with ASP.NET Core 1.x, you can use the 1.x packages of IdentityServer and [this branch](https://github.com/IdentityServer/IdentityServer4/tree/aspnetcore1). Documentation for 1.x can be found [here](http://docs.identityserver.io/en/aspnetcore1/).
+For using IdentityServer with ASP.NET Core 1.x, you can use the 1.x packages of IdentityServer and [this branch](https://github.com/IdentityServer/IdentityServer4/tree/aspnetcore1). Documentation for 1.x can be found [here](http://docs.identityserver.io/en/aspnetcore1/). The 1.x version is not maintained anymore.
 
 ## Commercial and Community Support
 If you need help with implementing IdentityServer4 or your security architecture in general, there are both free and commercial support options.
