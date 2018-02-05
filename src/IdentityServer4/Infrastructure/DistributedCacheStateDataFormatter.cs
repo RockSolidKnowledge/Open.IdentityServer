@@ -11,11 +11,19 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace IdentityServer4.Infrastructure
 {
-    internal class DistributedCacheStateDataFormatter : ISecureDataFormat<AuthenticationProperties>
+    /// <summary>
+    /// State formatter using IDistributedCache
+    /// </summary>
+    public class DistributedCacheStateDataFormatter : ISecureDataFormat<AuthenticationProperties>
     {
         private readonly IHttpContextAccessor _httpContext;
         private readonly string _name;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheStateDataFormatter"/> class.
+        /// </summary>
+        /// <param name="httpContext">The HTTP context accessor.</param>
+        /// <param name="name">The scheme name.</param>
         public DistributedCacheStateDataFormatter(IHttpContextAccessor httpContext, string name)
         {
             _httpContext = httpContext;
@@ -27,11 +35,22 @@ namespace IdentityServer4.Infrastructure
         private IDistributedCache Cache => _httpContext.HttpContext.RequestServices.GetRequiredService<IDistributedCache>();
         private IDataProtector Protector => _httpContext.HttpContext.RequestServices.GetRequiredService<IDataProtectionProvider>().CreateProtector(CacheKeyPrefix, _name);
 
+        /// <summary>
+        /// Protects the specified data.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
         public string Protect(AuthenticationProperties data)
         {
             return Protect(data, null);
         }
 
+        /// <summary>
+        /// Protects the specified data.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="purpose">The purpose.</param>
+        /// <returns></returns>
         public string Protect(AuthenticationProperties data, string purpose)
         {
             var key = Guid.NewGuid().ToString();
@@ -45,11 +64,22 @@ namespace IdentityServer4.Infrastructure
             return Protector.Protect(key);
         }
 
+        /// <summary>
+        /// Unprotects the specified protected text.
+        /// </summary>
+        /// <param name="protectedText">The protected text.</param>
+        /// <returns></returns>
         public AuthenticationProperties Unprotect(string protectedText)
         {
             return Unprotect(protectedText, null);
         }
 
+        /// <summary>
+        /// Unprotects the specified protected text.
+        /// </summary>
+        /// <param name="protectedText">The protected text.</param>
+        /// <param name="purpose">The purpose.</param>
+        /// <returns></returns>
         public AuthenticationProperties Unprotect(string protectedText, string purpose)
         {
             // Decrypt the key and retrieve the data from the cache.
