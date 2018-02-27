@@ -96,8 +96,10 @@ namespace IdentityServer4.Validation
             /////////////////////////////////////////////
             if (_validatedRequest.Client.ProtocolType != IdentityServerConstants.ProtocolTypes.OpenIdConnect)
             {
-                LogError("Client {clientId} has invalid protocol type for token endpoint: expect {expectedProtocolType} but {protocolType}", _validatedRequest.Client.ClientId,
-                    IdentityServerConstants.ProtocolTypes.OpenIdConnect, _validatedRequest.Client.ProtocolType);
+                LogError("Client {clientId} has invalid protocol type for token endpoint: expected {expectedProtocolType} but found {protocolType}",
+                    _validatedRequest.Client.ClientId,
+                    IdentityServerConstants.ProtocolTypes.OpenIdConnect,
+                    _validatedRequest.Client.ProtocolType);
                 return Invalid(OidcConstants.TokenErrors.InvalidClient);
             }
 
@@ -254,7 +256,8 @@ namespace IdentityServer4.Validation
 
             if (redirectUri.Equals(_validatedRequest.AuthorizationCode.RedirectUri, StringComparison.Ordinal) == false)
             {
-                LogError("Invalid redirect_uri: {redirectUri}, expect {exceptRedirectUri}", redirectUri, _validatedRequest.AuthorizationCode.RedirectUri);
+                LogError("Invalid redirect_uri: {redirectUri}, expected {exceptRedirectUri}",
+                    redirectUri, _validatedRequest.AuthorizationCode.RedirectUri);
                 return Invalid(OidcConstants.TokenErrors.UnauthorizedClient);
             }
 
