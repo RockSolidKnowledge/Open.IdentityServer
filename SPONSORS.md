@@ -6,7 +6,8 @@ We thank those who [support](https://www.patreon.com/identityserver) IdentitySer
 
 ### Gold
 
-[Thinktecture AG](https://www.thinktecture.com)
+[Thinktecture AG](https://www.thinktecture.com)  
+[Ritter Insurance Marketing](https://www.ritterim.com)
 
 ### Silver
 
@@ -38,3 +39,7 @@ David Christiansen ([@dotnetopenauth](https://twitter.com/dotnetopenauth))
 Christian Riedl  
 Ben	Cull  
 Johan Boström ([@zarx](https://twitter.com/zarx))  
+Chris White  
+Albert ([@DerAlbert](https://twitter.com/DerAlbert))  
+Hugo Biarge ([@hbiarge](https://twitter.com/hbiarge))  
+

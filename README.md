@@ -38,7 +38,8 @@ This will help us devote more time to answering questions and doing feature deve
 
 ## Current corporate sponsors
 
-[Thinktecture AG](https://www.thinktecture.com)
+[Thinktecture AG](https://www.thinktecture.com)  
+[Ritter Insurance Marketing](https://www.ritterim.com)  
 
 You can see a list of our current sponsors [here](https://github.com/IdentityServer/IdentityServer4/blob/release/SPONSORS.md) - and for companies we have some nice advertisement options as well.
 
