@@ -15,6 +15,7 @@ using IdentityServer4.Configuration;
 using IdentityServer4.Stores;
 using IdentityServer4.ResponseHandling;
 using Microsoft.AspNetCore.Authentication;
+using System.Text.Encodings.Web;
 
 namespace IdentityServer4.Endpoints.Results
 {
@@ -175,7 +176,9 @@ namespace IdentityServer4.Endpoints.Results
         {
             var html = FormPostHtml;
 
-            html = html.Replace("{uri}", Response.Request.RedirectUri);
+            var url = Response.Request.RedirectUri;
+            url = HtmlEncoder.Default.Encode(url);
+            html = html.Replace("{uri}", url);
             html = html.Replace("{body}", Response.ToNameValueCollection().ToFormPost());
 
             return html;
