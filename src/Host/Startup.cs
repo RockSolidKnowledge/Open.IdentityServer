@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -129,6 +129,20 @@ namespace Host
                     options.CallbackPath = "/signin-adfs";
                     options.SignedOutCallbackPath = "/signout-callback-adfs";
                     options.RemoteSignOutPath = "/signout-adfs";
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        NameClaimType = "name",
+                        RoleClaimType = "role"
+                    };
+                })
+                .AddWsFederation("local_adfs", "Local ADFS", options =>
+                {
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                    options.SignOutScheme = IdentityServerConstants.SignoutScheme;
+
+                    options.MetadataAddress = "https://adfs4.local/federationmetadata/2007-06/federationmetadata.xml";
+                    options.Wtrealm = "urn:test";
+
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         NameClaimType = "name",
