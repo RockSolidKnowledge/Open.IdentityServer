@@ -58,5 +58,5 @@ You can programmatically access the token endpoint using the `IdentityModel <htt
         "client_id",
         "secret");
 
-    var response = await client.RequestClientCredentialsAsync("scope");
+    var response = await client.RequestAuthorizationCodeAsync("hdh922", "https://myapp.com/callback");
     var token = response.AccessToken;
