@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -181,6 +181,7 @@ namespace IdentityServer4.UnitTests.Endpoints.Results
             using (var rdr = new StreamReader(_context.Response.Body))
             {
                 var html = rdr.ReadToEnd();
+                html.Should().Contain("<base target='_self'/>");
                 html.Should().Contain("<form method='post' action='http://client/callback'>");
                 html.Should().Contain("<input type='hidden' name='state' value='state' />");
             }
