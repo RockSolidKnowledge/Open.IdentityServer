@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -40,7 +40,7 @@ namespace IdentityServer4.Endpoints.Results
 
         private void AddCspHeaders(HttpContext context)
         {
-            var value = "default-src 'none'; script-src 'sha256-VDXN0nOpFPQ102CIVz+eimHA5e+wTeoUUQj5ZYbtn8w='";
+            var value = "default-src 'none'; script-src 'sha256-ZT3q7lL9GXNGhPTB1Vvrvds2xw/kOV0zoeok2tiV23I='";
 
             if (!context.Response.Headers.ContainsKey("Content-Security-Policy"))
             {
@@ -313,13 +313,14 @@ if (typeof define == 'function' && define.amd) define([], function() { return Sh
                     return 'error';
                 }
 
-                var messageParts = message.split(' ');
-                if (messageParts.length !== 2) {
+                var idx = message.lastIndexOf(' ');
+                if (idx < 0 || idx >= message.length) {
                     return 'error';
                 }
 
-                var clientId = messageParts[0];
-                var sessionState = messageParts[1];
+                var clientId = message.substring(0, idx);
+                var sessionState = message.substring(idx + 1);
+
                 if (!clientId || !sessionState) {
                     return 'error';
                 }
