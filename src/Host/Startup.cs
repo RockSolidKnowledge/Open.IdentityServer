@@ -135,7 +135,7 @@ namespace Host
                         RoleClaimType = "role"
                     };
                 })
-                .AddWsFederation("local_adfs", "Local ADFS", options =>
+                .AddWsFederation("adfs-wsfed", "ADFS with WS-Fed", options =>
                 {
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                     options.SignOutScheme = IdentityServerConstants.SignoutScheme;
