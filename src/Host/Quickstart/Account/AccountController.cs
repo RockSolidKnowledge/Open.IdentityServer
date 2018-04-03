@@ -79,18 +79,25 @@ namespace IdentityServer4.Quickstart.UI
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginInputModel model, string button)
         {
+            var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
             if (button != "login")
             {
                 // the user clicked the "cancel" button
-                var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
                 if (context != null)
                 {
                     // if the user cancels, send a result back into IdentityServer as if they 
                     // denied the consent (even if this client does not require consent).
                     // this will send back an access denied OIDC error response to the client.
                     await _interaction.GrantConsentAsync(context, ConsentResponse.Denied);
-                    
+
                     // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
+                    if (await IsClientPkceAsync(context.ClientId))
+                    {
+                        // if the client is PKCE then we assume it's native, so this change in how to
+                        // return the response is for better UX for the end user.
+                        return View("Redirect", new RedirectViewModel { RedirectUrl = model.ReturnUrl });
+                    }
+
                     return Redirect(model.ReturnUrl);
                 }
                 else
@@ -127,6 +134,12 @@ namespace IdentityServer4.Quickstart.UI
                     // the IsLocalUrl check is only necessary if you want to support additional local pages, otherwise IsValidReturnUrl is more strict
                     if (_interaction.IsValidReturnUrl(model.ReturnUrl) || Url.IsLocalUrl(model.ReturnUrl))
                     {
+                        if (await IsClientPkceAsync(context.ClientId))
+                        {
+                            // if the client is PKCE then we assume it's native, so this change in how to
+                            // return the response is for better UX for the end user.
+                            return View("Redirect", new RedirectViewModel { RedirectUrl = model.ReturnUrl });
+                        }
                         return Redirect(model.ReturnUrl);
                     }
 
@@ -211,8 +224,15 @@ namespace IdentityServer4.Quickstart.UI
 
             // validate return URL and redirect back to authorization endpoint or a local page
             var returnUrl = result.Properties.Items["returnUrl"];
-            if (_interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl))
+            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+            if (context != null)
             {
+                if (await IsClientPkceAsync(context.ClientId))
+                {
+                    // if the client is PKCE then we assume it's native, so this change in how to
+                    // return the response is for better UX for the end user.
+                    return View("Redirect", new RedirectViewModel { RedirectUrl = returnUrl });
+                }
                 return Redirect(returnUrl);
             }
 
@@ -498,6 +518,17 @@ namespace IdentityServer4.Quickstart.UI
 
         private void ProcessLoginCallbackForSaml2p(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
         {
+        }
+
+        private async Task<bool> IsClientPkceAsync(string client_id)
+        {
+            if (!String.IsNullOrWhiteSpace(client_id))
+            {
+                var client = await _clientStore.FindEnabledClientByIdAsync(client_id);
+                return client?.RequirePkce == true;
+            }
+
+            return false;
         }
     }
 }

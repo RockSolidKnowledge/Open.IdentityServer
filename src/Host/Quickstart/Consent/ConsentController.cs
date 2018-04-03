@@ -8,6 +8,7 @@ using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -65,6 +66,12 @@ namespace IdentityServer4.Quickstart.UI
 
             if (result.IsRedirect)
             {
+                if (await IsClientPkceAsync(result.ClientId))
+                {
+                    // if the client is PKCE then we assume it's native, so this change in how to
+                    // return the response is for better UX for the end user.
+                    return View("Redirect", new RedirectViewModel { RedirectUrl = result.RedirectUri });
+                }
                 return Redirect(result.RedirectUri);
             }
 
@@ -134,6 +141,7 @@ namespace IdentityServer4.Quickstart.UI
 
                 // indicate that's it ok to redirect back to authorization endpoint
                 result.RedirectUri = model.ReturnUrl;
+                result.ClientId = request.ClientId;
             }
             else
             {
@@ -239,6 +247,17 @@ namespace IdentityServer4.Quickstart.UI
                 Emphasize = true,
                 Checked = check
             };
+        }
+
+        private async Task<bool> IsClientPkceAsync(string client_id)
+        {
+            if (!String.IsNullOrWhiteSpace(client_id))
+            {
+                var client = await _clientStore.FindEnabledClientByIdAsync(client_id);
+                return client?.RequirePkce == true;
+            }
+
+            return false;
         }
     }
 }
