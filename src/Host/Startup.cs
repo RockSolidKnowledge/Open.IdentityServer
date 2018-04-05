@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using Microsoft.IdentityModel.Tokens;
 using IdentityServer4;
-using Microsoft.AspNetCore.Http;
 using IdentityServer4.Quickstart.UI;
 using Microsoft.Extensions.Configuration;
 
@@ -38,6 +37,7 @@ namespace Host
                     options.Events.RaiseSuccessEvents = true;
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseErrorEvents = true;
+                    options.Events.RaiseInformationEvents = true;
                 })
                 .AddInMemoryClients(Clients.Get())
                 //.AddInMemoryClients(_config.GetSection("Clients"))

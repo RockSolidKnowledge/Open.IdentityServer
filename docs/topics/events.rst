@@ -92,6 +92,8 @@ The following events are defined in IdentityServer:
     Gets raised by the quickstart UI for successful/failed user logins.
 ``UserLogoutSuccessEvent``
     Gets raised for successful logout requests.
+``ConsentGrantedEvent`` & ``ConsentDeniedEvent``
+    Gets raised in the consent UI.
 ``UnhandledExceptionEvent``
     Gets raised for unhandled exceptions.
 

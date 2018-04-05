@@ -27,7 +27,7 @@ namespace IdentityServer4.Stores
         }
 
         /// <summary>
-        /// Determines whether a client uses PKCE or not..
+        /// Determines whether the client is configured to use PKCE.
         /// </summary>
         /// <param name="store">The store.</param>
         /// <param name="client_id">The client identifier.</param>
