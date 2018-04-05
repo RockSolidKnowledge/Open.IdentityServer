@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -24,6 +24,23 @@ namespace IdentityServer4.Stores
             if (client != null && client.Enabled == true) return client;
 
             return null;
+        }
+
+        /// <summary>
+        /// Determines whether a client uses PKCE or not..
+        /// </summary>
+        /// <param name="store">The store.</param>
+        /// <param name="client_id">The client identifier.</param>
+        /// <returns></returns>
+        public static async Task<bool> IsPkceClientAsync(this IClientStore store, string client_id)
+        {
+            if (!string.IsNullOrWhiteSpace(client_id))
+            {
+                var client = await store.FindEnabledClientByIdAsync(client_id);
+                return client?.RequirePkce == true;
+            }
+
+            return false;
         }
     }
 }
