@@ -147,14 +147,18 @@ namespace IdentityServer4.Quickstart.UI
                     {
                         return Redirect(model.ReturnUrl);
                     }
+                    else if (string.IsNullOrEmpty(model.ReturnUrl))
+                    {
+                        return Redirect("~/");
+                    }
                     else
                     {
+                        // user might have clicked on a malicious link - should be logged
                         throw new Exception("invalid return URL");
                     }
                 }
 
                 await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials"));
-
                 ModelState.AddModelError("", AccountOptions.InvalidCredentialsErrorMessage);
             }
 
@@ -164,7 +168,6 @@ namespace IdentityServer4.Quickstart.UI
         }
 
         
-
         /// <summary>
         /// Show logout page
         /// </summary>
@@ -217,6 +220,8 @@ namespace IdentityServer4.Quickstart.UI
 
             return View("LoggedOut", vm);
         }
+
+
 
         /*****************************************/
         /* helper APIs for the AccountController */
