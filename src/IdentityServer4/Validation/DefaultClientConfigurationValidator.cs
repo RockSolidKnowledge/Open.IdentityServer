@@ -17,10 +17,16 @@ namespace IdentityServer4.Validation
         /// <returns></returns>
         public async Task ValidateAsync(ClientConfigurationValidationContext context)
         {
+            await ValidateGrantTypesAsync(context);
+            if (context.IsValid == false) return;
+
             await ValidateLifetimesAsync(context);
             if (context.IsValid == false) return;
 
             await ValidateRedirectUriAsync(context);
+            if (context.IsValid == false) return;
+
+            await ValidateSecretsAsync(context);
             if (context.IsValid == false) return;
 
             await ValidatePropertiesAsync(context);
@@ -28,20 +34,15 @@ namespace IdentityServer4.Validation
         }
 
         /// <summary>
-        /// Validates redirect URI related configuration.
+        /// Validates grant type related configuration settings.
         /// </summary>
         /// <param name="context">The context.</param>
         /// <returns></returns>
-        protected Task ValidateRedirectUriAsync(ClientConfigurationValidationContext context)
+        protected Task ValidateGrantTypesAsync(ClientConfigurationValidationContext context)
         {
-            if (context.Client.AllowedGrantTypes.Contains(GrantType.AuthorizationCode) ||
-                context.Client.AllowedGrantTypes.Contains(GrantType.Hybrid) ||
-                context.Client.AllowedGrantTypes.Contains(GrantType.Implicit))
+            if (!context.Client.AllowedGrantTypes.Any())
             {
-                if (!context.Client.RedirectUris.Any())
-                {
-                    context.SetError("No redirect URI configured.");
-                }
+                context.SetError("no allowed grant type specified");
             }
 
             return Task.CompletedTask;
@@ -66,16 +67,60 @@ namespace IdentityServer4.Validation
                 return Task.CompletedTask;
             }
 
-            if (context.Client.AbsoluteRefreshTokenLifetime <= 0)
+            // 0 means unlimited lifetime
+            if (context.Client.AbsoluteRefreshTokenLifetime < 0)
             {
-                context.SetError("absolute refresh token lifetime is 0 or negative");
+                context.SetError("absolute refresh token lifetime is negative");
                 return Task.CompletedTask;
             }
 
+            // 0 might mean that sliding is disabled
             if (context.Client.SlidingRefreshTokenLifetime < 0)
             {
                 context.SetError("sliding refresh token lifetime is negative");
                 return Task.CompletedTask;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Validates redirect URI related configuration.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <returns></returns>
+        protected Task ValidateRedirectUriAsync(ClientConfigurationValidationContext context)
+        {
+            if (context.Client.AllowedGrantTypes.Contains(GrantType.AuthorizationCode) ||
+                context.Client.AllowedGrantTypes.Contains(GrantType.Hybrid) ||
+                context.Client.AllowedGrantTypes.Contains(GrantType.Implicit))
+            {
+                if (!context.Client.RedirectUris.Any())
+                {
+                    context.SetError("No redirect URI configured.");
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Validates secret related configuration.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <returns></returns>
+        protected Task ValidateSecretsAsync(ClientConfigurationValidationContext context)
+        {
+            foreach (var grantType in context.Client.AllowedGrantTypes)
+            {
+                if (!string.Equals(grantType, GrantType.Implicit))
+                {
+                    if (context.Client.RequireClientSecret  && context.Client.ClientSecrets.Count == 0)
+                    {
+                        context.SetError($"Client secret is required for {grantType}, but no client secret is configured.");
+                        return Task.CompletedTask;
+                    }
+                }
             }
 
             return Task.CompletedTask;
