@@ -249,5 +249,19 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return builder;
         }
+
+        /// <summary>
+        /// Adds a client configuration validator.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="builder">The builder.</param>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddClientConfigurationValidator<T>(this IIdentityServerBuilder builder)
+            where T : class, IClientConfigurationValidator
+        {
+            builder.Services.AddTransient<IClientConfigurationValidator, T>();
+
+            return builder;
+        }
     }
 }

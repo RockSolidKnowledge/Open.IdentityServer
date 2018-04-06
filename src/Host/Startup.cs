@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using IdentityServer4;
 using IdentityServer4.Quickstart.UI;
 using Microsoft.Extensions.Configuration;
+using IdentityServer4.Validation;
 
 namespace Host
 {
@@ -48,6 +49,7 @@ namespace Host
                 .AddExtensionGrantValidator<Extensions.NoSubjectExtensionGrantValidator>()
                 .AddJwtBearerClientAuthentication()
                 .AddAppAuthRedirectUriValidator()
+                .AddClientConfigurationValidator<DefaultClientConfigurationValidator>()
                 .AddTestUsers(TestUsers.Users);
 
             services.AddExternalIdentityProviders();
