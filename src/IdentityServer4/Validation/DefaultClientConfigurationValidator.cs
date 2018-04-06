@@ -1,3 +1,5 @@
+using IdentityServer4.Models;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace IdentityServer4.Validation
@@ -18,8 +20,31 @@ namespace IdentityServer4.Validation
             await ValidateLifetimesAsync(context);
             if (context.IsValid == false) return;
 
+            await ValidateRedirectUriAsync(context);
+            if (context.IsValid == false) return;
+
             await ValidatePropertiesAsync(context);
             if (context.IsValid == false) return;
+        }
+
+        /// <summary>
+        /// Validates redirect URI related configuration.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <returns></returns>
+        protected Task ValidateRedirectUriAsync(ClientConfigurationValidationContext context)
+        {
+            if (context.Client.AllowedGrantTypes.Contains(GrantType.AuthorizationCode) ||
+                context.Client.AllowedGrantTypes.Contains(GrantType.Hybrid) ||
+                context.Client.AllowedGrantTypes.Contains(GrantType.Implicit))
+            {
+                if (!context.Client.RedirectUris.Any())
+                {
+                    context.SetError("No redirect URI configured.");
+                }
+            }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
