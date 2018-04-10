@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -69,7 +69,8 @@ namespace IdentityServer4.Validation
             return request
                 .AuthenticationContextReferenceClasses
                 .Where(acr => !Constants.KnownAcrValues.All.Any(well_known => acr.StartsWith(well_known)))
-                .Distinct();
+                .Distinct()
+                .ToArray();
         }
 
         public static void RemoveAcrValue(this ValidatedAuthorizeRequest request, string value)
