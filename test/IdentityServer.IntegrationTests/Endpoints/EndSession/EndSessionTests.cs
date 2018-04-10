@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -19,6 +19,7 @@ using IdentityModel;
 using Newtonsoft.Json.Linq;
 using System.Text;
 using System;
+using static IdentityServer4.IdentityServerConstants;
 
 namespace IdentityServer4.IntegrationTests.Endpoints.EndSession
 {
@@ -27,6 +28,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.EndSession
         private const string Category = "End session endpoint";
 
         private IdentityServerPipeline _mockPipeline = new IdentityServerPipeline();
+        private Client _wsfedClient;
 
         public EndSessionTests()
         {
@@ -65,6 +67,17 @@ namespace IdentityServer4.IntegrationTests.Endpoints.EndSession
                 AllowedScopes = new List<string> { "openid" },
                 RedirectUris = new List<string> { "https://client3/callback" },
                 BackChannelLogoutUri = "https://client3/signout",
+                AllowAccessTokensViaBrowser = true
+            });
+
+            _mockPipeline.Clients.Add(_wsfedClient = new Client
+            {
+                ClientId = "client4",
+                AllowedGrantTypes = GrantTypes.Implicit,
+                RequireConsent = false,
+                AllowedScopes = new List<string> { "openid" },
+                RedirectUris = new List<string> { "https://client4/callback" },
+                FrontChannelLogoutUri = "https://client4/signout",
                 AllowAccessTokensViaBrowser = true
             });
 
@@ -368,6 +381,37 @@ namespace IdentityServer4.IntegrationTests.Endpoints.EndSession
             var html = await response.Content.ReadAsStringAsync();
             html.Should().Contain("https://client1/signout?sid=" + sid + "&iss=" + UrlEncoder.Default.Encode("https://server"));
             html.Should().Contain("https://client2/signout?sid=" + sid + "&iss=" + UrlEncoder.Default.Encode("https://server"));
+        }
+
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task signout_callback_should_use_signoutcleanup_for_wsfed_client()
+        {
+            await _mockPipeline.LoginAsync("bob");
+            var sid = _mockPipeline.GetSessionCookie().Value;
+
+            _mockPipeline.BrowserClient.AllowAutoRedirect = false;
+            var url = _mockPipeline.CreateAuthorizeUrl(
+                clientId: "client4",
+                responseType: "id_token",
+                scope: "openid",
+                redirectUri: "https://client4/callback",
+                state: "123_state",
+                nonce: "123_nonce");
+            var response = await _mockPipeline.BrowserClient.GetAsync(url);
+
+            _mockPipeline.BrowserClient.AllowAutoRedirect = true;
+            response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.EndSessionEndpoint);
+
+            var signoutFrameUrl = _mockPipeline.LogoutRequest.SignOutIFrameUrl;
+
+            // since we don't have real ws-fed, we used OIDC to signin, but fooling this
+            // at signout to use ws-fed so we can test the iframe params
+            _wsfedClient.ProtocolType = ProtocolTypes.WsFederation;
+
+            response = await _mockPipeline.BrowserClient.GetAsync(signoutFrameUrl);
+            var html = await response.Content.ReadAsStringAsync();
+            html.Should().Contain("https://client4/signout?wa=wsignoutcleanup1.0");
         }
 
         [Fact]

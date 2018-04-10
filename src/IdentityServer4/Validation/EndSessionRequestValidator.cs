@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System;
 using IdentityServer4.Models;
+using static IdentityServer4.IdentityServerConstants;
 
 namespace IdentityServer4.Validation
 {
@@ -196,10 +197,17 @@ namespace IdentityServer4.Validation
                         var url = client.FrontChannelLogoutUri;
 
                         // add session id if required
-                        if (client.FrontChannelLogoutSessionRequired)
+                        if (client.ProtocolType == ProtocolTypes.OpenIdConnect)
                         {
-                            url = url.AddQueryString(OidcConstants.EndSessionRequest.Sid, endSession.SessionId);
-                            url = url.AddQueryString(OidcConstants.EndSessionRequest.Issuer, _context.HttpContext.GetIdentityServerIssuerUri());
+                            if (client.FrontChannelLogoutSessionRequired)
+                            {
+                                url = url.AddQueryString(OidcConstants.EndSessionRequest.Sid, endSession.SessionId);
+                                url = url.AddQueryString(OidcConstants.EndSessionRequest.Issuer, _context.HttpContext.GetIdentityServerIssuerUri());
+                            }
+                        }
+                        else if (client.ProtocolType == ProtocolTypes.WsFederation)
+                        {
+                            url = url.AddQueryString("wa", "wsignoutcleanup1.0");
                         }
 
                         frontChannelUrls.Add(url);
