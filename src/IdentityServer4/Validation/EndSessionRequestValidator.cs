@@ -207,7 +207,7 @@ namespace IdentityServer4.Validation
                         }
                         else if (client.ProtocolType == ProtocolTypes.WsFederation)
                         {
-                            url = url.AddQueryString("wa", "wsignoutcleanup1.0");
+                            url = url.AddQueryString(Constants.WsFedSignOut.LogoutUriParameterName, Constants.WsFedSignOut.LogoutUriParameterValue);
                         }
 
                         frontChannelUrls.Add(url);

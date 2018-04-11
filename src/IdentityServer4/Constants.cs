@@ -298,5 +298,11 @@ namespace IdentityServer4
                 JwtClaimTypes.Confirmation
             };
         }
+
+        public static class WsFedSignOut
+        {
+            public const string LogoutUriParameterName = "wa";
+            public const string LogoutUriParameterValue = "wsignoutcleanup1.0";
+        }
     }
 }
