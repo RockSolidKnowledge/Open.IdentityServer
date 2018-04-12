@@ -146,7 +146,7 @@ namespace Host.Quickstart.Account
                 // auth the same as any other external authentication mechanism
                 var props = new AuthenticationProperties()
                 {
-                    RedirectUri = Url.Action("ExternalLoginCallback"),
+                    RedirectUri = Url.Action("Callback"),
                     Items =
                     {
                         { "returnUrl", returnUrl },
