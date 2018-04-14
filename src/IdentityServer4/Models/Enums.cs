@@ -67,4 +67,20 @@ namespace IdentityServer4.Models
         /// </summary>
         Absolute = 1
     }
+
+    /// <summary>
+    /// Content Security Policy Level
+    /// </summary>
+    public enum CspLevel
+    {
+        /// <summary>
+        /// Level 1
+        /// </summary>
+        One = 0,
+
+        /// <summary>
+        /// Level 2
+        /// </summary>
+        Two = 1
+    }
 }

@@ -91,5 +91,10 @@ namespace IdentityServer4.Configuration
         /// The cors options.
         /// </value>
         public CorsOptions Cors { get; set; } = new CorsOptions();
+
+        /// <summary>
+        /// Gets or sets the Content Security Policy options.
+        /// </summary>
+        public CspOptions Csp { get; set; } = new CspOptions();
     }
 }

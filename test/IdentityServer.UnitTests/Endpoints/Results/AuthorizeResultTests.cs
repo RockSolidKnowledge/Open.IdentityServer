@@ -1,4 +1,4 @@
-// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using IdentityServer.UnitTests.Common;
+using IdentityServer4.Models;
 
 namespace IdentityServer4.UnitTests.Endpoints.Results
 {
@@ -177,6 +178,10 @@ namespace IdentityServer4.UnitTests.Endpoints.Results
             _context.Response.Headers["Cache-Control"].First().Should().Contain("no-store");
             _context.Response.Headers["Cache-Control"].First().Should().Contain("no-cache");
             _context.Response.Headers["Cache-Control"].First().Should().Contain("max-age=0");
+            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("default-src 'none';");
+            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("script-src 'sha256-VuNUSJ59bpCpw62HM2JG/hCyGiqoPN3NqGvNXQPU+rY='");
+            _context.Response.Headers["X-Content-Security-Policy"].First().Should().Contain("default-src 'none';");
+            _context.Response.Headers["X-Content-Security-Policy"].First().Should().Contain("script-src 'sha256-VuNUSJ59bpCpw62HM2JG/hCyGiqoPN3NqGvNXQPU+rY='");
             _context.Response.Body.Seek(0, SeekOrigin.Begin);
             using (var rdr = new StreamReader(_context.Response.Body))
             {
@@ -185,6 +190,44 @@ namespace IdentityServer4.UnitTests.Endpoints.Results
                 html.Should().Contain("<form method='post' action='http://client/callback'>");
                 html.Should().Contain("<input type='hidden' name='state' value='state' />");
             }
+        }
+
+        [Fact]
+        public async Task form_post_mode_should_add_unsafe_inline_for_csp_level_1()
+        {
+            _response.Request = new ValidatedAuthorizeRequest
+            {
+                ClientId = "client",
+                ResponseMode = OidcConstants.ResponseModes.FormPost,
+                RedirectUri = "http://client/callback",
+                State = "state"
+            };
+
+            _options.Csp.Level = CspLevel.One;
+
+            await _subject.ExecuteAsync(_context);
+
+            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("script-src 'unsafe-inline' 'sha256-VuNUSJ59bpCpw62HM2JG/hCyGiqoPN3NqGvNXQPU+rY='");
+            _context.Response.Headers["X-Content-Security-Policy"].First().Should().Contain("script-src 'unsafe-inline' 'sha256-VuNUSJ59bpCpw62HM2JG/hCyGiqoPN3NqGvNXQPU+rY='");
+        }
+
+        [Fact]
+        public async Task form_post_mode_should_not_add_deprecated_header_when_it_is_disabled()
+        {
+            _response.Request = new ValidatedAuthorizeRequest
+            {
+                ClientId = "client",
+                ResponseMode = OidcConstants.ResponseModes.FormPost,
+                RedirectUri = "http://client/callback",
+                State = "state"
+            };
+
+            _options.Csp.AddDeprecatedHeader = false;
+
+            await _subject.ExecuteAsync(_context);
+
+            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("script-src 'sha256-VuNUSJ59bpCpw62HM2JG/hCyGiqoPN3NqGvNXQPU+rY='");
+            _context.Response.Headers["X-Content-Security-Policy"].Should().BeEmpty();
         }
     }
 }

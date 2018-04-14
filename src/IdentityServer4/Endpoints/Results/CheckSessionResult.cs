@@ -1,4 +1,4 @@
-// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -40,19 +40,8 @@ namespace IdentityServer4.Endpoints.Results
 
         private void AddCspHeaders(HttpContext context)
         {
-            var value = "default-src 'none'; script-src 'sha256-ZT3q7lL9GXNGhPTB1Vvrvds2xw/kOV0zoeok2tiV23I='";
-
-            if (!context.Response.Headers.ContainsKey("Content-Security-Policy"))
-            {
-                context.Response.Headers.Add("Content-Security-Policy", value);
-            }
-
-            if (!context.Response.Headers.ContainsKey("X-Content-Security-Policy"))
-            {
-                context.Response.Headers.Add("X-Content-Security-Policy", value);
-            }
+            context.Response.AddScriptCspHeaders(_options.Csp, "sha256-ZT3q7lL9GXNGhPTB1Vvrvds2xw/kOV0zoeok2tiV23I=");
         }
-
         private string GetHtml(string cookieName)
         {
             return Html.Replace("{cookieName}", cookieName);
