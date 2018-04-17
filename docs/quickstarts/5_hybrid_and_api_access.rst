@@ -106,7 +106,7 @@ and set it on your *HttpClient*::
         var accessToken = await HttpContext.GetTokenAsync("access_token");
 
         var client = new HttpClient();
-        client.SetBearerToken(accessToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var content = await client.GetStringAsync("http://localhost:5001/identity");
 
         ViewBag.Json = JArray.Parse(content).ToString();
