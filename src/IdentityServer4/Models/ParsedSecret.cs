@@ -1,6 +1,8 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+
+using System.Collections.Generic;
 
 namespace IdentityServer4.Models
 {
@@ -32,5 +34,13 @@ namespace IdentityServer4.Models
         /// The type.
         /// </value>
         public string Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets additional properties.
+        /// </summary>
+        /// <value>
+        /// The properties.
+        /// </value>
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 }
