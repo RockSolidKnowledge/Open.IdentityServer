@@ -8,6 +8,7 @@ Popular libraries are e.g.:
 
 * `JWT bearer authentication handler <https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.JwtBearer/>`_ for ASP.NET Core
 * `JWT bearer authentication middleware <https://www.nuget.org/packages/Microsoft.Owin.Security.Jwt>`_ for Katana
+* `IdentityServer authentication middleware <https://identityserver.github.io/Documentation/docsv2/consuming/overview.html>`_ for Katana 
 * `jsonwebtoken <https://www.npmjs.com/package/jsonwebtoken>`_ for nodejs
 
 Protecting a ASP.NET Core-based API is only a matter of configuring the JWT bearer authentication handler in DI, and adding the authentication middleware to the pipeline::
