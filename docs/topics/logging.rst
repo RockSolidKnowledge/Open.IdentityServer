@@ -13,10 +13,45 @@ We are roughly following the Microsoft guidelines for usage of log levels:
 * ``Error`` For errors and exceptions that cannot be handled. Examples: failed validation of a protocol request.
 * ``Critical`` For failures that require immediate attention. Examples: missing store implementation, invalid key material...
 
-Setup
-^^^^^
+Setup for Serilog
+^^^^^^^^^^^^^^^^^
 We personally like `Serilog <https://serilog.net/>`_ a lot. Give it a try.
 
+
+ASP.NET Core 2.0+
+~~~~~~~~~~~~~~~~~
+For the following configuration you need the ``Serilog.AspNetCore`` and ``Serilog.Sinks.Console`` packages::
+
+
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            Console.Title = "IdentityServer4";
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                .MinimumLevel.Override("System", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}", theme: AnsiConsoleTheme.Literate)
+                .CreateLogger();
+
+            BuildWebHost(args).Run();
+        }
+
+        public static IWebHost BuildWebHost(string[] args)
+        {
+            return WebHost.CreateDefaultBuilder(args)
+                    .UseStartup<Startup>()
+                    .UseSerilog()
+                    .Build();
+        }            
+    }
+    
+.NET Core 1.0, 1.1
+~~~~~~~~~~~~~~~~~
 For the following configuration you need the ``Serilog.Extensions.Logging`` and ``Serilog.Sinks.Console`` packages::
 
     public class Program
