@@ -20,20 +20,19 @@ artifacts:
 - path: artifacts/packages/*.nupkg
 
 deploy:
+- provider: NuGet
+  server: https://www.myget.org/F/identity/
+  api_key:
+    secure: 43SK7fLJcrno252Wqb6j+jFYeTjaHG8EWXruhHv6kW+bbySa4uBGTPNFjA7lzD0Y
+  skip_symbols: true
+  on:
+    branch: dev
 
 for:
 -
   matrix:
     only:
-      - image Visual Studio 2017
-
-  - provider: NuGet
-    server: https://www.myget.org/F/identity/
-    api_key:
-      secure: 43SK7fLJcrno252Wqb6j+jFYeTjaHG8EWXruhHv6kW+bbySa4uBGTPNFjA7lzD0Y
-    skip_symbols: true
-    on:
-      branch: dev
+      - image: Visual Studio 2017
 
 
 
