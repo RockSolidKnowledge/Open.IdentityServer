@@ -24,7 +24,7 @@ for:
 -
   matrix:
     only:
-      - image: Visual Studio 2016
+      - image: Visual Studio 2017
   deploy:
   - provider: NuGet
     server: https://www.myget.org/F/identity/
