@@ -6,12 +6,12 @@ We thank those who [support](https://www.patreon.com/identityserver) IdentitySer
 
 ### Platinum 
 
-[Auth0](https://auth0.com/)  
+[Auth0](https://auth0.com/) ([@Auth0](https://twitter.com/Auth0))
 
 ### Gold
 
-[Thinktecture AG](https://www.thinktecture.com)  
-[Ritter Insurance Marketing](https://www.ritterim.com)
+[Thinktecture AG](https://www.thinktecture.com)   ([@Thinktecture](https://twitter.com/thinktecture))  
+[Ritter Insurance Marketing](https://www.ritterim.com) ([@RitterIM](https://twitter.com/ritterim))
 
 ### Silver
 
