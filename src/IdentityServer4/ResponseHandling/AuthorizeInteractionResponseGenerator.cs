@@ -165,7 +165,7 @@ namespace IdentityServer4.ResponseHandling
             {
                 if (idp != currentIdp)
                 {
-                    Logger.LogInformation("Showing login: Current IdP ({idp}) is not the requested IdP ({idp})", currentIdp, idp);
+                    Logger.LogInformation("Showing login: Current IdP ({currentIdp}) is not the requested IdP ({idp})", currentIdp, idp);
                     return new InteractionResponse { IsLogin = true };
                 }
             }
