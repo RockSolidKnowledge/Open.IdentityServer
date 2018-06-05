@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -37,7 +37,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_User()
+        public async Task Valid_user_should_succeed_with_expected_response_payload()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -76,7 +76,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_User_with_Default_Scopes()
+        public async Task Request_with_no_explicit_scopes_should_return_allowed_scopes()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -125,7 +125,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_User_IdentityScopes()
+        public async Task Request_containing_identity_scopes_should_return_expected_payload()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -166,7 +166,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_User_IdentityScopesRefreshToken()
+        public async Task Request_for_refresh_token_should_return_expected_payload()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -208,7 +208,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Unknown_User()
+        public async Task Unknown_user_should_fail()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -225,7 +225,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Invalid_Password()
+        public async Task User_with_invalid_password_should_fail()
         {
             var client = new TokenClient(
                 TokenEndpoint,

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -37,7 +37,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Invalid_Endpoint()
+        public async Task Invalid_endpoint_should_return_404()
         {
             var client = new TokenClient(
                 TokenEndpoint + "invalid",
@@ -54,7 +54,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_Client()
+        public async Task Valid_request_should_return_expected_payload()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -86,7 +86,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_Client_Multiple_Scopes()
+        public async Task Requesting_multiple_scopes_should_return_expected_payload()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -120,7 +120,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_Client_with_Default_Scopes()
+        public async Task Request_with_no_explicit_scopes_should_return_expected_payload()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -154,7 +154,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_Client_without_Default_Scopes_Skipping_Scope_Parameter()
+        public async Task Client_without_default_scopes_skipping_scope_parameter_should_return_error()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -173,7 +173,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_Client_PostBody()
+        public async Task Request_posting_client_secret_in_body_should_succeed()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -206,7 +206,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Invalid_Client_Secret()
+        public async Task Request_with_invalid_client_secret_should_fail()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -221,7 +221,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Invalid_Client()
+        public async Task Unknown_client_should_fail()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -238,7 +238,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task implicit_client_should_not_use_client_credential_grant()
+        public async Task Implicit_client_should_not_use_client_credential_grant()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -254,7 +254,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task implicit_and_client_creds_client_should_not_use_client_credential_grant_without_secret()
+        public async Task Implicit_and_client_creds_client_should_not_use_client_credential_grant_without_secret()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -271,7 +271,7 @@ namespace IdentityServer4.IntegrationTests.Clients
 
 
         [Fact]
-        public async Task Unknown_Scope()
+        public async Task Requesting_unknown_scope_should_fail()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -288,7 +288,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Client_requesting_identity_scope_should_fail()
+        public async Task Client_explicitly_requesting_identity_scope_should_fail()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -305,7 +305,24 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task UnauthorizedScope()
+        public async Task Client_explicitly_requesting_offline_access_should_fail()
+        {
+            var client = new TokenClient(
+                TokenEndpoint,
+                "client",
+                "secret",
+                innerHttpMessageHandler: _handler);
+
+            var response = await client.RequestClientCredentialsAsync("api1 offline_access");
+
+            response.IsError.Should().Be(true);
+            response.ErrorType.Should().Be(ResponseErrorType.Protocol);
+            response.HttpStatusCode.Should().Be(HttpStatusCode.BadRequest);
+            response.Error.Should().Be("invalid_scope");
+        }
+
+        [Fact]
+        public async Task Requesting_unauthorized_scope_should_fail()
         {
             var client = new TokenClient(
                 TokenEndpoint,
@@ -322,7 +339,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Authorized_and_UnauthorizedScope()
+        public async Task Requesting_authorized_and_unauthorized_scopes_should_fail()
         {
             var client = new TokenClient(
                 TokenEndpoint,
