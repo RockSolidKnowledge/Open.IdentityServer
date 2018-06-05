@@ -22,7 +22,7 @@ If you encounter issues or find bugs, please open an issue in this repo here fir
 ## How to build
 IdentityServer is built against the latest ASP.NET Core 2.
 
-* [Install](https://www.microsoft.com/net/download/core#/current) the latest .NET Core 2 SDK
+* [Install](https://www.microsoft.com/net/download/core#/current) the latest .NET Core 2.x SDK
 * Run `build.ps1` (Powershell) or `build.sh` (bash)
 
 ## ASP.NET Core 1.x
