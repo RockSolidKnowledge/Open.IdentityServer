@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -6,6 +6,7 @@ using FluentAssertions;
 using IdentityModel;
 using IdentityServer4.Stores;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -36,18 +37,25 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task No_Scopes()
+        public async Task Request_should_succeed_even_with_allowed_identity_scopes_because_they_are_filtered_out()
         {
             var client = await _clients.FindEnabledClientByIdAsync("client");
             var validator = Factory.CreateTokenRequestValidator();
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
+            var parameters = new NameValueCollection
+            {
+                { OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials }
+            };
 
             var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidScope);
+            result.IsError.Should().BeFalse();
+            result.ValidatedRequest.ValidatedScopes.GrantedResources.ApiResources.Count.Should().Be(1);
+            result.ValidatedRequest.ValidatedScopes.GrantedResources.ApiResources.First().Name.Should().Be("api");
+
+            result.ValidatedRequest.ValidatedScopes.GrantedResources.ApiResources.First().Scopes.Count.Should().Be(2);
+            result.ValidatedRequest.ValidatedScopes.GrantedResources.ApiResources.First().Scopes.First().Name.Should().Be("resource");
+            result.ValidatedRequest.ValidatedScopes.GrantedResources.ApiResources.First().Scopes.Skip(1).First().Name.Should().Be("resource2");
         }
 
         [Fact]
@@ -120,14 +128,16 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Identity_Scope()
+        public async Task Identity_scope_is_not_allowed_for_client_credentials_when_specified_explicitly()
         {
             var client = await _clients.FindEnabledClientByIdAsync("client");
             var validator = Factory.CreateTokenRequestValidator();
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
-            parameters.Add(OidcConstants.TokenRequest.Scope, "openid");
+            var parameters = new NameValueCollection
+            {
+                { OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials },
+                { OidcConstants.TokenRequest.Scope, "openid" }
+            };
 
             var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 

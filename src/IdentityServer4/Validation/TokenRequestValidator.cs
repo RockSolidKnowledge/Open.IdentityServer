@@ -329,7 +329,7 @@ namespace IdentityServer4.Validation
             /////////////////////////////////////////////
             // check if client is allowed to request scopes
             /////////////////////////////////////////////
-            if (!await ValidateRequestedScopesAsync(parameters))
+            if (!await ValidateRequestedScopesAsync(parameters, ignoreImplicitIdentityScopes: true, ignoreImplicitOfflineAccess: true))
             {
                 return Invalid(OidcConstants.TokenErrors.InvalidScope);
             }
@@ -573,21 +573,31 @@ namespace IdentityServer4.Validation
             return Valid(result.CustomResponse);
         }
 
-        private async Task<bool> ValidateRequestedScopesAsync(NameValueCollection parameters)
+        private async Task<bool> ValidateRequestedScopesAsync(NameValueCollection parameters, bool ignoreImplicitIdentityScopes = false, bool ignoreImplicitOfflineAccess = false)
         {
+            var ignoreIdentityScopes = false;
+            
             var scopes = parameters.Get(OidcConstants.TokenRequest.Scope);
-
             if (scopes.IsMissing())
             {
+                if (ignoreImplicitIdentityScopes)
+                {
+                    ignoreIdentityScopes = true;
+                }
+                
                 _logger.LogTrace("Client provided no scopes - checking allowed scopes list");
 
                 if (!_validatedRequest.Client.AllowedScopes.IsNullOrEmpty())
                 {
                     var clientAllowedScopes = new List<string>(_validatedRequest.Client.AllowedScopes);
-                    if (_validatedRequest.Client.AllowOfflineAccess)
+                    if (!ignoreImplicitOfflineAccess)
                     {
-                        clientAllowedScopes.Add(IdentityServerConstants.StandardScopes.OfflineAccess);
+                        if (_validatedRequest.Client.AllowOfflineAccess)
+                        {
+                            clientAllowedScopes.Add(IdentityServerConstants.StandardScopes.OfflineAccess);
+                        }
                     }
+
                     scopes = clientAllowedScopes.ToSpaceSeparatedString();
                     _logger.LogTrace("Defaulting to: {scopes}", scopes);
                 }
@@ -618,7 +628,7 @@ namespace IdentityServer4.Validation
                 return false;
             }
 
-            if (!(await _scopeValidator.AreScopesValidAsync(requestedScopes)))
+            if (!(await _scopeValidator.AreScopesValidAsync(requestedScopes, ignoreIdentityScopes)))
             {
                 LogError();
                 return false;

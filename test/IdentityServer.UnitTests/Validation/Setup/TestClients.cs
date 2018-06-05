@@ -262,6 +262,8 @@ namespace IdentityServer4.UnitTests.Validation
                         AllowedGrantTypes = GrantTypes.ClientCredentials,
                         AllowedScopes = { "openid", "profile", "resource", "resource2" },
 
+                        AllowOfflineAccess = true,
+
                         AccessTokenType = AccessTokenType.Jwt
                     },
                     new Client

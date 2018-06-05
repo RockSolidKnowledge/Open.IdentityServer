@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -121,8 +121,9 @@ namespace IdentityServer4.Validation
         /// Valides given scopes
         /// </summary>
         /// <param name="requestedScopes">The requested scopes.</param>
+        /// <param name="filterIdentityScopes">if set to <c>true</c> [filter identity scopes].</param>
         /// <returns></returns>
-        public async Task<bool> AreScopesValidAsync(IEnumerable<string> requestedScopes)
+        public async Task<bool> AreScopesValidAsync(IEnumerable<string> requestedScopes, bool filterIdentityScopes = false)
         {
             if (requestedScopes.Contains(IdentityServerConstants.StandardScopes.OfflineAccess))
             {
@@ -143,7 +144,10 @@ namespace IdentityServer4.Validation
                         return false;
                     }
 
-                    GrantedResources.IdentityResources.Add(identity);
+                    if (!filterIdentityScopes)
+                    {
+                        GrantedResources.IdentityResources.Add(identity);
+                    }
                 }
                 else
                 {
