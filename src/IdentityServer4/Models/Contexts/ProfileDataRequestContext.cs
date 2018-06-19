@@ -1,10 +1,11 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
 using System.Collections.Generic;
 using System.Security.Claims;
 using System;
+using IdentityServer4.Validation;
 
 namespace IdentityServer4.Models
 {
@@ -33,6 +34,14 @@ namespace IdentityServer4.Models
             Caller = caller ?? throw new ArgumentNullException(nameof(caller));
             RequestedClaimTypes = requestedClaimTypes ?? throw new ArgumentNullException(nameof(requestedClaimTypes));
         }
+
+        /// <summary>
+        /// Gets or sets the validatedRequest.
+        /// </summary>
+        /// <value>
+        /// The validatedRequest.
+        /// </value>
+        public ValidatedRequest ValidatedRequest { get; set; }
 
         /// <summary>
         /// Gets or sets the subject.
