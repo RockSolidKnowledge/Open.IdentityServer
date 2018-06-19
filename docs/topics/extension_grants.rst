@@ -92,7 +92,7 @@ It's the job of the extension grant validator to handle that request by validati
             // get user's identity
             var sub = result.Claims.FirstOrDefault(c => c.Type == "sub").Value;
 
-            context.Result = new GrantValidationResult(sub, "delegation");
+            context.Result = new GrantValidationResult(sub, GrantType);
             return;
         }
     }
