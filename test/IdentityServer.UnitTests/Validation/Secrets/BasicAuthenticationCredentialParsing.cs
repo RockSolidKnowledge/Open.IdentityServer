@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -58,12 +58,29 @@ namespace IdentityServer4.UnitTests.Validation.Secrets
 
         [Fact]
         [Trait("Category", Category)]
+        public async void Valid_BasicAuthentication_Request_With_UserName_Only_And_Colon_For_Optional_ClientSecret()
+        {
+            var context = new DefaultHttpContext();
+
+            var headerValue = string.Format("Basic {0}",
+                Convert.ToBase64String(Encoding.UTF8.GetBytes("client:")));
+            context.Request.Headers.Add("Authorization", new StringValues(headerValue));
+
+            var secret = await _parser.ParseAsync(context);
+
+            secret.Type.Should().Be(IdentityServerConstants.ParsedSecretTypes.SharedSecret);
+            secret.Id.Should().Be("client");
+            secret.Credential.Should().BeNull();
+        }
+
+        [Fact]
+        [Trait("Category", Category)]
         public async void BasicAuthentication_Request_With_Empty_Basic_Header()
         {
             var context = new DefaultHttpContext();
 
             context.Request.Headers.Add("Authorization", new StringValues(""));
-                
+
             var secret = await _parser.ParseAsync(context);
 
             secret.Should().BeNull();
@@ -150,21 +167,6 @@ namespace IdentityServer4.UnitTests.Validation.Secrets
 
             var headerValue = string.Format("Basic {0}",
                 Convert.ToBase64String(Encoding.UTF8.GetBytes("client")));
-            context.Request.Headers.Add("Authorization", new StringValues(headerValue));
-
-            var secret = await _parser.ParseAsync(context);
-
-            secret.Should().BeNull();
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async void BasicAuthentication_Request_With_Malformed_Credentials_Base64_Encoding_UserName_Only_With_Colon()
-        {
-            var context = new DefaultHttpContext();
-
-            var headerValue = string.Format("Basic {0}",
-                Convert.ToBase64String(Encoding.UTF8.GetBytes("client:")));
             context.Request.Headers.Add("Authorization", new StringValues(headerValue));
 
             var secret = await _parser.ParseAsync(context);

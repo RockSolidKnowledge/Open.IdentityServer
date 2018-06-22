@@ -94,10 +94,10 @@ namespace IdentityServer4.Validation
             var clientId = pair.Substring(0, ix);
             var secret = pair.Substring(ix + 1);
 
-            if (clientId.IsPresent() && secret.IsPresent())
+            if (clientId.IsPresent())
             {
                 if (clientId.Length > _options.InputLengthRestrictions.ClientId ||
-                    secret.Length > _options.InputLengthRestrictions.ClientSecret)
+                    (secret.IsPresent() && secret.Length > _options.InputLengthRestrictions.ClientSecret))
                 {
                     _logger.LogWarning("Client ID or secret exceeds allowed length.");
                     return notfound;
@@ -106,7 +106,7 @@ namespace IdentityServer4.Validation
                 var parsedSecret = new ParsedSecret
                 {
                     Id = Decode(clientId),
-                    Credential = Decode(secret),
+                    Credential = secret.IsMissing() ? null : Decode(secret),
                     Type = IdentityServerConstants.ParsedSecretTypes.SharedSecret
                 };
 
