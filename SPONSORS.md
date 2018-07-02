@@ -56,3 +56,5 @@ Janardhan
 Gary Ewan Park  ([@gep13](https://twitter.com/gep13))  
 Clinton Rocksmith  
 Giuseppe Turitto  
+Mauricio Schneider  
+Norman L Covington  
