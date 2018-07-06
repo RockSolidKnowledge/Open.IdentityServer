@@ -701,38 +701,42 @@ namespace IdentityServer4.Validation
 
         private void LogError(string message = null, params object[] values)
         {
+            var details = new TokenRequestValidationLog(_validatedRequest);
             if (message.IsPresent())
             {
                 try
                 {
-                    _logger.LogError(message, values);
+                    _logger.LogError(message + ", request details: {details}", values, details);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Error logging {exception}", ex.Message);
+                    _logger.LogError("Error logging {exception}, request details: {details}", ex.Message, details);
                 }
             }
-
-            var details = new TokenRequestValidationLog(_validatedRequest);
-            _logger.LogError("{details}", details);
+            else
+            {
+                _logger.LogError("{details}", details);
+            }
         }
 
         private void LogInfo(string message = null, params object[] values)
         {
+            var details = new TokenRequestValidationLog(_validatedRequest);
             if (message.IsPresent())
             {
                 try
                 {
-                    _logger.LogInformation(message, values);
+                    _logger.LogInformation(message + ", request details: {details}", values, details);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError("Error logging {exception}", ex.Message);
                 }
             }
-
-            var details = new TokenRequestValidationLog(_validatedRequest);
-            _logger.LogInformation("{details}", details);
+            else
+            {
+                _logger.LogInformation("{details}", details);
+            }
         }
 
         private void LogSuccess()
