@@ -37,7 +37,7 @@ namespace IdentityServer4.Logging
 
         public AuthorizeRequestValidationLog(ValidatedAuthorizeRequest request)
         {
-            Raw = request.Raw.ToScrubbedDictionary("id_token_hint");
+            Raw = request.Raw.ToScrubbedDictionary(OidcConstants.AuthorizeRequest.IdTokenHint);
 
             if (request.Client != null)
             {
