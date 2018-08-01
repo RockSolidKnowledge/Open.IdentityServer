@@ -4,7 +4,7 @@ var configuration   = Argument<string>("configuration", "Release");
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
-var packPath            = Directory("./src/IdentityServer4");
+var packPath            = Directory("./src");
 var buildArtifacts      = Directory("./artifacts/packages");
 
 var isAppVeyor          = AppVeyor.IsRunningOnAppVeyor;
@@ -77,7 +77,7 @@ Task("Pack")
     {
         Configuration = configuration,
         OutputDirectory = buildArtifacts,
-        ArgumentCustomization = args => args.Append("--include-symbols")
+        //ArgumentCustomization = args => args.Append("--include-symbols")
     };
 
     // add build suffix for CI builds
