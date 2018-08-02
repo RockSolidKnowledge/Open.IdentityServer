@@ -206,3 +206,4 @@ tools/packages.config.md5sum
 .vscode
 identityserver4_log.txt
 tempkey.rsa
+signing.json
