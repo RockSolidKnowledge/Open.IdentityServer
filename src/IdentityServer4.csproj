@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="3.8.0" />
-    <PackageReference Include="IdentityServer4.Storage" Version="1.0.0-build00003" />
+    <PackageReference Include="IdentityServer4.Storage" Version="1.0.0-build00005" />
     
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.1.0" />
