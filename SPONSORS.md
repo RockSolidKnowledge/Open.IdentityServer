@@ -39,7 +39,6 @@ James Roberts
 Chris Simmons ([@netchrisdotcom](https://twitter.com/netchrisdotcom))  
 Shawn Wildermuth  
 Thomas C  
-黃嘉華  
 David Christiansen ([@dotnetopenauth](https://twitter.com/dotnetopenauth))  
 Christian Riedl  
 Ben	Cull  
@@ -58,3 +57,5 @@ Clinton Rocksmith
 Giuseppe Turitto  
 Mauricio Schneider  
 Norman L Covington  
+Henning Støverud  ([@henningst](https://twitter.com/henningst))  
+Ryan Mendoza  ([@elryry](https://twitter.com/elryry))  
