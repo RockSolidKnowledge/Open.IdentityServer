@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -70,7 +70,7 @@ namespace Microsoft.AspNetCore.Http
             response.Redirect(url);
         }
 
-        internal static void AddScriptCspHeaders(this HttpResponse response, CspOptions options, string hash)
+        public static void AddScriptCspHeaders(this HttpResponse response, CspOptions options, string hash)
         {
             var csp1part = options.Level == CspLevel.One ? "'unsafe-inline' " : string.Empty;
             var cspHeader = $"default-src 'none'; script-src {csp1part}'{hash}'";
@@ -78,7 +78,7 @@ namespace Microsoft.AspNetCore.Http
             AddCspHeaders(response.Headers, options, cspHeader);
         }
 
-        internal static void AddStyleCspHeaders(this HttpResponse response, CspOptions options, string hash, string frameSources)
+        public static void AddStyleCspHeaders(this HttpResponse response, CspOptions options, string hash, string frameSources)
         {
             var csp1part = options.Level == CspLevel.One ? "'unsafe-inline' " : string.Empty;
             var cspHeader = $"default-src 'none'; style-src {csp1part}'{hash}'";
@@ -91,7 +91,7 @@ namespace Microsoft.AspNetCore.Http
             AddCspHeaders(response.Headers, options, cspHeader);
         }
 
-        private static void AddCspHeaders(IHeaderDictionary headers, CspOptions options, string cspHeader)
+        public static void AddCspHeaders(IHeaderDictionary headers, CspOptions options, string cspHeader)
         {
             if (!headers.ContainsKey("Content-Security-Policy"))
             {
