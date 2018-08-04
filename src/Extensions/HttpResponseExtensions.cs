@@ -48,6 +48,11 @@ namespace Microsoft.AspNetCore.Http
             {
                 response.Headers.Add("Cache-Control", "no-store, no-cache, max-age=0");
             }
+            else
+            {
+                response.Headers["Cache-Control"] = "no-store, no-cache, max-age=0";
+            }
+
             if (!response.Headers.ContainsKey("Pragma"))
             {
                 response.Headers.Add("Pragma", "no-cache");
