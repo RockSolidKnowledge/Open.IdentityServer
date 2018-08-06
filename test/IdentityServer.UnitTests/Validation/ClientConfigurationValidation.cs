@@ -3,6 +3,7 @@
 
 
 using FluentAssertions;
+using IdentityServer4.Configuration;
 using IdentityServer4.Models;
 using IdentityServer4.UnitTests.Validation;
 using IdentityServer4.Validation;
@@ -14,7 +15,14 @@ namespace IdentityServer.UnitTests.Validation
     public class ClientConfigurationValidation
     {
         private const string Category = "Client Configuration Validation Tests";
-        private IClientConfigurationValidator _validator = new DefaultClientConfigurationValidator();
+        private IClientConfigurationValidator _validator;
+        IdentityServerOptions _options;
+
+        public ClientConfigurationValidation()
+        {
+            _options = new IdentityServerOptions();
+            _validator = new DefaultClientConfigurationValidator(_options);
+        }
 
         [Fact]
         [Trait("Category", Category)]
@@ -207,6 +215,70 @@ namespace IdentityServer.UnitTests.Validation
 
             var context = await ValidateAsync(client);
             context.IsValid.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task ValidateUriSchemesAsync_for_invalid_redirecturi_scheme_should_fail()
+        {
+            _options.Validation.InvalidRedirectUriPrefixes.Add("custom");
+            var client = new Client
+            {
+                ClientId = "id",
+                AllowedGrantTypes = GrantTypes.Implicit,
+                AllowedScopes = { "foo" },
+                RedirectUris = { "http://callback", "custom://callback" }
+            };
+
+            var result = await ValidateAsync(client);
+            await ShouldFailAsync(client, "RedirectUri 'custom://callback' uses invalid scheme. If this scheme should be allowed, then configure it via ValidationOptions.");
+        }
+
+        [Fact]
+        public async Task ValidateUriSchemesAsync_for_valid_redirect_uri_scheme_should_succeed()
+        {
+            var client = new Client
+            {
+                ClientId = "id",
+                AllowedGrantTypes = GrantTypes.Implicit,
+                AllowedScopes = { "foo" },
+                RedirectUris = { "http://callback", "custom://callback" }
+            };
+
+            var result = await ValidateAsync(client);
+            result.IsValid.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task ValidateUriSchemesAsync_for_invalid_post_logout_redirect_uri_scheme_should_fail()
+        {
+            _options.Validation.InvalidRedirectUriPrefixes.Add("custom");
+            var client = new Client
+            {
+                ClientId = "id",
+                AllowedGrantTypes = GrantTypes.Implicit,
+                AllowedScopes = { "foo" },
+                RedirectUris = { "http://callback" },
+                PostLogoutRedirectUris = { "http://postcallback", "custom://postcallback" }
+            };
+
+            var result = await ValidateAsync(client);
+            await ShouldFailAsync(client, "PostLogoutRedirectUri 'custom://postcallback' uses invalid scheme. If this scheme should be allowed, then configure it via ValidationOptions.");
+        }
+
+        [Fact]
+        public async Task ValidateUriSchemesAsync_for_valid_post_logout_redirect_uri_scheme_should_succeed()
+        {
+            var client = new Client
+            {
+                ClientId = "id",
+                AllowedGrantTypes = GrantTypes.Implicit,
+                AllowedScopes = { "foo" },
+                RedirectUris = { "http://callback" },
+                PostLogoutRedirectUris = { "http://postcallback", "custom://postcallback" }
+            };
+
+            var result = await ValidateAsync(client);
+            result.IsValid.Should().BeTrue();
         }
 
         private async Task<ClientConfigurationValidationContext> ValidateAsync(Client client)

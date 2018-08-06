@@ -1,4 +1,6 @@
+using IdentityServer4.Configuration;
 using IdentityServer4.Models;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,6 +12,25 @@ namespace IdentityServer4.Validation
     /// <seealso cref="IdentityServer4.Validation.IClientConfigurationValidator" />
     public class DefaultClientConfigurationValidator : IClientConfigurationValidator
     {
+        private readonly IdentityServerOptions _options;
+
+        // todo: default ctor for backwards compat; remove in 3.0
+
+        /// <summary>
+        /// Constructor for DefaultClientConfigurationValidator
+        /// </summary>
+        public DefaultClientConfigurationValidator()
+        {
+        }
+
+        /// <summary>
+        /// Constructor for DefaultClientConfigurationValidator
+        /// </summary>
+        public DefaultClientConfigurationValidator(IdentityServerOptions options)
+        {
+            _options = options;
+        }
+
         /// <summary>
         /// Determines whether the configuration of a client is valid.
         /// </summary>
@@ -24,6 +45,9 @@ namespace IdentityServer4.Validation
             if (context.IsValid == false) return;
 
             await ValidateRedirectUriAsync(context);
+            if (context.IsValid == false) return;
+
+            await ValidateUriSchemesAsync(context);
             if (context.IsValid == false) return;
 
             await ValidateSecretsAsync(context);
@@ -98,6 +122,38 @@ namespace IdentityServer4.Validation
                 if (!context.Client.RedirectUris.Any())
                 {
                     context.SetError("No redirect URI configured.");
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Validates that URI schemes is not in the list of invalid URI scheme prefixes, as controlled by the ValidationOptions.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        protected virtual Task ValidateUriSchemesAsync(ClientConfigurationValidationContext context)
+        {
+            // todo: null check for backwards compat; remove in 3.0
+            if (_options != null)
+            {
+                foreach (var uri in context.Client.RedirectUris)
+                {
+                    if (_options.Validation.InvalidRedirectUriPrefixes
+                            .Any(scheme => uri.StartsWith(scheme, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        context.SetError($"RedirectUri '{uri}' uses invalid scheme. If this scheme should be allowed, then configure it via ValidationOptions.");
+                    }
+                }
+
+                foreach (var uri in context.Client.PostLogoutRedirectUris)
+                {
+                    if (_options.Validation.InvalidRedirectUriPrefixes
+                            .Any(scheme => uri.StartsWith(scheme, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        context.SetError($"PostLogoutRedirectUri '{uri}' uses invalid scheme. If this scheme should be allowed, then configure it via ValidationOptions.");
+                    }
                 }
             }
 
