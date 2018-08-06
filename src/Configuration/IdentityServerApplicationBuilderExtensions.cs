@@ -76,14 +76,20 @@ namespace Microsoft.AspNetCore.Builder
 
         private static async Task ValidateAsync(IServiceProvider services, ILogger logger)
         {
+            var options = services.GetRequiredService<IdentityServerOptions>();
             var schemes = services.GetRequiredService<IAuthenticationSchemeProvider>();
 
-            if (await schemes.GetDefaultAuthenticateSchemeAsync() == null)
+            if (await schemes.GetDefaultAuthenticateSchemeAsync() == null || options.Authentication.CookieAuthenticationScheme == null)
             {
-                logger.LogWarning("No default authentication scheme has been set. Setting a default scheme is required.");
+                logger.LogWarning("No authentication scheme has been set. Setting either a default authentication scheme or a CookieAuthenticationScheme on IdentityServerOptions is required.");
             }
             else
             {
+                if (options.Authentication.CookieAuthenticationScheme != null)
+                {
+                    logger.LogDebug("Using explicitly configured {scheme} for interactive users", options.Authentication.CookieAuthenticationScheme);
+                }
+
                 logger.LogDebug("Using {scheme} as default scheme for authentication", (await schemes.GetDefaultAuthenticateSchemeAsync())?.Name);
                 logger.LogDebug("Using {scheme} as default scheme for sign-in", (await schemes.GetDefaultSignInSchemeAsync())?.Name);
                 logger.LogDebug("Using {scheme} as default scheme for sign-out", (await schemes.GetDefaultSignOutSchemeAsync())?.Name);

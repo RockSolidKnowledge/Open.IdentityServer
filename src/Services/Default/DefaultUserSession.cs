@@ -103,8 +103,14 @@ namespace IdentityServer4.Services
             Logger = logger;
         }
 
+        // todo: remove this in 3.0 and use extension method on http context
         private async Task<string> GetCookieSchemeAsync()
         {
+            if (Options.Authentication.CookieAuthenticationScheme != null)
+            {
+                return Options.Authentication.CookieAuthenticationScheme;
+            }
+
             var defaultScheme = await Schemes.GetDefaultAuthenticateSchemeAsync();
             if (defaultScheme == null)
             {
