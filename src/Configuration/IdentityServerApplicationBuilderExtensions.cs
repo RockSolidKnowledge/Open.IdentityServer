@@ -79,7 +79,7 @@ namespace Microsoft.AspNetCore.Builder
             var options = services.GetRequiredService<IdentityServerOptions>();
             var schemes = services.GetRequiredService<IAuthenticationSchemeProvider>();
 
-            if (await schemes.GetDefaultAuthenticateSchemeAsync() == null || options.Authentication.CookieAuthenticationScheme == null)
+            if (await schemes.GetDefaultAuthenticateSchemeAsync() == null && options.Authentication.CookieAuthenticationScheme == null)
             {
                 logger.LogWarning("No authentication scheme has been set. Setting either a default authentication scheme or a CookieAuthenticationScheme on IdentityServerOptions is required.");
             }
@@ -87,14 +87,14 @@ namespace Microsoft.AspNetCore.Builder
             {
                 if (options.Authentication.CookieAuthenticationScheme != null)
                 {
-                    logger.LogDebug("Using explicitly configured {scheme} for interactive users", options.Authentication.CookieAuthenticationScheme);
+                    logger.LogInformation("Using explicitly configured scheme {scheme} for IdentityServer", options.Authentication.CookieAuthenticationScheme);
                 }
 
-                logger.LogDebug("Using {scheme} as default scheme for authentication", (await schemes.GetDefaultAuthenticateSchemeAsync())?.Name);
-                logger.LogDebug("Using {scheme} as default scheme for sign-in", (await schemes.GetDefaultSignInSchemeAsync())?.Name);
-                logger.LogDebug("Using {scheme} as default scheme for sign-out", (await schemes.GetDefaultSignOutSchemeAsync())?.Name);
-                logger.LogDebug("Using {scheme} as default scheme for challenge", (await schemes.GetDefaultChallengeSchemeAsync())?.Name);
-                logger.LogDebug("Using {scheme} as default scheme for forbid", (await schemes.GetDefaultForbidSchemeAsync())?.Name);
+                logger.LogDebug("Using {scheme} as default ASP.NET Core scheme for authentication", (await schemes.GetDefaultAuthenticateSchemeAsync())?.Name);
+                logger.LogDebug("Using {scheme} as default ASP.NET Core scheme for sign-in", (await schemes.GetDefaultSignInSchemeAsync())?.Name);
+                logger.LogDebug("Using {scheme} as default ASP.NET Core scheme for sign-out", (await schemes.GetDefaultSignOutSchemeAsync())?.Name);
+                logger.LogDebug("Using {scheme} as default ASP.NET Core scheme for challenge", (await schemes.GetDefaultChallengeSchemeAsync())?.Name);
+                logger.LogDebug("Using {scheme} as default ASP.NET Core scheme for forbid", (await schemes.GetDefaultForbidSchemeAsync())?.Name);
             }
         }
 
