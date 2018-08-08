@@ -1,7 +1,8 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using FluentAssertions;
 using IdentityServer4.Services;
 using IdentityServer4.UnitTests.Common;
@@ -18,6 +19,15 @@ namespace IdentityServer4.UnitTests.Services.Default
         public DefaultCorsPolicyServiceTests()
         {
             subject = new DefaultCorsPolicyService(TestLogger.Create<DefaultCorsPolicyService>());
+        }
+
+        [Fact]
+        [Trait("Category", Category)]
+        public void IsOriginAllowed_null_param_ReturnsFalse()
+        {
+            subject.IsOriginAllowedAsync(null).Result.Should().Be(false);
+            subject.IsOriginAllowedAsync(String.Empty).Result.Should().Be(false);
+            subject.IsOriginAllowedAsync("    ").Result.Should().Be(false);
         }
 
         [Fact]

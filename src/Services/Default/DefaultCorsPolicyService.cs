@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -52,26 +52,29 @@ namespace IdentityServer4.Services
         /// <returns></returns>
         public virtual Task<bool> IsOriginAllowedAsync(string origin)
         {
-            if (AllowAll)
+            if (!String.IsNullOrWhiteSpace(origin))
             {
-                Logger.LogDebug("AllowAll true, so origin: {0} is allowed", origin);
-                return Task.FromResult(true);
-            }
-
-            if (AllowedOrigins != null)
-            {
-                if (AllowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+                if (AllowAll)
                 {
-                    Logger.LogDebug("AllowedOrigins configured and origin {0} is allowed", origin);
+                    Logger.LogDebug("AllowAll true, so origin: {0} is allowed", origin);
                     return Task.FromResult(true);
                 }
-                else
-                {
-                    Logger.LogDebug("AllowedOrigins configured and origin {0} is not allowed", origin);
-                }
-            }
 
-            Logger.LogDebug("Exiting; origin {0} is not allowed", origin);
+                if (AllowedOrigins != null)
+                {
+                    if (AllowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+                    {
+                        Logger.LogDebug("AllowedOrigins configured and origin {0} is allowed", origin);
+                        return Task.FromResult(true);
+                    }
+                    else
+                    {
+                        Logger.LogDebug("AllowedOrigins configured and origin {0} is not allowed", origin);
+                    }
+                }
+
+                Logger.LogDebug("Exiting; origin {0} is not allowed", origin);
+            }
 
             return Task.FromResult(false);
         }
