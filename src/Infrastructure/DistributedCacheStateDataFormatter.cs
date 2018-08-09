@@ -92,6 +92,11 @@ namespace IdentityServer4.Infrastructure
             var cacheKey = $"{CacheKeyPrefix}-{purpose}-{key}";
             var json = Cache.GetString(cacheKey);
 
+            if (json == null)
+            {
+                return null;
+            }
+
             return ObjectSerializer.FromString<AuthenticationProperties>(json);
         }
     }
