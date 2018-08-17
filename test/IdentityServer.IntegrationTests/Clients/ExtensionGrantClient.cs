@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -25,7 +25,6 @@ namespace IdentityServer4.IntegrationTests.Clients
         private const string TokenEndpoint = "https://server/connect/token";
 
         private readonly HttpClient _client;
-        private readonly HttpMessageHandler _handler;
 
         public ExtensionGrantClient()
         {
@@ -33,25 +32,26 @@ namespace IdentityServer4.IntegrationTests.Clients
                 .UseStartup<Startup>();
             var server = new TestServer(builder);
 
-            _handler = server.CreateHandler();
             _client = server.CreateClient();
         }
 
         [Fact]
-        public async Task Valid_Client()
+        public async Task Valid_client_should_succeed()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.custom",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "custom",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.custom",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
-                    { "custom_credential", "custom credential"}
-                };
-
-            var response = await client.RequestCustomGrantAsync("custom", "api1", customParameters);
+                    { "custom_credential", "custom credential"},
+                    { "scope", "api1" }
+                }
+            });
 
             response.IsError.Should().BeFalse();
             response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -87,20 +87,22 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_Client_No_Subject()
+        public async Task Valid_client_no_subject_should_succeed()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.custom",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "custom.nosubject",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.custom",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
-                    { "custom_credential", "custom credential"}
-                };
-
-            var response = await client.RequestCustomGrantAsync("custom.nosubject", "api1", customParameters);
+                    { "custom_credential", "custom credential"},
+                    { "scope", "api1" }
+                }
+            });
 
             response.IsError.Should().BeFalse();
             response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -125,20 +127,21 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_Client_with_default_Scopes()
+        public async Task Valid_client_with_default_scopes_should_succeed()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.custom",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "custom",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.custom",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
                     { "custom_credential", "custom credential"}
-                };
-
-            var response = await client.RequestCustomGrantAsync("custom", extra: customParameters);
+                }
+            });
 
             response.IsError.Should().BeFalse();
             response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -171,15 +174,21 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_Client_Missing_Grant_Specific_Data()
+        public async Task Valid_client_missing_grant_specific_data_should_fail()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.custom",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "custom",
 
-            var response = await client.RequestCustomGrantAsync("custom", "api1");
+                ClientId = "client.custom",
+                ClientSecret = "secret",
+
+                Parameters =
+                {
+                    { "scope", "api1" }
+                }
+            });
 
             response.IsError.Should().Be(true);
             response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -188,20 +197,22 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_Client_Unsupported_Grant()
+        public async Task Valid_client_using_unsupported_grant_type_should_fail()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.custom",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "invalid",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.custom",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
-                    { "custom_credential", "custom credential"}
-                };
-
-            var response = await client.RequestCustomGrantAsync("invalid", "api1", customParameters);
+                    { "custom_credential", "custom credential"},
+                    { "scope", "api1" }
+                }
+            });
 
             response.IsError.Should().Be(true);
             response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -210,20 +221,22 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Valid_Client_Unauthorized_Grant()
+        public async Task Valid_client_using_unauthorized_grant_type_should_fail()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.custom",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "custom2",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.custom",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
-                    { "custom_credential", "custom credential"}
-                };
-
-            var response = await client.RequestCustomGrantAsync("custom2", "api1", customParameters);
+                    { "custom_credential", "custom credential"},
+                    { "scope", "api1" }
+                }
+            });
 
             response.IsError.Should().Be(true);
             response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -232,21 +245,24 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Dynamic_Client_Lifetime()
+        public async Task Dynamic_lifetime_should_succeed()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.dynamic",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "dynamic",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.dynamic",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
+                    { "scope", "api1" },
+
                     { "lifetime", "5000"},
                     { "sub",  "818727"}
-                };
-
-            var response = await client.RequestCustomGrantAsync("dynamic", "api1", customParameters);
+                }
+            });
 
             response.IsError.Should().BeFalse();
             response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -282,21 +298,24 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Dynamic_Client_Jwt()
+        public async Task Dynamic_token_type_jwt_should_succeed()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.dynamic",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "dynamic",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.dynamic",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
-                    { "sub",  "818727"},
-                    { "type", "jwt" }
-                };
+                    { "scope", "api1" },
 
-            var response = await client.RequestCustomGrantAsync("dynamic", "api1", customParameters);
+                    { "type", "jwt"},
+                    { "sub",  "818727"}
+                }
+            });
 
             response.IsError.Should().BeFalse();
             response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -309,21 +328,24 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Dynamic_Client_Reference()
+        public async Task Dynamic_token_type_reference_should_succeed()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.dynamic",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "dynamic",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.dynamic",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
-                    { "sub",  "818727"},
-                    { "type", "reference" }
-                };
+                    { "scope", "api1" },
 
-            var response = await client.RequestCustomGrantAsync("dynamic", "api1", customParameters);
+                    { "type", "reference"},
+                    { "sub",  "818727"}
+                }
+            });
 
             response.IsError.Should().BeFalse();
             response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -336,21 +358,24 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Dynamic_Client_Client_Claims()
+        public async Task Dynamic_client_claims_should_succeed()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.dynamic",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "dynamic",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.dynamic",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
+                    { "scope", "api1" },
+
                     { "claim", "extra_claim"},
                     { "sub",  "818727"}
-                };
-
-            var response = await client.RequestCustomGrantAsync("dynamic", "api1", customParameters);
+                }
+            });
 
             response.IsError.Should().BeFalse();
             response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -383,20 +408,23 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
-        public async Task Dynamic_Client_Client_Claims_no_Sub()
+        public async Task Dynamic_client_claims_no_sub_should_succeed()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.dynamic",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "dynamic",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.dynamic",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
-                    { "claim", "extra_claim"}
-                };
+                    { "scope", "api1" },
 
-            var response = await client.RequestCustomGrantAsync("dynamic", "api1", customParameters);
+                    { "claim", "extra_claim"},
+                }
+            });
 
             response.IsError.Should().BeFalse();
             response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
