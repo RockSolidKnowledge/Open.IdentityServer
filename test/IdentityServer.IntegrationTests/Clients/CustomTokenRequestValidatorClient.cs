@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -18,7 +18,6 @@ namespace IdentityServer4.IntegrationTests.Clients
         private const string TokenEndpoint = "https://server/connect/token";
 
         private readonly HttpClient _client;
-        private readonly HttpMessageHandler _handler;
 
         public CustomTokenRequestValidatorClient()
         {
@@ -29,71 +28,89 @@ namespace IdentityServer4.IntegrationTests.Clients
                 .UseStartup<Startup>();
             var server = new TestServer(builder);
 
-            _handler = server.CreateHandler();
             _client = server.CreateClient();
         }
 
         [Fact]
-        public async Task client_credentials_request_should_contain_custom_response()
+        public async Task Client_credentials_request_should_contain_custom_response()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = TokenEndpoint,
 
-            var response = await client.RequestClientCredentialsAsync("api1");
+                ClientId = "client",
+                ClientSecret = "secret",
+                Scope = "api1"
+            });
 
             var fields = GetFields(response);
             fields.Should().Contain("custom", "custom");
         }
 
         [Fact]
-        public async Task resource_owner_credentials_request_should_contain_custom_response()
+        public async Task Resource_owner_credentials_request_should_contain_custom_response()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "roclient",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
+            {
+                Address = TokenEndpoint,
 
-            var response = await client.RequestResourceOwnerPasswordAsync("bob", "bob", "api1");
+                ClientId = "roclient",
+                ClientSecret = "secret",
+                Scope = "api1",
+
+                UserName = "bob",
+                Password = "bob"
+            });
 
             var fields = GetFields(response);
             fields.Should().Contain("custom", "custom");
         }
 
         [Fact]
-        public async Task refreshing_a_token_should_contain_custom_response()
+        public async Task Refreshing_a_token_should_contain_custom_response()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "roclient",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
+            {
+                Address = TokenEndpoint,
 
-            var response = await client.RequestResourceOwnerPasswordAsync("bob", "bob", "api1 offline_access");
-            response = await client.RequestRefreshTokenAsync(response.RefreshToken);
+                ClientId = "roclient",
+                ClientSecret = "secret",
+                Scope = "api1 offline_access",
+
+                UserName = "bob",
+                Password = "bob"
+            });
+
+            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
+            {
+                Address = TokenEndpoint,
+                ClientId = "roclient",
+                ClientSecret = "secret",
+
+                RefreshToken = response.RefreshToken
+            });
 
             var fields = GetFields(response);
             fields.Should().Contain("custom", "custom");
         }
 
         [Fact]
-        public async Task extension_grant_request_should_contain_custom_response()
+        public async Task Extension_grant_request_should_contain_custom_response()
         {
-            var client = new TokenClient(
-                TokenEndpoint,
-                "client.custom",
-                "secret",
-                innerHttpMessageHandler: _handler);
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "custom",
 
-            var customParameters = new Dictionary<string, string>
+                ClientId = "client.custom",
+                ClientSecret = "secret",
+
+                Parameters =
                 {
+                    { "scope", "api1" },
                     { "custom_credential", "custom credential"}
-                };
-
-            var response = await client.RequestCustomGrantAsync("custom", "api1", customParameters);
+                }
+            });
 
             var fields = GetFields(response);
             fields.Should().Contain("custom", "custom");
