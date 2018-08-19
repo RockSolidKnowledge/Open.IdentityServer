@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -39,7 +39,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Empty_Request()
+        public async Task Empty_request_should_fail()
         {
             var form = new Dictionary<string, string>();
 
@@ -50,7 +50,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Unknown_Scope()
+        public async Task Unknown_scope_should_fail()
         {
             var form = new Dictionary<string, string>();
 
@@ -62,7 +62,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Invalid_ScopeSecret()
+        public async Task Invalid_scope_secret_should_fail()
         {
             var form = new Dictionary<string, string>();
 
@@ -74,7 +74,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Missing_Token()
+        public async Task Missing_token_should_fail()
         {
             var form = new Dictionary<string, string>();
 
@@ -86,7 +86,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Invalid_Token()
+        public async Task Invalid_token_should_fail()
         {
             var introspectionClient = new IntrospectionClient(
                 IntrospectionEndpoint,
@@ -105,15 +105,15 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Invalid_ContentType()
+        public async Task Invalid_Content_type_should_fail()
         {
-            var tokenClient = new TokenClient(
-                TokenEndpoint,
-                "client1",
-                "secret",
-                _handler);
-
-            var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
+            var tokenResponse = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = TokenEndpoint,
+                ClientId = "client1",
+                ClientSecret = "secret",
+                Scope = "api1"
+            });
 
             var data = new
             {
@@ -130,31 +130,29 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_Token_Valid_Scope()
+        public async Task Valid_token_and_valid_scope_should_succeed()
         {
-            var tokenClient = new TokenClient(
-                TokenEndpoint,
-                "client1",
-                "secret",
-                _handler);
-
-            var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-
-            var introspectionClient = new IntrospectionClient(
-                IntrospectionEndpoint,
-                "api1",
-                "secret",
-                _handler);
-
-            var response = await introspectionClient.SendAsync(new IntrospectionRequest
+            var tokenResponse = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
+                Address = TokenEndpoint,
+                ClientId = "client1",
+                ClientSecret = "secret",
+                Scope = "api1"
+            });
+
+            var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
+            {
+                Address = IntrospectionEndpoint,
+                ClientId = "api1",
+                ClientSecret = "secret",
+
                 Token = tokenResponse.AccessToken
             });
 
-            response.IsActive.Should().Be(true);
-            response.IsError.Should().Be(false);
+            introspectionResponse.IsActive.Should().Be(true);
+            introspectionResponse.IsError.Should().Be(false);
 
-            var scopes = from c in response.Claims
+            var scopes = from c in introspectionResponse.Claims
                          where c.Type == "scope"
                          select c;
 
@@ -166,26 +164,24 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
         [Trait("Category", Category)]
         public async Task Response_data_should_be_valid_using_single_scope()
         {
-            var tokenClient = new TokenClient(
-                TokenEndpoint,
-                "client1",
-                "secret",
-                _handler);
-
-            var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-
-            var introspectionClient = new IntrospectionClient(
-                IntrospectionEndpoint,
-                "api1",
-                "secret",
-                _handler);
-
-            var response = await introspectionClient.SendAsync(new IntrospectionRequest
+            var tokenResponse = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
+                Address = TokenEndpoint,
+                ClientId = "client1",
+                ClientSecret = "secret",
+                Scope = "api1"
+            });
+
+            var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
+            {
+                Address = IntrospectionEndpoint,
+                ClientId = "api1",
+                ClientSecret = "secret",
+
                 Token = tokenResponse.AccessToken
             });
 
-            var values = response.Json.ToObject<Dictionary<string, object>>();
+            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
 
             values["aud"].GetType().Name.Should().Be("JArray");
 
@@ -209,27 +205,29 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
         [Trait("Category", Category)]
         public async Task Response_data_with_user_authentication_should_be_valid_using_single_scope()
         {
-            var tokenClient = new TokenClient(
-                TokenEndpoint,
-                "ro.client",
-                "secret",
-                _handler);
+            var tokenResponse = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
+            {
+                Address = TokenEndpoint,
+                ClientId = "ro.client",
+                ClientSecret = "secret",
+                UserName = "bob",
+                Password = "bob",
 
-            var tokenResponse = await tokenClient.RequestResourceOwnerPasswordAsync("bob", "bob", "api1");
+                Scope = "api1",
+            });
+
             tokenResponse.IsError.Should().BeFalse();
 
-            var introspectionClient = new IntrospectionClient(
-                IntrospectionEndpoint,
-                "api1",
-                "secret",
-                _handler);
-
-            var response = await introspectionClient.SendAsync(new IntrospectionRequest
+            var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
             {
+                Address = IntrospectionEndpoint,
+                ClientId = "api1",
+                ClientSecret = "secret",
+
                 Token = tokenResponse.AccessToken
             });
 
-            var values = response.Json.ToObject<Dictionary<string, object>>();
+            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
 
             values["aud"].GetType().Name.Should().Be("JArray");
 
@@ -255,26 +253,27 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
         [Trait("Category", Category)]
         public async Task Response_data_should_be_valid_using_multiple_scopes()
         {
-            var tokenClient = new TokenClient(
-                TokenEndpoint,
-                "client1",
-                "secret",
-                _handler);
-
-            var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api3-a api3-b");
-
-            var introspectionClient = new IntrospectionClient(
-                IntrospectionEndpoint,
-                "api3",
-                "secret",
-                _handler);
-
-            var response = await introspectionClient.SendAsync(new IntrospectionRequest
+            var tokenResponse = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
+                Address = TokenEndpoint,
+                ClientId = "client1",
+                ClientSecret = "secret",
+
+                Scope = "api3-a api3-b",
+            });
+
+            tokenResponse.IsError.Should().BeFalse();
+
+            var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
+            {
+                Address = IntrospectionEndpoint,
+                ClientId = "api3",
+                ClientSecret = "secret",
+
                 Token = tokenResponse.AccessToken
             });
 
-            var values = response.Json.ToObject<Dictionary<string, object>>();
+            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
 
             values["aud"].GetType().Name.Should().Be("JArray");
 
@@ -297,31 +296,32 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_Token_Many_Scopes_Api_Only_See_Its_Scope()
+        public async Task Token_with_many_scopes_but_api_should_only_see_its_own_scopes()
         {
-            var tokenClient = new TokenClient(
-                TokenEndpoint,
-                "client3",
-                "secret",
-                _handler);
-
-            var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1 api2 api3-a");
-
-            var introspectionClient = new IntrospectionClient(
-                IntrospectionEndpoint,
-                "api3",
-                "secret",
-                _handler);
-
-            var response = await introspectionClient.SendAsync(new IntrospectionRequest
+            var tokenResponse = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
+                Address = TokenEndpoint,
+                ClientId = "client3",
+                ClientSecret = "secret",
+
+                Scope = "api1 api2 api3-a",
+            });
+
+            tokenResponse.IsError.Should().BeFalse();
+
+            var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
+            {
+                Address = IntrospectionEndpoint,
+                ClientId = "api3",
+                ClientSecret = "secret",
+
                 Token = tokenResponse.AccessToken
             });
 
-            response.IsActive.Should().Be(true);
-            response.IsError.Should().Be(false);
+            introspectionResponse.IsActive.Should().BeTrue();
+            introspectionResponse.IsError.Should().BeFalse();
 
-            var scopes = from c in response.Claims
+            var scopes = from c in introspectionResponse.Claims
                          where c.Type == "scope"
                          select c.Value;
 
@@ -331,31 +331,30 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_Token_Valid_Scope_Multiple()
+        public async Task Valid_token_with_valid_multiple_scopes()
         {
-            var tokenClient = new TokenClient(
-                TokenEndpoint,
-                "client1",
-                "secret",
-                _handler);
-
-            var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1 api2");
-
-            var introspectionClient = new IntrospectionClient(
-                IntrospectionEndpoint,
-                "api1",
-                "secret",
-                _handler);
-
-            var response = await introspectionClient.SendAsync(new IntrospectionRequest
+            var tokenResponse = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
+                Address = TokenEndpoint,
+                ClientId = "client1",
+                ClientSecret = "secret",
+
+                Scope = "api1 api2",
+            });
+
+            var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
+            {
+                Address = IntrospectionEndpoint,
+                ClientId = "api1",
+                ClientSecret = "secret",
+
                 Token = tokenResponse.AccessToken
             });
 
-            response.IsActive.Should().Be(true);
-            response.IsError.Should().Be(false);
+            introspectionResponse.IsActive.Should().Be(true);
+            introspectionResponse.IsError.Should().Be(false);
 
-            var scopes = from c in response.Claims
+            var scopes = from c in introspectionResponse.Claims
                          where c.Type == "scope"
                          select c;
 
@@ -365,29 +364,28 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_Token_Invalid_Scope()
+        public async Task Valid_token_with_invalid_scopes_should_fail()
         {
-            var tokenClient = new TokenClient(
-                TokenEndpoint,
-                "client1",
-                "secret",
-                _handler);
-
-            var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
-
-            var introspectionClient = new IntrospectionClient(
-                IntrospectionEndpoint,
-                "api2",
-                "secret",
-                _handler);
-
-            var response = await introspectionClient.SendAsync(new IntrospectionRequest
+            var tokenResponse = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
+                Address = TokenEndpoint,
+                ClientId = "client1",
+                ClientSecret = "secret",
+
+                Scope = "api1",
+            });
+
+            var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
+            {
+                Address = IntrospectionEndpoint,
+                ClientId = "api2",
+                ClientSecret = "secret",
+
                 Token = tokenResponse.AccessToken
             });
 
-            response.IsActive.Should().Be(false);
-            response.IsError.Should().Be(false);
+            introspectionResponse.IsActive.Should().Be(false);
+            introspectionResponse.IsError.Should().Be(false);
         }
     }
 }
