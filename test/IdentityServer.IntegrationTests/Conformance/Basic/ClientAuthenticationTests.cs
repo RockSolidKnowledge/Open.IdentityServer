@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -9,6 +9,7 @@ using IdentityServer4.Models;
 using IdentityServer4.Test;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
@@ -84,8 +85,16 @@ namespace IdentityServer4.IntegrationTests.Conformance.Basic
 
             // backchannel client
             var wrapper = new MessageHandlerWrapper(_pipeline.Handler);
-            var tokenClient = new TokenClient(IdentityServerPipeline.TokenEndpoint, "code_pipeline.Client", "secret", wrapper);
-            var tokenResult = await tokenClient.RequestAuthorizationCodeAsync(code, "https://code_pipeline.Client/callback?foo=bar&baz=quux");
+            var tokenClient = new HttpClient(wrapper);
+            var tokenResult = await tokenClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest
+            {
+                Address = IdentityServerPipeline.TokenEndpoint,
+                ClientId = "code_pipeline.Client",
+                ClientSecret = "secret",
+
+                Code = code,
+                RedirectUri = "https://code_pipeline.Client/callback?foo=bar&baz=quux"
+            });
 
             tokenResult.IsError.Should().BeFalse();
             tokenResult.HttpErrorReason.Should().BeNull();
@@ -121,8 +130,18 @@ namespace IdentityServer4.IntegrationTests.Conformance.Basic
             var code = authorization.Code;
 
             // backchannel client
-            var tokenClient = new TokenClient(IdentityServerPipeline.TokenEndpoint, "code_pipeline.Client", "secret", _pipeline.Handler, AuthenticationStyle.PostValues);
-            var tokenResult = await tokenClient.RequestAuthorizationCodeAsync(code, "https://code_pipeline.Client/callback?foo=bar&baz=quux");
+            var wrapper = new MessageHandlerWrapper(_pipeline.Handler);
+            var tokenClient = new HttpClient(wrapper);
+            var tokenResult = await tokenClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest
+            {
+                Address = IdentityServerPipeline.TokenEndpoint,
+                ClientId = "code_pipeline.Client",
+                ClientSecret = "secret",
+                ClientCredentialStyle = ClientCredentialStyle.PostBody,
+
+                Code = code,
+                RedirectUri = "https://code_pipeline.Client/callback?foo=bar&baz=quux"
+            });
 
             tokenResult.IsError.Should().BeFalse();
             tokenResult.HttpErrorReason.Should().BeNull();
