@@ -17,7 +17,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Discovery
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task issuer_uri_should_be_lowercase()
+        public async Task Issuer_uri_should_be_lowercase()
         {
             IdentityServerPipeline pipeline = new IdentityServerPipeline();
             pipeline.Initialize("/ROOT");
@@ -33,7 +33,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Discovery
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task jwks_entries_should_contain_alg()
+        public async Task Jwks_entries_should_contain_alg()
         {
             IdentityServerPipeline pipeline = new IdentityServerPipeline();
             pipeline.Initialize("/ROOT");
@@ -57,18 +57,23 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Discovery
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task unicode_values_in_url_should_be_processed_correctly()
+        public async Task Unicode_values_in_url_should_be_processed_correctly()
         {
             var pipeline = new IdentityServerPipeline();
             pipeline.Initialize();
 
-            var discoClient = new DiscoveryClient("https://грант.рф", pipeline.Handler);
-            discoClient.Policy.ValidateIssuerName = false;
-            discoClient.Policy.ValidateEndpoints = false;
-            discoClient.Policy.RequireHttps = false;
-            discoClient.Policy.RequireKeySet = false;
+            var result = await pipeline.BackChannelClient.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
+            {
+                Address = "https://грант.рф",
+                Policy =
+                {
+                    ValidateIssuerName = false,
+                    ValidateEndpoints = false,
+                    RequireHttps = false,
+                    RequireKeySet = false
+                }
+            });
 
-            var result = await discoClient.GetAsync();
             result.Issuer.Should().Be("https://грант.рф");
         }
     }
