@@ -124,7 +124,7 @@ The ``AddAspNetIdentity`` extension method requires a generic parameter which is
     
 **Configure**
 
-This shows both the template code generated for ASP.NET Identity, plus the call to ``UseIdentityServer`` which replaces the call to ``UseIdentity``.
+This shows both the template code generated for ASP.NET Identity, plus the call to ``UseIdentityServer`` which replaces the call to ``UseAuthentication``.
 
 ::
 
