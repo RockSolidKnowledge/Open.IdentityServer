@@ -200,12 +200,17 @@ docs/_build/
 # Cake Build Related
 tools/Cake/
 tools/packages.config.md5sum
+tools/dotnet-cake.exe
+tols/dotnet-cake
+tools/.store/
+.dotnet
+
+# Rider
 .idea
 
 # Visual Studio Code workspace options
 .vscode
+
+# IdentityServer temp files
 identityserver4_log.txt
 tempkey.rsa
-signing.json
-tools/dotnet-cake.exe
-tools/.store/
