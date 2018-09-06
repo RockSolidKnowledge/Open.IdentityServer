@@ -207,3 +207,5 @@ tools/packages.config.md5sum
 identityserver4_log.txt
 tempkey.rsa
 signing.json
+tools/dotnet-cake.exe
+tools/.store/
