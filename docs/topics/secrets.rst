@@ -83,7 +83,7 @@ Secret extensibility typically consists of three things:
 Secret parsers and validators are implementations of the ``ISecretParser`` and ``ISecretValidator`` interfaces. 
 To make them available to IdentityServer, you need to register them with the DI container, e.g.::
 
-    builder.AddSecretParser<ClientAssertionSecretParser>()
+    builder.AddSecretParser<JwtBearerClientAssertionSecretParser>()
     builder.AddSecretValidator<PrivateKeyJwtSecretValidator>()
 
 Our default private key JWT secret validator expects the full (leaf) certificate as base64 on the secret definition.
