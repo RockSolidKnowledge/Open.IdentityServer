@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-
-# Define variables
+# Define varibles
 CAKE_VERSION=0.30.0
 DOTNET_VERSION=2.1.402
-
 SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 TOOLS_DIR=$SCRIPT_DIR/tools
 CAKE_EXE=$TOOLS_DIR/dotnet-cake
-CAKE_PATH=.store/cake.tool/$CAKE_VERSION
+CAKE_PATH=$TOOLS_DIR/.store/cake.tool/$CAKE_VERSION
 
 # Make sure the tools folder exist.
 if [ ! -d "$TOOLS_DIR" ]; then
