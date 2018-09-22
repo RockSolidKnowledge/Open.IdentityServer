@@ -36,45 +36,55 @@ class VersionInfo
 
 Setup(context =>
 {
-    var gitVersions = Context.GitVersion();
-    
-    versions = new VersionInfo
+    // only calculate versions if on Windows
+    // due to problems with GitVersion in the current setup - but also since Windows is our release platform anyways
+    if (isWindows)
     {
-        InformationalVersion = gitVersions.InformationalVersion,
-        BranchName = gitVersions.BranchName,
-        PreReleaseLabel = gitVersions.PreReleaseLabel
-    };
-
-    // explicit version has been passed in as argument
-    if (!string.IsNullOrEmpty(versionOverride))
-    {
-        versions.AssemblyVersion = versionOverride;
-        versions.FileVersion = versionOverride;
-
-        if (!string.IsNullOrEmpty(suffixOverride))
+        var gitVersions = Context.GitVersion();
+        
+        versions = new VersionInfo
         {
-            versions.VersionSuffix = suffixOverride;
+            InformationalVersion = gitVersions.InformationalVersion,
+            BranchName = gitVersions.BranchName,
+            PreReleaseLabel = gitVersions.PreReleaseLabel
+        };
+
+        // explicit version has been passed in as argument
+        if (!string.IsNullOrEmpty(versionOverride))
+        {
+            versions.AssemblyVersion = versionOverride;
+            versions.FileVersion = versionOverride;
+
+            if (!string.IsNullOrEmpty(suffixOverride))
+            {
+                versions.VersionSuffix = suffixOverride;
+            }
         }
+        else
+        {
+            versions.AssemblyVersion = gitVersions.AssemblySemVer;
+            versions.FileVersion = gitVersions.AssemblySemVer;
+
+            if (!string.IsNullOrEmpty(versions.PreReleaseLabel))
+            {
+                versions.VersionSuffix = gitVersions.PreReleaseLabel + gitVersions.CommitsSinceVersionSourcePadded;      
+            }
+            
+        }
+
+        Information("branch            : " + versions.BranchName);
+        Information("pre-release label : " + versions.PreReleaseLabel);
+        Information("version           : " + versions.AssemblyVersion);
+        Information("version suffix    : " + versions.VersionSuffix);
+        Information("informational     : " + versions.InformationalVersion);
+        
+        msBuildSettings = GetMSBuildSettings();
     }
     else
     {
-        versions.AssemblyVersion = gitVersions.AssemblySemVer;
-        versions.FileVersion = gitVersions.AssemblySemVer;
-
-        if (!string.IsNullOrEmpty(versions.PreReleaseLabel))
-        {
-            versions.VersionSuffix = gitVersions.PreReleaseLabel + gitVersions.CommitsSinceVersionSourcePadded;      
-        }
-        
+        Information("Skipping version calculation because not on Windows.");
+        msBuildSettings = null;
     }
-
-    Information("branch            : " + versions.BranchName);
-    Information("pre-release label : " + versions.PreReleaseLabel);
-    Information("version           : " + versions.AssemblyVersion);
-    Information("version suffix    : " + versions.VersionSuffix);
-    Information("informational     : " + versions.InformationalVersion);
-    
-    msBuildSettings = GetMSBuildSettings();
 });
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,11 +109,16 @@ Task("Build")
         MSBuildSettings = msBuildSettings
     };
 
-    
     var projects = GetFiles("./src/**/*.csproj");
     foreach(var project in projects)
 	{
 	    DotNetCoreBuild(project.GetDirectory().FullPath, settings);
+    }
+
+    if (!isWindows)
+    {
+        Information("Not running on Windows - skipping building tests for .NET Framework");
+        settings.Framework = "netcoreapp2.1";
     }
 
     var tests = GetFiles("./test/**/*.csproj");
@@ -130,7 +145,7 @@ Task("Test")
     if (!isWindows)
     {
         Information("Not running on Windows - skipping tests for .NET Framework");
-        settings.Framework = "netcoreapp2.0";
+        settings.Framework = "netcoreapp2.1";
     }
 
     var projects = GetFiles("./test/**/*.csproj");
@@ -163,6 +178,12 @@ Task("Pack")
 
 private bool SkipPack()
 {
+    if (!isWindows)
+    {
+        Information("Skipping pack because not on Windows.");
+        return true;
+    }
+    
     if (String.IsNullOrEmpty(versions.PreReleaseLabel) && versions.BranchName != "master") 
     {
         Information("Skipping pack of release version, because not on master.");
