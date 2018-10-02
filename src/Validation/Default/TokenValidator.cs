@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -171,7 +171,7 @@ namespace IdentityServer4.Validation
                 _log.AccessTokenType = AccessTokenType.Jwt.ToString();
                 result = await ValidateJwtAsync(
                     token,
-                    string.Format(Constants.AccessTokenAudience, _context.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash()),
+                    string.Format(IdentityServerConstants.AccessTokenAudience, _context.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash()),
                     await _keys.GetValidationKeysAsync());
             }
             else
