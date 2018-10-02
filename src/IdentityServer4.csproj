@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>OpenID Connect and OAuth 2.0 Framework for ASP.NET Core</Description>
-   
-    <Authors>Brock Allen;Dominick Baier</Authors>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>IdentityServer4</AssemblyName>
     <PackageId>IdentityServer4</PackageId>
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+    <Description>OpenID Connect and OAuth 2.0 Framework for ASP.NET Core</Description>
+    <Authors>Brock Allen;Dominick Baier</Authors>
+    <AssemblyName>IdentityServer4</AssemblyName>
     <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/IdentityServer/Artwork/master/Logos/IDserver_icon128.jpg</PackageIconUrl>
     <PackageProjectUrl>https://github.com/IdentityServer/IdentityServer4</PackageProjectUrl>
@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="3.10.0" />
-    <PackageReference Include="IdentityServer4.Storage" Version="2.3.0-preview1-update2" />
+    <PackageReference Include="IdentityServer4.Storage" Version="0.1.0-dev0027" />
     
     
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.0" />
