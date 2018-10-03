@@ -91,6 +91,8 @@ namespace IdentityServer4
                     HttpOnly = true,
                     Secure = Secure,
                     Path = CookiePath
+                    // don't need to set same-site since cookie is expected to be sent
+                    // to only another page in this host. 
                 });
         }
 

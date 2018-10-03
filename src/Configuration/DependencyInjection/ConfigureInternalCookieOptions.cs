@@ -39,6 +39,12 @@ namespace IdentityServer4.Configuration
             if (name == IdentityServerConstants.ExternalCookieAuthenticationScheme)
             {
                 options.Cookie.Name = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                // https://github.com/IdentityServer/IdentityServer4/issues/2595
+                // need to set None because iOS 12 safari considers the POST back to the client from the 
+                // IdP as not safe, so cookies issued from response (with lax) then should not be honored.
+                // so we need to make those cookies issued without same-site, thus the browser will
+                // hold onto them and send on the next redirect to the callback page.
+                options.Cookie.SameSite = SameSiteMode.None;
             }
         }
 
