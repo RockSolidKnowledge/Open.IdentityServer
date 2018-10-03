@@ -376,6 +376,7 @@ namespace IdentityServer4.Services
                 HttpOnly = false,
                 Secure = secure,
                 Path = path,
+                IsEssential = true,
                 SameSite = SameSiteMode.None
             };
 
