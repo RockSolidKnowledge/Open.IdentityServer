@@ -21,17 +21,62 @@ using static IdentityServer4.IdentityServerConstants;
 
 namespace IdentityServer4.Validation
 {
-    internal class EndSessionRequestValidator : IEndSessionRequestValidator
+    /// <summary>
+    /// Validates requests to the end session endpoint.
+    /// </summary>
+    public class EndSessionRequestValidator : IEndSessionRequestValidator
     {
-        private readonly ILogger _logger;
-        private readonly IdentityServerOptions _options;
-        private readonly ITokenValidator _tokenValidator;
-        private readonly IRedirectUriValidator _uriValidator;
-        private readonly IUserSession _userSession;
-        private readonly IClientStore _clientStore;
-        private readonly IMessageStore<EndSession> _endSessionMessageStore;
-        private readonly IHttpContextAccessor _context;
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        protected readonly ILogger Logger;
 
+        /// <summary>
+        ///  The IdentityServer options.
+        /// </summary>
+        protected readonly IdentityServerOptions Options;
+
+        /// <summary>
+        /// The token validator.
+        /// </summary>
+        protected readonly ITokenValidator TokenValidator;
+
+        /// <summary>
+        /// The URI validator.
+        /// </summary>
+        protected readonly IRedirectUriValidator UriValidator;
+
+        /// <summary>
+        /// The user session service.
+        /// </summary>
+        protected readonly IUserSession UserSession;
+
+        /// <summary>
+        /// The client store.
+        /// </summary>
+        protected readonly IClientStore ClientStore;
+
+        /// <summary>
+        /// The end session message store.
+        /// </summary>
+        protected readonly IMessageStore<EndSession> EndSessionMessageStore;
+
+        /// <summary>
+        /// The HTTP context accessor.
+        /// </summary>
+        protected readonly IHttpContextAccessor Context;
+
+        /// <summary>
+        /// Creates a new instance of the EndSessionRequestValidator.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="options"></param>
+        /// <param name="tokenValidator"></param>
+        /// <param name="uriValidator"></param>
+        /// <param name="userSession"></param>
+        /// <param name="clientStore"></param>
+        /// <param name="endSessionMessageStore"></param>
+        /// <param name="logger"></param>
         public EndSessionRequestValidator(
             IHttpContextAccessor context,
             IdentityServerOptions options,
@@ -42,23 +87,24 @@ namespace IdentityServer4.Validation
             IMessageStore<EndSession> endSessionMessageStore,
             ILogger<EndSessionRequestValidator> logger)
         {
-            _context = context;
-            _options = options;
-            _tokenValidator = tokenValidator;
-            _uriValidator = uriValidator;
-            _userSession = userSession;
-            _clientStore = clientStore;
-            _endSessionMessageStore = endSessionMessageStore;
-            _logger = logger;
+            Context = context;
+            Options = options;
+            TokenValidator = tokenValidator;
+            UriValidator = uriValidator;
+            UserSession = userSession;
+            ClientStore = clientStore;
+            EndSessionMessageStore = endSessionMessageStore;
+            Logger = logger;
         }
 
+        /// <inheritdoc />
         public async Task<EndSessionValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal subject)
         {
-            _logger.LogDebug("Start end session request validation");
+            Logger.LogDebug("Start end session request validation");
 
             var isAuthenticated = subject.IsAuthenticated();
 
-            if (!isAuthenticated && _options.Authentication.RequireAuthenticatedUserForSignOutMessage)
+            if (!isAuthenticated && Options.Authentication.RequireAuthenticatedUserForSignOutMessage)
             {
                 return Invalid("User is anonymous. Ignoring end session parameters");
             }
@@ -72,7 +118,7 @@ namespace IdentityServer4.Validation
             if (idTokenHint.IsPresent())
             {
                 // validate id_token - no need to validate token life time
-                var tokenValidationResult = await _tokenValidator.ValidateIdentityTokenAsync(idTokenHint, null, false);
+                var tokenValidationResult = await TokenValidator.ValidateIdentityTokenAsync(idTokenHint, null, false);
                 if (tokenValidationResult.IsError)
                 {
                     return Invalid("Error validating id token hint", validatedRequest);
@@ -90,14 +136,14 @@ namespace IdentityServer4.Validation
                     }
 
                     validatedRequest.Subject = subject;
-                    validatedRequest.SessionId = await _userSession.GetSessionIdAsync();
-                    validatedRequest.ClientIds = await _userSession.GetClientListAsync();
+                    validatedRequest.SessionId = await UserSession.GetSessionIdAsync();
+                    validatedRequest.ClientIds = await UserSession.GetClientListAsync();
                 }
 
                 var redirectUri = parameters.Get(OidcConstants.EndSessionRequest.PostLogoutRedirectUri);
                 if (redirectUri.IsPresent())
                 {
-                    if (await _uriValidator.IsPostLogoutRedirectUriValidAsync(redirectUri, validatedRequest.Client) == false)
+                    if (await UriValidator.IsPostLogoutRedirectUriValidAsync(redirectUri, validatedRequest.Client) == false)
                     {
                         return Invalid("Invalid post logout URI", validatedRequest);
                     }
@@ -122,8 +168,8 @@ namespace IdentityServer4.Validation
             {
                 // no id_token to authenticate the client, but we do have a user and a user session
                 validatedRequest.Subject = subject;
-                validatedRequest.SessionId = await _userSession.GetSessionIdAsync();
-                validatedRequest.ClientIds = await _userSession.GetClientListAsync();
+                validatedRequest.SessionId = await UserSession.GetSessionIdAsync();
+                validatedRequest.ClientIds = await UserSession.GetClientListAsync();
             }
 
             LogSuccess(validatedRequest);
@@ -135,17 +181,23 @@ namespace IdentityServer4.Validation
             };
         }
 
-        private EndSessionValidationResult Invalid(string message, ValidatedEndSessionRequest request = null)
+        /// <summary>
+        /// Creates a result that indicates an error.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        protected virtual EndSessionValidationResult Invalid(string message, ValidatedEndSessionRequest request = null)
         {
             message = "End session request validation failure: " + message;
             if (request != null)
             {
                 var log = new EndSessionRequestValidationLog(request);
-                _logger.LogInformation(message + Environment.NewLine + "{details}", log);
+                Logger.LogInformation(message + Environment.NewLine + "{details}", log);
             }
             else
             {
-                _logger.LogInformation(message);
+                Logger.LogInformation(message);
             }
 
             return new EndSessionValidationResult
@@ -156,12 +208,17 @@ namespace IdentityServer4.Validation
             };
         }
 
-        private void LogSuccess(ValidatedEndSessionRequest request)
+        /// <summary>
+        /// Logs a success result.
+        /// </summary>
+        /// <param name="request"></param>
+        protected virtual void LogSuccess(ValidatedEndSessionRequest request)
         {
             var log = new EndSessionRequestValidationLog(request);
-            _logger.LogInformation("End session request validation success" + Environment.NewLine + "{details}", log);
+            Logger.LogInformation("End session request validation success" + Environment.NewLine + "{details}", log);
         }
 
+        /// <inheritdoc />
         public async Task<EndSessionCallbackValidationResult> ValidateCallbackAsync(NameValueCollection parameters)
         {
             var result = new EndSessionCallbackValidationResult
@@ -170,7 +227,7 @@ namespace IdentityServer4.Validation
             };
 
             var endSessionId = parameters[Constants.UIConstants.DefaultRoutePathParams.EndSessionCallback];
-            var endSessionMessage = await _endSessionMessageStore.ReadAsync(endSessionId);
+            var endSessionMessage = await EndSessionMessageStore.ReadAsync(endSessionId);
             if (endSessionMessage?.Data?.ClientIds?.Any() == true)
             {
                 result.IsError = false;
@@ -183,13 +240,18 @@ namespace IdentityServer4.Validation
             return result;
         }
 
-        private async Task<(IEnumerable<string> frontChannel, IEnumerable<BackChannelLogoutModel> backChannel)> GetClientEndSessionUrlsAsync(EndSession endSession)
+        /// <summary>
+        /// Creates the data structures for front-channel and back-channel sign-out notifications.
+        /// </summary>
+        /// <param name="endSession"></param>
+        /// <returns></returns>
+        protected virtual async Task<(IEnumerable<string> frontChannel, IEnumerable<BackChannelLogoutModel> backChannel)> GetClientEndSessionUrlsAsync(EndSession endSession)
         {
             var frontChannelUrls = new List<string>();
             var backChannelLogouts = new List<BackChannelLogoutModel>();
             foreach (var clientId in endSession.ClientIds)
             {
-                var client = await _clientStore.FindEnabledClientByIdAsync(clientId);
+                var client = await ClientStore.FindEnabledClientByIdAsync(clientId);
                 if (client != null)
                 {
                     if (client.FrontChannelLogoutUri.IsPresent())
@@ -202,7 +264,7 @@ namespace IdentityServer4.Validation
                             if (client.FrontChannelLogoutSessionRequired)
                             {
                                 url = url.AddQueryString(OidcConstants.EndSessionRequest.Sid, endSession.SessionId);
-                                url = url.AddQueryString(OidcConstants.EndSessionRequest.Issuer, _context.HttpContext.GetIdentityServerIssuerUri());
+                                url = url.AddQueryString(OidcConstants.EndSessionRequest.Issuer, Context.HttpContext.GetIdentityServerIssuerUri());
                             }
                         }
                         else if (client.ProtocolType == ProtocolTypes.WsFederation)
@@ -232,21 +294,21 @@ namespace IdentityServer4.Validation
             if (frontChannelUrls.Any())
             {
                 var msg = frontChannelUrls.Aggregate((x, y) => x + ", " + y);
-                _logger.LogDebug("Client front-channel logout URLs: {0}", msg);
+                Logger.LogDebug("Client front-channel logout URLs: {0}", msg);
             }
             else
             {
-                _logger.LogDebug("No client front-channel logout URLs");
+                Logger.LogDebug("No client front-channel logout URLs");
             }
 
             if (backChannelLogouts.Any())
             {
                 var msg = backChannelLogouts.Select(x => x.LogoutUri).Aggregate((x, y) => x + ", " + y);
-                _logger.LogDebug("Client back-channel logout URLs: {0}", msg);
+                Logger.LogDebug("Client back-channel logout URLs: {0}", msg);
             }
             else
             {
-                _logger.LogDebug("No client back-channel logout URLs");
+                Logger.LogDebug("No client back-channel logout URLs");
             }
 
             return (frontChannelUrls, backChannelLogouts);
