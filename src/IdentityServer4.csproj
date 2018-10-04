@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="3.10.0" />
-    <PackageReference Include="IdentityServer4.Storage" Version="0.1.0-dev0028" />
+    <PackageReference Include="IdentityServer4.Storage" Version="2.3.0-dev0012" />
     
     
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.0" />
