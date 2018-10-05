@@ -105,4 +105,4 @@ You are expected to manage the database creation, schema changes, and data migra
 Using EF migrations is one possible approach to this. 
 If you do wish to use migrations, then see the :ref:`EF quickstart <refEntityFrameworkQuickstart>` for samples on how to get started, or consult the Microsoft `documentation on EF migrations <https://docs.microsoft.com/en-us/ef/core/miscellaneous/cli/dotnet>`_.
 
-We also publish `sample SQL scripts <https://github.com/IdentityServer/IdentityServer4.EntityFramework/tree/dev/src/Host/Migrations/IdentityServer>`_ for the current version of the database schema.
+We also publish `sample SQL scripts <https://github.com/IdentityServer/IdentityServer4.EntityFramework/tree/release/src/Host/Migrations/IdentityServer>`_ for the current version of the database schema.
