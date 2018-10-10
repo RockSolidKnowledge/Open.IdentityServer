@@ -144,6 +144,19 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
+        public async Task Invalid_token_should_fail()
+        {
+            var userInfo = await _client.GetUserInfoAsync(new UserInfoRequest
+            {
+                Address = UserInfoEndpoint,
+                Token = "invalid"
+            });
+
+            userInfo.IsError.Should().BeTrue();
+            userInfo.HttpStatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
+        [Fact]
         public async Task Complex_json_should_be_correct()
         {
             var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
