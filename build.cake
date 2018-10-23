@@ -139,7 +139,7 @@ Task("Build")
     // authenticode sign assemblies
     if (sign)
     {
-        var dlls = GetFiles("./src/bin/release/**/IdentityServer*.dll");
+        var dlls = GetFiles("./src/bin/release/**/IdentityServer4*.dll");
         foreach(var dll in dlls)
         {
             SignFile(dll.FullPath);
