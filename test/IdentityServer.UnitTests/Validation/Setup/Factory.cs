@@ -11,6 +11,8 @@ using IdentityServer4.Stores;
 using IdentityServer4.UnitTests.Common;
 using IdentityServer4.Stores.Serialization;
 using IdentityServer.UnitTests.Common;
+using IdentityServer.UnitTests.Validation.Setup;
+using IdentityServer4.Services.Default;
 using Microsoft.AspNetCore.Authentication;
 
 namespace IdentityServer4.UnitTests.Validation
@@ -34,6 +36,7 @@ namespace IdentityServer4.UnitTests.Validation
             IRefreshTokenStore refreshTokenStore = null,
             IResourceOwnerPasswordValidator resourceOwnerValidator = null,
             IProfileService profile = null,
+            IDeviceCodeValidator deviceCodeValidator = null,
             IEnumerable<IExtensionGrantValidator> extensionGrantValidators = null,
             ICustomTokenRequestValidator customRequestValidator = null,
             ITokenValidator tokenValidator = null,
@@ -57,6 +60,11 @@ namespace IdentityServer4.UnitTests.Validation
             if (profile == null)
             {
                 profile = new TestProfileService();
+            }
+            
+            if (deviceCodeValidator == null)
+            {
+                deviceCodeValidator = new TestDeviceCodeValidator();
             }
 
             if (customRequestValidator == null)
@@ -99,6 +107,7 @@ namespace IdentityServer4.UnitTests.Validation
                 authorizationCodeStore,
                 resourceOwnerValidator,
                 profile,
+                deviceCodeValidator,
                 aggregateExtensionGrantValidator,
                 customRequestValidator,
                 scopeValidator,
@@ -111,6 +120,32 @@ namespace IdentityServer4.UnitTests.Validation
             return new DefaultTokenCreationService(
                 new StubClock(),
                 new DefaultKeyMaterialService(new IValidationKeysStore[] { }, new DefaultSigningCredentialsStore(TestCert.LoadSigningCredentials())), TestLogger.Create<DefaultTokenCreationService>());
+        }
+
+        public static DeviceAuthorizationRequestValidator CreateDeviceAuthorizationRequestValidator(
+            IdentityServerOptions options = null,
+            IResourceStore resourceStore = null,
+            ScopeValidator scopeValidator = null)
+        {
+            if (options == null)
+            {
+                options = TestIdentityServerOptions.Create();
+            }
+            
+            if (resourceStore == null)
+            {
+                resourceStore = new InMemoryResourcesStore(TestScopes.GetIdentity(), TestScopes.GetApis());
+            }
+
+            if (scopeValidator == null)
+            {
+                scopeValidator = new ScopeValidator(resourceStore, new LoggerFactory().CreateLogger<ScopeValidator>());
+            }
+
+            return new DeviceAuthorizationRequestValidator(
+                options,
+                scopeValidator,
+                TestLogger.Create<DeviceAuthorizationRequestValidator>());
         }
 
         public static AuthorizeRequestValidator CreateAuthorizeRequestValidator(
@@ -211,6 +246,21 @@ namespace IdentityServer4.UnitTests.Validation
             return validator;
         }
 
+        public static IDeviceCodeValidator CreateDeviceCodeValidator(
+            IDeviceFlowCodeService service,
+            IProfileService profile = null,
+            IDeviceFlowThrottlingService throttlingService = null,
+            ISystemClock clock = null)
+        {
+            profile = profile ?? new TestProfileService();
+            throttlingService = throttlingService ?? new TestDeviceFlowThrottlingService();
+            clock = clock ?? new StubClock();
+            
+            var validator = new DeviceCodeValidator(service, profile, throttlingService, clock, TestLogger.Create<DeviceCodeValidator>());
+
+            return validator;
+        }
+
         public static IClientSecretValidator CreateClientSecretValidator(IClientStore clients = null, SecretParser parser = null, SecretValidator validator = null, IdentityServerOptions options = null)
         {
             options = options ?? TestIdentityServerOptions.Create();
@@ -264,6 +314,11 @@ namespace IdentityServer4.UnitTests.Validation
                 new PersistentGrantSerializer(),
                 new DefaultHandleGenerationService(),
                 TestLogger.Create<DefaultReferenceTokenStore>());
+        }
+
+        public static IDeviceFlowCodeService CreateDeviceCodeService()
+        {
+            return new DefaultDeviceFlowCodeService(new InMemoryDeviceFlowStore(), new DefaultHandleGenerationService());
         }
         
         public static IUserConsentStore CreateUserConsentStore()

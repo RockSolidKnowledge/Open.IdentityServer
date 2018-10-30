@@ -492,6 +492,18 @@ namespace IdentityServer4.UnitTests.Validation
                         AllowedGrantTypes = GrantTypes.ImplicitAndClientCredentials,
                         RedirectUris = { "https://notused" },
                         AllowedScopes = {"api1"}
+                    },
+                    new Client
+                    {
+                        ClientId = "device_flow",
+                        ClientName = "Device Flow Client",
+                        AllowedGrantTypes = GrantTypes.DeviceFlow,
+                        AllowedScopes = { "openid", "profile", "resource" },
+                        AllowOfflineAccess = true,
+                        ClientSecrets = new List<Secret>
+                        {
+                            new Secret("secret".Sha256())
+                        },
                     }
             };
         }

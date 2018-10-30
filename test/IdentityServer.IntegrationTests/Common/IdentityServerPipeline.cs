@@ -35,6 +35,7 @@ namespace IdentityServer4.IntegrationTests.Common
         public const string ConsentPage = BaseUrl + "/account/consent";
         public const string ErrorPage = BaseUrl + "/home/error";
 
+        public const string DeviceAuthorization = BaseUrl + "/connect/deviceauthorization";
         public const string DiscoveryEndpoint = BaseUrl + "/.well-known/openid-configuration";
         public const string DiscoveryKeysEndpoint = BaseUrl + "/.well-known/openid-configuration/jwks";
         public const string AuthorizeEndpoint = BaseUrl + "/connect/authorize";

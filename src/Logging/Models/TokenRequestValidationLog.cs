@@ -31,7 +31,9 @@ namespace IdentityServer4.Logging
             OidcConstants.TokenRequest.ClientSecret,
             OidcConstants.TokenRequest.Password,
             OidcConstants.TokenRequest.ClientAssertion,
-            OidcConstants.TokenRequest.RefreshToken
+            OidcConstants.TokenRequest.RefreshToken,
+            OidcConstants.TokenRequest.DeviceCode
+
         };
 
         public TokenRequestValidationLog(ValidatedTokenRequest request)

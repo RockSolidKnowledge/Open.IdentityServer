@@ -32,26 +32,28 @@ namespace IdentityServer4.Validation
         private readonly IEventService _events;
         private readonly IResourceOwnerPasswordValidator _resourceOwnerValidator;
         private readonly IProfileService _profile;
+        private readonly IDeviceCodeValidator _deviceCodeValidator;
         private readonly ISystemClock _clock;
         private readonly ILogger _logger;
 
         private ValidatedTokenRequest _validatedRequest;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TokenRequestValidator"/> class.
+        /// Initializes a new instance of the <see cref="TokenRequestValidator" /> class.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="authorizationCodeStore">The authorization code store.</param>
         /// <param name="resourceOwnerValidator">The resource owner validator.</param>
         /// <param name="profile">The profile.</param>
+        /// <param name="deviceCodeValidator">The device code validator.</param>
         /// <param name="extensionGrantValidator">The extension grant validator.</param>
         /// <param name="customRequestValidator">The custom request validator.</param>
         /// <param name="scopeValidator">The scope validator.</param>
-        /// <param name="tokenValidator"></param>
+        /// <param name="tokenValidator">The token validator.</param>
         /// <param name="events">The events.</param>
         /// <param name="clock">The clock.</param>
         /// <param name="logger">The logger.</param>
-        public TokenRequestValidator(IdentityServerOptions options, IAuthorizationCodeStore authorizationCodeStore, IResourceOwnerPasswordValidator resourceOwnerValidator, IProfileService profile, ExtensionGrantValidator extensionGrantValidator, ICustomTokenRequestValidator customRequestValidator, ScopeValidator scopeValidator, ITokenValidator tokenValidator, IEventService events, ISystemClock clock, ILogger<TokenRequestValidator> logger)
+        public TokenRequestValidator(IdentityServerOptions options, IAuthorizationCodeStore authorizationCodeStore, IResourceOwnerPasswordValidator resourceOwnerValidator, IProfileService profile, IDeviceCodeValidator deviceCodeValidator, ExtensionGrantValidator extensionGrantValidator, ICustomTokenRequestValidator customRequestValidator, ScopeValidator scopeValidator, ITokenValidator tokenValidator, IEventService events, ISystemClock clock, ILogger<TokenRequestValidator> logger)
         {
             _logger = logger;
             _options = options;
@@ -59,6 +61,7 @@ namespace IdentityServer4.Validation
             _authorizationCodeStore = authorizationCodeStore;
             _resourceOwnerValidator = resourceOwnerValidator;
             _profile = profile;
+            _deviceCodeValidator = deviceCodeValidator;
             _extensionGrantValidator = extensionGrantValidator;
             _customRequestValidator = customRequestValidator;
             _scopeValidator = scopeValidator;
@@ -131,6 +134,8 @@ namespace IdentityServer4.Validation
                     return await RunValidationAsync(ValidateResourceOwnerCredentialRequestAsync, parameters);
                 case OidcConstants.GrantTypes.RefreshToken:
                     return await RunValidationAsync(ValidateRefreshTokenRequestAsync, parameters);
+                case OidcConstants.GrantTypes.DeviceCode:
+                    return await RunValidationAsync(ValidateDeviceCodeRequestAsync, parameters);
                 default:
                     return await RunValidationAsync(ValidateExtensionGrantRequestAsync, parameters);
             }
@@ -488,6 +493,48 @@ namespace IdentityServer4.Validation
             _validatedRequest.Subject = result.RefreshToken.Subject;
 
             _logger.LogDebug("Validation of refresh token request success");
+            return Valid();
+        }
+
+        private async Task<TokenRequestValidationResult> ValidateDeviceCodeRequestAsync(NameValueCollection parameters)
+        {
+            _logger.LogDebug("Start validation of device code request");
+            
+            /////////////////////////////////////////////
+            // check if client is authorized for grant type
+            /////////////////////////////////////////////
+            if (!_validatedRequest.Client.AllowedGrantTypes.ToList().Contains(GrantType.DeviceFlow))
+            {
+                LogError("Client not authorized for device flow");
+                return Invalid(OidcConstants.TokenErrors.UnauthorizedClient);
+            }
+
+            /////////////////////////////////////////////
+            // validate device code parameter
+            /////////////////////////////////////////////
+            var deviceCode = parameters.Get(OidcConstants.TokenRequest.DeviceCode);
+            if (deviceCode.IsMissing())
+            {
+                LogError("Device code is missing");
+                return Invalid(OidcConstants.TokenErrors.InvalidRequest);
+            }
+
+            if (deviceCode.Length > _options.InputLengthRestrictions.DeviceCode)
+            {
+                LogError("Device code too long");
+                return Invalid(OidcConstants.TokenErrors.InvalidGrant);
+            }
+
+            /////////////////////////////////////////////
+            // validate device code
+            /////////////////////////////////////////////
+            var deviceCodeContext = new DeviceCodeValidationContext {DeviceCode = deviceCode, Request = _validatedRequest};
+            await _deviceCodeValidator.ValidateAsync(deviceCodeContext);
+
+            if (deviceCodeContext.Result.IsError) return deviceCodeContext.Result;
+            
+            _logger.LogDebug("Validation of authorization code token request success");
+
             return Valid();
         }
 

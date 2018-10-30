@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -300,6 +300,35 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
             var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
+            result.IsError.Should().BeFalse();
+        }
+        
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task Valid_DeviceCode_Request()
+        {
+            var deviceCode = new DeviceCode
+            {
+                ClientId = "device_flow",
+                IsAuthorized = true,
+                Subject = new IdentityServerUser("bob").CreatePrincipal(),
+                IsOpenId = true,
+                Lifetime = 300,
+                CreationTime = DateTime.UtcNow,
+                AuthorizedScopes = new[] { "openid", "profile", "resource" }
+            };
+
+            var client = await _clients.FindClientByIdAsync("device_flow");
+
+            var validator = Factory.CreateTokenRequestValidator();
+
+            var parameters = new NameValueCollection
+            {
+                {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode},
+                {"device_code", Guid.NewGuid().ToString()}
+            };
+
+            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
             result.IsError.Should().BeFalse();
         }
     }
