@@ -19,7 +19,7 @@ We thank those who [support](https://www.patreon.com/identityserver) IdentitySer
 ### Silver
 
 Jacobus Roos  
-Soluto  
+Soluto ([@SolutoEng](https://twitter.com/SolutoEng))  
 Steinar	Noem  
 Effectory ([@effectory](https://twitter.com/effectory))  
 Real Page ([@RealPage](https://twitter.com/RealPage))  
