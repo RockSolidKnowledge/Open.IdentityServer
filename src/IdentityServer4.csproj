@@ -23,7 +23,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="3.10.0" />
-    <PackageReference Include="IdentityServer4.Storage" Version="2.3.0-dev0021" />
+    <PackageReference Include="IdentityServer4.Storage" Version="2.3.0-preview2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="2.1.0" />
