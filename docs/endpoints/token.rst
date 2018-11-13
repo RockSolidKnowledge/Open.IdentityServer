@@ -2,7 +2,7 @@ Token Endpoint
 ==============
 
 The token endpoint can be used to programmatically request tokens.
-It supports the ``password``, ``authorization_code``, ``client_credentials`` and ``refresh_token`` grant types).
+It supports the ``password``, ``authorization_code``, ``client_credentials``, ``refresh_token`` and ``urn:ietf:params:oauth:grant-type:device_code`` grant types.
 Furthermore the token endpoint can be extended to support extension grant types.
 
 .. Note:: IdentityServer supports a subset of the OpenID Connect and OAuth 2.0 token request parameters. For a full list, see `here <http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest>`_.
@@ -12,7 +12,7 @@ Furthermore the token endpoint can be extended to support extension grant types.
 ``client_secret``
     client secret either in the post body, or as a basic authentication header. Optional.
 ``grant_type``
-    ``authorization_code``, ``client_credentials``, ``password``, ``refresh_token`` or custom
+    ``authorization_code``, ``client_credentials``, ``password``, ``refresh_token``, ``urn:ietf:params:oauth:grant-type:device_code`` or custom
 ``scope``
     one or more registered scopes. If not specified, a token for all explicitly allowed scopes will be issued.
 ``redirect_uri`` 
@@ -33,6 +33,8 @@ Furthermore the token endpoint can be extended to support extension grant types.
         ``tenant:name_of_tenant`` can be used to pass a tenant name to the token endpoint
 ``refresh_token``
     the refresh token (required for ``refresh_token`` grant type)
+``device_code``
+    the device code (required for ``urn:ietf:params:oauth:grant-type:device_code`` grant type)
 
 Example
 ^^^^^^^

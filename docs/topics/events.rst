@@ -98,6 +98,8 @@ The following events are defined in IdentityServer:
     Gets raised in the consent UI.
 ``UnhandledExceptionEvent``
     Gets raised for unhandled exceptions.
+``DeviceAuthorizationFailureEvent`` & ``DeviceAuthorizationSuccessEvent``
+    Gets raised for successful/failed device authorization requests.
 
 Custom events
 ^^^^^^^^^^^^^
