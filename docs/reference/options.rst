@@ -49,8 +49,8 @@ Allows setting length restrictions on various protocol parameters like client id
 UserInteraction
 ^^^^^^^^^^^^^^^
 
-* ``LoginUrl``, ``LogoutUrl``, ``ConsentUrl``, ``ErrorUrl``
-    Sets the the URLs for the login, logout, consent and error pages.
+* ``LoginUrl``, ``LogoutUrl``, ``ConsentUrl``, ``ErrorUrl``, ``DeviceVerificationUrl``
+    Sets the the URLs for the login, logout, consent, error and device verification pages.
 * ``LoginReturnUrlParameter``
     Sets the name of the return URL parameter passed to the login page. Defaults to *returnUrl*.
 * ``LogoutIdParameter``
@@ -61,6 +61,8 @@ UserInteraction
     Sets the name of the error message id parameter passed to the error page. Defaults to *errorId*.
 * ``CustomRedirectReturnUrlParameter``
     Sets the name of the return URL parameter passed to a custom redirect from the authorization endpoint. Defaults to *returnUrl*.
+* ``DeviceVerificationUserCodeParameter``
+    Sets the name of the user code parameter passed to the device verification page. Defaults to *userCode*.
 * ``CookieMessageThreshold``
     Certain interactions between IdentityServer and some UI pages require a cookie to pass state and context (any of the pages above that have a configurable "message id" parameter).
     Since browsers have limits on the number of cookies and their size, this setting is used to prevent too many cookies being created. 
@@ -105,3 +107,11 @@ IdentityServer emits CSP headers for some responses, where appropriate.
 
 * ``AddDeprecatedHeader``
     Indicates if the older ``X-Content-Security-Policy`` CSP header should also be emitted (in addition to the standards-based header value). Defaults to true.
+
+Device Flow
+^^^^^^^^^^^
+
+* ``DefaultUserCodeType``
+    The user code type to use, unless set at the client level. Defaults to *Numeric*, a 9-digit code.
+* ``Interval``
+    Defines the minimum allowed polling interval on the token endpoint. Defaults to *5*.

@@ -110,3 +110,11 @@ Consent Screen
     URI to further information about client (used on consent screen)
 ``LogoUri``
     URI to client logo (used on consent screen)
+
+Device flow
+^^^^^^^^^^^
+
+``UserCodeType``
+    Specifies the type of user code to use for the client. Otherwise falls back to default.
+``DeviceCodeLifetime``
+    Lifetime to device code in seconds (defaults to 300 seconds / 5 minutes)

@@ -105,6 +105,7 @@ It enables the following features in your applications:
    endpoints/authorize
    endpoints/token
    endpoints/userinfo
+   endpoints/device_authorization
    endpoints/introspection
    endpoints/revocation
    endpoints/endsession
@@ -120,6 +121,7 @@ It enables the following features in your applications:
    reference/grant_validation_result
    reference/profileservice
    reference/interactionservice
+   reference/deviceflow_interactionservice
    reference/options
    reference/ef
    reference/aspnet_identity
