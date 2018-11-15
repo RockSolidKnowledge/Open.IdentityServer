@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.Threading.Tasks;
 using IdentityServer4.Configuration;
 using IdentityServer4.Extensions;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -79,15 +80,29 @@ namespace Microsoft.AspNetCore.Builder
             var options = services.GetRequiredService<IdentityServerOptions>();
             var schemes = services.GetRequiredService<IAuthenticationSchemeProvider>();
 
+
             if (await schemes.GetDefaultAuthenticateSchemeAsync() == null && options.Authentication.CookieAuthenticationScheme == null)
             {
                 logger.LogWarning("No authentication scheme has been set. Setting either a default authentication scheme or a CookieAuthenticationScheme on IdentityServerOptions is required.");
             }
             else
             {
+                AuthenticationScheme authenticationScheme = null;
+
                 if (options.Authentication.CookieAuthenticationScheme != null)
                 {
+                    authenticationScheme = await schemes.GetSchemeAsync(options.Authentication.CookieAuthenticationScheme);
                     logger.LogInformation("Using explicitly configured scheme {scheme} for IdentityServer", options.Authentication.CookieAuthenticationScheme);
+                }
+                else
+                {
+                    authenticationScheme = await schemes.GetDefaultAuthenticateSchemeAsync();
+                    logger.LogInformation("Using the default authentication scheme {scheme} for IdentityServer", authenticationScheme.Name);
+                }
+
+                if (!typeof(CookieAuthenticationHandler).IsAssignableFrom(authenticationScheme.HandlerType))
+                {
+                    logger.LogError("Authentication scheme {scheme} is configured for IdentityServer, but it is not a cookie authentication scheme. Using a cookie scheme is required and must be configured as either the default authentication scheme or set the CookieAuthenticationScheme on the IdentityServerOptions.", authenticationScheme.Name);
                 }
 
                 logger.LogDebug("Using {scheme} as default ASP.NET Core scheme for authentication", (await schemes.GetDefaultAuthenticateSchemeAsync())?.Name);
