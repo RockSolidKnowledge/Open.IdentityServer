@@ -92,7 +92,7 @@ namespace Microsoft.AspNetCore.Builder
                 if (options.Authentication.CookieAuthenticationScheme != null)
                 {
                     authenticationScheme = await schemes.GetSchemeAsync(options.Authentication.CookieAuthenticationScheme);
-                    logger.LogInformation("Using explicitly configured scheme {scheme} for IdentityServer", options.Authentication.CookieAuthenticationScheme);
+                    logger.LogInformation("Using explicitly configured authentication scheme {scheme} for IdentityServer", options.Authentication.CookieAuthenticationScheme);
                 }
                 else
                 {
@@ -100,9 +100,9 @@ namespace Microsoft.AspNetCore.Builder
                     logger.LogInformation("Using the default authentication scheme {scheme} for IdentityServer", authenticationScheme.Name);
                 }
 
-                if (!typeof(CookieAuthenticationHandler).IsAssignableFrom(authenticationScheme.HandlerType))
+                if (!typeof(IAuthenticationSignInHandler).IsAssignableFrom(authenticationScheme.HandlerType))
                 {
-                    logger.LogError("Authentication scheme {scheme} is configured for IdentityServer, but it is not a cookie authentication scheme. Using a cookie scheme is required and must be configured as either the default authentication scheme or set the CookieAuthenticationScheme on the IdentityServerOptions.", authenticationScheme.Name);
+                    logger.LogError("Authentication scheme {scheme} is configured for IdentityServer, but it is not a scheme that supports signin (like cookies). Either configure the default authentication scheme with cookies or set the CookieAuthenticationScheme on the IdentityServerOptions.", authenticationScheme.Name);
                 }
 
                 logger.LogDebug("Using {scheme} as default ASP.NET Core scheme for authentication", (await schemes.GetDefaultAuthenticateSchemeAsync())?.Name);
