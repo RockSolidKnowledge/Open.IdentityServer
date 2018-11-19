@@ -33,12 +33,14 @@ If you want to add Visual Studio support, you can add a solution file like this:
     dotnet new sln -n Quickstarts
     dotnet sln add .\src\IdentityServerQuickstart.csproj
 
+..note:: When you are using the template, the port for your ASP.NET Core applicatio will default to 5000. You can change that in the ``Properties\LaunchSettings.json`` file. However, all of the quickstart instructions will assume you use the default.
+
 
 Defining an API Resource
 ^^^^^^^^^^^^^^^^^^^^^^^^
 An API is a resource in your system that you want to protect.
 
-Resource definitions can be loaded in many ways, the template uses an "code as configuration" appproach.
+Resource definitions can be loaded in many ways, the template uses a "code as configuration" appproach.
 In the ``Config.cs`` file you can find a method called ``GetApiResources``, define the API as follows::
 
     public static IEnumerable<ApiResource> GetApiResources()
@@ -82,18 +84,16 @@ Add the following code to your `Config.cs` file::
 
 Configure IdentityServer
 ^^^^^^^^^^^^^^^^^^^^^^^^
-To configure IdentityServer to use your scopes and client definition, you need to add code
-to the ``ConfigureServices`` method. 
-You can use convenient extension methods for that - 
-under the covers these add the relevant stores and data into the DI system::
+Loading the resource and client definitions happens in ``Startup.cs`` - the template already does this for you::
 
     public void ConfigureServices(IServiceCollection services)
     {
-        // configure identity server with in-memory stores, keys, clients and resources
-        services.AddIdentityServer()
-            .AddDeveloperSigningCredential()
-            .AddInMemoryApiResources(Config.GetApiResources())
+        var builder = services.AddIdentityServer()
+            .AddInMemoryIdentityResources(Config.GetIdentityResources())
+            .AddInMemoryApiResources(Config.GetApis())
             .AddInMemoryClients(Config.GetClients());
+
+        // rest omitted
     }
 
 That's it - if you run the server and navigate the browser to 
@@ -107,10 +107,8 @@ Adding an API
 ^^^^^^^^^^^^^
 Next, add an API to your solution. 
 
-You can use the ASP.NET Core Web API template.
-Again, we recommend you take control over the ports and use the same technique as you used
-to configure Kestrel and the launch profile as before.
-This walkthrough assumes you have configured your API to run on ``http://localhost:5001``.
+You can either use the ASP.NET Core Web API template from Visual Studio or use the .NET CLI to create the API project.
+Configure the API application to run on ``http://localhost:5001``.
 
 **The controller**
 
@@ -138,10 +136,6 @@ These will:
 * validate the incoming token to make sure it is coming from a trusted issuer
 * validate that the token is valid to be used with this api (aka scope)
 
-Add the `IdentityServer4.AccessTokenValidation` NuGet package to your project.
-
-.. image:: images/1_nuget_accesstokenvalidation.png
-
 Update `Startup` to look like this::
 
     public class Startup
@@ -153,7 +147,7 @@ Update `Startup` to look like this::
                 .AddJsonFormatters();
 
             services.AddAuthentication("Bearer")
-                .AddIdentityServerAuthentication(options =>
+                .AddJwtBearer(options =>
                 {
                     options.Authority = "http://localhost:5000";
                     options.RequireHttpsMetadata = false;
@@ -198,22 +192,26 @@ This way you only need to know the base-address of IdentityServer - the actual
 endpoint addresses can be read from the metadata::
 
     // discover endpoints from metadata
-    var disco = await DiscoveryClient.GetAsync("http://localhost:5000");
+    var client = new HttpClient();
+    var disco = await client.GetDiscoveryDocumentAsync("http://localhost:5000");
     if (disco.IsError)
     {
         Console.WriteLine(disco.Error);
         return;
     }
 
-Next you can use the ``TokenClient`` class to request the token.
-To create an instance you need to pass in the token endpoint address, client id and secret.
-
-Next you can use the ``RequestClientCredentialsAsync`` method to request a token for your API::
+Next you can use the information from the discovery document to request a token::
 
     // request token
-    var tokenClient = new TokenClient(disco.TokenEndpoint, "client", "secret");
-    var tokenResponse = await tokenClient.RequestClientCredentialsAsync("api1");
+    var response = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+    {
+        Address = disco.TokenEndpoint,
 
+        ClientId = "client",
+        ClientSecret = "secret",
+        Scope = "api1"
+    });
+    
     if (tokenResponse.IsError)
     {
         Console.WriteLine(tokenResponse.Error);
