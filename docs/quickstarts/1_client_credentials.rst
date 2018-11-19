@@ -7,14 +7,39 @@ This quickstart presents the most basic scenario for protecting APIs using Ident
 In this scenario we will define an API and a client that wants to access it.
 The client will request an access token at IdentityServer and use it to gain access to the API.
 
-Defining the API
-^^^^^^^^^^^^^^^^
-Scopes define the resources in your system that you want to protect, e.g. APIs.
+Setting up the ASP.NET Core application
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+First create a directory for the application - then use our template to create an ASP.NET Core application that includes a basic IdentityServer setup, e.g.::
 
-Since we are using the in-memory configuration for this walkthrough - all you need to do 
-to add an API, is to create an object of type ``ApiResource`` and set the appropriate properties.
+    md quickstart
+    cd quickstart
 
-Add a file (e.g. ``Config.cs``) into your project and add the following code::
+    md src
+    cd src
+
+    dotnet new is4empty -n IdentityServer -o .
+
+This will create the following files:
+
+* ``IdentityServer.csproj`` - the project file
+* ``Program.cs`` and ``Startup.cs`` - the main application entry point
+* ``Config.cs`` - IdentityServer resources and clients configuration file
+
+You can now use your favourite text editor to edit or view the files.
+
+If you want to add Visual Studio support, you can add a solution file like this::
+
+    cd ..
+    dotnet new sln -n Quickstarts
+    dotnet sln add .\src\IdentityServerQuickstart.csproj
+
+
+Defining an API Resource
+^^^^^^^^^^^^^^^^^^^^^^^^
+An API is a resource in your system that you want to protect.
+
+Resource definitions can be loaded in many ways, the template uses an "code as configuration" appproach.
+In the ``Config.cs`` file you can find a method called ``GetApiResources``, define the API as follows::
 
     public static IEnumerable<ApiResource> GetApiResources()
     {
