@@ -33,7 +33,7 @@ If you want to add Visual Studio support, you can add a solution file like this:
     dotnet new sln -n Quickstarts
     dotnet sln add .\src\IdentityServerQuickstart.csproj
 
-..note:: When you are using the template, the port for your ASP.NET Core applicatio will default to 5000. You can change that in the ``Properties\LaunchSettings.json`` file. However, all of the quickstart instructions will assume you use the default.
+.. note:: When you are using the template, the port for your ASP.NET Core applicatio will default to 5000. You can change that in the ``Properties\LaunchSettings.json`` file. However, all of the quickstart instructions will assume you use the default.
 
 
 Defining an API Resource
