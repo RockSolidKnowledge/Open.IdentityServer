@@ -9,6 +9,7 @@
     <PackageIconUrl>https://raw.githubusercontent.com/IdentityServer/Artwork/master/Logos/IDserver_icon128.jpg</PackageIconUrl>
     <PackageProjectUrl>https://github.com/IdentityServer/IdentityServer4</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReleaseNotes>https://github.com/IdentityServer/IdentityServer4/releases</PackageReleaseNotes>
 
     <!-- Declare that the Repository URL can be published to NuSpec -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
