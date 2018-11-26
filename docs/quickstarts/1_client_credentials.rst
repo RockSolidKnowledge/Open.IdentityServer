@@ -30,8 +30,8 @@ You can now use your favourite text editor to edit or view the files.
 If you want to add Visual Studio support, you can add a solution file like this::
 
     cd ..
-    dotnet new sln -n Quickstarts
-    dotnet sln add .\src\IdentityServer.csproj
+    dotnet new sln -n Quickstart
+    dotnet sln add .\src\IdentityServer\IdentityServer.csproj
 
 .. note:: When you are using the template, the port for your ASP.NET Core application will be set to 5000. You can change that in the ``Properties\LaunchSettings.json`` file. However, all of the quickstart instructions will assume you use the default.
 
@@ -43,7 +43,7 @@ An API is a resource in your system that you want to protect.
 Resource definitions can be loaded in many ways, the template uses a "code as configuration" appproach.
 In the ``Config.cs`` file you can find a method called ``GetApiResources``, define the API as follows::
 
-    public static IEnumerable<ApiResource> GetApiResources()
+    public static IEnumerable<ApiResource> GetApis()
     {
         return new List<ApiResource>
         {
@@ -82,8 +82,8 @@ Add the following code to your `Config.cs` file::
         };
     }
 
-Configure IdentityServer
-^^^^^^^^^^^^^^^^^^^^^^^^
+Configuring IdentityServer
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 Loading the resource and client definitions happens in ``Startup.cs`` - the template already does this for you::
 
     public void ConfigureServices(IServiceCollection services)
@@ -103,11 +103,18 @@ This will be used by your clients and APIs to download the necessary configurati
 
 .. image:: images/1_discovery.png
 
+At first startup, IdentityServer will create a developer signing key for you, it's a file called ``tempkey.rsa``.
+You don't have to check that file into your source control, it will be re-created if it is not present.
+
 Adding an API
 ^^^^^^^^^^^^^
 Next, add an API to your solution. 
 
-You can either use the ASP.NET Core Web API template from Visual Studio or use the .NET CLI to create the API project.
+You can either use the ASP.NET Core Web API (or empty) template from Visual Studio or use the .NET CLI to create the API project.
+Run from within the ``src`` folder the following command::
+
+    dotnet new web -n Api
+
 Configure the API application to run on ``http://localhost:5001``.
 
 **The controller**
@@ -134,7 +141,7 @@ The last step is to add the authentication services to DI and the authentication
 These will:
 
 * validate the incoming token to make sure it is coming from a trusted issuer
-* validate that the token is valid to be used with this api (aka scope)
+* validate that the token is valid to be used with this api (aka audience)
 
 Update `Startup` to look like this::
 
