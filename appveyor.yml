@@ -10,6 +10,7 @@ environment:
 branches:
   only:
   - dev
+  - releases/*
   
 build_script:
 - ps: .\build.ps1
