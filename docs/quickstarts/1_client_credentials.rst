@@ -184,15 +184,17 @@ That's it, the API is now protected by IdentityServer.
 Creating the client
 ^^^^^^^^^^^^^^^^^^^
 The last step is to write a client that requests an access token, and then uses this
-token to access the API. For that, add a console project to your solution (see full code `here <https://github.com/IdentityServer/IdentityServer4.Samples/blob/release/Quickstarts/1_ClientCredentials/src/Client/Program.cs>`_).
+token to access the API. For that, add a console project to your solution (see full code `here <https://github.com/IdentityServer/IdentityServer4.Samples/blob/master/Quickstarts/1_ClientCredentials/src/Client/Program.cs>`_)::
+
+    dotnet new console
 
 The token endpoint at IdentityServer implements the OAuth 2.0 protocol, and you could use 
 raw HTTP to access it. However, we have a client library called IdentityModel, that
 encapsulates the protocol interaction in an easy to use API.
 
-Add the `IdentityModel` NuGet package to your application.
+Add the `IdentityModel` NuGet package to your application. This can be done either via Visual Studio's nuget dialog, by adding it manually to the .csproj file, or by using the CLI::
 
-.. image:: images/1_nuget_identitymodel.png
+    dotnet add package IdentityModel
 
 IdentityModel includes a client library to use with the discovery endpoint.
 This way you only need to know the base-address of IdentityServer - the actual
