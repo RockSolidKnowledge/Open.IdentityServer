@@ -16,7 +16,7 @@ You need to provide the necessary UI parts for login, logout, consent and error.
 While the look & feel as well as the exact workflows will probably always differ in every
 IdentityServer implementation, we provide an MVC-based sample UI that you can use as a starting point.
 
-This UI can be found in the `Quickstart UI repo <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/tree/release>`_.
+This UI can be found in the `Quickstart UI repo <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/tree/master>`_.
 You can clone or download this repo and drop the controllers, views, models and CSS into your IdentityServer web application.
 
 Alternatively you can use the .NET CLI to (run from within the ``src/IdentityServer`` folder::
