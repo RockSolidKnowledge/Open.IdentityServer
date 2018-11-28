@@ -17,51 +17,16 @@ While the look & feel as well as the exact workflows will probably always differ
 IdentityServer implementation, we provide an MVC-based sample UI that you can use as a starting point.
 
 This UI can be found in the `Quickstart UI repo <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/tree/release>`_.
-You can either clone or download this repo and drop the controllers, views, models and CSS into your IdentityServer web application.
+You can clone or download this repo and drop the controllers, views, models and CSS into your IdentityServer web application.
 
-Alternatively you can run this command from the command line in the same directory as your IdentityServer web application to
-automate the download::
+Alternatively you can use the .NET CLI to (run from within the ``src/IdentityServer`` folder::
 
-    iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/IdentityServer/IdentityServer4.Quickstart.UI/release/get.ps1'))
+    dotnet new is4ui
 
+Once you have added the MVC UI, you will also need to enable MVC, both in the DI system and in the pipeline.
+When you look at ``Startup.cs`` you will find comments in the ``ConfigureServices`` and ``Configure`` method that tell you how to enable MVC.
 
-For Unix/Linux::
-
-    \curl -L https://raw.githubusercontent.com/IdentityServer/IdentityServer4.Quickstart.UI/release/get.sh | bash
-
-Once you have added the MVC UI assets, you will also need to add MVC to the hosting application, both in the DI system and in the pipeline.
-Add MVC to ``ConfigureServices`` with the ``AddMvc`` extension method::
-
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddMvc();
-
-        // configure identity server with in-memory stores, keys, clients and scopes
-        services.AddIdentityServer()
-            .AddDeveloperSigningCredential()
-            .AddInMemoryApiResources(Config.GetApiResources())
-            .AddInMemoryClients(Config.GetClients())
-            .AddTestUsers(Config.GetUsers());
-    }
-
-Add MVC as the last middleware in the pipeline in ``Configure`` with the ``UseMvc`` extension method::
-
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-    {
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
-
-        app.UseIdentityServer();
-
-        app.UseStaticFiles();
-        app.UseMvcWithDefaultRoute();
-    }
-
-See the `readme <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/blob/release/README.md>`_ for the quickstart UI for more information. 
-
-.. note:: The ``release`` branch of the UI repo has the UI that matches the latest stable release. The ``dev`` branch goes along with the current dev build of IdentityServer4. If you are looking for a specific version of the UI - check the tags.
+Run the IdentityServer application, you should now see a home page.
 
 Spend some time inspecting the controllers and models, the better you understand them, 
 the easier it will be to make future modifications. 
@@ -73,7 +38,7 @@ Creating an MVC client
 Next you will add an MVC application to your solution.
 Use the ASP.NET Core "Web Application" (i.e. MVC) template for that. 
 Don't configure the "Authentication" settings in the wizard -- you will do this manually in this quickstart.
-Once you've created the project, configure the application to use port 5002 (see the overview part for instructions on how to do that).
+Once you've created the project, configure the application to run on port 5002.
 
 To add support for OpenID Connect authentication to the MVC application, add the following to ``ConfigureServices`` in ``Startup``::
 
@@ -91,8 +56,6 @@ To add support for OpenID Connect authentication to the MVC application, add the
             .AddCookie("Cookies")
             .AddOpenIdConnect("oidc", options =>
             {
-                options.SignInScheme = "Cookies";
-
                 options.Authority = "http://localhost:5000";
                 options.RequireHttpsMetadata = false;
 
@@ -102,16 +65,15 @@ To add support for OpenID Connect authentication to the MVC application, add the
     }
 
 ``AddAuthentication`` adds the authentication services to DI.
-We are using a cookie as the primary means to authenticate a user (via ``"Cookies"`` as the ``DefaultScheme``).
-We set the ``DefaultChallengeScheme`` to ``"oidc"`` because when we need the user to login, we will be using the OpenID Connect scheme.
+We are using a cookie to locally sign-in the user (via ``"Cookies"`` as the ``DefaultScheme``),
+and we set the ``DefaultChallengeScheme`` to ``"oidc"`` because when we need the user to login, we will be using the OpenID Connect protocol.
 
 We then use ``AddCookie`` to add the handler that can process cookies.
 
 Finally, ``AddOpenIdConnect`` is used to configure the handler that perform the OpenID Connect protocol.
 The ``Authority`` indicates that we are trusting IdentityServer.
 We then identify this client via the ``ClientId``.
-``SignInScheme`` is used to issue a cookie using the cookie handler once the OpenID Connect protocol is complete.
-And ``SaveTokens`` is used to persist the tokens from IdentityServer in the cookie (as they will be needed later).
+``SaveTokens`` is used to persist the tokens from IdentityServer in the cookie (as they will be needed later).
 
 As well, we've turned off the JWT claim type mapping to allow well-known claims (e.g. 'sub' and 'idp') to flow through unmolested::
 
@@ -140,13 +102,27 @@ The authentication middleware should be added before the MVC in the pipeline.
 
 The last step is to trigger the authentication handshake. For that go to the home controller and
 add the ``[Authorize]`` on one of the actions.
-Also modify the view of that action to display the claims of the user, e.g.::
+Also modify the home view to display the claims of the user as well as the cookie properties::
+
+    @using Microsoft.AspNetCore.Authentication
+
+    <h2>Claims</h2>
 
     <dl>
         @foreach (var claim in User.Claims)
         {
             <dt>@claim.Type</dt>
             <dd>@claim.Value</dd>
+        }
+    </dl>
+
+    <h2>Properties</h2>
+
+    <dl>
+        @foreach (var prop in (await Context.AuthenticateAsync()).Properties.Items)
+        {
+            <dt>@prop.Key</dt>
+            <dd>@prop.Value</dd>
         }
     </dl>
 
@@ -161,7 +137,7 @@ In contrast to OAuth, scopes in OIDC don't represent APIs, but identity data lik
 name or email address.
 
 Add support for the standard ``openid`` (subject id) and ``profile`` (first name, last name etc..) scopes
-by adding a new helper (in ``Config.cs``) to create a collection of ``IdentityResource`` objects::
+by ammending the ``GetIdentityResources`` method in ``Config.cs``::
 
     public static IEnumerable<IdentityResource> GetIdentityResources()
     {
@@ -173,22 +149,6 @@ by adding a new helper (in ``Config.cs``) to create a collection of ``IdentityRe
     }
 
 .. note:: All standard scopes and their corresponding claims can be found in the OpenID Connect `specification <https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims>`_
-
-You will then need to add these identity resources to your IdentityServer configuration in ``Startup.cs``. 
-Use the ``AddInMemoryIdentityResources`` extension method where you call ``AddIdentityServer()``::
-
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddMvc();
-
-        // configure identity server with in-memory stores, keys, clients and scopes
-        services.AddIdentityServer()
-            .AddDeveloperSigningCredential()
-            .AddInMemoryIdentityResources(Config.GetIdentityResources())
-            .AddInMemoryApiResources(Config.GetApiResources())
-            .AddInMemoryClients(Config.GetClients())
-            .AddTestUsers(Config.GetUsers());
-    }
 
 Adding a client for OpenID Connect implicit flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -239,16 +199,15 @@ You should see a redirect to the login page at IdentityServer.
 After successful login, the user is presented with the consent screen.
 Here the user can decide if he wants to release his identity information to the client application.
 
-.. note:: Consent can be turned off on a per client basis using the ``RequireConsent`` property on the client object.
+.. note:: Consent can be turned off on a per client basis using the ``RequireConsent`` property on the client configuration.
 
 .. image:: images/3_consent.png
 
-..and finally the browser redirects back to the client application, which shows the claims
-of the user.
+After that, IdentityServer will redirect back to the MVC client, where the OpenID Connect authentication handler processes the response and signs-in the user locally by setting a cookie.
+Finally the MVC view will show the contents of the cookie.
 
-.. image:: images/3_claims.png
-
-.. note:: During development you might sometimes see an exception stating that the token could not be validated. This is due to the fact that the signing key material is created on the fly and kept in-memory only. This exception happens when the client and IdentityServer get out of sync. Simply repeat the operation at the client, the next time the metadata has caught up, and everything should work normal again.
+As you can see, the cookie has two parts, the claims of the user, and some metadata. This metadata also contains the original token that was issued by IdentityServer.
+Feel free to copy this token to `jwt.io <https://jwt.io>`_ to inspect its content.
 
 Adding sign-out
 ^^^^^^^^^^^^^^^
@@ -257,13 +216,12 @@ The very last step is to add sign-out to the MVC client.
 With an authentication service like IdentityServer, it is not enough to clear the local application cookies.
 In addition you also need to make a roundtrip to IdentityServer to clear the central single sign-on session.
 
-The exact protocol steps are implemented inside the OpenID Connect middleware, 
+The exact protocol steps are implemented inside the OpenID Connect handler, 
 simply add the following code to some controller to trigger the sign-out::
 
-    public async Task Logout()
+    public IActionResult Logout()
     {
-        await HttpContext.SignOutAsync("Cookies");
-        await HttpContext.SignOutAsync("oidc");
+        return SignOut("Cookies", "oidc");
     }
 
 This will clear the local cookie and then redirect to IdentityServer.
@@ -271,7 +229,7 @@ IdentityServer will clear its cookies and then give the user a link to return ba
 
 Further experiments
 ^^^^^^^^^^^^^^^^^^^
-As mentioned above, the OpenID Connect middleware asks for the *profile* scope by default.
+As mentioned above, the OpenID Connect handler asks for the *profile* scope by default.
 This scope also includes claims like *name* or *website*.
 
 Let's add these claims to the user, so IdentityServer can put them into the identity token::
@@ -314,5 +272,5 @@ middleware is where you configure which scopes will be sent to IdentityServer du
 
 It is also noteworthy, that the retrieval of claims for tokens is an extensibility point - ``IProfileService``.
 Since we are using ``AddTestUsers``, the ``TestUserProfileService`` is used by default.
-You can inspect the source code `here <https://github.com/IdentityServer/IdentityServer4/blob/dev/src/Test/TestUserProfileService.cs>`_
+You can inspect the source code `here <https://github.com/IdentityServer/IdentityServer4/blob/master/src/Test/TestUserProfileService.cs>`_
 to see how it works.
