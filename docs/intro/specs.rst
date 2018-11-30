@@ -23,3 +23,4 @@ OAuth 2.0
 * OAuth 2.0 Token Introspection (`RFC 7662 <https://tools.ietf.org/html/rfc7662>`_)
 * Proof Key for Code Exchange (`RFC 7636 <https://tools.ietf.org/html/rfc7636>`_)
 * JSON Web Tokens for Client Authentication (`RFC 7523 <https://tools.ietf.org/html/rfc7523>`_)
+* OAuth 2.0 Device Flow for Browserless and Input Constrained Devices (`draft <https://tools.ietf.org/html/draft-ietf-oauth-device-flow-13>`_)
