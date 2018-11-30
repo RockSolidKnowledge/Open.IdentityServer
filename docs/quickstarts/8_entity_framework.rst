@@ -29,12 +29,12 @@ Database Schema Changes and Using EF Migrations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The `IdentityServer4.EntityFramework` package contains entity classes that map from IdentityServer's models.
-As IdentityServer's models change, so will the entity classes in `IdentityServer4.EntityFramework`.
+As IdentityServer's models change, so will the entity classes in `IdentityServer4.EntityFramework.Storage`.
 As you use `IdentityServer4.EntityFramework` and upgrade over time, you are responsible for your own database schema and changes necessary to that schema as the entity classes change.
 One approach for managing those changes is to use EF migrations, and this quickstart will show how that can be done.
 If migrations are not your preference, then you can manage the schema changes in any way you see fit.
 
-.. Note:: SQL scripts for SqlServer are maintained for the entities in `IdentityServer4.EntityFramework`. They are located `here <https://github.com/IdentityServer/IdentityServer4.EntityFramework/tree/release/src/Host/Migrations/IdentityServer>`_.
+.. Note:: SQL scripts for SqlServer are maintained for the entities in `IdentityServer4.EntityFramework.Storage`. They are located `here <https://github.com/IdentityServer/IdentityServer4.EntityFramework.Storage/tree/dev/migrations/SqlServer/Migrations>`_.
 
 EF Tooling for Migrations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
