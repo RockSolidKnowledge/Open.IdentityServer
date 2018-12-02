@@ -14,7 +14,7 @@ We thank those who [support](https://www.patreon.com/identityserver) IdentitySer
 [Ritter Insurance Marketing](https://www.ritterim.com) ([@RitterIM](https://twitter.com/ritterim))   
 [Alcidion Corporation](https://www.alcidion.com) ([@Alcidion](https://twitter.com/alcidion))  
 [Intuit](https://www.intuit.com) ([@IntuitDev](https://twitter.com/IntuitDev))  
-[envisionIT](https://www.envisionit.com) ([@envisionit](https://twitter.com/envisionit))  
+[ExtranetUserManager](https://www.extranetusermanager.com) ([@eumgr](https://twitter.com/eumgr))  
 
 ### Silver
 
