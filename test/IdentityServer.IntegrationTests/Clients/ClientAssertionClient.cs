@@ -87,6 +87,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             var response = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
                 Address = TokenEndpoint,
+                ClientId = "client",
 
                 ClientAssertion =
                 {
