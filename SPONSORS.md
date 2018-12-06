@@ -65,5 +65,5 @@ Erik Gulbrandsen
 Olga Klimova  
 Alexandru Puiu  
 Michael Calasanz  
-Fredrik Karlsson
+Fredrik Karlsson  ([@fredrik_zenit](https://twitter.com/fredrik_zenit))  
 Steve Graddy
