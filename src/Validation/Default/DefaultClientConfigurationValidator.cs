@@ -91,6 +91,12 @@ namespace IdentityServer4.Validation
                 return Task.CompletedTask;
             }
 
+            if (context.Client.AllowedGrantTypes.Contains(GrantType.DeviceFlow)
+                && context.Client.DeviceCodeLifetime <= 0)
+            {
+                context.SetError("device code lifetime is 0 or negative");
+            }
+
             // 0 means unlimited lifetime
             if (context.Client.AbsoluteRefreshTokenLifetime < 0)
             {
