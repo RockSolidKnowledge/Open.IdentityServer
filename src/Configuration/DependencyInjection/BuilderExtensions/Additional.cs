@@ -111,6 +111,19 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// Adds a device flow store.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="builder">The builder.</param>
+        public static IIdentityServerBuilder AddDeviceFlowStore<T>(this IIdentityServerBuilder builder)
+            where T : class, IDeviceFlowStore
+        {
+            builder.Services.AddTransient<IDeviceFlowStore, T>();
+
+            return builder;
+        }
+
+        /// <summary>
         /// Adds a persisted grant store.
         /// </summary>
         /// <typeparam name="T">The type of the concrete grant store that is registered in DI.</typeparam>
