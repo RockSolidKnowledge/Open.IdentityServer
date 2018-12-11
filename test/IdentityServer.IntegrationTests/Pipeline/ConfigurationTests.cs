@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityModel.Client;
@@ -27,8 +28,9 @@ namespace IdentityServer.IntegrationTests.Pipeline
             };
             _pipeline.Initialize();
 
-            var discoClient = new DiscoveryClient(IdentityServerPipeline.BaseUrl, _pipeline.Handler);
-            var result = await discoClient.GetAsync();
+            var client = new HttpClient(_pipeline.Handler);
+            var result = await client.GetDiscoveryDocumentAsync(IdentityServerPipeline.BaseUrl);
+
             result.Issuer.Should().Be(IdentityServerPipeline.BaseUrl);
         }
 
