@@ -2,9 +2,10 @@
 Adding a JavaScript client
 ==========================
 
-This quickstart will show how to build a browser-based JavaScript client application (aka `SPA`).
+This quickstart will show how to build a browser-based JavaScript client application (sometimes referred to as a "`SPA`").
 
-The user will login to IdentityServer, invoke the web API with an access token issued by IdentityServer, and logout of IdentityServer. All of this will be driven from the JavaScript running in the browser.
+The user will login to IdentityServer, invoke the web API with an access token issued by IdentityServer, and logout of IdentityServer. 
+All of this will be driven from the JavaScript running in the browser.
 
 New Project for the JavaScript client
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -42,12 +43,13 @@ Register the static file middleware in `Startup.cs` in the ``Configure`` method 
 
 This middleware will now serve up static files from the application's `~/wwwroot` folder.
 This is where we will put our HTML and JavaScript files.
+If that folder does not exist in your project, create it now.
 
 Reference oidc-client
 ^^^^^^^^^^^^^^^^^^^^^
 
-In the MVC project, we used a library to handle the OpenID Connect protocol. 
-In this project we need a similar library, except one that works in JavaScript and is designed to run in the browser.
+In one of the previous quickstarts in the ASP.NET Core MVC-based client project we used a library to handle the OpenID Connect protocol. 
+In this quickstart in the `JavaScriptClient` project we need a similar library, except one that works in JavaScript and is designed to run in the browser.
 The `oidc-client library <https://github.com/IdentityModel/oidc-client-js>`_ is one such library. 
 It is available via `NPM <https://github.com/IdentityModel/oidc-client-js>`_, `Bower <https://bower.io/search/?q=oidc-client>`_,  as well as a `direct download <https://github.com/IdentityModel/oidc-client-js/tree/master/dist>`_ from github.
 
@@ -117,13 +119,13 @@ The first thing is to add a helper function to log messages to the ``<pre>``::
         });
     }
 
-Next, add code to register "click" event handlers to the three buttons::
+Next, add code to register ``click`` event handlers to the three buttons::
 
     document.getElementById("login").addEventListener("click", login, false);
     document.getElementById("api").addEventListener("click", api, false);
     document.getElementById("logout").addEventListener("click", logout, false);
 
-Next, we can use the ``UserManager`` class in the `oidc-client` library to manage the OpenID Connect protocol. 
+Next, we can use the ``UserManager`` class from the `oidc-client` library to manage the OpenID Connect protocol. 
 It requires similar configuration that was necessary in the MVC Client (albeit with different values). 
 Add this code to configure and instantiate the ``UserManager``::
 
@@ -131,7 +133,7 @@ Add this code to configure and instantiate the ``UserManager``::
         authority: "http://localhost:5000",
         client_id: "js",
         redirect_uri: "http://localhost:5003/callback.html",
-        response_type: "id_token token",
+        response_type: "code",
         scope:"openid profile api1",
         post_logout_redirect_uri : "http://localhost:5003/index.html",
     };
@@ -153,7 +155,7 @@ Add this code to detect if the user is logged into the JavaScript application::
 
 Next, we want to implement the ``login``, ``api``, and ``logout`` functions. 
 The ``UserManager`` provides a ``signinRedirect`` to log the user in, and a ``signoutRedirect`` to log the user out.
-The ``User`` object that we obtained in the above code also has an ``access_token`` property which can be used to authenticate with a web API.
+The ``User`` object that we obtained in the above code also has an ``access_token`` property which can be used to authenticate to a web API.
 The ``access_token`` will be passed to the web API via the `Authorization` header with the `Bearer` scheme.
 Add this code to implement those three functions in our application::
 
@@ -179,7 +181,7 @@ Add this code to implement those three functions in our application::
         mgr.signoutRedirect();
     }
 
-See the :ref:`client credentials quickstart <refClientCredentialsQuickstart>` for information on how to create the api used in the code above.
+.. Note:: See the :ref:`client credentials quickstart <refClientCredentialsQuickstart>` for information on how to create the api used in the code above.
 
 **callback.html**
 
@@ -198,9 +200,9 @@ Add this code to complete the signin process::
     <body>
         <script src="oidc-client.js"></script>
         <script>
-            new Oidc.UserManager().signinRedirectCallback().then(function () {
+            new Oidc.UserManager({response_mode:"query"}).signinRedirectCallback().then(function() {
                 window.location = "index.html";
-            }).catch(function (e) {
+            }).catch(function(e) {
                 console.error(e);
             });
         </script>
@@ -220,9 +222,10 @@ It should have the configuration listed below::
     {
         ClientId = "js",
         ClientName = "JavaScript Client",
-        AllowedGrantTypes = GrantTypes.Implicit,
-        AllowAccessTokensViaBrowser = true,
-
+        AllowedGrantTypes = GrantTypes.Code,
+        RequirePkce = true,
+        RequireClientSecret = false,
+        
         RedirectUris =           { "http://localhost:5003/callback.html" },
         PostLogoutRedirectUris = { "http://localhost:5003/index.html" },
         AllowedCorsOrigins =     { "http://localhost:5003" },
