@@ -50,7 +50,7 @@ Auth0 is an easy to implement authentication and identity management SaaS based 
 [Alcidion Corporation](https://www.alcidion.com)  
 [Intuit](https://www.intuit.com)  
 
-You can see a list of our current sponsors [here](https://github.com/IdentityServer/IdentityServer4/blob/release/SPONSORS.md) - and for companies we have some nice advertisement options as well.
+You can see a list of our current sponsors [here](https://github.com/IdentityServer/IdentityServer4/blob/master/SPONSORS.md) - and for companies we have some nice advertisement options as well.
 
 ## Acknowledgements
 IdentityServer4 is built using the following great open source projects
