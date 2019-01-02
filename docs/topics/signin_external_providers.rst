@@ -150,7 +150,7 @@ The OpenID Connect authentication handler provided by ASP.NET Core utilizes this
 
 The problem with storing state in a request parameter is that the request URL can get too large (over the common limit of 2000 characters).
 The OpenID Connect authentication handler does provide an extensibility point to store the state in your server, rather than in the request URL. 
-You can implement this yourself by implementing ``ISecureDataFormat<AuthenticationProperties>`` and configuring it on the `OpenIdConnectOptions <https://github.com/aspnet/Security/blob/dev/src/Microsoft.AspNetCore.Authentication.OpenIdConnect/OpenIdConnectOptions.cs#L248>`_.
+You can implement this yourself by implementing ``ISecureDataFormat<AuthenticationProperties>`` and configuring it on the `OpenIdConnectOptions <https://github.com/aspnet/AspNetCore/blob/master/src/Security/Authentication/OpenIdConnect/src/OpenIdConnectOptions.cs#L249>`_.
 
 Fortunately, IdentityServer provides an implementation of this for you, backed by the ``IDistributedCache`` implementation registered in the DI container (e.g. the standard ``MemoryDistributedCache``).
 To use the IdentityServer provided secure data format implementation, simply call the ``AddOidcStateDataFormatterCache`` extension method on the ``IServiceCollection`` when configuring DI.

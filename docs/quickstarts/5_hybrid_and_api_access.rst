@@ -32,7 +32,7 @@ this allows requesting refresh tokens for long lived API access::
     {
         ClientId = "mvc",
         ClientName = "MVC Client",
-        AllowedGrantTypes = GrantTypes.HybridAndClientCredentials,
+        AllowedGrantTypes = GrantTypes.Hybrid,
 
         ClientSecrets = 
         {
@@ -86,24 +86,23 @@ screen now asks you for the additional API and offline access scope.
 
 Using the access token
 ^^^^^^^^^^^^^^^^^^^^^^
-The OpenID Connect middleware saves the tokens (identity, access and refresh in our case)
+The OpenID Connect handler saves the tokens (identity, access and refresh in our case)
 automatically for you. That's what the ``SaveTokens`` setting does.
+
+The cookie inspection view iterates over those values and shows them on the screen.
 
 Technically the tokens are stored inside the properties section of the cookie. 
 The easiest way to access them is by using extension methods from the ``Microsoft.AspNetCore.Authentication`` namespace.
 
-For example on your claims view::
+For example::
 
-    <dt>access token</dt>
-    <dd>@await ViewContext.HttpContext.GetTokenAsync("access_token")</dd>
-
-    <dt>refresh token</dt>
-    <dd>@await ViewContext.HttpContext.GetTokenAsync("refresh_token")</dd>
+    var accessToken = await HttpContext.GetTokenAsync("access_token")
+    var refreshToken = await HttpContext.GetTokenAsync("refresh_token");
 
 For accessing the API using the access token, all you need to do is retrieve the token, 
 and set it on your *HttpClient*::
 
-    public async Task<IActionResult> CallApiUsingUserAccessToken()
+    public async Task<IActionResult> CallApi()
     {
         var accessToken = await HttpContext.GetTokenAsync("access_token");
 
@@ -114,3 +113,9 @@ and set it on your *HttpClient*::
         ViewBag.Json = JArray.Parse(content).ToString();
         return View("json");
     }
+
+Create a view called ``json.cshtml`` that outputs the json like this::
+
+    <pre>@ViewBag.Json</pre>
+
+Make sure the API is running, start the MVC client and call ``/home/CallApi`` after authentication.

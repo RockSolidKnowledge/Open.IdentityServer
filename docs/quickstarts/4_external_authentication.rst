@@ -15,45 +15,28 @@ This is done at their developer `console <https://console.developers.google.com/
 Create a new project, enable the Google+ API and configure the callback address of your
 local IdentityServer by adding the */signin-google* path to your base-address (e.g. http://localhost:5000/signin-google).
 
-If you are running on port 5000 - you can simply use the client id/secret from the code snippet
-below, since this is pre-registered by us.
+The developer console will show you a client ID and secret issued by Google - you will need that in the next step.
 
-Start by adding the Google authentication handler to DI.
+Add the Google authentication handler to the DI of the IdentityServer host.
 This is done by adding this snippet to ``ConfigureServices`` in ``Startup``::
 
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddMvc();
+    services.AddAuthentication()
+        .AddGoogle("Google", options =>
+        {
+            options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
 
-        // configure identity server with in-memory stores, keys, clients and scopes
-        services.AddIdentityServer()
-            .AddDeveloperSigningCredential()
-            .AddInMemoryIdentityResources(Config.GetIdentityResources())
-            .AddInMemoryApiResources(Config.GetApiResources())
-            .AddInMemoryClients(Config.GetClients())
-            .AddTestUsers(Config.GetUsers());
-
-        services.AddAuthentication()
-            .AddGoogle("Google", options =>
-            {
-                options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-
-                options.ClientId = "434483408261-55tc8n0cs4ff1fe21ea8df2o443v2iuc.apps.googleusercontent.com";
-                options.ClientSecret = "3gcoTrEDPPJ0ukn_aYYT6PWo";
-            });
-    }
-
+            options.ClientId = "<insert here>";
+            options.ClientSecret = "<insert here>";
+        });
+    
 By default, IdentityServer configures a cookie handler specifically for the results of external authentication (with the scheme based on the constant ``IdentityServerConstants.ExternalCookieAuthenticationScheme``).
 The configuration for the Google handler is then using that cookie handler.
-For a better understanding of how this is done, see the ``AccountController`` class under the `Quickstart` folder.
 
 Now run the MVC client and try to authenticate - you will see a Google button on the login page:
 
 .. image:: images/4_login_page.png
 
-After authentication, you can see that the claims are now being sourced from Google data.
-
-.. image:: images/4_external_claims.png
+After authentication with the MVC client, you can see that the claims are now being sourced from Google data.
 
 Further experiments
 ^^^^^^^^^^^^^^^^^^^
@@ -67,13 +50,14 @@ Add the OpenId Connect handler to DI::
         {
             options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
 
-            options.ClientId = "434483408261-55tc8n0cs4ff1fe21ea8df2o443v2iuc.apps.googleusercontent.com";
-            options.ClientSecret = "3gcoTrEDPPJ0ukn_aYYT6PWo";
+            options.ClientId = "<insert here>";
+            options.ClientSecret = "<insert here>";
         })
         .AddOpenIdConnect("oidc", "OpenID Connect", options =>
         {
             options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
             options.SignOutScheme = IdentityServerConstants.SignoutScheme;
+            options.SaveTokens = true;
 
             options.Authority = "https://demo.identityserver.io/";
             options.ClientId = "implicit";
@@ -87,4 +71,4 @@ Add the OpenId Connect handler to DI::
 
 And now a user should be able to use the cloud-hosted demo identity provider.
 
-.. note:: The quickstart UI auto-provisions external users. As an external user logs in for the first time, a new local user is created, and all the external claims are copied over and associated with the new user. The way you deal with such a situation is completely up to you though. Maybe you want to show some sort of registration UI first. The source code for the default quickstart can be found `here <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI>`_. The controller where auto-provisioning is executed can be found `here <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/blob/release/Quickstart/Account/AccountController.cs>`_.
+.. note:: The quickstart UI auto-provisions external users. As an external user logs in for the first time, a new local user is created, and all the external claims are copied over and associated with the new user. The way you deal with such a situation is completely up to you though. Maybe you want to show some sort of registration UI first. The source code for the default quickstart can be found `here <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI>`_. The controller where auto-provisioning is executed can be found `here <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/blob/master/Quickstart/Account/ExternalController.cs>`_.

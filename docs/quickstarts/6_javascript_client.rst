@@ -2,38 +2,38 @@
 Adding a JavaScript client
 ==========================
 
-This quickstart will show how to build a JavaScript client application. 
-The user will login to IdentityServer, invoke the web API with an access token issued by IdentityServer, and logout of IdentityServer.
+This quickstart will show how to build a browser-based JavaScript client application (sometimes referred to as a "`SPA`").
+
+The user will login to IdentityServer, invoke the web API with an access token issued by IdentityServer, and logout of IdentityServer. 
+All of this will be driven from the JavaScript running in the browser.
 
 New Project for the JavaScript client
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Create a new project for the JavaScript application.
-It can simply be an empty web project, or an empty ASP.NET Core application.
-This quickstart will use an empty ASP.NET Core application.
+It can simply be an empty web project, an empty ASP.NET Core application, or something else like a Node.js application.
+This quickstart will use an ASP.NET Core application.
 
-Create a new ASP.NET Core web application:
+Create a new "Empty" ASP.NET Core web application in the `~/src` directory.
+You can use Visual Studio or do this from the command line::
 
-.. image:: images/7_new_project.png
+    md JavaScriptClient
+    cd JavaScriptClient
+    dotnet new web
 
-Choose the "Empty" template:
-
-.. image:: images/7_empty_template.png
-
-Click the "OK" button to create the project.
 
 Modify hosting
 ^^^^^^^^^^^^^^^
 
-Modify the hosting (`as described here <0_overview.html#modify-hosting>`_) to run on port 5003.
+Modify the `JavaScriptClient` project to run on port 5003.
 
 Add the static file middleware
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Given that this project is designed to mainly run client-side, we need ASP.NET Core to serve up the static HTML and JavaScript files that will make up our application.
+Given that this project is designed to run client-side, all we need ASP.NET Core to do is to serve up the static HTML and JavaScript files that will make up our application.
 The static file middleware is designed to do this.
 
-Register the static file middleware in `Startup.cs` in the ``Configure`` method::
+Register the static file middleware in `Startup.cs` in the ``Configure`` method (and at the same time remove everything else)::
 
     public void Configure(IApplicationBuilder app)
     {
@@ -43,35 +43,28 @@ Register the static file middleware in `Startup.cs` in the ``Configure`` method:
 
 This middleware will now serve up static files from the application's `~/wwwroot` folder.
 This is where we will put our HTML and JavaScript files.
+If that folder does not exist in your project, create it now.
 
 Reference oidc-client
 ^^^^^^^^^^^^^^^^^^^^^
 
-In the MVC project, we used a library to handle the OpenID Connect protocol. 
-In this project we need a similar library, except one that works in JavaScript and is designed to run in the browser.
+In one of the previous quickstarts in the ASP.NET Core MVC-based client project we used a library to handle the OpenID Connect protocol. 
+In this quickstart in the `JavaScriptClient` project we need a similar library, except one that works in JavaScript and is designed to run in the browser.
 The `oidc-client library <https://github.com/IdentityModel/oidc-client-js>`_ is one such library. 
 It is available via `NPM <https://github.com/IdentityModel/oidc-client-js>`_, `Bower <https://bower.io/search/?q=oidc-client>`_,  as well as a `direct download <https://github.com/IdentityModel/oidc-client-js/tree/master/dist>`_ from github.
 
 **NPM**
 
-If you want to use NPM to download `oidc-client`, then follow these steps:
+If you want to use NPM to download `oidc-client`, then run these commands from your `JavaScriptClient` project directory::
 
-Add a new NPM package file to your project and name it `package.json`:
+    npm i oidc-client
+    copy node_modules\oidc-client\dist\* wwwroot
 
-.. image:: images/7_add_package_json.png
+This downloads the latest `oidc-client` package locally, and then copies the relevant JavaScript files into `~/wwwroot` so they can be served up by your application.
 
-In `package.json` add a ``dependency`` to ``oidc-client``::
+**Manual download**
 
-  "dependencies": {
-    "oidc-client": "1.4.1"
-  }
-
-Once you have saved this file, Visual Studio should automatically restore these packages into a folder called `node_modules`:
-
-.. image:: images/7_node_modules.png
-
-Locate the file called `oidc-client.js` in the `~/node_modules/oidc-client/dist` folder and copy it into your application's `~/wwwroot` folder.
-There are more sophisticated ways of copying your NPM packages into `~/wwwroot`, but those techniques are beyond the scope of this quickstart.
+If you want to simply download the `oidc-client` JavaScript files manually, browse to `the GitHub repository <https://github.com/IdentityModel/oidc-client-js/tree/master/dist>`_  and download the JavaScript files. Once downloaded, copy them into `~/wwwroot` so they can be served up by your application.
 
 Add your HTML and JavaScript files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -126,13 +119,13 @@ The first thing is to add a helper function to log messages to the ``<pre>``::
         });
     }
 
-Next, add code to register "click" event handlers to the three buttons::
+Next, add code to register ``click`` event handlers to the three buttons::
 
     document.getElementById("login").addEventListener("click", login, false);
     document.getElementById("api").addEventListener("click", api, false);
     document.getElementById("logout").addEventListener("click", logout, false);
 
-Next, we can use the ``UserManager`` class in the `oidc-client` library to manage the OpenID Connect protocol. 
+Next, we can use the ``UserManager`` class from the `oidc-client` library to manage the OpenID Connect protocol. 
 It requires similar configuration that was necessary in the MVC Client (albeit with different values). 
 Add this code to configure and instantiate the ``UserManager``::
 
@@ -140,7 +133,7 @@ Add this code to configure and instantiate the ``UserManager``::
         authority: "http://localhost:5000",
         client_id: "js",
         redirect_uri: "http://localhost:5003/callback.html",
-        response_type: "id_token token",
+        response_type: "code",
         scope:"openid profile api1",
         post_logout_redirect_uri : "http://localhost:5003/index.html",
     };
@@ -162,7 +155,7 @@ Add this code to detect if the user is logged into the JavaScript application::
 
 Next, we want to implement the ``login``, ``api``, and ``logout`` functions. 
 The ``UserManager`` provides a ``signinRedirect`` to log the user in, and a ``signoutRedirect`` to log the user out.
-The ``User`` object that we obtained in the above code also has an ``access_token`` property which can be used to authenticate with a web API.
+The ``User`` object that we obtained in the above code also has an ``access_token`` property which can be used to authenticate to a web API.
 The ``access_token`` will be passed to the web API via the `Authorization` header with the `Bearer` scheme.
 Add this code to implement those three functions in our application::
 
@@ -188,7 +181,7 @@ Add this code to implement those three functions in our application::
         mgr.signoutRedirect();
     }
 
-See: `Protecting an API using Client Credentials <http://docs.identityserver.io/en/release/quickstarts/1_client_credentials.html>` for information on how to create the api used in the code above.
+.. Note:: See the :ref:`client credentials quickstart <refClientCredentialsQuickstart>` for information on how to create the api used in the code above.
 
 **callback.html**
 
@@ -207,9 +200,9 @@ Add this code to complete the signin process::
     <body>
         <script src="oidc-client.js"></script>
         <script>
-            new Oidc.UserManager().signinRedirectCallback().then(function () {
+            new Oidc.UserManager({response_mode:"query"}).signinRedirectCallback().then(function() {
                 window.location = "index.html";
-            }).catch(function (e) {
+            }).catch(function(e) {
                 console.error(e);
             });
         </script>
@@ -229,9 +222,10 @@ It should have the configuration listed below::
     {
         ClientId = "js",
         ClientName = "JavaScript Client",
-        AllowedGrantTypes = GrantTypes.Implicit,
-        AllowAccessTokensViaBrowser = true,
-
+        AllowedGrantTypes = GrantTypes.Code,
+        RequirePkce = true,
+        RequireClientSecret = false,
+        
         RedirectUris =           { "http://localhost:5003/callback.html" },
         PostLogoutRedirectUris = { "http://localhost:5003/index.html" },
         AllowedCorsOrigins =     { "http://localhost:5003" },
@@ -297,19 +291,19 @@ Run the JavaScript application
 
 Now you should be able to run the JavaScript client application:
 
-.. image:: images/7_not_logged_in.png
+.. image:: images/6_not_logged_in.png
 
 Click the "Login" button to sign the user in.
 Once the user is returned back to the JavaScript application, you should see their profile information:
  
-.. image:: images/7_logged_in.png
+.. image:: images/6_logged_in.png
 
 And click the "API" button to invoke the web API:
 
-.. image:: images/7_api_results.png
+.. image:: images/6_api_results.png
 
 And finally click "Logout" to sign the user out.
 
-.. image:: images/7_signed_out.png
+.. image:: images/6_signed_out.png
 
 You now have the start of a JavaScript client application that uses IdentityServer for sign-in, sign-out, and authenticating calls to web APIs.

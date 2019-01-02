@@ -8,7 +8,8 @@ IdentityServer4 is an OpenID Connect and OAuth 2.0 framework for ASP.NET Core 2.
 
 It enables the following features in your applications:
 
-| **Authentication as a Service** 
+
+| **Authentication as a Service:** 
 | Centralized login logic and workflow for all of your applications (web, native, mobile, services). IdentityServer is an officially `certified <https://openid.net/certification/>`_ implementation of OpenID Connect.
 
 | **Single Sign-on / Sign-out** 
@@ -54,9 +55,9 @@ It enables the following features in your applications:
    quickstarts/3_interactive_login
    quickstarts/4_external_authentication
    quickstarts/5_hybrid_and_api_access
-   quickstarts/6_aspnet_identity
-   quickstarts/7_javascript_client
-   quickstarts/8_entity_framework
+   quickstarts/6_javascript_client
+   quickstarts/7_entity_framework
+   quickstarts/8_aspnet_identity
    quickstarts/community
 
 .. toctree::
