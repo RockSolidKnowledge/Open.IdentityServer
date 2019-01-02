@@ -5,7 +5,7 @@ Protecting an API using Passwords
 The OAuth 2.0 resource owner password grant allows a client to send username and password
 to the token service and get an access token back that represents that user.
 
-The spec recommends using the resource owner password grant only for "trusted" (or legacy) applications.
+The spec generally recommends against using the resource owner password grant besides legacy applications that cannot host a browser.
 Generally speaking you are typically far better off using one of the interactive
 OpenID Connect flows when you want to authenticate a user and request access tokens.
 
@@ -50,7 +50,6 @@ Then register the test users with IdentityServer::
     {
         // configure identity server with in-memory stores, keys, clients and scopes
         services.AddIdentityServer()
-            .AddDeveloperSigningCredential()
             .AddInMemoryApiResources(Config.GetApiResources())
             .AddInMemoryClients(Config.GetClients())
             .AddTestUsers(Config.GetUsers());
@@ -68,7 +67,7 @@ You could simply add support for the grant type to our existing client by changi
 ``AllowedGrantTypes`` property. If you need your client to be able to use both grant types
 that is absolutely supported.
 
-Typically you want to create a separate client for the resource owner use case,
+We are creating a separate client for the resource owner use case,
 add the following to your clients configuration::
 
     public static IEnumerable<Client> GetClients()
@@ -94,15 +93,25 @@ add the following to your clients configuration::
 
 Requesting a token using the password grant
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The client looks very similar to what we did for the client credentials grant.
+Add a new console client to your solution.
+
+The new client looks very similar to what we did for the client credentials grant.
 The main difference is now that the client would collect the user's password somehow,
 and send it to the token service during the token request.
 
-Again IdentityModel's ``TokenClient`` can help out here::
+Again IdentityModel can help out here::
 
     // request token
-    var tokenClient = new TokenClient(disco.TokenEndpoint, "ro.client", "secret");
-    var tokenResponse = await tokenClient.RequestResourceOwnerPasswordAsync("alice", "password", "api1");
+    var tokenResponse = await client.RequestPasswordTokenAsync(new PasswordTokenRequest
+    {
+        Address = disco.TokenEndpoint,
+        ClientId = "ro.client",
+        ClientSecret = "secret",
+
+        UserName = "alice",
+        Password = "password",
+        Scope = "api1"
+    });
 
     if (tokenResponse.IsError)
     {
@@ -111,11 +120,11 @@ Again IdentityModel's ``TokenClient`` can help out here::
     }
 
     Console.WriteLine(tokenResponse.Json);
-    Console.WriteLine("\n\n");
 
 When you send the token to the identity API endpoint, you will notice one small
 but important difference compared to the client credentials grant. The access token will
-now contain a ``sub`` claim which uniquely identifies the user. This "sub" claim can be seen by examining the content variable after the call to the API and also will be displayed on the screen by the console application.
+now contain a ``sub`` claim which uniquely identifies the user. 
+This "sub" claim can be seen by examining the content variable after the call to the API and also will be displayed on the screen by the console application.
 
 The presence (or absence) of the ``sub`` claim lets the API distinguish between calls on behalf
 of clients and calls on behalf of users.
