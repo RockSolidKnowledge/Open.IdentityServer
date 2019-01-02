@@ -46,12 +46,10 @@ Johan Boström ([@zarx](https://twitter.com/zarx))
 Chris White  
 Albert ([@DerAlbert](https://twitter.com/DerAlbert))  
 Hugo Biarge ([@hbiarge](https://twitter.com/hbiarge))  
-Jacob Johnson  
 Ibrahim Šuta ([@ibrahimsuta](https://twitter.com/ibrahimsuta))  
 Dave Noderer  ([@davenoderer](https://twitter.com/davenoderer))  
 VIJAYA PAL NALLALA  
 Martijn Boland  
-Janardhan  
 Gary Ewan Park  ([@gep13](https://twitter.com/gep13))  
 Clinton Rocksmith  
 Giuseppe Turitto  
