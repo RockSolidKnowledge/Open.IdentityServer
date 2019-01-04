@@ -41,7 +41,7 @@ Defining an API Resource
 An API is a resource in your system that you want to protect.
 
 Resource definitions can be loaded in many ways, the template uses a "code as configuration" appproach.
-In the ``Config.cs`` file you can find a method called ``GetApiResources``, define the API as follows::
+In the ``Config.cs`` file you can find a method called ``GetApis``, define the API as follows::
 
     public static IEnumerable<ApiResource> GetApis()
     {
