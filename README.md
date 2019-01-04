@@ -47,18 +47,21 @@ Auth0 is an easy to implement authentication and identity management SaaS based 
 
 [Thinktecture AG](https://www.thinktecture.com)  
 [Ritter Insurance Marketing](https://www.ritterim.com)  
-[Alcidion Corporation](https://www.alcidion.com)  
+[ExtraNetUserManager](https://www.extranetusermanager.com/)
 [Intuit](https://www.intuit.com)  
 
-You can see a list of our current sponsors [here](https://github.com/IdentityServer/IdentityServer4/blob/release/SPONSORS.md) - and for companies we have some nice advertisement options as well.
+You can see a list of our current sponsors [here](https://github.com/IdentityServer/IdentityServer4/blob/master/SPONSORS.md) - and for companies we have some nice advertisement options as well.
 
 ## Acknowledgements
-IdentityServer4 is built using the following great open source projects
+IdentityServer4 is built using the following great open source projects and free services:
 
 * [ASP.NET Core](https://github.com/aspnet)
 * [Json.Net](http://www.newtonsoft.com/json)
 * [Cake](http://cakebuild.net/)
 * [XUnit](https://xunit.github.io/)
 * [Fluent Assertions](http://www.fluentassertions.com/)
+* [GitVersion](https://github.com/GitTools/GitVersion)
+* [GitReleaseManager](https://github.com/GitTools/GitReleaseManager)
+* [AppVeyor](https://github.com/appveyor/ci)
 
 ..and last but not least a big thanks to all our [contributors](https://github.com/IdentityServer/IdentityServer4/graphs/contributors)!
