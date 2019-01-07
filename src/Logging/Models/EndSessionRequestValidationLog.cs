@@ -22,7 +22,7 @@ namespace IdentityServer4.Logging.Models
 
         public EndSessionRequestValidationLog(ValidatedEndSessionRequest request)
         {
-            Raw = request.Raw.ToDictionary();
+            Raw = request.Raw.ToScrubbedDictionary(OidcConstants.EndSessionRequest.IdTokenHint);
 
             SubjectId = "unknown";
             if (request.Subject != null)
