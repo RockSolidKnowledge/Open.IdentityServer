@@ -213,7 +213,7 @@ endpoint addresses can be read from the metadata::
 Next you can use the information from the discovery document to request a token::
 
     // request token
-    var response = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+    var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
     {
         Address = disco.TokenEndpoint,
 
