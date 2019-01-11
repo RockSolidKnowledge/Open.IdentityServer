@@ -67,7 +67,7 @@ or authentication and access token requests (JavaScript applications).
 
 In the implicit flow, all tokens are transmitted via the browser, and advanced features like refresh tokens are thus not allowed.
 
-:ref:`This <refImplicitQuickstart>` quickstart shows authentication for service-side web apps, and 
+:ref:`This <refImplicitQuickstart>` quickstart shows authentication for server-side web apps, and 
 :ref:`this <refJavaScriptQuickstart>` shows JavaScript.
 
 Authorization code
