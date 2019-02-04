@@ -81,26 +81,13 @@ namespace Host
                 .AddOpenIdConnect("Google","Google", options =>
                 {
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-                    options.SignOutScheme = IdentityServerConstants.SignoutScheme;
+                    options.ForwardSignOut = IdentityServerConstants.DefaultCookieAuthenticationScheme;
 
                     options.Authority = "https://accounts.google.com/";
                     options.ClientId = "708996912208-9m4dkjb5hscn7cjrn5u0r4tbgkbj1fko.apps.googleusercontent.com";
 
                     options.CallbackPath = "/signin-google";
-                    options.SignedOutCallbackPath = "/signout-callback-google";
-                    options.RemoteSignOutPath = "/signout-google";
-
                     options.Scope.Add("email");
-
-                    options.Events = new OpenIdConnectEvents
-                    {
-                        OnRedirectToIdentityProviderForSignOut = e =>
-                        {
-                            e.Response.Redirect(e.Properties.RedirectUri);
-                            e.HandleResponse();
-                            return Task.CompletedTask;
-                        }
-                    };
                 })
                 .AddOpenIdConnect("demoidsrv", "IdentityServer", options =>
                 {
