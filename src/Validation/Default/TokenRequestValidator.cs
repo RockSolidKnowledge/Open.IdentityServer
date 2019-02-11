@@ -755,7 +755,6 @@ namespace IdentityServer4.Validation
 
             if (message.IsPresent())
             {
-                
                 try
                 {
                     if (values == null)
@@ -764,7 +763,7 @@ namespace IdentityServer4.Validation
                     }
                     else
                     {
-                        _logger.LogError(message + "{@values}, {@details}", values, details);
+                        _logger.LogError(message + "{@values}, details: {@details}", values, details);
                     }
                     
                 }
