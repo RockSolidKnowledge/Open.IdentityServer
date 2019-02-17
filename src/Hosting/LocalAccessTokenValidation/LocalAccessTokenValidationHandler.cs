@@ -1,3 +1,8 @@
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+
+using IdentityModel;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
@@ -65,7 +70,7 @@ namespace IdentityServer4.Hosting.LocalAccessTokenValidation
 
             _logger.LogTrace("Successfully validated the token.");
 
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(result.Claims, Scheme.Name, Options.NameClaimType, Options.RoleClaimType);
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(result.Claims, Scheme.Name, JwtClaimTypes.Name, JwtClaimTypes.Role);
             ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
             AuthenticationProperties authenticationProperties = new AuthenticationProperties();
 
