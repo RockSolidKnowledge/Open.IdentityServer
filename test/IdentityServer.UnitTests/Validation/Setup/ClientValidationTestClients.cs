@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -7,6 +7,7 @@ using IdentityServer4.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
+using static IdentityServer4.IdentityServerConstants;
 
 namespace IdentityServer4.UnitTests.Validation
 {
@@ -158,6 +159,44 @@ namespace IdentityServer4.UnitTests.Validation
                         new Secret("notexpired".Sha256(), DateTime.UtcNow.AddDays(1)),
                         // expired
                         new Secret("expired".Sha512(), DateTime.UtcNow.AddDays(-1))
+                    },
+                },
+
+                new Client
+                {
+                    ClientName = "MTLS Client with invalid secrets",
+                    ClientId = "mtls_client_invalid",
+                    Enabled = true,
+
+                    ClientSecrets = new List<Secret>
+                    {
+                        new Secret(@"CN=invalid", "mtls.test")
+                        {
+                            Type = SecretTypes.X509CertificateName
+                        },
+                        new Secret("invalid", "mtls.test")
+                        {
+                            Type = SecretTypes.X509CertificateThumbprint
+                        },
+                    }
+                },
+
+                new Client
+                {
+                    ClientName = "MTLS Client with valid secrets",
+                    ClientId = "mtls_client_valid",
+                    Enabled = true,
+
+                    ClientSecrets = new List<Secret>
+                    {
+                        new Secret(@"CN=idsrv3test", "mtls.test")
+                        {
+                            Type = SecretTypes.X509CertificateName
+                        },
+                        new Secret("6B7ACC520305BFDB4F7252DAEB2177CC091FAAE1", "mtls.test")
+                        {
+                            Type = SecretTypes.X509CertificateThumbprint
+                        },
                     }
                 }
             };

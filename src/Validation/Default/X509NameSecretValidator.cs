@@ -40,7 +40,7 @@ namespace IdentityServer4.Validation
             var cert = parsedSecret.Credential as X509Certificate2;
             if (cert == null)
             {
-                throw new ArgumentException("Credential is not a x509 certificate.");
+                throw new InvalidOperationException("Credential is not a x509 certificate.");
             }
 
             var name = cert.Subject;
