@@ -153,8 +153,17 @@ namespace IdentityServer4.ResponseHandling
 
                 if (Options.MutualTls.Enabled)
                 {
-                    // todo: find out if there will be a standard element
-                    entries.Add("token_endpoint_mtls", baseUrl + Constants.ProtocolRoutePaths.MtlsToken);
+                    var mtlsEndpoints = new List<string>();
+
+                    if (Options.Endpoints.EnableTokenEndpoint)
+                    {
+                        mtlsEndpoints.Add(baseUrl + Constants.ProtocolRoutePaths.MtlsToken);
+                    }
+
+                    if (mtlsEndpoints.Any())
+                    {
+                        entries.Add("mtls_endpoints", mtlsEndpoints);
+                    }
                 }
             }
 
