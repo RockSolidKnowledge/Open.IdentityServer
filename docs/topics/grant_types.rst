@@ -70,6 +70,8 @@ In the implicit flow, all tokens are transmitted via the browser, and advanced f
 :ref:`This <refImplicitQuickstart>` quickstart shows authentication for service-side web apps, and 
 :ref:`this <refJavaScriptQuickstart>` shows JavaScript.
 
+.. Note:: For JavaScript-based applications, Implicit is not recommended anymore. Use Authorization Code with PKCE instead.
+
 Authorization code
 ==================
 Authorization code flow was originally specified by OAuth 2, and provides a way to retrieve tokens on a back-channel as opposed to the browser front-channel.
