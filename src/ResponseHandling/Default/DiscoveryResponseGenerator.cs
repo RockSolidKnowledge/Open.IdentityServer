@@ -153,11 +153,23 @@ namespace IdentityServer4.ResponseHandling
 
                 if (Options.MutualTls.Enabled)
                 {
-                    var mtlsEndpoints = new List<string>();
+                    var mtlsEndpoints = new Dictionary<string, string>();
 
                     if (Options.Endpoints.EnableTokenEndpoint)
                     {
-                        mtlsEndpoints.Add(baseUrl + Constants.ProtocolRoutePaths.MtlsToken);
+                        mtlsEndpoints.Add(OidcConstants.Discovery.TokenEndpoint, baseUrl + Constants.ProtocolRoutePaths.MtlsToken);
+                    }
+                    if (Options.Endpoints.EnableTokenRevocationEndpoint)
+                    {
+                        mtlsEndpoints.Add(OidcConstants.Discovery.RevocationEndpoint, baseUrl + Constants.ProtocolRoutePaths.MtlsRevocation);
+                    }
+                    if (Options.Endpoints.EnableIntrospectionEndpoint)
+                    {
+                        mtlsEndpoints.Add(OidcConstants.Discovery.IntrospectionEndpoint, baseUrl + Constants.ProtocolRoutePaths.MtlsIntrospection);
+                    }
+                    if (Options.Endpoints.EnableDeviceAuthorizationEndpoint)
+                    {
+                        mtlsEndpoints.Add(OidcConstants.Discovery.DeviceAuthorizationEndpoint, baseUrl + Constants.ProtocolRoutePaths.MtlsDeviceAuthorization);
                     }
 
                     if (mtlsEndpoints.Any())

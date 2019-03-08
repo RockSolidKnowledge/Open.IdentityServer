@@ -56,7 +56,7 @@ namespace Host
                 .AddJwtBearerClientAuthentication()
                 .AddAppAuthRedirectUriValidator()
                 .AddTestUsers(TestUsers.Users)
-                .AddTokenEndpointMutualTls();
+                .AddMutualTlsSecretValidators();
 
             services.AddExternalIdentityProviders();
             services.AddLocalApiAuthentication();

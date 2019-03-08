@@ -292,11 +292,11 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds support for mutual TLS to the token endpoint.
+        /// Adds the X509 secret validators for mutual TLS.
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
-        public static IIdentityServerBuilder AddTokenEndpointMutualTls(this IIdentityServerBuilder builder)
+        public static IIdentityServerBuilder AddMutualTlsSecretValidators(this IIdentityServerBuilder builder)
         {
             builder.AddSecretParser<MutualTlsSecretParser>();
             builder.AddSecretValidator<X509ThumbprintSecretValidator>();
