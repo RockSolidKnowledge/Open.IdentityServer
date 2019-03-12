@@ -45,8 +45,15 @@ This options class contains properties to control the configuration store and ``
     Delegate of type ``Action<DbContextOptionsBuilder>`` used as a callback to configure the underlying ``ConfigurationDbContext``.
     The delegate can configure the ``ConfigurationDbContext`` in the same way if EF were being used directly with ``AddDbContext``, which allows any EF-supported database to be used.
 ``DefaultSchema``
-    Allows setting the default database schema name for all the tables in the ``ConfigurationDbContext``.
+    Allows setting the default database schema name for all the tables in the ``ConfigurationDbContext``
+    ::
+            options.DefaultSchema = "myConfigurationSchema";      
 
+If you need to change the schema for the Migration History Table, you can chain another action to the ``UserSqlServer``::
+
+    options.ConfigureDbContext = b =>
+        b.UseSqlServer(connectionString,
+            sql => sql.MigrationsAssembly(migrationsAssembly).MigrationsHistoryTable("MyConfigurationMigrationTable", "myConfigurationSchema"));
 
 Operational Store support for authorization grants, consents, and tokens (refresh and reference)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
