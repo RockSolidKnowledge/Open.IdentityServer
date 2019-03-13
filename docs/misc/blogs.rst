@@ -25,6 +25,7 @@ What's new posts
 
 Community posts
 ^^^^^^^^^^^^^^^
+* `Connecting Zendesk and IdentityServer 4 SAML 2.0 Identity Provider <https://lurumad.github.io/connecting-zendesk-and-identityserver-4-saml2p-identity-provider>`_
 * `IdentityServer localization using ui_locales <https://damienbod.com/2017/11/11/identityserver4-localization-using-ui_locales-and-the-query-string>`_
 * `Self-issuing an IdentityServer4 token in an IdentityServer4 service <https://www.strathweb.com/2017/10/self-issuing-an-identityserver4-token-in-an-identityserver4-service/>`_
 * `IdentityServer4 on the ASP.NET Team Blog <https://blogs.msdn.microsoft.com/webdev/2017/01/23/asp-net-core-authentication-with-identityserver4/>`_
