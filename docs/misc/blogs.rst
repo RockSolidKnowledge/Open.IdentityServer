@@ -3,6 +3,18 @@ Blog posts
 
 Team posts
 ^^^^^^^^^^
+2019
+----
+* `Try Device Flow with IdentityServer4 <https://leastprivilege.com/2019/02/08/try-device-flow-with-identityserver4/>`_
+* `An alternative way to secure SPAs (with ASP.NET Core, OpenID Connect, OAuth 2.0 and ProxyKit  <https://leastprivilege.com/2019/01/18/an-alternative-way-to-secure-spas-with-asp-net-core-openid-connect-oauth-2-0-and-proxykit/>`_
+* `Automatic OAuth 2.0 Token Management in ASP.NET Core <https://leastprivilege.com/2019/01/14/automatic-oauth-2-0-token-management-in-asp-net-core/>`_
+
+2018
+----
+* `IdentityServer4 Update <https://leastprivilege.com/2018/01/17/ndc-london-2018-identityserver-update/>`_ 
+
+2017
+----
 * `Platforms where you can run IdentityServer4 <https://leastprivilege.com/2017/01/15/platforms-where-you-can-run-identityserver4/>`_ 
 * `Optimizing Tokens for size <https://leastprivilege.com/2016/12/14/optimizing-identity-tokens-for-size/>`_
 * `Identity vs Permissions <https://leastprivilege.com/2016/12/16/identity-vs-permissions/>`_
