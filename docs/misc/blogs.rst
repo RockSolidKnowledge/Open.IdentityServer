@@ -5,7 +5,9 @@ Team posts
 ^^^^^^^^^^
 2019
 ----
+* `Scope and claims design in IdentityServer <https://brockallen.com/2019/02/25/scope-and-claims-design-in-identityserver/>`_
 * `Try Device Flow with IdentityServer4 <https://leastprivilege.com/2019/02/08/try-device-flow-with-identityserver4/>`_
+* `The State of the Implicit Flow in OAuth2 <https://brockallen.com/2019/01/03/the-state-of-the-implicit-flow-in-oauth2/>`_
 * `An alternative way to secure SPAs (with ASP.NET Core, OpenID Connect, OAuth 2.0 and ProxyKit  <https://leastprivilege.com/2019/01/18/an-alternative-way-to-secure-spas-with-asp-net-core-openid-connect-oauth-2-0-and-proxykit/>`_
 * `Automatic OAuth 2.0 Token Management in ASP.NET Core <https://leastprivilege.com/2019/01/14/automatic-oauth-2-0-token-management-in-asp-net-core/>`_
 
