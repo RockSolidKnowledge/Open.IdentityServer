@@ -39,6 +39,7 @@ What's new posts
 
 Community posts
 ^^^^^^^^^^^^^^^
+* `OAuth 2.0 - OpenID Connect & IdentityServer <https://wp.me/p3mRWu-1Ag/>`_
 * `Running IdentityServer4 in a Docker Container <https://espressocoder.com/2019/01/29/running-identityserver4-in-a-docker-container/>`_
 * `Connecting Zendesk and IdentityServer 4 SAML 2.0 Identity Provider <https://lurumad.github.io/connecting-zendesk-and-identityserver-4-saml2p-identity-provider>`_
 * `IdentityServer localization using ui_locales <https://damienbod.com/2017/11/11/identityserver4-localization-using-ui_locales-and-the-query-string>`_
