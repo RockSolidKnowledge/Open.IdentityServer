@@ -8,18 +8,6 @@ It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and oper
 
 For project documentation, please visit [readthedocs](https://identityserver4.readthedocs.io).
 
-## Overview
-IdentityServer4 consists of multiple repositories (in addition to this repository):
-
-* [Samples](https://github.com/IdentityServer/IdentityServer4.Samples)
-* [Access token validation handler for ASP.NET Core](https://github.com/IdentityServer/IdentityServer4.AccessTokenValidation)
-* [Quickstart UI](https://github.com/IdentityServer/IdentityServer4.Quickstart.UI)
-* [ASP.NET Identity integration](https://github.com/IdentityServer/IdentityServer4.AspNetIdentity)
-* [EntityFramework integration](https://github.com/IdentityServer/IdentityServer4.EntityFramework)
-* [Templates](https://github.com/IdentityServer/IdentityServer4.Templates)
-
-If you encounter issues or find bugs, please open an issue in this repo here first.
-
 ## How to build
 IdentityServer is built against the latest ASP.NET Core 2.
 
