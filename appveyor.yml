@@ -17,7 +17,7 @@ build_script:
 
 test: off
 artifacts:
-- path: artifacts/packages/*.nupkg
+- path: nuget/*.nupkg
 
 deploy: off
 for:
@@ -25,6 +25,10 @@ for:
   matrix:
     only:
       - image: Visual Studio 2017
+  services:
+    - mssql2016
+    - mysql
+    - postgresql
   deploy:
   - provider: NuGet
     server: https://www.myget.org/F/identity/
@@ -33,6 +37,11 @@ for:
     skip_symbols: true
     on:
       branch: dev
+
+services:
+  - mysql               # start MySQL 5.7 x64 service
+  - postgresql          # start PostgreSQL 9.6 service
+ 
 
 #---------------------------------#
 #  Skip builds for doc changes    #
