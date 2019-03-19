@@ -28,7 +28,7 @@ namespace Host
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddMvc()
-                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
 
             services.Configure<IISOptions>(iis =>
             {
@@ -102,17 +102,17 @@ namespace Host
             services.AddOidcStateDataFormatterCache("aad", "demoidsrv");
 
             services.AddAuthentication()
-                .AddOpenIdConnect("Google","Google", options =>
-                {
-                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-                    options.ForwardSignOut = IdentityServerConstants.DefaultCookieAuthenticationScheme;
+                .AddOpenIdConnect("Google", "Google", options =>
+                 {
+                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                     options.ForwardSignOut = IdentityServerConstants.DefaultCookieAuthenticationScheme;
 
-                    options.Authority = "https://accounts.google.com/";
-                    options.ClientId = "708996912208-9m4dkjb5hscn7cjrn5u0r4tbgkbj1fko.apps.googleusercontent.com";
+                     options.Authority = "https://accounts.google.com/";
+                     options.ClientId = "708996912208-9m4dkjb5hscn7cjrn5u0r4tbgkbj1fko.apps.googleusercontent.com";
 
-                    options.CallbackPath = "/signin-google";
-                    options.Scope.Add("email");
-                })
+                     options.CallbackPath = "/signin-google";
+                     options.Scope.Add("email");
+                 })
                 .AddOpenIdConnect("demoidsrv", "IdentityServer", options =>
                 {
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
@@ -166,21 +166,21 @@ namespace Host
                         NameClaimType = "name",
                         RoleClaimType = "role"
                     };
-                })
-                .AddWsFederation("adfs-wsfed", "ADFS with WS-Fed", options =>
-                {
-                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-                    options.SignOutScheme = IdentityServerConstants.SignoutScheme;
-
-                    options.MetadataAddress = "https://adfs4.local/federationmetadata/2007-06/federationmetadata.xml";
-                    options.Wtrealm = "urn:test";
-
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        NameClaimType = "name",
-                        RoleClaimType = "role"
-                    };
                 });
+                //.AddWsFederation("adfs-wsfed", "ADFS with WS-Fed", options =>
+                //{
+                //    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                //    options.SignOutScheme = IdentityServerConstants.SignoutScheme;
+
+                //    options.MetadataAddress = "https://adfs4.local/federationmetadata/2007-06/federationmetadata.xml";
+                //    options.Wtrealm = "urn:test";
+
+                //    options.TokenValidationParameters = new TokenValidationParameters
+                //    {
+                //        NameClaimType = "name",
+                //        RoleClaimType = "role"
+                //    };
+                //});
 
             return services;
         }

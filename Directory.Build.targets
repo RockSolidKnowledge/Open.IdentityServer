@@ -2,22 +2,13 @@
   <ItemGroup>
     <PackageReference Update="IdentityModel" Version="3.10.6" />
     
-    <PackageReference Update="Microsoft.AspNetCore.Authentication" Version="2.1.0" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.Abstractions" Version="2.1.0" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.Cookies" Version="2.1.0" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="2.1.0" />
-    <PackageReference Update="Microsoft.AspNetCore.Authorization" Version="2.1.0" />
-    <PackageReference Update="Microsoft.AspNetCore.Cors" Version="2.1.0" />
-    <PackageReference Update="Microsoft.AspNetCore.Identity" Version="2.1.0" />
+    <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.0.0-preview3-19153-02" />
     
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="2.1.0" />
-
     <PackageReference Update="Microsoft.Extensions.Caching.Memory" Version="2.1.0" />
     <PackageReference Update="Microsoft.Extensions.Logging" Version="2.1.0" />
     <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.0" />
     
-    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="5.2.4" />
-    <PackageReference Update="System.Security.Cryptography.Cng" Version="4.5.0" />
+    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="5.4.0" />
     
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All" />
   </ItemGroup>
