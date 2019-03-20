@@ -15,9 +15,9 @@ namespace IdentityServer4.Quickstart.UI
     public class HomeController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;
-        private readonly IHostingEnvironment _environment;
+        private readonly IWebHostEnvironment _environment;
 
-        public HomeController(IIdentityServerInteractionService interaction, IHostingEnvironment environment)
+        public HomeController(IIdentityServerInteractionService interaction, IWebHostEnvironment environment)
         {
             _interaction = interaction;
             _environment = environment;
@@ -25,7 +25,7 @@ namespace IdentityServer4.Quickstart.UI
 
         public IActionResult Index()
         {
-            if (_environment.IsDevelopment())
+            if (_environment.EnvironmentName == Microsoft.Extensions.Hosting.Environments.Development)
             {
                 // only show in development
                 return View();
@@ -47,7 +47,7 @@ namespace IdentityServer4.Quickstart.UI
             {
                 vm.Error = message;
 
-                if (!_environment.IsDevelopment())
+                if (_environment.EnvironmentName == Microsoft.Extensions.Hosting.Environments.Development)
                 {
                     // only show in development
                     message.ErrorDescription = null;
