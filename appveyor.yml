@@ -13,6 +13,7 @@ branches:
 
 install:
 - ps: .\installSdk.ps1
+- sh: ./installSdk.sh
 
 build_script:
 - ps: .\build.ps1
