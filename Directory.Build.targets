@@ -1,4 +1,10 @@
 <Project>
+
+  <PropertyGroup>
+    <AspNetVersion>3.0.0-preview3-19153-02</AspNetVersion>
+    <EFVersion>3.0.0-preview3.19153.1</EFVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Update="IdentityServer4" Version="2.3.0" />
     <PackageReference Update="IdentityServer4.Storage" Version="2.3.0" />
@@ -6,16 +12,16 @@
     
     <PackageReference Update="IdentityModel" Version="3.10.6" />
     
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.0.0-preview3-19153-02" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.Google" Version="3.0.0-preview3-19153-02" />
-    <PackageReference Update="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0-preview3-19153-02" />
+    <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(AspNetVersion)" />
+    <PackageReference Update="Microsoft.AspNetCore.Authentication.Google" Version="$(AspNetVersion)" />
+    <PackageReference Update="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(AspNetVersion)" />
     
-    <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview3.19153.1" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="3.0.0-preview3.19153.1" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0-preview3.19153.1" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0-preview3.19153.1" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.InMemory" Version="3.0.0-preview3.19153.1" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview3.19153.1" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="$(EFVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.InMemory" Version="$(EFVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFVersion)" />
 
     <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="5.4.0" />
 
