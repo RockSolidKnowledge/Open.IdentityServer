@@ -1,4 +1,4 @@
-$DotNetVersion = "2.2.104";
+$DotNetVersion = "3.0.100-preview3-010431";
 $DotNetInstallerUri = "https://dot.net/v1/dotnet-install.ps1";
 
 # Make sure tools folder exists

@@ -11,6 +11,9 @@ branches:
   except:
   - master
 
+install:
+- ps: .\installSdk.ps1
+
 build_script:
 - ps: .\build.ps1
 - sh: ./build.sh
