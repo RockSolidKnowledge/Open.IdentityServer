@@ -12,14 +12,12 @@ jobs:
   steps:
   - task: DotNetCoreInstaller@0
     inputs:
-      version: 2.1.600
-  - task: DotNetCoreInstaller@0
-    inputs:
       version: 3.0.100-preview3-010431
-  - task: PowerShell@2
+  - task: Bash@3
+    displayName: 'Bash Script'
     inputs:
       targetType: filePath
-      filePath: ./build.ps1
+      filePath: ./build.sh
 - job: Windows
   pool:
     vmImage: 'vs2017-win2016'
