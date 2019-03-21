@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <FrameworkVersion>2.1</FrameworkVersion>
-    <IdentityServerVersion>2.4.0-*</IdentityServerVersion>
+    <IdentityServerVersion>2.4.0</IdentityServerVersion>
   </PropertyGroup>
 
   <ItemGroup>
