@@ -1,0 +1,14 @@
+trigger:
+- master
+- dev
+- aspnetcore3
+- features/*
+
+pool:
+  vmImage: 'vs2017-win2016'
+
+steps:
+- task: PowerShell@2
+  inputs:
+    targetType: filePath
+    filePath: ./build.ps1
