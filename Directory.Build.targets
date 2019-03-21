@@ -2,16 +2,17 @@
 
   <PropertyGroup>
     <FrameworkVersion>2.1</FrameworkVersion>
+    <IdentityServerVersion>2.4.0</IdentityServerVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Update="IdentityModel" Version="3.10.6" />
 
-    <PackageReference Update="IdentityServer4" Version="2.4.0-preview1" />
-    <PackageReference Update="IdentityServer4.AspNetIdentity" Version="2.3.0" />
-    <PackageReference Update="IdentityServer4.Storage" Version="2.3.1" />
-    <PackageReference Update="IdentityServer4.EntityFramework.Storage" Version="2.3.1" />
-    <PackageReference Update="IdentityServer4.EntityFramework" Version="2.3.2" />
+    <PackageReference Update="IdentityServer4" Version="$(IdentityServerVersion)" />
+    <PackageReference Update="IdentityServer4.AspNetIdentity" Version="$(IdentityServerVersion)" />
+    <PackageReference Update="IdentityServer4.Storage" Version="$(IdentityServerVersion)" />
+    <PackageReference Update="IdentityServer4.EntityFramework.Storage" Version="$(IdentityServerVersion)" />
+    <PackageReference Update="IdentityServer4.EntityFramework" Version="$(IdentityServerVersion)" />
     
     <PackageReference Update="Microsoft.AspNetCore.Authentication" Version="$(FrameworkVersion)" />
     <PackageReference Update="Microsoft.AspNetCore.Authentication.Abstractions" Version="$(FrameworkVersion)" />
