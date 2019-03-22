@@ -3,12 +3,15 @@
   <PropertyGroup>
     <AspNetVersion>3.0.0-preview3-19153-02</AspNetVersion>
     <EFVersion>3.0.0-preview3.19153.1</EFVersion>
+    <IdentityServerVersion>3.0.0-preview3</IdentityServerVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Update="IdentityServer4" Version="2.3.0" />
-    <PackageReference Update="IdentityServer4.Storage" Version="2.3.0" />
-    <PackageReference Update="IdentityServer4.EntityFramework.Storage" Version="2.3.1" />
+    <PackageReference Update="IdentityServer4" Version="$(IdentityServerVersion)" />
+    <PackageReference Update="IdentityServer4.AspNetIdentity" Version="$(IdentityServerVersion)" />
+    <PackageReference Update="IdentityServer4.Storage" Version="$(IdentityServerVersion)" />
+    <PackageReference Update="IdentityServer4.EntityFramework.Storage" Version="$(IdentityServerVersion)" />
+    <PackageReference Update="IdentityServer4.EntityFramework" Version="$(IdentityServerVersion)" />
     
     <PackageReference Update="IdentityModel" Version="3.10.6" />
     
