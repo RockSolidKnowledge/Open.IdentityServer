@@ -23,6 +23,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="IdentityServer4.Storage"  />
     <PackageReference Include="AutoMapper" Version="8.0.0" />
 

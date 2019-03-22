@@ -22,7 +22,6 @@
     <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFVersion)" />
     <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="$(EFVersion)" />
     <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFVersion)" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFVersion)" />
     <PackageReference Update="Microsoft.EntityFrameworkCore.InMemory" Version="$(EFVersion)" />
     <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFVersion)" />
 
