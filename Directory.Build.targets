@@ -6,6 +6,10 @@
     <IdentityServerVersion>3.0.0</IdentityServerVersion>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <MinVerMinimumMajorMinor>3.0</MinVerMinimumMajorMinor>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="MinVer" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
