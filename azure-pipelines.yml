@@ -2,6 +2,7 @@ trigger:
 - master
 - dev
 - aspnetcore3
+- new-build-system
 - features/*
 
 pool:
@@ -12,3 +13,10 @@ steps:
   inputs:
     targetType: filePath
     filePath: ./build.ps1
+- task: NuGetCommand@2
+  displayName: 'MyGet push'
+  inputs:
+    command: push
+    packagesToPush: 'nuget/*.nupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'MyGet'

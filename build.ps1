@@ -1,5 +1,5 @@
 New-Item -ItemType Directory -Force -Path ./nuget
-Remove-Item -Path ./nuget/*.*
+dotnet tool install --tool-path tools SignClient
 
 $cd = Get-Location
 
@@ -14,7 +14,9 @@ if ($LASTEXITCODE -ne 0)
     exit $LASTEXITCODE
 }
 
-Copy-Item -path .\src\Storage\artifacts\packages\*.nupkg -Destination .\nuget
+Copy-Item -path .\src\Storage\artifacts\*.nupkg -Destination .\nuget
+
+
 
 # core
 "######### IdentityServer4 #########"
@@ -27,7 +29,9 @@ if ($LASTEXITCODE -ne 0)
     exit $LASTEXITCODE
 }
 
-Copy-Item -path .\src\IdentityServer4\artifacts\packages\*.nupkg -Destination .\nuget
+Copy-Item -path .\src\IdentityServer4\artifacts\*.nupkg -Destination .\nuget
+
+
 
 # EF storage
 "######### EntityFramework Storage #########"
@@ -40,7 +44,7 @@ if ($LASTEXITCODE -ne 0)
     exit $LASTEXITCODE
 }
 
-Copy-Item -path .\src\EntityFramework.Storage\artifacts\packages\*.nupkg -Destination .\nuget
+Copy-Item -path .\src\EntityFramework.Storage\artifacts\*.nupkg -Destination .\nuget
 
 # EF
 "######### EntityFramework #########"
@@ -53,7 +57,7 @@ if ($LASTEXITCODE -ne 0)
     exit $LASTEXITCODE
 }
 
-Copy-Item -path .\src\EntityFramework\artifacts\packages\*.nupkg -Destination .\nuget
+Copy-Item -path .\src\EntityFramework\artifacts\*.nupkg -Destination .\nuget
 
 # aspid
 "######### ASP.NET Identity #########"
@@ -66,4 +70,4 @@ if ($LASTEXITCODE -ne 0)
     exit $LASTEXITCODE
 }
 
-Copy-Item -path .\src\AspNetIdentity\artifacts\packages\*.nupkg -Destination .\nuget
+Copy-Item -path .\src\AspNetIdentity\artifacts\*.nupkg -Destination .\nuget

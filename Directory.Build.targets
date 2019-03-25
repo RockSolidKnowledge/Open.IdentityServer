@@ -2,10 +2,14 @@
 
   <PropertyGroup>
     <FrameworkVersion>2.1</FrameworkVersion>
-    <IdentityServerVersion>2.5.0-*</IdentityServerVersion>
+    <IdentityServerVersion>2.4.1-*</IdentityServerVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MinVer" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    
     <PackageReference Update="IdentityModel" Version="3.10.6" />
 
     <PackageReference Update="IdentityServer4" Version="$(IdentityServerVersion)" />
