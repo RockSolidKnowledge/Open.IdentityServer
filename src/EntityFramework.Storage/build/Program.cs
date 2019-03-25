@@ -50,7 +50,7 @@ namespace build
                 
                 Target(Pack, DependsOn(Build), () => 
                 {
-                    Run("dotnet", $"pack src/{Project}.csproj -c Release -o ../{ArtifactsDir} --no-build");
+                    Run("dotnet", $"pack src/{Project}.csproj -c Release -o ./{ArtifactsDir} --no-build");
                     
                     if (sign.HasValue())
                     {
