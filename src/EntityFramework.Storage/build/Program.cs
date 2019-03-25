@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using McMaster.Extensions.CommandLineUtils;
 using static Bullseye.Targets;
 using static SimpleExec.Command;
@@ -8,7 +9,8 @@ namespace build
 {
     class Program
     {
-        private const string Project = "IdentityServer4.EntityFramework.Storage";
+        private const bool RequireTests = true;
+
         private const string ArtifactsDir = "artifacts";
         private const string Build = "build";
         private const string Test = "test";
@@ -25,7 +27,9 @@ namespace build
             {
                 Target(Build, () => 
                 {
-                    Run("dotnet", $"build {Project}.sln -c Release");
+                    var solution = Directory.GetFiles(".", "*.sln", SearchOption.TopDirectoryOnly).First();
+
+                    Run("dotnet", $"build {solution} -c Release");
 
                     if (sign.HasValue())
                     {
@@ -44,13 +48,20 @@ namespace build
                             Run("dotnet", $"test {test} -c Release --no-build");
                         }    
                     }
-                    catch (System.IO.DirectoryNotFoundException)
-                    { }
+                    catch (System.IO.DirectoryNotFoundException ex)
+                    {
+                        if (RequireTests)
+                        {
+                            throw new Exception($"No tests found: {ex.Message}");
+                        };
+                    }
                 });
                 
                 Target(Pack, DependsOn(Build), () => 
                 {
-                    Run("dotnet", $"pack src/{Project}.csproj -c Release -o ../{ArtifactsDir} --no-build");
+                    var project = Directory.GetFiles("./src", "*.csproj", SearchOption.TopDirectoryOnly).First();
+
+                    Run("dotnet", $"pack {project} -c Release -o ../{ArtifactsDir} --no-build");
                     
                     if (sign.HasValue())
                     {
