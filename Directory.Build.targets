@@ -1,8 +1,9 @@
 <Project>
 
   <PropertyGroup>
-    <FrameworkVersion>2.1</FrameworkVersion>
-    <IdentityServerVersion>2.4.1-*</IdentityServerVersion>
+    <AspNetVersion>3.0.0-preview3-19153-02</AspNetVersion>
+    <EFVersion>3.0.0-preview3.19153.1</EFVersion>
+    <IdentityServerVersion>3.0.0</IdentityServerVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,23 +19,20 @@
     <PackageReference Update="IdentityServer4.EntityFramework.Storage" Version="$(IdentityServerVersion)" />
     <PackageReference Update="IdentityServer4.EntityFramework" Version="$(IdentityServerVersion)" />
     
-    <PackageReference Update="Microsoft.AspNetCore.Authentication" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.Abstractions" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.Cookies" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Authorization" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Cors" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Identity" Version="$(FrameworkVersion)" />
+    <PackageReference Update="IdentityModel" Version="3.10.6" />
     
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="$(FrameworkVersion)" />
+    <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(AspNetVersion)" />
+    <PackageReference Update="Microsoft.AspNetCore.Authentication.Google" Version="$(AspNetVersion)" />
+    <PackageReference Update="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(AspNetVersion)" />
+    
+    <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="$(EFVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.InMemory" Version="$(EFVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFVersion)" />
 
-    <PackageReference Update="Microsoft.Extensions.Caching.Memory" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.Extensions.Logging" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(FrameworkVersion)" />
-    
-    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="5.2.4" />
-    <PackageReference Update="System.Security.Cryptography.Cng" Version="4.5.0" />
-    
+    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="5.4.0" />
+
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All" />
   </ItemGroup>
 </Project>
