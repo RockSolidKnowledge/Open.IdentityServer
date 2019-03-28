@@ -92,3 +92,28 @@ This flow gives you the best security because the access tokens are transmitted 
             "api1", "api2.read_only"
         },
     };
+
+Defining clients in appsettings.json
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``AddInMemoryClients`` extensions method also supports adding clients from the ASP.NET Core configuration file. This allows you to define static clients directly from the appsettings.json file:
+
+    "IdentityServer": {
+      "IssuerUri": "urn:sso.company.com",
+      "Clients": [
+        {
+          "Enabled": true,
+          "ClientId": "local-dev",
+          "ClientName": "Local Development",
+          "ClientSecrets": [ { "Value": "<Insert Sha256 hash of the secret encoded as Base64 string>" } ],
+          "AllowedGrantTypes": [ "implicit" ],
+          "AllowedScopes": [ "openid", "profile" ],
+          "RedirectUris": [ "https://localhost:5001/signin-oidc" ],
+          "RequireConsent": false
+        }
+      ]
+    }
+    
+Then pass the configuration section to the ``AddInMemoryClients`` method:
+
+    AddInMemoryClients(configuration.GetSection("IdentityServer:Clients"))
