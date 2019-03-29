@@ -96,7 +96,7 @@ This flow gives you the best security because the access tokens are transmitted 
 Defining clients in appsettings.json
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``AddInMemoryClients`` extensions method also supports adding clients from the ASP.NET Core configuration file. This allows you to define static clients directly from the appsettings.json file:
+The ``AddInMemoryClients`` extensions method also supports adding clients from the ASP.NET Core configuration file. This allows you to define static clients directly from the appsettings.json file::
 
     "IdentityServer": {
       "IssuerUri": "urn:sso.company.com",
@@ -114,6 +114,6 @@ The ``AddInMemoryClients`` extensions method also supports adding clients from t
       ]
     }
     
-Then pass the configuration section to the ``AddInMemoryClients`` method:
+Then pass the configuration section to the ``AddInMemoryClients`` method::
 
     AddInMemoryClients(configuration.GetSection("IdentityServer:Clients"))
