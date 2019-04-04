@@ -113,7 +113,14 @@ Run from within the ``src`` folder the following command::
 
     dotnet new web -n Api
 
-Configure the API application to run on ``http://localhost:5001`` only.
+Then add it to the solution by running the following commands::
+
+    cd ..
+    dotnet sln add .\src\Api\Api.csproj
+
+Configure the API application to run on ``http://localhost:5001`` only. You can do this by editing the `launchSettings.json` file inside the Properties folder. Change the application URL setting to be::
+
+    "applicationUrl": "http://localhost:5001"
 
 The controller
 --------------
@@ -178,11 +185,16 @@ Navigating to the controller ``http://localhost:5001/identity`` on a browser sho
 Creating the client
 ^^^^^^^^^^^^^^^^^^^
 The last step is to write a client that requests an access token, and then uses this
-token to access the API. For that, add a console project to your solution::
+token to access the API. For that, add a console project to your solution, remember to create it in the ``src``::
 
     dotnet new console -n Client
     
-and copy the content from ``Program.cs`` `here <https://github.com/IdentityServer/IdentityServer4.Samples/blob/master/Quickstarts/1_ClientCredentials/src/Client/Program.cs>`_.
+Then as before, add it to your solution using:
+
+    cd ..
+    dotnet sln add .\src\Client\Client.csproj
+    
+Open up ``Program.cs`` and copy the content from `here <https://github.com/IdentityServer/IdentityServer4.Samples/blob/master/Quickstarts/1_ClientCredentials/src/Client/Program.cs>`_ to it..
 
 The client program invokes the ``Main`` method asynchronously in order to run asynchronous http calls. This feature is possible since ``C# 7.1`` and will be available once you edit Client.csproj to add the following line as a ``PropertyGroup``::
 
