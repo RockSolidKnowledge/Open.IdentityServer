@@ -189,7 +189,7 @@ token to access the API. For that, add a console project to your solution, remem
 
     dotnet new console -n Client
     
-Then as before, add it to your solution using:
+Then as before, add it to your solution using::
 
     cd ..
     dotnet sln add .\src\Client\Client.csproj
