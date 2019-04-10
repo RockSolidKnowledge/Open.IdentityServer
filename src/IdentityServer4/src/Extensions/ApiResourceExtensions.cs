@@ -16,9 +16,10 @@ namespace IdentityServer4.Models
                 Enabled = apiResource.Enabled,
                 Name = apiResource.Name,
                 DisplayName = apiResource.DisplayName,
-                ApiSecrets = apiResource.ApiSecrets,
+                ApiSecrets = new HashSet<Secret>(apiResource.ApiSecrets),
                 Scopes = new HashSet<Scope>(scopes.ToArray()),
-                UserClaims = apiResource.UserClaims
+                UserClaims = new HashSet<string>(apiResource.UserClaims),
+                Properties = new Dictionary<string, string>(apiResource.Properties)
             };
         }
     }
