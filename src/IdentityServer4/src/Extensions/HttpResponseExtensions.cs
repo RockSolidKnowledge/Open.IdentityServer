@@ -19,12 +19,14 @@ namespace Microsoft.AspNetCore.Http
         {
             var json = ObjectSerializer.ToString(o);
             await response.WriteJsonAsync(json, contentType);
+            await response.Body.FlushAsync();
         }
 
         public static async Task WriteJsonAsync(this HttpResponse response, string json, string contentType = null)
         {
             response.ContentType = contentType ?? "application/json; charset=UTF-8";
             await response.WriteAsync(json);
+            await response.Body.FlushAsync();
         }
 
         public static void SetCache(this HttpResponse response, int maxAge)
@@ -63,6 +65,7 @@ namespace Microsoft.AspNetCore.Http
         {
             response.ContentType = "text/html; charset=UTF-8";
             await response.WriteAsync(html, Encoding.UTF8);
+            await response.Body.FlushAsync();
         }
 
         public static void RedirectToAbsoluteUrl(this HttpResponse response, string url)
