@@ -19,7 +19,7 @@ For using IdentityServer with ASP.NET Core 1.x, you can use the 1.x packages of 
 
 ## Commercial and Community Support
 If you need help with implementing IdentityServer4 or your security architecture in general, there are both free and commercial support options.
-See [here](https://identityserver4.readthedocs.io/en/release/intro/support.html) for more details.
+See [here](https://identityserver4.readthedocs.io/en/latest/intro/support.html) for more details.
 
 ## Sponsorship
 If you are a fan of the project or a company that relies on IdentityServer, you might want to consider sponsoring.
