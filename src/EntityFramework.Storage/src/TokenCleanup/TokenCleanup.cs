@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 namespace IdentityServer4.EntityFramework
 {
     /// <summary>
-    /// Helper to perodically cleanup expired persisted grants.
+    /// Helper to periodically cleanup expired persisted grants.
     /// </summary>
     public class TokenCleanup
     {

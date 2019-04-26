@@ -54,7 +54,7 @@ namespace IdentityServer4.EntityFramework.Options
 
         /// <summary>
         /// Gets or sets a value indicating whether stale entries will be automatically cleaned up from the database.
-        /// This is implemented by perodically connecting to the database (according to the TokenCleanupInterval) from the hosting application.
+        /// This is implemented by periodically connecting to the database (according to the TokenCleanupInterval) from the hosting application.
         /// Defaults to false.
         /// </summary>
         /// <value>
