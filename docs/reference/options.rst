@@ -122,4 +122,4 @@ Mutual TLS
 * ``Enabled``
     Specifies if MTLS support should be enabled. Defaults to ``false``.
 * ``ClientCertificateAuthenticationScheme``
-    Specifies the name of the authentication handler for X.509 client certificates. Defaults to ``Certificate``.
+    Specifies the name of the authentication handler for X.509 client certificates. Defaults to ``"Certificate"``.
