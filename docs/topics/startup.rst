@@ -101,6 +101,9 @@ Additional services
 * ``AddJwtBearerClientAuthentication``
     Adds support for client authentication using JWT bearer assertions.
 
+* ``AddMutualTlsSecretValidators``
+    Adds the X509 secret validators for mutual TLS.
+
 Caching
 ^^^^^^^
 

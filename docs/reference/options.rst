@@ -115,3 +115,11 @@ Device Flow
     The user code type to use, unless set at the client level. Defaults to *Numeric*, a 9-digit code.
 * ``Interval``
     Defines the minimum allowed polling interval on the token endpoint. Defaults to *5*.
+
+Mutual TLS
+^^^^^^^^^^
+
+* ``Enabled``
+    Specifies if MTLS support should be enabled. Defaults to ``false``.
+* ``ClientCertificateAuthenticationScheme``
+    Specifies the name of the authentication handler for X.509 client certificates. Defaults to ``Certificate``.

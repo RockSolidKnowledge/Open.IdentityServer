@@ -98,6 +98,7 @@ It enables the following features in your applications:
    topics/resource_owner
    topics/refresh_tokens
    topics/reference_tokens
+   topics/mtls
    topics/custom_token_request_validation
    topics/cors
    topics/discovery
