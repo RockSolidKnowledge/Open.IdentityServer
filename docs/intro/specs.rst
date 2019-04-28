@@ -24,3 +24,4 @@ OAuth 2.0
 * Proof Key for Code Exchange (`RFC 7636 <https://tools.ietf.org/html/rfc7636>`_)
 * JSON Web Tokens for Client Authentication (`RFC 7523 <https://tools.ietf.org/html/rfc7523>`_)
 * OAuth 2.0 Device Flow for Browserless and Input Constrained Devices (`draft <https://tools.ietf.org/html/draft-ietf-oauth-device-flow-13>`_)
+* OAuth 2.0 Mutual TLS Client Authentication and Certificate-Bound Access Tokens (`draft <https://tools.ietf.org/html/draft-ietf-oauth-mtls-13>`_)
