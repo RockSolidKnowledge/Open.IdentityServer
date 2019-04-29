@@ -75,7 +75,7 @@ Next, on the :ref:`IdentityServer builder <refStartup>` add the services to DI w
 
     builder.AddMutualTlsSecretValidators();
 
-Finally, for the :ref:`client configuration <refClient>` add to the ``ClientSecrets`` collection a secret type of either ``SecretTypes.X509CertificateName`` if you wish to authenticate the client from the certificate distinguished name or ``SecretTypes.X509CertificateThumbprint`` if you with to authenticate the client by certificate thumbprint.
+Finally, for the :ref:`client configuration <refClient>` add to the ``ClientSecrets`` collection a secret type of either ``SecretTypes.X509CertificateName`` if you wish to authenticate the client from the certificate distinguished name or ``SecretTypes.X509CertificateThumbprint`` if you wish to authenticate the client by certificate thumbprint.
 For example::
 
     new Client
@@ -100,7 +100,7 @@ For example::
 
 Using a client certificate to authenticate to IdentityServer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When writing a client to connect to IdentityServer, the ``HttpClientHandler`` class provides a convenient mechansim to use a client certificate by adding to the ``ClientCertificates`` collection.
+When writing a client to connect to IdentityServer, the ``HttpClientHandler`` class provides a convenient mechanism to use a client certificate by adding to the ``ClientCertificates`` collection.
 The ``HttpClientHandler`` can then be used as the message handler in ``HttpClient``.
 And then HTTP calls (including using the various `IdentityModel <https://github.com/IdentityModel/IdentityModel2>`_ extension methods) with the ``HttpClient`` will perform client certificate authentication at the TLS channel.
 For example::
@@ -182,7 +182,7 @@ Below is an example how an API in ASP.NET Core might be configured for both acce
             };
         });
 
-Finally, a mechanism is needed that runs after the authenticaiton middleware to authenticate the client certificate and compare the thumbprint to the ``cnf`` from the access token.
+Finally, a mechanism is needed that runs after the authentication middleware to authenticate the client certificate and compare the thumbprint to the ``cnf`` from the access token.
 
 Below is an example implemented in middleware::
 
