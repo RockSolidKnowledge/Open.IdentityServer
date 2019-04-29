@@ -3,9 +3,10 @@ Mutual TLS
 ==========
 Mutual TLS support in IdentityServer allows for two features:
 
-* Client authentication to endpoints within IdentityServer using a X.509 client certificate certificate
+* Client authentication to endpoints within IdentityServer using a X.509 client certificate
 * Use of sender-constrained access tokens from a client to APIs using a X.509 client certificate certificate
 
+.. Note:: The `this <https://tools.ietf.org/wg/oauth/draft-ietf-oauth-mtls/>`_ spec for more information
 
 Client authentication
 ^^^^^^^^^^^^^^^^^^^^^
@@ -14,9 +15,9 @@ Clients can use a X.509 client certificate as an authentication mechanism to end
 
 Validating the X.509 client certificate in IdentityServer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-IdentityServer does not provide any mechanism to validate the client certifcate used at the TLS layer.
-This responsibility lies with the hosting web server, and then IdentityServer uses (and trusts) this result as part of the client authentication and validation at the application level.
-This means to use this feature within IdentityServer you must configure your web server (IIS, Kestrel, etc.) to accept and validate client certificates.
+It' the hosting layer's responsibility to do the actual validation of the client certificate, IdentityServer uses (and trusts) this result as part of the client authentication and validation at the application level.
+This means to use this feature within IdentityServer you must first configure your web server (IIS, Kestrel, etc.) to accept and validate client certificates.
+
 Consult your web server documentation to learn how to do this.
 
 .. Note:: `mkcert <https://github.com/FiloSottile/mkcert>`_ is a nice utility for creating certificates for development purposes.
@@ -60,7 +61,8 @@ For example::
         });
 
 
-Next, in the :ref:`IdentityServer options <refOptions>`, enable mutual TLS and configure the scheme of the authenticaiton handler registered in the previous step.
+Next, in the :ref:`IdentityServer options <refOptions>`, enable mutual TLS and configure the scheme of the authentication handler registered in the previous step.
+
 For example::
 
     var builder = services.AddIdentityServer(options =>
@@ -69,8 +71,7 @@ For example::
         options.MutualTls.ClientCertificateAuthenticationScheme = "x509";
     });
 
-Next, on the :ref:`IdentityServer builder <refStartup>` add the services to DI which will allow for validating the client certificate by calling ``AddMutualTlsSecretValidators``.
-For example::
+Next, on the :ref:`IdentityServer builder <refStartup>` add the services to DI which will allow for validating the client certificate by calling ``AddMutualTlsSecretValidators``::
 
     builder.AddMutualTlsSecretValidators();
 
