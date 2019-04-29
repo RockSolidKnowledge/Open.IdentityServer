@@ -135,7 +135,7 @@ For example::
 Sender-constrained access tokens
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Clients can use a X.509 client certificate as a mechanism for sender-constrained access tokens when authenticating to APIs.
-The use of these sender-constrained access tokens requires the client to have used the X.509 client certificate to authenticate to IdentityServer.
+The use of these sender-constrained access tokens requires the client to use the same X.509 client certificate to authenticate to the API as the one used for IdentityServer.
 
 
 Confirmation claim
@@ -183,6 +183,7 @@ Below is an example how an API in ASP.NET Core might be configured for both acce
         });
 
 Finally, a mechanism is needed that runs after the authenticaiton middleware to authenticate the client certificate and compare the thumbprint to the ``cnf`` from the access token.
+
 Below is an example implemented in middleware::
 
     app.UseAuthentication();
