@@ -150,7 +150,7 @@ namespace IdentityServer4.UnitTests.ResponseHandling
         }
 
         [Fact]
-        public async Task ProcessAsync_when_generated_expect_correct_uris()
+        public async Task ProcessAsync_when_DeviceVerificationUrl_is_relative_uri_expect_correct_VerificationUris()
         {
             const string baseUrl = "http://localhost:5000/";
             options.UserInteraction.DeviceVerificationUrl = "/device";
@@ -160,6 +160,19 @@ namespace IdentityServer4.UnitTests.ResponseHandling
 
             response.VerificationUri.Should().Be("http://localhost:5000/device");
             response.VerificationUriComplete.Should().StartWith("http://localhost:5000/device?userCode=");
+        }
+
+        [Fact]
+        public async Task ProcessAsync_when_DeviceVerificationUrl_is_absolute_uri_expect_correct_VerificationUris()
+        {
+            const string baseUrl = "http://localhost:5000/";
+            options.UserInteraction.DeviceVerificationUrl = "http://short/device";
+            options.UserInteraction.DeviceVerificationUserCodeParameter = "userCode";
+
+            var response = await generator.ProcessAsync(testResult, baseUrl);
+
+            response.VerificationUri.Should().Be("http://short/device");
+            response.VerificationUriComplete.Should().StartWith("http://short/device?userCode=");
         }
     }
 
