@@ -7,7 +7,7 @@ using System.Net;
 using System.Threading.Tasks;
 using IdentityServer4.Endpoints.Results;
 using IdentityServer4.Hosting;
-using IdentityServer4.Infrastructure;
+using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -17,12 +17,12 @@ namespace IdentityServer4.Endpoints
     internal class EndSessionCallbackEndpoint : IEndpointHandler
     {
         private readonly IEndSessionRequestValidator _endSessionRequestValidator;
-        private readonly BackChannelLogoutClient _backChannelClient;
+        private readonly IBackChannelLogoutService _backChannelClient;
         private readonly ILogger _logger;
 
         public EndSessionCallbackEndpoint(
             IEndSessionRequestValidator endSessionRequestValidator,
-            BackChannelLogoutClient backChannelClient,
+            IBackChannelLogoutService backChannelClient,
             ILogger<EndSessionCallbackEndpoint> logger)
         {
             _endSessionRequestValidator = endSessionRequestValidator;
@@ -79,7 +79,7 @@ namespace IdentityServer4.Endpoints
                 // best-effort, and async to not block the response to the browser
                 try
                 {
-                    await _backChannelClient.SendLogoutsAsync(result.BackChannelLogouts);
+                    await _backChannelClient.SendLogoutNotificationsAsync(result.BackChannelLogouts);
                 }
                 catch (Exception ex)
                 {

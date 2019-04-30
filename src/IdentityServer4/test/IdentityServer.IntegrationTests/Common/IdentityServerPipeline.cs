@@ -140,7 +140,9 @@ namespace IdentityServer4.IntegrationTests.Common
             .AddTestUsers(Users)
             .AddDeveloperSigningCredential(persistKey: false);
 
-            services.AddSingleton(new BackChannelHttpClient(BackChannelMessageHandler));
+            services.AddHttpClient()
+                .AddHttpClient(IdentityServerConstants.DefaultBackChannelLogoutHttpFactoryClientName)
+                .AddHttpMessageHandler(() => BackChannelMessageHandler);
 
             OnPostConfigureServices(services);
         }
@@ -370,7 +372,7 @@ namespace IdentityServer4.IntegrationTests.Common
         }
     }
 
-    public class BackChannelMessageHandler : HttpMessageHandler
+    public class BackChannelMessageHandler : DelegatingHandler
     {
         public Func<HttpRequestMessage, Task> OnInvoke { get; set; }
         public HttpResponseMessage Response { get; set; } = new HttpResponseMessage(HttpStatusCode.OK);

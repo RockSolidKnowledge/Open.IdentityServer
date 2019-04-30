@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Net.Http;
 using IdentityServer4.Configuration;
 
@@ -11,6 +12,8 @@ namespace IdentityServer4.Infrastructure
     /// Used to model back-channel HTTP calls for back-channel logout spec.
     /// </summary>
     /// <seealso cref="System.Net.Http.HttpClient" />
+    // todo: remove in 3.0
+    [Obsolete("This class is no longer used. IHttpClientFactory will be used instead. See the new BackChannelHttpFactoryClientName property on the IdentityServer AuthenticationOptions.")]
     public class BackChannelHttpClient : HttpClient
     {
         /// <summary>

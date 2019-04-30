@@ -2,11 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using IdentityServer4;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System;
+using System.Net.Http;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -92,7 +95,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             builder.Services.TryAddTransient(typeof(T));
             builder.Services.AddTransient<IClientStore, ValidatingClientStore<T>>();
-            
+
             return builder;
         }
 
@@ -207,7 +210,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return builder;
         }
-        
+
         /// <summary>
         /// Adds the client store cache.
         /// </summary>
@@ -229,7 +232,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
         public static IIdentityServerBuilder AddAuthorizeInteractionResponseGenerator<T>(this IIdentityServerBuilder builder)
-            where T: class, IAuthorizeInteractionResponseGenerator
+            where T : class, IAuthorizeInteractionResponseGenerator
         {
             builder.Services.AddTransient<IAuthorizeInteractionResponseGenerator, T>();
 
@@ -303,6 +306,31 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.AddSecretValidator<X509NameSecretValidator>();
 
             return builder;
+        }
+
+        /// <summary>
+        /// Adds a custom back-channel logout service.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="builder">The builder.</param>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddBackChannelLogoutService<T>(this IIdentityServerBuilder builder)
+            where T : class, IBackChannelLogoutService
+        {
+            builder.Services.AddTransient<IBackChannelLogoutService, T>();
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds configuration for the HttpClient used for back-channel logout notifications.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="configureClient">The configruation callback.</param>
+        /// <returns></returns>
+        public static IHttpClientBuilder AddBackChannelLogoutHttpClient(this IIdentityServerBuilder builder, Action<HttpClient> configureClient)
+        {
+            return builder.Services.AddHttpClient(IdentityServerConstants.DefaultBackChannelLogoutHttpFactoryClientName, configureClient);
         }
     }
 }

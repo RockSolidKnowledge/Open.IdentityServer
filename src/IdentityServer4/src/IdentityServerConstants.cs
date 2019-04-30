@@ -14,6 +14,7 @@ namespace IdentityServer4
         public const string DefaultCheckSessionCookieName = "idsrv.session";
         public const string AccessTokenAudience = "{0}resources";
 
+        public const string DefaultBackChannelLogoutHttpFactoryClientName = "idsrv.backchannel.logout";
 
         /// <summary>
         /// Constants for local IdentityServer access token authentication.
