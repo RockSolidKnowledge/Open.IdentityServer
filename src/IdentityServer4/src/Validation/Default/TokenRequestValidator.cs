@@ -252,6 +252,7 @@ namespace IdentityServer4.Validation
             }
 
             _validatedRequest.AuthorizationCode = authZcode;
+            _validatedRequest.Subject = authZcode.Subject;
 
             /////////////////////////////////////////////
             // validate redirect_uri
