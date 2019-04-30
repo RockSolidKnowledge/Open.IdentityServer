@@ -107,7 +107,13 @@ namespace IdentityServer4.ResponseHandling
             }
 
             // generate verification URIs
-            response.VerificationUri = baseUrl.RemoveTrailingSlash() + Options.UserInteraction.DeviceVerificationUrl;
+            response.VerificationUri = Options.UserInteraction.DeviceVerificationUrl;
+            if (response.VerificationUri.IsLocalUrl())
+            {
+                // if url is relative, parse absolute URL
+                response.VerificationUri = baseUrl.RemoveTrailingSlash() + Options.UserInteraction.DeviceVerificationUrl;
+            }
+            
             if (!string.IsNullOrWhiteSpace(Options.UserInteraction.DeviceVerificationUserCodeParameter))
             {
                 response.VerificationUriComplete =
