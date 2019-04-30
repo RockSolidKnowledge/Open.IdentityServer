@@ -112,7 +112,7 @@ namespace IdentityServer4.Quickstart.UI
                 if (_users.ValidateCredentials(model.Username, model.Password))
                 {
                     var user = _users.FindByUsername(model.Username);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username));
+                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.ClientId));
 
                     // only set explicit expiration here if user chooses "remember me". 
                     // otherwise we rely upon expiration configured in cookie middleware.
@@ -158,8 +158,8 @@ namespace IdentityServer4.Quickstart.UI
                     }
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials"));
-                ModelState.AddModelError("", AccountOptions.InvalidCredentialsErrorMessage);
+                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId:context?.ClientId));
+                ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
             }
 
             // something went wrong, show form with error
@@ -221,6 +221,11 @@ namespace IdentityServer4.Quickstart.UI
             return View("LoggedOut", vm);
         }
 
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
 
 
         /*****************************************/
@@ -231,14 +236,22 @@ namespace IdentityServer4.Quickstart.UI
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null)
             {
+                var local = context.IdP == IdentityServer4.IdentityServerConstants.LocalIdentityProvider;
+
                 // this is meant to short circuit the UI and only trigger the one external IdP
-                return new LoginViewModel
+                var vm = new LoginViewModel
                 {
-                    EnableLocalLogin = false,
+                    EnableLocalLogin = local,
                     ReturnUrl = returnUrl,
                     Username = context?.LoginHint,
-                    ExternalProviders = new ExternalProvider[] { new ExternalProvider { AuthenticationScheme = context.IdP } }
                 };
+
+                if (!local)
+                {
+                    vm.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
+                }
+
+                return vm;
             }
 
             var schemes = await _schemeProvider.GetAllSchemesAsync();
