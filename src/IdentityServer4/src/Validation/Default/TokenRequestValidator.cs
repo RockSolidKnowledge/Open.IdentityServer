@@ -430,7 +430,7 @@ namespace IdentityServer4.Validation
                     errorDescription = resourceOwnerContext.Result.ErrorDescription;
                 }
 
-                _logger.LogInformation("User authentication failed: {error}", errorDescription ?? resourceOwnerContext.Result.Error);
+                LogInformation("User authentication failed: {error}", errorDescription ?? resourceOwnerContext.Result.Error);
                 await RaiseFailedResourceOwnerAuthenticationEventAsync(userName, errorDescription, resourceOwnerContext.Request.Client.ClientId);
 
                 return Invalid(resourceOwnerContext.Result.Error, errorDescription, resourceOwnerContext.Result.CustomResponse);
@@ -488,7 +488,7 @@ namespace IdentityServer4.Validation
 
             if (result.IsError)
             {
-                _logger.LogWarning("Refresh token validation failed. aborting.");
+                LogWarning("Refresh token validation failed. aborting");
                 return Invalid(OidcConstants.TokenErrors.InvalidGrant);
             }
 
@@ -752,6 +752,21 @@ namespace IdentityServer4.Validation
 
         private void LogError(string message = null, object values = null)
         {
+            LogWithRequestDetails(LogLevel.Error, message, values);
+        }
+
+        private void LogWarning(string message = null, object values = null)
+        {
+            LogWithRequestDetails(LogLevel.Warning, message, values);
+        }
+
+        private void LogInformation(string message = null, object values = null)
+        {
+            LogWithRequestDetails(LogLevel.Information, message, values);
+        }
+
+        private void LogWithRequestDetails(LogLevel logLevel, string message = null, object values = null)
+        {
             var details = new TokenRequestValidationLog(_validatedRequest);
 
             if (message.IsPresent())
@@ -760,11 +775,11 @@ namespace IdentityServer4.Validation
                 {
                     if (values == null)
                     {
-                        _logger.LogError(message + ", {@details}", details);
+                        _logger.Log(logLevel, message + ", {@details}", details);
                     }
                     else
                     {
-                        _logger.LogError(message + "{@values}, details: {@details}", values, details);
+                        _logger.Log(logLevel, message + "{@values}, details: {@details}", values, details);
                     }
                     
                 }
@@ -775,14 +790,13 @@ namespace IdentityServer4.Validation
             }
             else
             {
-                _logger.LogError("{@details}", details);
+                _logger.Log(logLevel, "{@details}", details);
             }
         }
 
         private void LogSuccess()
         {
-            var details = new TokenRequestValidationLog(_validatedRequest);
-            _logger.LogInformation("Token request validation success\n{@details}", details);
+            LogWithRequestDetails(LogLevel.Information, "Token request validation success");
         }
 
         private Task RaiseSuccessfulResourceOwnerAuthenticationEventAsync(string userName, string subjectId, string clientId)
