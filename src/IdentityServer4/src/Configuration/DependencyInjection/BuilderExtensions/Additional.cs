@@ -332,5 +332,22 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return builder.Services.AddHttpClient(IdentityServerConstants.DefaultBackChannelLogoutHttpFactoryClientName, configureClient);
         }
+
+
+        /// <summary>
+        /// Adds configuration for the HttpClient used for JWT request_uri requests.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="configureClient">The configruation callback.</param>
+        /// <returns></returns>
+        public static IHttpClientBuilder AddJwtRequestUriHttpClient(this IIdentityServerBuilder builder, Action<HttpClient> configureClient = null)
+        {
+            if (configureClient != null)
+            {
+                return builder.Services.AddHttpClient<JwtRequestUriHttpClient>(configureClient);
+            }
+
+            return builder.Services.AddHttpClient<JwtRequestUriHttpClient>();
+        }
     }
 }

@@ -14,6 +14,9 @@ using IdentityServer.UnitTests.Common;
 using IdentityServer.UnitTests.Validation.Setup;
 using IdentityServer4.Services.Default;
 using Microsoft.AspNetCore.Authentication;
+using System.Net;
+using System;
+using System.Net.Http;
 
 namespace IdentityServer4.UnitTests.Validation
 {
@@ -155,7 +158,9 @@ namespace IdentityServer4.UnitTests.Validation
             IProfileService profile = null,
             ICustomAuthorizeRequestValidator customValidator = null,
             IRedirectUriValidator uriValidator = null,
-            ScopeValidator scopeValidator = null)
+            ScopeValidator scopeValidator = null,
+            JwtRequestValidator jwtRequestValidator = null,
+            JwtRequestUriHttpClient jwtRequestUriHttpClient = null)
         {
             if (options == null)
             {
@@ -187,6 +192,16 @@ namespace IdentityServer4.UnitTests.Validation
                 scopeValidator = new ScopeValidator(resourceStore, new LoggerFactory().CreateLogger<ScopeValidator>());
             }
 
+            if (jwtRequestValidator == null)
+            {
+                jwtRequestValidator = new JwtRequestValidator("https://identityserver", new LoggerFactory().CreateLogger<JwtRequestValidator>());
+            }
+
+            if (jwtRequestUriHttpClient == null)
+            {
+                jwtRequestUriHttpClient = new JwtRequestUriHttpClient(new HttpClient(new NetworkHandler(new Exception("no jwt request uri response configured"))), new LoggerFactory().CreateLogger<JwtRequestUriHttpClient>());
+            }
+
             var userSession = new MockUserSession();
 
             return new AuthorizeRequestValidator(
@@ -196,6 +211,8 @@ namespace IdentityServer4.UnitTests.Validation
                 uriValidator,
                 scopeValidator,
                 userSession,
+                jwtRequestValidator,
+                jwtRequestUriHttpClient,
                 TestLogger.Create<AuthorizeRequestValidator>());
         }
 

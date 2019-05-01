@@ -308,6 +308,15 @@ namespace IdentityServer4
                 JwtClaimTypes.Scope,
                 JwtClaimTypes.Confirmation
             };
+
+            public static readonly string[] JwtRequestClaimTypesFilter = {
+                JwtClaimTypes.Audience,
+                JwtClaimTypes.Expiration,
+                JwtClaimTypes.IssuedAt,
+                JwtClaimTypes.Issuer,
+                JwtClaimTypes.NotBefore,
+                JwtClaimTypes.JwtId,
+            };
         }
 
         public static class WsFedSignOut

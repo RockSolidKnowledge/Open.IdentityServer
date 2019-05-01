@@ -303,6 +303,8 @@ namespace IdentityServer4.ResponseHandling
             entries.Add(OidcConstants.Discovery.SubjectTypesSupported, new[] { "public" });
             entries.Add(OidcConstants.Discovery.IdTokenSigningAlgorithmsSupported, new[] { Constants.SigningAlgorithms.RSA_SHA_256 });
             entries.Add(OidcConstants.Discovery.CodeChallengeMethodsSupported, new[] { OidcConstants.CodeChallengeMethods.Plain, OidcConstants.CodeChallengeMethods.Sha256 });
+            entries.Add(OidcConstants.Discovery.RequestParameterSupported, true);
+            entries.Add(OidcConstants.Discovery.RequestUriParameterSupported, true);
 
             if (Options.MutualTls.Enabled)
             {

@@ -6,6 +6,7 @@ using Host.Configuration;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Quickstart.UI;
+using IdentityServer4.Services;
 using idunno.Authentication.Certificate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -37,6 +38,7 @@ namespace Host
                 iis.AutomaticAuthentication = false;
             });
 
+
             var builder = services.AddIdentityServer(options =>
                 {
                     options.Events.RaiseSuccessEvents = true;
@@ -59,6 +61,12 @@ namespace Host
                 .AddTestUsers(TestUsers.Users)
                 .AddMutualTlsSecretValidators();
 
+            //builder.AddJwtRequestUriHttpClient(client =>
+            //{
+            //    client.Timeout = TimeSpan.FromSeconds(30);
+            //});
+
+         
             builder.AddBackChannelLogoutHttpClient(client =>
                 {
                     client.Timeout = TimeSpan.FromSeconds(30);
@@ -90,7 +98,7 @@ namespace Host
                    };
                });
 
-            return services.BuildServiceProvider(validateScopes: true);
+            return services.BuildServiceProvider(validateScopes: false);
         }
 
         public void Configure(IApplicationBuilder app)

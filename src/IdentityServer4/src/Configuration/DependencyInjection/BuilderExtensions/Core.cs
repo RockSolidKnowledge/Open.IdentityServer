@@ -27,6 +27,7 @@ using static IdentityServer4.Constants;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting.FederatedSignOut;
 using IdentityServer4.Services.Default;
+using System.Net.Http;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -124,6 +125,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<ScopeValidator>();
             builder.Services.AddTransient<ExtensionGrantValidator>();
             builder.Services.AddTransient<BearerTokenUsageValidator>();
+            builder.Services.AddTransient<JwtRequestValidator>();
 
             // todo: remove in 3.0
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -177,6 +179,10 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.TryAddTransient<IUserCodeService, DefaultUserCodeService>();
             builder.Services.TryAddTransient<IUserCodeGenerator, NumericUserCodeGenerator>();
             builder.Services.TryAddTransient<IBackChannelLogoutService, DefaultBackChannelLogoutService>();
+
+            builder.Services.TryAddTransient<JwtRequestUriHttpClient>();
+            builder.Services.AddHttpClient<JwtRequestUriHttpClient>();
+
             builder.Services.AddTransient<IClientSecretValidator, ClientSecretValidator>();
             builder.Services.AddTransient<IApiSecretValidator, ApiSecretValidator>();
 

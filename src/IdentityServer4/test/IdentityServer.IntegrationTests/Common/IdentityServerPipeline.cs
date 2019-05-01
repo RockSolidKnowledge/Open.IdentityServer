@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using IdentityServer4.Infrastructure;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using IdentityServer4.Services;
@@ -64,6 +63,7 @@ namespace IdentityServer4.IntegrationTests.Common
         public HttpClient BackChannelClient { get; set; }
 
         public BackChannelMessageHandler BackChannelMessageHandler { get; set; } = new BackChannelMessageHandler();
+        public BackChannelMessageHandler JwtRequestMessageHandler { get; set; } = new BackChannelMessageHandler();
 
         public event Action<IServiceCollection> OnPreConfigureServices = services => { };
         public event Action<IServiceCollection> OnPostConfigureServices = services => { };
@@ -143,6 +143,9 @@ namespace IdentityServer4.IntegrationTests.Common
             services.AddHttpClient()
                 .AddHttpClient(IdentityServerConstants.DefaultBackChannelLogoutHttpFactoryClientName)
                 .AddHttpMessageHandler(() => BackChannelMessageHandler);
+
+            services.AddHttpClient<JwtRequestUriHttpClient>()
+                .AddHttpMessageHandler(() => JwtRequestMessageHandler);
 
             OnPostConfigureServices(services);
         }
@@ -301,8 +304,8 @@ namespace IdentityServer4.IntegrationTests.Common
         }
 
         public string CreateAuthorizeUrl(
-            string clientId,
-            string responseType,
+            string clientId = null,
+            string responseType = null,
             string scope = null,
             string redirectUri = null,
             string state = null,

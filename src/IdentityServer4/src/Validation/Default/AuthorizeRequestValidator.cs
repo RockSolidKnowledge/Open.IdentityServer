@@ -26,6 +26,8 @@ namespace IdentityServer4.Validation
         private readonly IRedirectUriValidator _uriValidator;
         private readonly ScopeValidator _scopeValidator;
         private readonly IUserSession _userSession;
+        private readonly JwtRequestValidator _jwtRequestValidator;
+        private readonly JwtRequestUriHttpClient _jwtRequestUriHttpClient;
         private readonly ILogger _logger;
 
         private readonly ResponseTypeEqualityComparer
@@ -38,6 +40,8 @@ namespace IdentityServer4.Validation
             IRedirectUriValidator uriValidator,
             ScopeValidator scopeValidator,
             IUserSession userSession,
+            JwtRequestValidator jwtRequestValidator,
+            JwtRequestUriHttpClient jwtRequestUriHttpClient,
             ILogger<AuthorizeRequestValidator> logger)
         {
             _options = options;
@@ -45,7 +49,9 @@ namespace IdentityServer4.Validation
             _customValidator = customValidator;
             _uriValidator = uriValidator;
             _scopeValidator = scopeValidator;
+            _jwtRequestValidator = jwtRequestValidator;
             _userSession = userSession;
+            _jwtRequestUriHttpClient = jwtRequestUriHttpClient;
             _logger = logger;
         }
 
@@ -60,6 +66,20 @@ namespace IdentityServer4.Validation
             };
 
             request.Raw = parameters ?? throw new ArgumentNullException(nameof(parameters));
+
+            // load client_id
+            var loadClientResult = await LoadClientAsync(request);
+            if (loadClientResult.IsError)
+            {
+                return loadClientResult;
+            }
+            
+            // look for JWT in request
+            var jwtRequestResult = await ReadJwtRequestAsync(request);
+            if (jwtRequestResult.IsError)
+            {
+                return jwtRequestResult;
+            }
 
             // validate client_id and redirect_uri
             var clientResult = await ValidateClientAsync(request);
@@ -109,7 +129,7 @@ namespace IdentityServer4.Validation
             return Valid(request);
         }
 
-        private async Task<AuthorizeRequestValidationResult> ValidateClientAsync(ValidatedAuthorizeRequest request)
+        private async Task<AuthorizeRequestValidationResult> LoadClientAsync(ValidatedAuthorizeRequest request)
         {
             //////////////////////////////////////////////////////////
             // client_id must be present
@@ -123,7 +143,110 @@ namespace IdentityServer4.Validation
 
             request.ClientId = clientId;
 
+            //////////////////////////////////////////////////////////
+            // check for valid client
+            //////////////////////////////////////////////////////////
+            var client = await _clients.FindEnabledClientByIdAsync(request.ClientId);
+            if (client == null)
+            {
+                LogError("Unknown client or not enabled", request.ClientId, request);
+                return Invalid(request, OidcConstants.AuthorizeErrors.UnauthorizedClient, "Unknown client or client not enabled");
+            }
 
+            request.SetClient(client);
+
+            return Valid(request);
+        }
+
+        private async Task<AuthorizeRequestValidationResult> ReadJwtRequestAsync(ValidatedAuthorizeRequest request)
+        {
+            //////////////////////////////////////////////////////////
+            // look for optional request param
+            /////////////////////////////////////////////////////////
+            var jwtRequest = request.Raw.Get(OidcConstants.AuthorizeRequest.Request);
+            var jwtRequestUri = request.Raw.Get(OidcConstants.AuthorizeRequest.RequestUri);
+            if (jwtRequest.IsPresent() && jwtRequestUri.IsPresent())
+            {
+                LogError("Both request and request_uri are present", request);
+                return Invalid(request, description: "Only one request parameter is allowed");
+            }
+
+            if (jwtRequestUri.IsPresent())
+            {
+                // 512 is from the spec
+                if (jwtRequestUri.Length > 512)
+                {
+                    LogError("request_uri is too long", request);
+                    return Invalid(request, description: "request_uri is too long");
+                }
+
+                var jwt = await _jwtRequestUriHttpClient.GetJwtAsync(jwtRequestUri);
+                if (jwt.IsMissing())
+                {
+                    LogError("no value returned from request_uri", request);
+                    return Invalid(request, description: "no value returned from request_uri");
+                }
+
+                jwtRequest = jwt;
+            }
+
+            //////////////////////////////////////////////////////////
+            // validate request JWT
+            /////////////////////////////////////////////////////////
+            if (jwtRequest.IsPresent())
+            {
+                // check length restrictions
+                if (jwtRequest.Length >= _options.InputLengthRestrictions.Jwt)
+                {
+                    LogError("request value is too long", request);
+                    return Invalid(request, description: "Invalid request value");
+                }
+
+                // validate the request JWT for this client
+                var jwtRequestValidationResult = await _jwtRequestValidator.ValidateAsync(request.Client, jwtRequest);
+                if (jwtRequestValidationResult.IsError)
+                {
+                    LogError("request JWT validation failure", request);
+                    return Invalid(request, description: "Invalid JWT request");
+                }
+
+                // validate client_id match
+                if (jwtRequestValidationResult.Payload.TryGetValue(OidcConstants.AuthorizeRequest.ClientId, out var payloadClientId))
+                {
+                    if (payloadClientId != request.Client.ClientId)
+                    {
+                        LogError("client_id in JWT payload does not match client_id in request", request);
+                        return Invalid(request, description: "Invalid JWT request");
+                    }
+                }
+
+                // validate response_type match
+                var responseType = request.Raw.Get(OidcConstants.AuthorizeRequest.ResponseType);
+                if (responseType != null)
+                {
+                    if (jwtRequestValidationResult.Payload.TryGetValue(OidcConstants.AuthorizeRequest.ResponseType, out var payloadResponseType))
+                    {
+                        if (payloadResponseType != responseType)
+                        {
+                            LogError("response_type in JWT payload does not match response_type in request", request);
+                            return Invalid(request, description: "Invalid JWT request");
+                        }
+                    }
+                }
+
+                // merge jwt payload values into original request parameters
+                foreach (var key in jwtRequestValidationResult.Payload.Keys)
+                {
+                    var value = jwtRequestValidationResult.Payload[key];
+                    request.Raw.Set(key, value);
+                }
+            }
+
+            return Valid(request);
+        }
+
+        private async Task<AuthorizeRequestValidationResult> ValidateClientAsync(ValidatedAuthorizeRequest request)
+        {
             //////////////////////////////////////////////////////////
             // redirect_uri must be present, and a valid uri
             //////////////////////////////////////////////////////////
@@ -140,18 +263,6 @@ namespace IdentityServer4.Validation
                 LogError("malformed redirect_uri", redirectUri, request);
                 return Invalid(request, description: "Invalid redirect_uri");
             }
-
-            //////////////////////////////////////////////////////////
-            // check for valid client
-            //////////////////////////////////////////////////////////
-            var client = await _clients.FindEnabledClientByIdAsync(request.ClientId);
-            if (client == null)
-            {
-                LogError("Unknown client or not enabled", request.ClientId, request);
-                return Invalid(request, OidcConstants.AuthorizeErrors.UnauthorizedClient, "Unknown client or client not enabled");
-            }
-
-            request.SetClient(client);
 
             //////////////////////////////////////////////////////////
             // check if client protocol type is oidc
