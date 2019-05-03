@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{187AC294-0420-4726-808B-ED49148C0632}"
 EndProject
@@ -54,6 +54,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClientCredentialsFlowCallingIdentityServerApi", "src\ConsoleClientCredentialsFlowCallingIdentityServerApi\ConsoleClientCredentialsFlowCallingIdentityServerApi.csproj", "{141BD303-CD29-472F-B5D8-C1F28ED0621A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleMTLSClient", "src\ConsoleMTLSClient\ConsoleMTLSClient.csproj", "{EA1583D5-80DE-4A11-9530-26A0ED1FBA2C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcImplicitJwtRequest", "src\MvcImplicitJwtRequest\MvcImplicitJwtRequest.csproj", "{694F3070-BE8E-4F1A-A246-609C7910686B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,6 +155,10 @@ Global
 		{EA1583D5-80DE-4A11-9530-26A0ED1FBA2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA1583D5-80DE-4A11-9530-26A0ED1FBA2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA1583D5-80DE-4A11-9530-26A0ED1FBA2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{694F3070-BE8E-4F1A-A246-609C7910686B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{694F3070-BE8E-4F1A-A246-609C7910686B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{694F3070-BE8E-4F1A-A246-609C7910686B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{694F3070-BE8E-4F1A-A246-609C7910686B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -182,6 +188,7 @@ Global
 		{879689CC-38F7-418F-9721-9D4158302B69} = {187AC294-0420-4726-808B-ED49148C0632}
 		{141BD303-CD29-472F-B5D8-C1F28ED0621A} = {187AC294-0420-4726-808B-ED49148C0632}
 		{EA1583D5-80DE-4A11-9530-26A0ED1FBA2C} = {187AC294-0420-4726-808B-ED49148C0632}
+		{694F3070-BE8E-4F1A-A246-609C7910686B} = {187AC294-0420-4726-808B-ED49148C0632}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAD78470-3D66-466E-9C17-2A67F0905B18}

@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace MvcImplicit
 {
@@ -54,6 +57,18 @@ namespace MvcImplicit
                         NameClaimType = JwtClaimTypes.Name,
                         RoleClaimType = JwtClaimTypes.Role,
                     };
+
+                    options.Events.OnRedirectToIdentityProvider = e =>
+                    {
+                        var jwt = CreateJwtRequest(
+                            options.ClientId,
+                            options.Authority,
+                            new Claim("additional_data", "data"));
+
+                        e.ProtocolMessage.SetParameter("request", jwt);
+
+                        return Task.CompletedTask;
+                    };
                 });
         }
 
@@ -64,6 +79,27 @@ namespace MvcImplicit
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
+        }
+
+        private static string CreateJwtRequest(string clientId, string audience, params Claim[] claims)
+        {
+            var certificate = new X509Certificate2("client.pfx");
+            var now = DateTime.UtcNow;
+
+            var token = new JwtSecurityToken(
+                    clientId,
+                    audience,
+                    claims,
+                    now,
+                    now.AddMinutes(1),
+                    new SigningCredentials(
+                        new X509SecurityKey(certificate),
+                        SecurityAlgorithms.RsaSha256
+                    )
+                );
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            return tokenHandler.WriteToken(token);
         }
     }
 }
