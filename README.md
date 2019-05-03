@@ -22,12 +22,6 @@ See [here](https://identityserver4.readthedocs.io/en/latest/intro/support.html) 
 If you are a fan of the project or a company that relies on IdentityServer, you might want to consider sponsoring.
 This will help us devote more time to answering questions and doing feature development. If you are interested please head to our [Patreon](https://www.patreon.com/identityserver) page which has further details.
 
-### Platinum Sponsors
-
-**Auth0 <span><img src="https://user-images.githubusercontent.com/1801923/31792116-d4fca9ec-b512-11e7-92eb-56e8d3df8e70.png" height="28" align="top"></span>**
-
-Auth0 is an easy to implement authentication and identity management SaaS based on OpenID Connect/OAuth 2.0. Check out their quickstarts [here](https://auth0.com/docs?utm_source=GHsponsor&utm_medium=GHsponsor&utm_campaign=identityserver).
-
 ### Corporate Sponsors
 
 [Thinktecture AG](https://www.thinktecture.com)  

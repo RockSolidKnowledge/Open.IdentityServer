@@ -125,6 +125,7 @@ namespace IdentityServer4.Validation
                     Payload = payload
                 };
 
+                _logger.LogDebug("JWT request object validation success.");
                 return Task.FromResult(result);
             }
             catch (Exception e)

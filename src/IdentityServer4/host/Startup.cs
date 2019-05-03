@@ -10,6 +10,7 @@ using idunno.Authentication.Certificate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Polly;
 using System;
@@ -24,6 +25,8 @@ namespace Host
         public Startup(IConfiguration config)
         {
             _config = config;
+
+            IdentityModelEventSource.ShowPII = true;
         }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
