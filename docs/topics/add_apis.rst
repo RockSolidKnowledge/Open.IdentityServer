@@ -39,6 +39,8 @@ To protect an API controller, decorate it with an ``Authorize`` attribute using 
         }
     }
 
+Authorized clients can then request a token for the ``IdentityServerApi`` scope and use it to call the API.
+
 Discovery
 ^^^^^^^^^
 You can also add your endpoints to the discovery document if you want, e.g like this::
@@ -47,3 +49,17 @@ You can also add your endpoints to the discovery document if you want, e.g like 
     {
         options.Discovery.CustomEntries.Add("local_api", "~/localapi");
     })
+
+Advanced
+^^^^^^^^
+Under the covers, the ``AddLocalApiAuthentication`` helper does a couple of things:
+
+* adds an authentication handler that validates incoming tokens using IdentityServer's built-in token validation engine
+* configures the authentication handler to require a scope claim inside the access token of value ``IdentityServerApi``
+* sets up an authorization policy that checks for a scope claim of value ``IdentityServerApi```
+
+This covers the most common scenarios. You can customize this behavior in the following ways:
+
+* Add the authentication handler yourself by calling ``services.AddAuthentication().AddLocalApi(...)``
+    * this way you can specify the required scope name yourself, or (by specifying no scope) accept any token from the current IdentityServer instance
+* Do your own scope validation/authorization in your controllers
