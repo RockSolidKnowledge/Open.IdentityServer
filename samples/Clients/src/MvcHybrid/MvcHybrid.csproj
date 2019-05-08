@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    
     <ProjectReference Include="..\Constants\Constants.csproj" />
   </ItemGroup>
 </Project>
