@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json.Linq;
+using System.Net.Http;
 
 namespace MvcImplicit.Controllers
 {
@@ -35,7 +36,9 @@ namespace MvcImplicit.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var disco = await DiscoveryClient.GetAsync(Constants.Authority);
+            var client = new HttpClient();
+            var disco = await client.GetDiscoveryDocumentAsync(Constants.Authority);
+
             return Redirect(disco.EndSessionEndpoint);
         }
 
@@ -83,7 +86,8 @@ namespace MvcImplicit.Controllers
         private async Task<IActionResult> StartAuthentication()
         {
             // read discovery document to find authorize endpoint
-            var disco = await DiscoveryClient.GetAsync(Constants.Authority);
+            var client = new HttpClient();
+            var disco = await client.GetDiscoveryDocumentAsync(Constants.Authority);
 
             var authorizeUrl = new RequestUrl(disco.AuthorizeEndpoint).CreateAuthorizeUrl(
                 clientId: "mvc.manual",
@@ -144,7 +148,8 @@ namespace MvcImplicit.Controllers
         private static async Task<ClaimsPrincipal> ValidateJwt(string jwt)
         {
             // read discovery document to find issuer and key material
-            var disco = await DiscoveryClient.GetAsync(Constants.Authority);
+            var client = new HttpClient();
+            var disco = await client.GetDiscoveryDocumentAsync(Constants.Authority);
 
             var keys = new List<SecurityKey>();
             foreach (var webKey in disco.KeySet.Keys)

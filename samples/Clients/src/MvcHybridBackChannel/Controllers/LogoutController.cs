@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -69,7 +70,8 @@ namespace MvcHybrid.Controllers
         private static async Task<ClaimsPrincipal> ValidateJwt(string jwt)
         {
             // read discovery document to find issuer and key material
-            var disco = await DiscoveryClient.GetAsync(Constants.Authority);
+            var client = new HttpClient();
+            var disco = await client.GetDiscoveryDocumentAsync(Constants.Authority);
 
             var keys = new List<SecurityKey>();
             foreach (var webKey in disco.KeySet.Keys)
