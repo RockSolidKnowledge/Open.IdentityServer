@@ -1,0 +1,7 @@
+<Project>
+
+  <ItemGroup>
+    <PackageReference Include="IdentityModel" Version="4.0.0-preview.2.6" />
+  </ItemGroup>
+
+</Project>
