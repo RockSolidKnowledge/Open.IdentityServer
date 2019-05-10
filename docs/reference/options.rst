@@ -53,7 +53,7 @@ UserInteraction
 ^^^^^^^^^^^^^^^
 
 * ``LoginUrl``, ``LogoutUrl``, ``ConsentUrl``, ``ErrorUrl``, ``DeviceVerificationUrl``
-    Sets the the URLs for the login, logout, consent, error and device verification pages.
+    Sets the URLs for the login, logout, consent, error and device verification pages.
 * ``LoginReturnUrlParameter``
     Sets the name of the return URL parameter passed to the login page. Defaults to *returnUrl*.
 * ``LogoutIdParameter``

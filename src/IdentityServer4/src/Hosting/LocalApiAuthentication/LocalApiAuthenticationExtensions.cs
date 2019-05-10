@@ -40,7 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Registers the the authentication handler for local APIs.
+        /// Registers the authentication handler for local APIs.
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
@@ -48,7 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
             => builder.AddLocalApi(IdentityServerConstants.LocalApi.AuthenticationScheme, _ => { });
 
         /// <summary>
-        /// Registers the the authentication handler for local APIs.
+        /// Registers the authentication handler for local APIs.
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="configureOptions">The configure options.</param>
@@ -57,7 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
             => builder.AddLocalApi(IdentityServerConstants.LocalApi.AuthenticationScheme, configureOptions);
 
         /// <summary>
-        /// Registers the the authentication handler for local APIs.
+        /// Registers the authentication handler for local APIs.
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="authenticationScheme">The authentication scheme.</param>
@@ -67,7 +67,7 @@ namespace Microsoft.Extensions.DependencyInjection
             => builder.AddLocalApi(authenticationScheme, displayName: null, configureOptions: configureOptions);
 
         /// <summary>
-        /// Registers the the authentication handler for local APIs.
+        /// Registers the authentication handler for local APIs.
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="authenticationScheme">The authentication scheme.</param>

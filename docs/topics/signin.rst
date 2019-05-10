@@ -60,7 +60,7 @@ Login Context
 ^^^^^^^^^^^^^
 On your login page you might require information about the context of the request in order to customize the login experience 
 (such as client, prompt parameter, IdP hint, or something else).
-This is made available via the ``GetAuthorizationContextAsync`` API on the the :ref:`interaction service <refInteractionService>`.
+This is made available via the ``GetAuthorizationContextAsync`` API on the :ref:`interaction service <refInteractionService>`.
 
 Issuing a cookie and Claims
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

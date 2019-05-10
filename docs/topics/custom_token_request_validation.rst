@@ -29,6 +29,6 @@ The context object gives you access to:
 
 * adding custom response parameters
 * return an error and error description
-* modifying the the request parameters, e.g. access token lifetime and type, client claims, and the confirmation method
+* modifying the request parameters, e.g. access token lifetime and type, client claims, and the confirmation method
 
 You can register your implementation of the validator using the ``AddCustomTokenRequestValidator`` extension method on the configuration builder.

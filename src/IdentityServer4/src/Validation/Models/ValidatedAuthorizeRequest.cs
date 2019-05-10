@@ -32,7 +32,7 @@ namespace IdentityServer4.Validation
         /// Gets or sets the grant type.
         /// </summary>
         /// <value>
-        /// The the grant type.
+        /// The grant type.
         /// </value>
         public string GrantType { get; set; }
 
