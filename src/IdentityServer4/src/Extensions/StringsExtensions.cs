@@ -90,7 +90,7 @@ namespace IdentityServer4.Extensions
         [DebuggerStepThrough]
         public static string EnsureLeadingSlash(this string url)
         {
-            if (!url.StartsWith("/"))
+            if (url != null && !url.StartsWith("/"))
             {
                 return "/" + url;
             }
@@ -101,7 +101,7 @@ namespace IdentityServer4.Extensions
         [DebuggerStepThrough]
         public static string EnsureTrailingSlash(this string url)
         {
-            if (!url.EndsWith("/"))
+            if (url != null && !url.EndsWith("/"))
             {
                 return url + "/";
             }
