@@ -214,6 +214,6 @@ What's Missing?
 Much of the rest of the code in this template is similar to the other quickstart and templates we provide.
 The one thing you will notice that is missing from this template is UI code for user registration, password reset, and the other things you might expect from the Visual Studio ASP.NET Identity template.
 
-Given the variety of requirements and different approaches to using ASP.NET Identity, our template deliberatly does not provide those features.
+Given the variety of requirements and different approaches to using ASP.NET Identity, our template deliberately does not provide those features.
 You are expected to know how ASP.NET Identity works sufficiently well to add those features to your project.
 Alternatively, you can create a new project based on the Visual Studio ASP.NET Identity template and add the IdentityServer features you have learned about in these quickstarts to that project.
