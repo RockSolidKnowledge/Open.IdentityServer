@@ -4,4 +4,4 @@ This quickstart shows how to configure IdentityServer to use EntityFramework Cor
 
 ## Tutorial
 
-The tutorial that goes along with this sample can be found here [Using EntityFramework Core for configuration and operational data](http://docs.identityserver.io/en/release/quickstarts/7_entity_framework.html)
+The tutorial that goes along with this sample can be found here [Using EntityFramework Core for configuration and operational data](http://docs.identityserver.io/en/latest/quickstarts/7_entity_framework.html)
