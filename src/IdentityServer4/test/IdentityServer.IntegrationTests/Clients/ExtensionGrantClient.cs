@@ -244,7 +244,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             response.Error.Should().Be("unsupported_grant_type");
         }
 
-        [Fact]
+        [Fact(Skip = "needs improvement")]
         public async Task Dynamic_lifetime_should_succeed()
         {
             var response = await _client.RequestTokenAsync(new TokenRequest
