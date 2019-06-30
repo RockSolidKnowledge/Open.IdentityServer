@@ -63,7 +63,7 @@ namespace IdentityServer4.Endpoints.Results
             {
                 // this converts the relative redirect path to an absolute one if we're 
                 // redirecting to a different server
-                returnUrl = context.GetIdentityServerBaseUrl().EnsureTrailingSlash() + returnUrl.RemoveLeadingSlash();
+                returnUrl = context.GetIdentityServerHost().EnsureTrailingSlash() + returnUrl.RemoveLeadingSlash();
             }
 
             var url = consentUrl.AddQueryString(_options.UserInteraction.ConsentReturnUrlParameter, returnUrl);
