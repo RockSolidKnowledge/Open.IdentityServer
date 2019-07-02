@@ -133,7 +133,8 @@ namespace IdentityServer4.EntityFramework.Stores
         public Task<Resources> GetAllResourcesAsync()
         {
             var identity = _context.IdentityResources
-              .Include(x => x.UserClaims);
+              .Include(x => x.UserClaims)
+              .Include(x => x.Properties);
 
             var apis = _context.ApiResources
                 .Include(x => x.Secrets)
