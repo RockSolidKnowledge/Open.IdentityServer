@@ -42,7 +42,7 @@ namespace IdentityServer4.Stores
         }
 
         /// <inheritdoc />
-        public Task<Message<TModel>> ReadAsync(string value)
+        public virtual Task<Message<TModel>> ReadAsync(string value)
         {
             Message<TModel> result = null;
 
@@ -65,7 +65,7 @@ namespace IdentityServer4.Stores
         }
 
         /// <inheritdoc />
-        public Task<string> WriteAsync(Message<TModel> message)
+        public virtual Task<string> WriteAsync(Message<TModel> message)
         {
             string value = null;
 
