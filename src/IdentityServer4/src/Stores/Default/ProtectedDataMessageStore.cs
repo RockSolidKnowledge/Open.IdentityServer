@@ -12,19 +12,36 @@ using Microsoft.Extensions.Logging;
 
 namespace IdentityServer4.Stores
 {
-    internal class ProtectedDataMessageStore<TModel> : IMessageStore<TModel>
+    /// <summary>
+    /// IMessageStore implementation that uses data protection to protect message.
+    /// </summary>
+    /// <typeparam name="TModel"></typeparam>
+    public class ProtectedDataMessageStore<TModel> : IMessageStore<TModel>
     {
         private const string Purpose = "IdentityServer4.Stores.ProtectedDataMessageStore";
 
-        private readonly IDataProtector _protector;
-        private readonly ILogger _logger;
+        /// <summary>
+        /// The data protector.
+        /// </summary>
+        protected readonly IDataProtector Protector;
 
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        protected readonly ILogger Logger;
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="logger"></param>
         public ProtectedDataMessageStore(IDataProtectionProvider provider, ILogger<ProtectedDataMessageStore<TModel>> logger)
         {
-            _protector = provider.CreateProtector(Purpose);
-            _logger = logger;
+            Protector = provider.CreateProtector(Purpose);
+            Logger = logger;
         }
 
+        /// <inheritdoc />
         public Task<Message<TModel>> ReadAsync(string value)
         {
             Message<TModel> result = null;
@@ -34,19 +51,20 @@ namespace IdentityServer4.Stores
                 try
                 {
                     var bytes = Base64Url.Decode(value);
-                    bytes = _protector.Unprotect(bytes);
+                    bytes = Protector.Unprotect(bytes);
                     var json = Encoding.UTF8.GetString(bytes);
                     result = ObjectSerializer.FromString<Message<TModel>>(json);
                 }
                 catch(Exception ex)
                 {
-                    _logger.LogError(ex, "Exception reading protected message");
+                    Logger.LogError(ex, "Exception reading protected message");
                 }
             }
 
             return Task.FromResult(result);
         }
 
+        /// <inheritdoc />
         public Task<string> WriteAsync(Message<TModel> message)
         {
             string value = null;
@@ -55,12 +73,12 @@ namespace IdentityServer4.Stores
             {
                 var json = ObjectSerializer.ToString(message);
                 var bytes = Encoding.UTF8.GetBytes(json);
-                bytes = _protector.Protect(bytes);
+                bytes = Protector.Protect(bytes);
                 value = Base64Url.Encode(bytes);
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "Exception writing protected message");
+                Logger.LogError(ex, "Exception writing protected message");
             }
 
             return Task.FromResult(value);
