@@ -22,9 +22,20 @@ namespace IdentityServer4.EntityFramework.Stores
     /// <seealso cref="IdentityServer4.Stores.IDeviceFlowStore" />
     public class DeviceFlowStore : IDeviceFlowStore
     {
-        private readonly IPersistedGrantDbContext _context;
-        private readonly IPersistentGrantSerializer _serializer;
-        private readonly ILogger _logger;
+        /// <summary>
+        /// The DbContext.
+        /// </summary>
+        protected readonly IPersistedGrantDbContext Context;
+
+        /// <summary>
+        ///  The serializer.
+        /// </summary>
+        protected readonly IPersistentGrantSerializer Serializer;
+
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        protected readonly ILogger Logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceFlowStore"/> class.
@@ -37,9 +48,9 @@ namespace IdentityServer4.EntityFramework.Stores
             IPersistentGrantSerializer serializer, 
             ILogger<DeviceFlowStore> logger)
         {
-            _context = context;
-            _serializer = serializer;
-            _logger = logger;
+            Context = context;
+            Serializer = serializer;
+            Logger = logger;
         }
 
         /// <summary>
@@ -49,11 +60,11 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <param name="userCode">The user code.</param>
         /// <param name="data">The data.</param>
         /// <returns></returns>
-        public Task StoreDeviceAuthorizationAsync(string deviceCode, string userCode, DeviceCode data)
+        public virtual Task StoreDeviceAuthorizationAsync(string deviceCode, string userCode, DeviceCode data)
         {
-            _context.DeviceFlowCodes.Add(ToEntity(data, deviceCode, userCode));
+            Context.DeviceFlowCodes.Add(ToEntity(data, deviceCode, userCode));
 
-            _context.SaveChanges();
+            Context.SaveChanges();
 
             return Task.FromResult(0);
         }
@@ -63,12 +74,12 @@ namespace IdentityServer4.EntityFramework.Stores
         /// </summary>
         /// <param name="userCode">The user code.</param>
         /// <returns></returns>
-        public Task<DeviceCode> FindByUserCodeAsync(string userCode)
+        public virtual Task<DeviceCode> FindByUserCodeAsync(string userCode)
         {
-            var deviceFlowCodes = _context.DeviceFlowCodes.AsNoTracking().FirstOrDefault(x => x.UserCode == userCode);
+            var deviceFlowCodes = Context.DeviceFlowCodes.AsNoTracking().FirstOrDefault(x => x.UserCode == userCode);
             var model = ToModel(deviceFlowCodes?.Data);
 
-            _logger.LogDebug("{userCode} found in database: {userCodeFound}", userCode, model != null);
+            Logger.LogDebug("{userCode} found in database: {userCodeFound}", userCode, model != null);
 
             return Task.FromResult(model);
         }
@@ -78,12 +89,12 @@ namespace IdentityServer4.EntityFramework.Stores
         /// </summary>
         /// <param name="deviceCode">The device code.</param>
         /// <returns></returns>
-        public Task<DeviceCode> FindByDeviceCodeAsync(string deviceCode)
+        public virtual Task<DeviceCode> FindByDeviceCodeAsync(string deviceCode)
         {
-            var deviceFlowCodes = _context.DeviceFlowCodes.AsNoTracking().FirstOrDefault(x => x.DeviceCode == deviceCode);
+            var deviceFlowCodes = Context.DeviceFlowCodes.AsNoTracking().FirstOrDefault(x => x.DeviceCode == deviceCode);
             var model = ToModel(deviceFlowCodes?.Data);
 
-            _logger.LogDebug("{deviceCode} found in database: {deviceCodeFound}", deviceCode, model != null);
+            Logger.LogDebug("{deviceCode} found in database: {deviceCodeFound}", deviceCode, model != null);
 
             return Task.FromResult(model);
         }
@@ -94,28 +105,28 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <param name="userCode">The user code.</param>
         /// <param name="data">The data.</param>
         /// <returns></returns>
-        public Task UpdateByUserCodeAsync(string userCode, DeviceCode data)
+        public virtual Task UpdateByUserCodeAsync(string userCode, DeviceCode data)
         {
-            var existing = _context.DeviceFlowCodes.SingleOrDefault(x => x.UserCode == userCode);
+            var existing = Context.DeviceFlowCodes.SingleOrDefault(x => x.UserCode == userCode);
             if (existing == null)
             {
-                _logger.LogError("{userCode} not found in database", userCode);
+                Logger.LogError("{userCode} not found in database", userCode);
                 throw new InvalidOperationException("Could not update device code");
             }
 
             var entity = ToEntity(data, existing.DeviceCode, userCode);
-            _logger.LogDebug("{userCode} found in database", userCode);
+            Logger.LogDebug("{userCode} found in database", userCode);
 
             existing.SubjectId = data.Subject?.FindFirst(JwtClaimTypes.Subject).Value;
             existing.Data = entity.Data;
 
             try
             {
-                _context.SaveChanges();
+                Context.SaveChanges();
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                _logger.LogWarning("exception updating {userCode} user code in database: {error}", userCode, ex.Message);
+                Logger.LogWarning("exception updating {userCode} user code in database: {error}", userCode, ex.Message);
             }
 
             return Task.FromResult(0);
@@ -126,34 +137,41 @@ namespace IdentityServer4.EntityFramework.Stores
         /// </summary>
         /// <param name="deviceCode">The device code.</param>
         /// <returns></returns>
-        public Task RemoveByDeviceCodeAsync(string deviceCode)
+        public virtual Task RemoveByDeviceCodeAsync(string deviceCode)
         {
-            var deviceFlowCodes = _context.DeviceFlowCodes.FirstOrDefault(x => x.DeviceCode == deviceCode);
+            var deviceFlowCodes = Context.DeviceFlowCodes.FirstOrDefault(x => x.DeviceCode == deviceCode);
 
             if(deviceFlowCodes != null)
             {
-                _logger.LogDebug("removing {deviceCode} device code from database", deviceCode);
+                Logger.LogDebug("removing {deviceCode} device code from database", deviceCode);
 
-                _context.DeviceFlowCodes.Remove(deviceFlowCodes);
+                Context.DeviceFlowCodes.Remove(deviceFlowCodes);
 
                 try
                 {
-                    _context.SaveChanges();
+                    Context.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
-                    _logger.LogInformation("exception removing {deviceCode} device code from database: {error}", deviceCode, ex.Message);
+                    Logger.LogInformation("exception removing {deviceCode} device code from database: {error}", deviceCode, ex.Message);
                 }
             }
             else
             {
-                _logger.LogDebug("no {deviceCode} device code found in database", deviceCode);
+                Logger.LogDebug("no {deviceCode} device code found in database", deviceCode);
             }
 
             return Task.FromResult(0);
         }
 
-        private DeviceFlowCodes ToEntity(DeviceCode model, string deviceCode, string userCode)
+        /// <summary>
+        /// Converts a model to an entity.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="deviceCode"></param>
+        /// <param name="userCode"></param>
+        /// <returns></returns>
+        protected DeviceFlowCodes ToEntity(DeviceCode model, string deviceCode, string userCode)
         {
             if (model == null || deviceCode == null || userCode == null) return null;
 
@@ -165,15 +183,20 @@ namespace IdentityServer4.EntityFramework.Stores
                 SubjectId = model.Subject?.FindFirst(JwtClaimTypes.Subject).Value,
                 CreationTime = model.CreationTime,
                 Expiration = model.CreationTime.AddSeconds(model.Lifetime),
-                Data = _serializer.Serialize(model)
+                Data = Serializer.Serialize(model)
             };
         }
 
-        private DeviceCode ToModel(string entity)
+        /// <summary>
+        /// Converts a serialized DeviceCode to a model.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        protected DeviceCode ToModel(string entity)
         {
             if (entity == null) return null;
 
-            return _serializer.Deserialize<DeviceCode>(entity);
+            return Serializer.Deserialize<DeviceCode>(entity);
         }
     }
 }

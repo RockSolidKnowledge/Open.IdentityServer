@@ -176,7 +176,7 @@ namespace IdentityServer4.EntityFramework
             }
         }
 
-        private async Task RemoveDeviceCodes(IPersistedGrantDbContext context)
+        private Task RemoveDeviceCodes(IPersistedGrantDbContext context)
         {
             var found = Int32.MaxValue;
 
@@ -205,6 +205,8 @@ namespace IdentityServer4.EntityFramework
                     }
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 }

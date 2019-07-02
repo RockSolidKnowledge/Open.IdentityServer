@@ -20,8 +20,15 @@ namespace IdentityServer4.EntityFramework.Stores
     /// <seealso cref="IdentityServer4.Stores.IClientStore" />
     public class ClientStore : IClientStore
     {
-        private readonly IConfigurationDbContext _context;
-        private readonly ILogger<ClientStore> _logger;
+        /// <summary>
+        /// The DbContext.
+        /// </summary>
+        protected readonly IConfigurationDbContext Context;
+
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        protected readonly ILogger<ClientStore> Logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientStore"/> class.
@@ -31,8 +38,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <exception cref="ArgumentNullException">context</exception>
         public ClientStore(IConfigurationDbContext context, ILogger<ClientStore> logger)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-            _logger = logger;
+            Context = context ?? throw new ArgumentNullException(nameof(context));
+            Logger = logger;
         }
 
         /// <summary>
@@ -42,9 +49,9 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns>
         /// The client
         /// </returns>
-        public Task<Client> FindClientByIdAsync(string clientId)
+        public virtual Task<Client> FindClientByIdAsync(string clientId)
         {
-            var client = _context.Clients
+            var client = Context.Clients
                 .Include(x => x.AllowedGrantTypes)
                 .Include(x => x.RedirectUris)
                 .Include(x => x.PostLogoutRedirectUris)
@@ -58,7 +65,7 @@ namespace IdentityServer4.EntityFramework.Stores
                 .FirstOrDefault(x => x.ClientId == clientId);
             var model = client?.ToModel();
 
-            _logger.LogDebug("{clientId} found in database: {clientIdFound}", clientId, model != null);
+            Logger.LogDebug("{clientId} found in database: {clientIdFound}", clientId, model != null);
 
             return Task.FromResult(model);
         }
