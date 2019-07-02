@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace IdentityServer4.Validation
 {
-    internal class JwtRequestValidationResult : ValidationResult
+    public class JwtRequestValidationResult : ValidationResult
     {
         public Dictionary<string, string> Payload { get; set; }
     }
