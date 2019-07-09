@@ -66,7 +66,7 @@ This downloads the latest `oidc-client` package locally, and then copies the rel
 
 **Manual download**
 
-If you want to simply download the `oidc-client` JavaScript files manually, browse to `the GitHub repository <https://github.com/IdentityModel/oidc-client-js/tree/master/dist>`_  and download the JavaScript files. Once downloaded, copy them into `~/wwwroot` so they can be served up by your application.
+If you want to simply download the `oidc-client` JavaScript files manually, browse to `the GitHub repository <https://github.com/IdentityModel/oidc-client-js/tree/release/dist>`_  and download the JavaScript files. Once downloaded, copy them into `~/wwwroot` so they can be served up by your application.
 
 Add your HTML and JavaScript files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

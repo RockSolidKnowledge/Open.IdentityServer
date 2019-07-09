@@ -96,21 +96,42 @@ namespace IdentityServer4.Validation
 
             if (clientId.IsPresent())
             {
-                if (clientId.Length > _options.InputLengthRestrictions.ClientId ||
-                    (secret.IsPresent() && secret.Length > _options.InputLengthRestrictions.ClientSecret))
+                if (clientId.Length > _options.InputLengthRestrictions.ClientId)
                 {
-                    _logger.LogWarning("Client ID or secret exceeds allowed length.");
+                    _logger.LogError("Client ID exceeds maximum length.");
                     return notfound;
                 }
 
-                var parsedSecret = new ParsedSecret
+                if (secret.IsPresent())
                 {
-                    Id = Decode(clientId),
-                    Credential = secret.IsMissing() ? null : Decode(secret),
-                    Type = IdentityServerConstants.ParsedSecretTypes.SharedSecret
-                };
+                    if (secret.Length > _options.InputLengthRestrictions.ClientSecret)
+                    {
+                        _logger.LogError("Client secret exceeds maximum length.");
+                        return notfound;
+                    }
 
-                return Task.FromResult(parsedSecret);
+                    var parsedSecret = new ParsedSecret
+                    {
+                        Id = Decode(clientId),
+                        Credential = Decode(secret),
+                        Type = IdentityServerConstants.ParsedSecretTypes.SharedSecret
+                    };
+
+                    return Task.FromResult(parsedSecret);
+                }
+                else
+                {
+                    // client secret is optional
+                    _logger.LogDebug("client id without secret found");
+
+                    var parsedSecret = new ParsedSecret
+                    {
+                        Id = Decode(clientId),
+                        Type = IdentityServerConstants.ParsedSecretTypes.NoSecret
+                    };
+
+                    return Task.FromResult(parsedSecret);
+                }
             }
 
             _logger.LogDebug("No Basic Authentication secret found");

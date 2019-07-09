@@ -10,7 +10,7 @@ https://github.com/leastprivilege/AspNetCoreSecuritySamples
 
 IdentityServer4 EF and ASP.NET Identity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-`This <https://github.com/IdentityServer/IdentityServer4/tree/master/samples/Quickstarts/Combined_AspId_and_EFStorage>`_ sample combines the EF and ASP.NET Identity quickstarts.
+`This <https://github.com/IdentityServer/IdentityServer4/tree/master/samples/Quickstarts/9_Combined_AspId_and_EFStorage>`_ sample combines the EF and ASP.NET Identity quickstarts.
 
 Co-hosting IdentityServer4 and a Web API
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
