@@ -37,9 +37,7 @@ namespace ConsoleClientWithBrowser
             {
                 Authority = Constants.Authority,
 
-                ClientId = "console.hybrid.pkce",
-                Flow = OidcClientOptions.AuthenticationFlow.Hybrid,
-                ResponseMode = OidcClientOptions.AuthorizeResponseMode.FormPost,
+                ClientId = "console.pkce",
 
                 RedirectUri = redirectUri,
                 Scope = "openid profile api1",

@@ -125,15 +125,15 @@ namespace Host.Configuration
                 },
 
                 ///////////////////////////////////////////
-                // Console Hybrid with PKCE Sample
+                // Console with PKCE Sample
                 //////////////////////////////////////////
                 new Client
                 {
-                    ClientId = "console.hybrid.pkce",
-                    ClientName = "Console Hybrid with PKCE Sample",
+                    ClientId = "console.pkce",
+                    ClientName = "Console with PKCE Sample",
                     RequireClientSecret = false,
 
-                    AllowedGrantTypes = GrantTypes.Hybrid,
+                    AllowedGrantTypes = GrantTypes.Code,
                     RequirePkce = true,
 
                     RedirectUris = { "http://127.0.0.1", "sample-windows-client://callback" },
