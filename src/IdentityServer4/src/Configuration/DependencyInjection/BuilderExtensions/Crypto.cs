@@ -192,6 +192,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds the validation keys.
         /// </summary>
         /// <param name="builder">The builder.</param>
+        /// <param name="certificates">The certificates.</param>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddValidationKeys(this IIdentityServerBuilder builder, params X509Certificate2[] certificates)
+        {
+            var keys = certificates.Select(certificate => new X509SecurityKey(certificate)).Cast<AsymmetricSecurityKey>();
+
+            builder.Services.AddSingleton<IValidationKeysStore>(new DefaultValidationKeysStore(keys));
+
+            return builder;
+        }
+   
+        /// <summary>
+        /// Adds the validation keys.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
         /// <param name="keys">The keys.</param>
         /// <returns></returns>
         public static IIdentityServerBuilder AddValidationKeys(this IIdentityServerBuilder builder, params AsymmetricSecurityKey[] keys)
