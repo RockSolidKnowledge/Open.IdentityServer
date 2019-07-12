@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Host.Data;
-using Host.Models;
 using Host.Configuration;
+using IdentityServer4.Models;
 
 namespace Host
 {
@@ -33,8 +33,8 @@ namespace Host
 
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential()
-                .AddInMemoryIdentityResources(Resources.GetIdentityResources())
-                .AddInMemoryApiResources(Resources.GetApiResources())
+                .AddInMemoryIdentityResources(Host.Configuration.Resources.GetIdentityResources())
+                .AddInMemoryApiResources(Host.Configuration.Resources.GetApiResources())
                 .AddInMemoryClients(Clients.Get())
                 .AddAspNetIdentity<ApplicationUser>();
 

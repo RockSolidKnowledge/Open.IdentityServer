@@ -1,4 +1,4 @@
-﻿namespace Host.Models.ManageViewModels
+﻿namespace IdentityServer4.Models.ManageViewModels
 {
     public class RemoveLoginViewModel
     {

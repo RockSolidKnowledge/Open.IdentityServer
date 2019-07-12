@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Host.Models.AccountViewModels
+namespace IdentityServer4.Models.AccountViewModels
 {
     public class RegisterViewModel
     {
