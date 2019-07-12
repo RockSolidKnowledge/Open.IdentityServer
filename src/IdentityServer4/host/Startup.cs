@@ -14,6 +14,8 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Polly;
 using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Host
@@ -92,7 +94,12 @@ namespace Host
             }));
 
             services.AddExternalIdentityProviders();
-            services.AddLocalApiAuthentication();
+            services.AddLocalApiAuthentication(principal =>
+            {
+                principal.Identities.First().AddClaim(new Claim("additional_claim", "additional_value"));
+
+                return Task.FromResult(principal);
+            });
 
             services.AddAuthentication()
                .AddCertificate("x509", options =>

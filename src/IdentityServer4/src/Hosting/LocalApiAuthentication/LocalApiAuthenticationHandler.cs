@@ -30,6 +30,19 @@ namespace IdentityServer4.Hosting.LocalApiAuthentication
             _logger = logger.CreateLogger<LocalApiAuthenticationHandler>();
         }
 
+        /// <summary>
+        /// The handler calls methods on the events which give the application control at certain points where processing is occurring. 
+        /// If it is not provided a default instance is supplied which does nothing when the methods are called.
+        /// </summary>
+        protected new LocalApiAuthenticationEvents Events
+        {
+            get => (LocalApiAuthenticationEvents)base.Events;
+            set => base.Events = value;
+        }
+
+        /// <inheritdoc/>
+        protected override Task<object> CreateEventsAsync() => Task.FromResult<object>(new LocalApiAuthenticationEvents());
+
         /// <inheritdoc />
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
@@ -41,7 +54,7 @@ namespace IdentityServer4.Hosting.LocalApiAuthentication
 
             if (string.IsNullOrEmpty(authorization))
             {
-                return AuthenticateResult.Fail("No Authorization Header is sent.");
+                return AuthenticateResult.NoResult();
             }
 
             if (authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
@@ -79,7 +92,15 @@ namespace IdentityServer4.Hosting.LocalApiAuthentication
                 });
             }
 
-            AuthenticationTicket authenticationTicket = new AuthenticationTicket(claimsPrincipal, authenticationProperties, Scheme.Name);
+            var claimsTransformationContext = new ClaimsTransformationContext
+            {
+                Principal = claimsPrincipal,
+                HttpContext = Context
+            };
+
+            await Events.ClaimsTransformation(claimsTransformationContext);
+
+            AuthenticationTicket authenticationTicket = new AuthenticationTicket(claimsTransformationContext.Principal, authenticationProperties, Scheme.Name);
             return AuthenticateResult.Success(authenticationTicket);
         }
     }

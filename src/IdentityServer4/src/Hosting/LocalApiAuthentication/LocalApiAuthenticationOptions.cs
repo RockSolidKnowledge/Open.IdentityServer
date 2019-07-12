@@ -18,8 +18,17 @@ namespace IdentityServer4.Hosting.LocalApiAuthentication
         public string ExpectedScope { get; set; }
 
         /// <summary>
-        /// specifies whether the token should be saved in the authentication properties
+        /// Specifies whether the token should be saved in the authentication properties
         /// </summary>
         public bool SaveToken { get; set; } = true;
+
+        /// <summary>
+        /// Allows implementing events
+        /// </summary>
+        public new LocalApiAuthenticationEvents Events
+        {
+            get { return (LocalApiAuthenticationEvents)base.Events; }
+            set { base.Events = value; }
+        }
     }
 }
