@@ -13,7 +13,7 @@ As with all of these quickstarts you can find the source code for it in the `Ide
 
 Preparation
 ^^^^^^^^^^^
-In order to make following these quickstarts easer for you the team has created some custom templates for dotnet new.  
+In order to make following these quickstarts easier for you the team has created some custom templates for dotnet new.  
 
 To install the custom templates open a console window and type the following command::
 
