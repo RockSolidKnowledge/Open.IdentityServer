@@ -8,7 +8,7 @@
   <ItemGroup>
     <!--build related-->
     <PackageReference Include="MinVer" Version="1.1.0" PrivateAssets="All" />
-    <PackageReference Update="SimpleExec" Version="6.0.0-rc.1" />
+    <PackageReference Update="SimpleExec" Version="6.0.0" />
     <PackageReference Update="BullsEye" Version="2.3.0" />
     <PackageReference Update="McMaster.Extensions.CommandLineUtils" Version="2.3.3" />
 
