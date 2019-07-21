@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <FrameworkVersion>2.1</FrameworkVersion>
+    <FrameworkVersion>3.0.0-preview6.19307.2</FrameworkVersion>
     <IdentityServerVersion>3.0.0-*</IdentityServerVersion>
   </PropertyGroup>
 
@@ -22,13 +22,7 @@
     <PackageReference Update="IdentityServer4.EntityFramework" Version="$(IdentityServerVersion)" />
     
     <!--microsoft -->
-    <PackageReference Update="Microsoft.AspNetCore.Authentication" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.Abstractions" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.Cookies" Version="$(FrameworkVersion)" />
     <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Authorization" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Cors" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Identity" Version="$(FrameworkVersion)" />
     
     <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="$(FrameworkVersion)" />
 
