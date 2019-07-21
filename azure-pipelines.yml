@@ -17,6 +17,11 @@ jobs:
   pool:
     vmImage: 'vs2017-win2016'
   steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '3.0.100-preview6-012264'
+      includePreviewVersions: true
   - task: PowerShell@2
     displayName: 'Build Script'
     inputs:
