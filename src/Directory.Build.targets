@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <FrameworkVersion>3.0.0-preview6.19307.2</FrameworkVersion>
+    <EntityFrameworkVersion>3.0.0-preview6.19304.10</EntityFrameworkVersion>
+    
     <IdentityServerVersion>3.0.0-*</IdentityServerVersion>
   </PropertyGroup>
 
@@ -21,19 +23,23 @@
     <PackageReference Update="IdentityServer4.EntityFramework.Storage" Version="$(IdentityServerVersion)" />
     <PackageReference Update="IdentityServer4.EntityFramework" Version="$(IdentityServerVersion)" />
     
-    <!--microsoft -->
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.TestHost" Version="$(FrameworkVersion)" />
-    
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="$(FrameworkVersion)" />
-
+    <!--microsoft extensions -->
     <PackageReference Update="Microsoft.Extensions.Caching.Memory" Version="$(FrameworkVersion)" />
     <PackageReference Update="Microsoft.Extensions.Http" Version="$(FrameworkVersion)" />
     <PackageReference Update="Microsoft.Extensions.Logging" Version="$(FrameworkVersion)" />
     <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(FrameworkVersion)" />
     
-    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="5.2.4" />
-    <PackageReference Update="System.Security.Cryptography.Cng" Version="4.5.0" />
+    <!--microsoft asp.net core -->
+    <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(FrameworkVersion)" />
+    <PackageReference Update="Microsoft.AspNetCore.TestHost" Version="$(FrameworkVersion)" />
+    
+    <!--microsoft entity framework -->
+    <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="$(EntityFrameworkVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EntityFrameworkVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.InMemory" Version="$(EntityFrameworkVersion)" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EntityFrameworkVersion)" />
+
+    
     
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19324-01" PrivateAssets="All" />
   </ItemGroup>

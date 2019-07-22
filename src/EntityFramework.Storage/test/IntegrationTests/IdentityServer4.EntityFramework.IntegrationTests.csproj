@@ -1,38 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <IsPackable>false</IsPackable>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
 
     <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>netcoreapp2.1;netcoreapp2.2;net461</TargetFrameworks>
-  </PropertyGroup>
-
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\src\IdentityServer4.EntityFramework.Storage.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityServer4" Version="2.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.1.0" />
+    <PackageReference Include="IdentityServer4" />
+    
+    <!--<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.0" />-->
+    <!--<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.1.0" />-->
+    <!--<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.1.0" />-->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <!--<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.1.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.0" />-->
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <PackageReference Include="FluentAssertions" Version="4.19.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.1.0" />
+    
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
   </ItemGroup>
 </Project>
