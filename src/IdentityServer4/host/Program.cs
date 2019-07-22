@@ -3,11 +3,10 @@
 
 
 using Microsoft.AspNetCore.Hosting;
-using System;
+using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Sinks.SystemConsole.Themes;
-using Microsoft.AspNetCore;
 using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Host
 {
@@ -15,16 +14,15 @@ namespace Host
     {
         public static void Main(string[] args)
         {
-            Console.Title = "IdentityServer4";
-
-            CreateWebHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
-        {
-            return WebHost.CreateDefaultBuilder(args)
-                    .UseStartup<Startup>()
-                    .UseSerilog((context, config) =>
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseSerilog((context, config) =>
                     {
                         config
                             .MinimumLevel.Debug()
@@ -35,6 +33,6 @@ namespace Host
                             .WriteTo.File(@"identityserver4_log.txt")
                             .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}", theme: AnsiConsoleTheme.Literate);
                     });
-        }            
+                });
     }
 }

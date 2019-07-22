@@ -29,7 +29,7 @@ namespace Host
             IdentityModelEventSource.ShowPII = true;
         }
 
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc()
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
@@ -116,8 +116,6 @@ namespace Host
             //           }
             //       };
             //   });
-
-            return services.BuildServiceProvider(validateScopes: false);
         }
 
         public void Configure(IApplicationBuilder app)
