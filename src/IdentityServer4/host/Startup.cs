@@ -121,8 +121,8 @@ namespace Host
         public void Configure(IApplicationBuilder app)
         {
             app.UseRouting();
-
             app.UseMiddleware<Logging.RequestLoggerMiddleware>();
+
             app.UseDeveloperExceptionPage();
 
             app.UseIdentityServer();

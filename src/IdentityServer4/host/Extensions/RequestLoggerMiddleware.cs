@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Routing;
 using Serilog;
 using Serilog.Events;
 using System;
@@ -10,7 +12,7 @@ namespace Host.Logging
 {
     internal class RequestLoggerMiddleware
     {
-        const string MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+        const string MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms (endpoint: {EndpointName})";
 
         static readonly ILogger Log = Serilog.Log.ForContext<RequestLoggerMiddleware>();
 
@@ -24,27 +26,36 @@ namespace Host.Logging
         public async Task Invoke(HttpContext httpContext)
         {
             if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
+            var endpointName = "unknown";
 
             var start = Stopwatch.GetTimestamp();
             try
             {
+                var endpointFeature = httpContext.Features[typeof(IEndpointFeature)] as IEndpointFeature;
+                var endpoint = endpointFeature?.Endpoint;
+
                 await _next(httpContext);
                 var elapsedMs = GetElapsedMilliseconds(start, Stopwatch.GetTimestamp());
 
                 var statusCode = httpContext.Response?.StatusCode;
                 var level = statusCode > 499 ? LogEventLevel.Error : LogEventLevel.Information;
 
+                if (endpoint != null)
+                {
+                    endpointName = endpoint.DisplayName;
+                }
+
                 var log = level == LogEventLevel.Error ? LogForErrorContext(httpContext) : Log;
-                log.Write(level, MessageTemplate, httpContext.Request.Method, httpContext.Request.Path, statusCode, elapsedMs);
+                log.Write(level, MessageTemplate, httpContext.Request.Method, httpContext.Request.Path, statusCode, elapsedMs, endpointName);
             }
             // Never caught, because `LogException()` returns false.
-            catch (Exception ex) when (LogException(httpContext, GetElapsedMilliseconds(start, Stopwatch.GetTimestamp()), ex)) { }
+            catch (Exception ex) when (LogException(httpContext, GetElapsedMilliseconds(start, Stopwatch.GetTimestamp()), endpointName, ex)) { }
         }
 
-        static bool LogException(HttpContext httpContext, double elapsedMs, Exception ex)
+        static bool LogException(HttpContext httpContext, double elapsedMs, string endpointName, Exception ex)
         {
             LogForErrorContext(httpContext)
-                .Error(ex, MessageTemplate, httpContext.Request.Method, httpContext.Request.Path, 500, elapsedMs);
+                .Error(ex, MessageTemplate, httpContext.Request.Method, httpContext.Request.Path, 500, elapsedMs, endpointName);
 
             return false;
         }
