@@ -244,6 +244,8 @@ namespace IdentityServer4.Validation
                     var value = jwtRequestValidationResult.Payload[key];
                     request.Raw.Set(key, value);
                 }
+
+                // todo: add validated request params collection
             }
 
             return Valid(request);

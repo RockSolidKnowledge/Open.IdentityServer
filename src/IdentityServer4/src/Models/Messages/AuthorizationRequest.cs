@@ -105,6 +105,8 @@ namespace IdentityServer4.Models
         /// </value>
         public NameValueCollection Parameters { get; }
 
+        // todo: add validated request params collection
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizationRequest"/> class.
         /// </summary>
