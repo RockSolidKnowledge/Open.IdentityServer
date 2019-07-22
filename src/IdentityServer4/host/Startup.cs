@@ -32,7 +32,7 @@ namespace Host
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddMvc()
-                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
 
             services.Configure<IISOptions>(iis =>
             {
@@ -48,7 +48,7 @@ namespace Host
                     options.Events.RaiseErrorEvents = true;
                     options.Events.RaiseInformationEvents = true;
 
-                    options.MutualTls.Enabled = true;
+                    options.MutualTls.Enabled = false;
                     options.MutualTls.ClientCertificateAuthenticationScheme = "x509";
                 })
                 .AddInMemoryClients(Clients.Get())
@@ -63,33 +63,34 @@ namespace Host
                 .AddTestUsers(TestUsers.Users)
                 .AddMutualTlsSecretValidators();
 
+            // todo: behavior seems to have changed - throws now
             //builder.AddJwtRequestUriHttpClient(client =>
             //{
             //    client.Timeout = TimeSpan.FromSeconds(30);
             //});
 
          
-            builder.AddBackChannelLogoutHttpClient(client =>
-            {
-                client.Timeout = TimeSpan.FromSeconds(30);
-            })
-            .AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(new[]
-            {
-                TimeSpan.FromSeconds(1),
-                TimeSpan.FromSeconds(2),
-                TimeSpan.FromSeconds(3)
-            }));
+            //builder.AddBackChannelLogoutHttpClient(client =>
+            //{
+            //    client.Timeout = TimeSpan.FromSeconds(30);
+            //})
+            //.AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(new[]
+            //{
+            //    TimeSpan.FromSeconds(1),
+            //    TimeSpan.FromSeconds(2),
+            //    TimeSpan.FromSeconds(3)
+            //}));
 
-            builder.AddJwtRequestUriHttpClient(client =>
-            {
-                client.Timeout = TimeSpan.FromSeconds(30);
-            })
-            .AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(new[]
-            {
-                TimeSpan.FromSeconds(1),
-                TimeSpan.FromSeconds(2),
-                TimeSpan.FromSeconds(3)
-            }));
+            //builder.AddJwtRequestUriHttpClient(client =>
+            //{
+            //    client.Timeout = TimeSpan.FromSeconds(30);
+            //})
+            //.AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(new[]
+            //{
+            //    TimeSpan.FromSeconds(1),
+            //    TimeSpan.FromSeconds(2),
+            //    TimeSpan.FromSeconds(3)
+            //}));
 
             services.AddExternalIdentityProviders();
             services.AddLocalApiAuthentication(principal =>
@@ -121,13 +122,19 @@ namespace Host
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseRouting();
+
             app.UseMiddleware<Logging.RequestLoggerMiddleware>();
             app.UseDeveloperExceptionPage();
 
             app.UseIdentityServer();
-
             app.UseStaticFiles();
-            app.UseMvcWithDefaultRoute();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapDefaultControllerRoute();
+            });
         }
     }
 
