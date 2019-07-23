@@ -184,11 +184,6 @@ namespace IdentityServer4.Validation
                                             ResponseType == OidcConstants.ResponseTypes.CodeToken ||
                                             ResponseType == OidcConstants.ResponseTypes.CodeIdTokenToken;
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 5d42c55f... added RequestObjectValues property + adjusted tests (#3462)
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidatedAuthorizeRequest"/> class.
         /// </summary>

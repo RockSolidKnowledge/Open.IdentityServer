@@ -244,11 +244,8 @@ namespace IdentityServer4.Validation
                     var value = jwtRequestValidationResult.Payload[key];
                     request.Raw.Set(key, value);
                 }
-<<<<<<< HEAD
-=======
 
                 request.RequestObjectValues = jwtRequestValidationResult.Payload;
->>>>>>> 5d42c55f... added RequestObjectValues property + adjusted tests (#3462)
             }
 
             return Valid(request);
