@@ -33,7 +33,7 @@ namespace Host.Logging
             {
                 var endpointFeature = httpContext.Features[typeof(IEndpointFeature)] as IEndpointFeature;
                 var endpoint = endpointFeature?.Endpoint;
-
+                
                 await _next(httpContext);
                 var elapsedMs = GetElapsedMilliseconds(start, Stopwatch.GetTimestamp());
 
