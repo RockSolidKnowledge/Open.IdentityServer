@@ -172,8 +172,13 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
             _mockPipeline.LoginRequest.Tenant.Should().Be("tenant_value");
             _mockPipeline.LoginRequest.LoginHint.Should().Be("login_hint_value");
             _mockPipeline.LoginRequest.AcrValues.Should().BeEquivalentTo(new string[] { "acr_2", "acr_1" });
+
             _mockPipeline.LoginRequest.Parameters.AllKeys.Should().Contain("foo");
             _mockPipeline.LoginRequest.Parameters["foo"].Should().Be("123foo");
+
+            _mockPipeline.LoginRequest.RequestObjectValues.Count.Should().Be(11);
+            _mockPipeline.LoginRequest.RequestObjectValues.Should().ContainKey("foo");
+            _mockPipeline.LoginRequest.RequestObjectValues["foo"].Should().Be("123foo");
         }
 
         [Fact]
@@ -215,8 +220,13 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
             _mockPipeline.LoginRequest.Tenant.Should().Be("tenant_value");
             _mockPipeline.LoginRequest.LoginHint.Should().Be("login_hint_value");
             _mockPipeline.LoginRequest.AcrValues.Should().BeEquivalentTo(new string[] { "acr_2", "acr_1" });
+
             _mockPipeline.LoginRequest.Parameters.AllKeys.Should().Contain("foo");
             _mockPipeline.LoginRequest.Parameters["foo"].Should().Be("123foo");
+
+            _mockPipeline.LoginRequest.RequestObjectValues.Count.Should().Be(11);
+            _mockPipeline.LoginRequest.RequestObjectValues.Should().ContainKey("foo");
+            _mockPipeline.LoginRequest.RequestObjectValues["foo"].Should().Be("123foo");
         }
 
         [Fact]
@@ -258,8 +268,13 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
             _mockPipeline.LoginRequest.Tenant.Should().Be("tenant_value");
             _mockPipeline.LoginRequest.LoginHint.Should().Be("login_hint_value");
             _mockPipeline.LoginRequest.AcrValues.Should().BeEquivalentTo(new string[] { "acr_2", "acr_1" });
+
             _mockPipeline.LoginRequest.Parameters.AllKeys.Should().Contain("foo");
             _mockPipeline.LoginRequest.Parameters["foo"].Should().Be("123foo");
+
+            _mockPipeline.LoginRequest.RequestObjectValues.Count.Should().Be(11);
+            _mockPipeline.LoginRequest.RequestObjectValues.Should().ContainKey("foo");
+            _mockPipeline.LoginRequest.RequestObjectValues["foo"].Should().Be("123foo");
         }
 
         [Fact]
@@ -310,8 +325,13 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
             _mockPipeline.LoginRequest.Tenant.Should().Be("tenant_value");
             _mockPipeline.LoginRequest.LoginHint.Should().Be("login_hint_value");
             _mockPipeline.LoginRequest.AcrValues.Should().BeEquivalentTo(new string[] { "acr_2", "acr_1" });
+
             _mockPipeline.LoginRequest.Parameters.AllKeys.Should().Contain("foo");
             _mockPipeline.LoginRequest.Parameters["foo"].Should().Be("123foo");
+
+            _mockPipeline.LoginRequest.RequestObjectValues.Count.Should().Be(11);
+            _mockPipeline.LoginRequest.RequestObjectValues.Should().ContainKey("foo");
+            _mockPipeline.LoginRequest.RequestObjectValues["foo"].Should().Be("123foo");
         }
 
         [Fact]
@@ -354,11 +374,21 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
 
             _mockPipeline.LoginRequest.Should().NotBeNull();
+
             _mockPipeline.LoginRequest.Parameters["someObj"].Should().NotBeNull();
             var someObj2 = JsonConvert.DeserializeObject(_mockPipeline.LoginRequest.Parameters["someObj"], someObj.GetType());
             someObj.Should().BeEquivalentTo(someObj2);
             _mockPipeline.LoginRequest.Parameters["someArr"].Should().NotBeNull();
             var someArr2 = JsonConvert.DeserializeObject<string[]>(_mockPipeline.LoginRequest.Parameters["someArr"]);
+            someArr2.Should().Contain(new[] { "a", "c", "b" });
+            someArr2.Length.Should().Be(3);
+
+            _mockPipeline.LoginRequest.RequestObjectValues.Count.Should().Be(13);
+            _mockPipeline.LoginRequest.RequestObjectValues["someObj"].Should().NotBeNull();
+            someObj2 = JsonConvert.DeserializeObject(_mockPipeline.LoginRequest.RequestObjectValues["someObj"], someObj.GetType());
+            someObj.Should().BeEquivalentTo(someObj2);
+            _mockPipeline.LoginRequest.RequestObjectValues["someArr"].Should().NotBeNull();
+            someArr2 = JsonConvert.DeserializeObject<string[]>(_mockPipeline.LoginRequest.Parameters["someArr"]);
             someArr2.Should().Contain(new[] { "a", "c", "b" });
             someArr2.Length.Should().Be(3);
         }
@@ -736,6 +766,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
 
             _mockPipeline.ErrorWasCalled.Should().BeTrue();
+            _mockPipeline.LoginRequest.Should().BeNull();
 
             _mockPipeline.JwtRequestMessageHandler.InvokeWasCalled.Should().BeTrue();
         }
@@ -758,6 +789,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
 
             _mockPipeline.ErrorWasCalled.Should().BeTrue();
+            _mockPipeline.LoginRequest.Should().BeNull();
 
             _mockPipeline.JwtRequestMessageHandler.InvokeWasCalled.Should().BeTrue();
         }
@@ -777,6 +809,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
                 });
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
             _mockPipeline.ErrorWasCalled.Should().BeTrue();
+            _mockPipeline.LoginRequest.Should().BeNull();
 
             _mockPipeline.JwtRequestMessageHandler.InvokeWasCalled.Should().BeFalse();
         }
@@ -817,6 +850,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
                 });
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
             _mockPipeline.ErrorWasCalled.Should().BeTrue();
+            _mockPipeline.LoginRequest.Should().BeNull();
 
             _mockPipeline.JwtRequestMessageHandler.InvokeWasCalled.Should().BeFalse();
         }

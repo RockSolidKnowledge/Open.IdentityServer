@@ -165,6 +165,14 @@ namespace IdentityServer4.Validation
         public string CodeChallengeMethod { get; set; }
 
         /// <summary>
+        /// Gets or sets the validated contents of the request object (if present)
+        /// </summary>
+        /// <value>
+        /// The request object values
+        /// </value>
+        public Dictionary<string, string> RequestObjectValues { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
         /// Gets a value indicating whether an access token was requested.
         /// </summary>
         /// <value>
@@ -176,6 +184,11 @@ namespace IdentityServer4.Validation
                                             ResponseType == OidcConstants.ResponseTypes.CodeToken ||
                                             ResponseType == OidcConstants.ResponseTypes.CodeIdTokenToken;
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 5d42c55f... added RequestObjectValues property + adjusted tests (#3462)
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidatedAuthorizeRequest"/> class.
         /// </summary>
