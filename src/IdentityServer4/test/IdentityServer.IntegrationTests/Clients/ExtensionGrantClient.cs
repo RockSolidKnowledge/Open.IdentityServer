@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -325,6 +326,40 @@ namespace IdentityServer4.IntegrationTests.Clients
             response.RefreshToken.Should().BeNull();
 
             response.AccessToken.Should().Contain(".");
+        }
+
+        [Fact]
+        public async Task Impersonate_client_should_succeed()
+        {
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "dynamic",
+
+                ClientId = "client.dynamic",
+                ClientSecret = "secret",
+
+                Parameters =
+                {
+                    { "scope", "api1" },
+
+                    { "type", "jwt"},
+                    { "impersonated_client", "impersonated_client_id"},
+                    { "sub",  "818727"}
+                }
+            });
+
+            response.IsError.Should().BeFalse();
+            response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
+            response.ExpiresIn.Should().Be(3600);
+            response.TokenType.Should().Be("Bearer");
+            response.IdentityToken.Should().BeNull();
+            response.RefreshToken.Should().BeNull();
+
+            response.AccessToken.Should().Contain(".");
+
+            var jwt = new JwtSecurityToken(response.AccessToken);
+            jwt.Payload["client_id"].Should().Be("impersonated_client_id");
         }
 
         [Fact]
