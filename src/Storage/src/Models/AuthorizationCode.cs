@@ -108,5 +108,13 @@ namespace IdentityServer4.Models
         /// The code challenge method
         /// </value>
         public string CodeChallengeMethod { get; set; }
+
+        /// <summary>
+        /// Gets or sets properties
+        /// </summary>
+        /// <value>
+        /// The properties
+        /// </value>
+        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 }

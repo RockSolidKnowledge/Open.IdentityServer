@@ -99,8 +99,10 @@ namespace IdentityServer4.ResponseHandling
             Logger.LogDebug("Creating Hybrid Flow response.");
 
             var code = await CreateCodeAsync(request);
-            var response = await CreateImplicitFlowResponseAsync(request, code);
-            response.Code = code;
+            var id = await AuthorizationCodeStore.StoreAuthorizationCodeAsync(code);
+
+            var response = await CreateImplicitFlowResponseAsync(request, id);
+            response.Code = id;
 
             return response;
         }
@@ -115,11 +117,12 @@ namespace IdentityServer4.ResponseHandling
             Logger.LogDebug("Creating Authorization Code Flow response.");
 
             var code = await CreateCodeAsync(request);
+            var id = await AuthorizationCodeStore.StoreAuthorizationCodeAsync(code);
 
             var response = new AuthorizeResponse
             {
                 Request = request,
-                Code = code,
+                Code = id,
                 SessionState = request.GenerateSessionStateValue()
             };
 
@@ -194,7 +197,7 @@ namespace IdentityServer4.ResponseHandling
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        protected async Task<string> CreateCodeAsync(ValidatedAuthorizeRequest request)
+        protected virtual Task<AuthorizationCode> CreateCodeAsync(ValidatedAuthorizeRequest request)
         {
             var code = new AuthorizationCode
             {
@@ -214,10 +217,7 @@ namespace IdentityServer4.ResponseHandling
                 WasConsentShown = request.WasConsentShown
             };
 
-            // store id token and access token and return authorization code
-            var id = await AuthorizationCodeStore.StoreAuthorizationCodeAsync(code);
-
-            return id;
+            return Task.FromResult(code);
         }
-   }
+    }
 }
