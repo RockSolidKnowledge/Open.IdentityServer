@@ -10,7 +10,7 @@ jobs:
   - task: UseDotNet@2
     inputs:
       packageType: 'sdk'
-      version: '3.0.100-preview6-012264'
+      version: '3.0.100-preview7-012821'
       includePreviewVersions: true
   - task: Bash@3
     displayName: 'Build Script'
@@ -25,7 +25,7 @@ jobs:
   - task: UseDotNet@2
     inputs:
       packageType: 'sdk'
-      version: '3.0.100-preview6-012264'
+      version: '3.0.100-preview7-012821'
       includePreviewVersions: true
   - task: PowerShell@2
     displayName: 'Build Script'
