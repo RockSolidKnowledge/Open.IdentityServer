@@ -20,13 +20,15 @@ namespace IdentityServer4.EntityFramework.IntegrationTests
         
         public void Dispose()
         {
-            foreach (var option in Options.ToList())
-            {
-                using (var context = (T)Activator.CreateInstance(typeof(T), option, StoreOptions))
-                {
-                    context.Database.EnsureDeleted();
-                }
-            }
+            //todo: throws NRE
+             
+            //foreach (var option in Options.ToList())
+            //{
+            //    using (var context = (T)Activator.CreateInstance(typeof(T), option, StoreOptions))
+            //    {
+            //        context.Database.EnsureDeleted();
+            //    }
+            //}
         }
     }
 }

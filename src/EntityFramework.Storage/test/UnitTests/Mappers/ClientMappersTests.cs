@@ -77,7 +77,7 @@ namespace IdentityServer4.EntityFramework.UnitTests.Mappers
             };
 
             Action modelAction = () => entity.ToModel();
-            modelAction.ShouldThrow<Exception>();
+            modelAction.Should().Throw<Exception>();
         }
 
         [Fact]
