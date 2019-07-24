@@ -20,10 +20,10 @@ namespace Host
             _config = config;
         }
 
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc()
-                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
 
             var connectionString = _config.GetConnectionString("db");
 
@@ -46,19 +46,24 @@ namespace Host
                 });
                 // this is something you will want in production to reduce load on and requests to the DB
                 //.AddConfigurationStoreCache();
-
-            return services.BuildServiceProvider(validateScopes: true);
         }
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseRouting();
+
             app.UseMiddleware<Logging.RequestLoggerMiddleware>();
             app.UseDeveloperExceptionPage();
 
             app.UseIdentityServer();
 
             app.UseStaticFiles();
-            app.UseMvcWithDefaultRoute();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapDefaultControllerRoute();
+            });
+                
         }
     }
 }
