@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
 
-    <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>../../../../key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
   </PropertyGroup>
