@@ -322,6 +322,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
+        // todo: check with later previews of ASP.NET Core if this is still required
         /// <summary>
         /// Adds configuration for the HttpClient used for back-channel logout notifications.
         /// </summary>
@@ -355,6 +356,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
 
+        // todo: check with later previews of ASP.NET Core if this is still required
         /// <summary>
         /// Adds configuration for the HttpClient used for JWT request_uri requests.
         /// </summary>
