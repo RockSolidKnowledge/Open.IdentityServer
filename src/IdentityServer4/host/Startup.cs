@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Polly;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -63,13 +62,16 @@ namespace Host
                 .AddTestUsers(TestUsers.Users)
                 .AddMutualTlsSecretValidators();
 
-            // todo: behavior seems to have changed - throws now
-            //builder.AddJwtRequestUriHttpClient(client =>
-            //{
-            //    client.Timeout = TimeSpan.FromSeconds(30);
-            //});
 
-         
+
+
+            // todo: behavior seems to have changed - throws now
+            builder.AddJwtRequestUriHttpClient(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+
+
             //builder.AddBackChannelLogoutHttpClient(client =>
             //{
             //    client.Timeout = TimeSpan.FromSeconds(30);

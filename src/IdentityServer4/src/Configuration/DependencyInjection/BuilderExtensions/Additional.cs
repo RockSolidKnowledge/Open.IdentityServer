@@ -7,6 +7,7 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http;
 using System;
 using System.Net.Http;
 
@@ -329,14 +330,28 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public static IHttpClientBuilder AddBackChannelLogoutHttpClient(this IIdentityServerBuilder builder, Action<HttpClient> configureClient = null)
         {
+            var name = typeof(BackChannelLogoutHttpClient).Name;
+            IHttpClientBuilder httpBuilder;
+
             if (configureClient != null)
             {
-                return builder.Services.AddHttpClient<BackChannelLogoutHttpClient>(configureClient);
+                httpBuilder = builder.Services.AddHttpClient(name, configureClient);
             }
             else
             {
-                return builder.Services.AddHttpClient<BackChannelLogoutHttpClient>();
+                httpBuilder = builder.Services.AddHttpClient(name);
             }
+
+            httpBuilder.Services.AddTransient<BackChannelLogoutHttpClient>(s =>
+            {
+                var httpClientFactory = s.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient(name);
+
+                var typedClientFactory = s.GetRequiredService<ITypedHttpClientFactory<BackChannelLogoutHttpClient>>();
+                return typedClientFactory.CreateClient(httpClient);
+            });
+
+            return httpBuilder;
         }
 
 
@@ -348,12 +363,28 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public static IHttpClientBuilder AddJwtRequestUriHttpClient(this IIdentityServerBuilder builder, Action<HttpClient> configureClient = null)
         {
+            var name = typeof(JwtRequestUriHttpClient).Name;
+            IHttpClientBuilder httpBuilder;
+
             if (configureClient != null)
             {
-                return builder.Services.AddHttpClient<JwtRequestUriHttpClient>(configureClient);
+                httpBuilder = builder.Services.AddHttpClient(name, configureClient);
+            }
+            else
+            {
+                httpBuilder = builder.Services.AddHttpClient(name);
             }
 
-            return builder.Services.AddHttpClient<JwtRequestUriHttpClient>();
+            httpBuilder.Services.AddTransient<JwtRequestUriHttpClient>(s =>
+            {
+                var httpClientFactory = s.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient(name);
+
+                var typedClientFactory = s.GetRequiredService<ITypedHttpClientFactory<JwtRequestUriHttpClient>>();
+                return typedClientFactory.CreateClient(httpClient);
+            });
+
+            return httpBuilder;
         }
 
         /// <summary>

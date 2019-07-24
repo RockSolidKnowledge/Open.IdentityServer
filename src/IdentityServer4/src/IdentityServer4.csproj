@@ -35,6 +35,7 @@
     <PackageReference Include="IdentityModel" />
 
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
     <!--<PackageReference Include="System.IdentityModel.Tokens.Jwt" />-->
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />

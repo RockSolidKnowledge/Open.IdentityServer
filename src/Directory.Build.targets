@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <FrameworkVersion>3.0.0-preview7.19365.7</FrameworkVersion>
+    <ExtensionsVersion>3.0.0-preview7.19362.4</ExtensionsVersion>
     <EntityFrameworkVersion>3.0.0-preview7.19362.6</EntityFrameworkVersion>
     
     <IdentityServerVersion>3.0.0-*</IdentityServerVersion>
@@ -24,10 +25,10 @@
     <PackageReference Update="IdentityServer4.EntityFramework" Version="$(IdentityServerVersion)" />
     
     <!--microsoft extensions -->
-    <PackageReference Update="Microsoft.Extensions.Caching.Memory" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.Extensions.Http" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.Extensions.Logging" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(FrameworkVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Caching.Memory" Version="$(ExtensionsVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Http" Version="$(ExtensionsVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Logging" Version="$(ExtensionsVersion)" />
+    <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(ExtensionsVersion)" />
     
     <!--microsoft asp.net core -->
     <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(FrameworkVersion)" />
