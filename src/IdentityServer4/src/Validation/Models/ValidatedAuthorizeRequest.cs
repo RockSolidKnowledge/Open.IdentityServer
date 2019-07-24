@@ -45,14 +45,6 @@ namespace IdentityServer4.Validation
         public string RedirectUri { get; set; }
 
         /// <summary>
-        /// Gets or sets the client identifier.
-        /// </summary>
-        /// <value>
-        /// The client identifier.
-        /// </value>
-        public string ClientId { get; set; }
-
-        /// <summary>
         /// Gets or sets the requested scopes.
         /// </summary>
         /// <value>
@@ -183,6 +175,8 @@ namespace IdentityServer4.Validation
                                             ResponseType == OidcConstants.ResponseTypes.CodeIdToken ||
                                             ResponseType == OidcConstants.ResponseTypes.CodeToken ||
                                             ResponseType == OidcConstants.ResponseTypes.CodeIdTokenToken;
+
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidatedAuthorizeRequest"/> class.
