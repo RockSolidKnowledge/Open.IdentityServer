@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -30,15 +29,13 @@ namespace Host
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
-                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
+            services.AddControllersWithViews();
 
             services.Configure<IISOptions>(iis =>
             {
                 iis.AuthenticationDisplayName = "Windows";
                 iis.AutomaticAuthentication = false;
             });
-
 
             var builder = services.AddIdentityServer(options =>
                 {
@@ -62,37 +59,6 @@ namespace Host
                 .AddTestUsers(TestUsers.Users)
                 .AddMutualTlsSecretValidators();
 
-
-
-
-            // todo: behavior seems to have changed - throws now
-            builder.AddJwtRequestUriHttpClient(client =>
-            {
-                client.Timeout = TimeSpan.FromSeconds(30);
-            });
-
-
-            //builder.AddBackChannelLogoutHttpClient(client =>
-            //{
-            //    client.Timeout = TimeSpan.FromSeconds(30);
-            //})
-            //.AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(new[]
-            //{
-            //    TimeSpan.FromSeconds(1),
-            //    TimeSpan.FromSeconds(2),
-            //    TimeSpan.FromSeconds(3)
-            //}));
-
-            //builder.AddJwtRequestUriHttpClient(client =>
-            //{
-            //    client.Timeout = TimeSpan.FromSeconds(30);
-            //})
-            //.AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(new[]
-            //{
-            //    TimeSpan.FromSeconds(1),
-            //    TimeSpan.FromSeconds(2),
-            //    TimeSpan.FromSeconds(3)
-            //}));
 
             services.AddExternalIdentityProviders();
             services.AddLocalApiAuthentication(principal =>
