@@ -107,7 +107,7 @@ namespace IdentityServer4.Endpoints
 
             if (response.Success)
             {
-                _logger.LogInformation("Token successfully revoked");
+                _logger.LogInformation("Token revocation complete");
                 await _events.RaiseAsync(new TokenRevokedSuccessEvent(requestValidationResult, requestValidationResult.Client));
             }
             else
