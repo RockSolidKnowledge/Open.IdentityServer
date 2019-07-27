@@ -53,7 +53,7 @@ and let it add your IdentityServer project (keep this command in mind as we will
 
 Defining an API Resource
 ^^^^^^^^^^^^^^^^^^^^^^^^
-An API is a resource in your system that you want to protect. Resource definitions can be loaded in many ways, the template you used to create the project above shows how to uses a "code as configuration" approach.
+An API is a resource in your system that you want to protect. Resource definitions can be loaded in many ways, the template you used to create the project above shows how to use a "code as configuration" approach.
 
 Open the project that we just created above in your favorite editor.  Find the `Config.cs <https://github.com/IdentityServer/IdentityServer4/blob/master/samples/Quickstarts/1_ClientCredentials/src/IdentityServer/Config.cs>`_ file you can find a method called ``GetApis``, define the API as follows::
 
