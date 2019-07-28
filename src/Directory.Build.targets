@@ -12,7 +12,7 @@
     <!--build related-->
     <PackageReference Include="MinVer" Version="1.1.0" PrivateAssets="All" />
     <PackageReference Update="SimpleExec" Version="6.0.0" />
-    <PackageReference Update="BullsEye" Version="2.3.0" />
+    <PackageReference Update="BullsEye" Version="2.4.0" />
     <PackageReference Update="McMaster.Extensions.CommandLineUtils" Version="2.3.3" />
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19324-01" PrivateAssets="All" />
 
