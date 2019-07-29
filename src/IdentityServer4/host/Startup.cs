@@ -88,13 +88,13 @@ namespace Host
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseDeveloperExceptionPage();
+            app.UseStaticFiles();
+
             app.UseRouting();
             app.UseMiddleware<Logging.RequestLoggerMiddleware>();
-
-            app.UseDeveloperExceptionPage();
-
             app.UseIdentityServer();
-            app.UseStaticFiles();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
