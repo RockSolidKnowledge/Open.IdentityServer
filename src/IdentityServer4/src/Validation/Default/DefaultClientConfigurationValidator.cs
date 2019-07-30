@@ -156,15 +156,12 @@ namespace IdentityServer4.Validation
                 {
                     var fail = true;
 
-                    if (!String.IsNullOrWhiteSpace(origin) && Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                    if (!string.IsNullOrWhiteSpace(origin) && Uri.TryCreate(origin, UriKind.Absolute, out var uri))
                     {
                         if (uri.Scheme.Equals("http", StringComparison.OrdinalIgnoreCase) ||
                             uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
                         {
-                            // http + :// + host/authority
-                            var originLength = uri.Scheme.Length + 3 + uri.Authority.Length;
-                            var path = origin.Substring(originLength);
-                            if (String.IsNullOrWhiteSpace(path))
+                            if (uri.AbsolutePath == "/" && !origin.EndsWith("/"))
                             {
                                 fail = false;
                             }
@@ -173,7 +170,7 @@ namespace IdentityServer4.Validation
 
                     if (fail)
                     {
-                        if (!String.IsNullOrWhiteSpace(origin))
+                        if (!string.IsNullOrWhiteSpace(origin))
                         {
                             context.SetError($"AllowedCorsOrigins contains invalid origin: {origin}");
                         }
@@ -183,7 +180,6 @@ namespace IdentityServer4.Validation
                         }
                         return Task.CompletedTask;
                     }
-
                 }
             }
 

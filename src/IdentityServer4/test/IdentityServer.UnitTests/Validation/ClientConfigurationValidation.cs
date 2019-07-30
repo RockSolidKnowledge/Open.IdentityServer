@@ -360,8 +360,10 @@ namespace IdentityServer.UnitTests.Validation
         [InlineData("urn:foo")]
         [InlineData("urn:foo:123")]
         [InlineData("http://foo/")]
+        [InlineData("http://foo:80/path")]
         [InlineData("http://foo/path")]
         [InlineData("http://foo:123/path")]
+        [InlineData("https://foo:443/path")]
         [InlineData("")]
         [InlineData("   ")]
         [InlineData((string)null)]
@@ -391,9 +393,11 @@ namespace IdentityServer.UnitTests.Validation
         [Theory]
         [Trait("Category", Category)]
         [InlineData("http://foo")]
+        [InlineData("http://foo:80")]
         [InlineData("https://foo")]
         [InlineData("http://foo:123")]
         [InlineData("https://foo:456")]
+        [InlineData("https://foo:443")]
         public async Task ValidateAllowedCorsOriginsAsync_should_allow_valid_formats(string origin)
         {
             var client = new Client
