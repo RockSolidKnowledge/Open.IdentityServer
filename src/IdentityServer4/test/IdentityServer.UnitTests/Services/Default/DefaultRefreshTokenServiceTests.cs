@@ -67,6 +67,26 @@ namespace IdentityServer.UnitTests.Services.Default
         }
 
         [Fact]
+        public async Task CreateRefreshToken_should_cap_sliding_lifetime_that_exceeds_absolute_lifetime()
+        {
+            var client = new Client
+            {
+                ClientId = "client1",
+                RefreshTokenUsage = TokenUsage.ReUse,
+                RefreshTokenExpiration = TokenExpiration.Sliding,
+                SlidingRefreshTokenLifetime  = 100,
+                AbsoluteRefreshTokenLifetime = 10
+            };
+
+            var handle = await _subject.CreateRefreshTokenAsync(_user, new Token(), client);
+
+            var refreshToken = (await _store.GetRefreshTokenAsync(handle));
+
+            refreshToken.Should().NotBeNull();
+            refreshToken.Lifetime.Should().Be(client.AbsoluteRefreshTokenLifetime);
+        }
+
+        [Fact]
         public async Task CreateRefreshToken_should_match_sliding_lifetime()
         {
             var client = new Client
