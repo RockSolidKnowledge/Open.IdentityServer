@@ -56,7 +56,7 @@ Advanced
 ^^^^^^^^
 Under the covers, the ``AddLocalApiAuthentication`` helper does a couple of things:
 
-* adds an authentication handler that validates incoming tokens using IdentityServer's built-in token validation engine
+* adds an authentication handler that validates incoming tokens using IdentityServer's built-in token validation engine (the name of this handlier is ``IdentityServerAccessToken`` or ``IdentityServerConstants.LocalApi.AuthenticationScheme``
 * configures the authentication handler to require a scope claim inside the access token of value ``IdentityServerApi``
 * sets up an authorization policy that checks for a scope claim of value ``IdentityServerApi``
 
@@ -64,4 +64,28 @@ This covers the most common scenarios. You can customize this behavior in the fo
 
 * Add the authentication handler yourself by calling ``services.AddAuthentication().AddLocalApi(...)``
     * this way you can specify the required scope name yourself, or (by specifying no scope at all) accept any token from the current IdentityServer instance
-* Do your own scope validation/authorization in your controllers using custom policies or code
+* Do your own scope validation/authorization in your controllers using custom policies or code, e.g.::
+
+    services.AddAuthorization(options =>
+    {
+        options.AddPolicy(IdentityServerConstants.LocalApi.PolicyName, policy =>
+        {
+            policy.AddAuthenticationSchemes(IdentityServerConstants.LocalApi.AuthenticationScheme);
+            policy.RequireAuthenticatedUser();
+            // custom requirements
+        });
+    });
+
+Claims Transformation
+^^^^^^^^^^^^^^^^^^^^^
+You can provide a callback to transform the claims of the incoming token after validation.
+Either use the helper method, e.g.::
+
+    services.AddLocalApiAuthentication(principal =>
+    {
+        principal.Identities.First().AddClaim(new Claim("additional_claim", "additional_value"));
+
+        return Task.FromResult(principal);
+    });
+    
+...or implement the event on the options if you add the authentication handler manually.
