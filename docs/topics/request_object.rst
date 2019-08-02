@@ -54,3 +54,10 @@ You can customize the HTTP client used for this outgoing connection, e.g. to add
         }));
 
 .. note:: Request URI processing is disabled by default. Enable on the :ref:`IdentityServer Options <refOptions>` under ``Endpoints``.
+
+Accessing the request object data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You can access the validated data from the request object in two ways
+
+* wherever you have access to the ``ValidatedAuthorizeRequest``, the ``RequestObjectValues`` dictionary holds the values
+* in the UI code you can call ``IIdentityServerInteractionService.GetAuthorizationContextAsync``, the resulting ``AuthorizationRequest`` object contains the ``RequestObjectValues`` dictionary as well
