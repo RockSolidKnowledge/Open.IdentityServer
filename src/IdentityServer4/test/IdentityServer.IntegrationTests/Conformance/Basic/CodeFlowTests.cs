@@ -100,7 +100,7 @@ namespace IdentityServer4.IntegrationTests.Conformance.Basic
             });
 
             tokenResult.IsError.Should().BeFalse();
-            tokenResult.HttpErrorReason.Should().BeNull();
+            tokenResult.HttpErrorReason.Should().Be("OK");
             tokenResult.TokenType.Should().Be("Bearer");
             tokenResult.AccessToken.Should().NotBeNull();
             tokenResult.ExpiresIn.Should().BeGreaterThan(0);
@@ -150,7 +150,7 @@ namespace IdentityServer4.IntegrationTests.Conformance.Basic
             });
 
             tokenResult.IsError.Should().BeFalse();
-            tokenResult.HttpErrorReason.Should().BeNull();
+            tokenResult.HttpErrorReason.Should().Be("OK");
             tokenResult.TokenType.Should().Be("Bearer");
             tokenResult.AccessToken.Should().NotBeNull();
             tokenResult.ExpiresIn.Should().BeGreaterThan(0);
