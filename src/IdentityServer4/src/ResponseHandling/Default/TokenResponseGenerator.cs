@@ -173,6 +173,7 @@ namespace IdentityServer4.ResponseHandling
                     Resources = resources,
                     Nonce = request.ValidatedRequest.AuthorizationCode.Nonce,
                     AccessTokenToHash = response.AccessToken,
+                    StateHash = request.ValidatedRequest.AuthorizationCode.StateHash,
                     ValidatedRequest = request.ValidatedRequest
                 };
 

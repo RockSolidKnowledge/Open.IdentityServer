@@ -354,7 +354,7 @@ namespace IdentityServer4.ResponseHandling
         {
             var webKeys = new List<Models.JsonWebKey>();
             var signingCredentials = await Keys.GetSigningCredentialsAsync();
-            var algorithm = signingCredentials?.Algorithm ?? Constants.SigningAlgorithms.RSA_SHA_256;
+            var algorithm = signingCredentials?.Algorithm ?? "unspecified";
 
             foreach (var key in await Keys.GetValidationKeysAsync())
             {

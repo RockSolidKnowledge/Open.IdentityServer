@@ -62,6 +62,14 @@ namespace IdentityServer4.Models
         public string AuthorizationCodeToHash { get; set; }
 
         /// <summary>
+        /// Gets or sets pre-hashed state
+        /// </summary>
+        /// <value>
+        /// The pre-hashed state
+        /// </value>
+        public string StateHash { get; set; }
+
+        /// <summary>
         /// Gets or sets the nonce.
         /// </summary>
         /// <value>

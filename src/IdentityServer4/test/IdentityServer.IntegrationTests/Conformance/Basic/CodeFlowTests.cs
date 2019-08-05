@@ -4,11 +4,14 @@
 
 using FluentAssertions;
 using IdentityModel.Client;
+using IdentityServer4.Configuration;
 using IdentityServer4.IntegrationTests.Common;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -17,13 +20,13 @@ using Xunit;
 
 namespace IdentityServer4.IntegrationTests.Conformance.Basic
 {
-    public class ClientAuthenticationTests 
+    public class CodeFlowTests 
     {
-        private const string Category = "Conformance.Basic.ClientAuthenticationTests";
+        private const string Category = "Conformance.Basic.CodeFlowTests";
 
         private IdentityServerPipeline _pipeline = new IdentityServerPipeline();
 
-        public ClientAuthenticationTests()
+        public CodeFlowTests()
         {
             _pipeline.IdentityScopes.Add(new IdentityResources.OpenId());
             _pipeline.Clients.Add(new Client
@@ -63,7 +66,7 @@ namespace IdentityServer4.IntegrationTests.Conformance.Basic
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Token_endpoint_supports_client_authentication_with_basic_authentication_with_POST()
+        public async Task No_state_should_not_result_in_shash()
         {
             await _pipeline.LoginAsync("bob");
 
@@ -103,13 +106,16 @@ namespace IdentityServer4.IntegrationTests.Conformance.Basic
             tokenResult.ExpiresIn.Should().BeGreaterThan(0);
             tokenResult.IdentityToken.Should().NotBeNull();
 
-            wrapper.Response.Headers.CacheControl.NoCache.Should().BeTrue();
-            wrapper.Response.Headers.CacheControl.NoStore.Should().BeTrue();
+            var token = new JwtSecurityToken(tokenResult.IdentityToken);
+
+            token.Claims.Count().Should().Be(12);
+            var s_hash = token.Claims.FirstOrDefault(c => c.Type == "s_hash");
+            s_hash.Should().BeNull();
         }
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Token_endpoint_supports_client_authentication_with_form_encoded_authentication_in_POST_body()
+        public async Task State_should_not_result_in_shash()
         {
             await _pipeline.LoginAsync("bob");
 
@@ -121,6 +127,7 @@ namespace IdentityServer4.IntegrationTests.Conformance.Basic
                            responseType: "code",
                            scope: "openid",
                            redirectUri: "https://code_pipeline.Client/callback?foo=bar&baz=quux",
+                           state: "state",
                            nonce: nonce);
             var response = await _pipeline.BrowserClient.GetAsync(url);
 
@@ -137,7 +144,6 @@ namespace IdentityServer4.IntegrationTests.Conformance.Basic
                 Address = IdentityServerPipeline.TokenEndpoint,
                 ClientId = "code_pipeline.Client",
                 ClientSecret = "secret",
-                ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
                 Code = code,
                 RedirectUri = "https://code_pipeline.Client/callback?foo=bar&baz=quux"
@@ -149,6 +155,13 @@ namespace IdentityServer4.IntegrationTests.Conformance.Basic
             tokenResult.AccessToken.Should().NotBeNull();
             tokenResult.ExpiresIn.Should().BeGreaterThan(0);
             tokenResult.IdentityToken.Should().NotBeNull();
+
+            var token = new JwtSecurityToken(tokenResult.IdentityToken);
+
+            token.Claims.Count().Should().Be(13);
+            var s_hash = token.Claims.FirstOrDefault(c => c.Type == "s_hash");
+            s_hash.Should().NotBeNull();
+            s_hash.Value.Should().Be(CryptoHelper.CreateHashClaimValue("state", "RS256"));
         }
     }
 }
