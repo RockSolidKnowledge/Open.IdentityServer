@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Microsoft.IdentityModel.Logging;
 using System.Net.Http;
+using IdentityServer4.Configuration;
 
 namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
 {
@@ -36,7 +37,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
         {
             IdentityModelEventSource.ShowPII = true;
 
-            _rsaKey = IdentityServerBuilderExtensionsCrypto.CreateRsaSecurityKey();
+            _rsaKey = CryptoHelper.CreateRsaSecurityKey();
 
             _mockPipeline.Clients.AddRange(new Client[] {
                 _client = new Client
