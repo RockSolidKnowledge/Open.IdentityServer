@@ -67,6 +67,8 @@ namespace build
                     {
                         Sign("*.nupkg", $"./{ArtifactsDir}");
                     }
+
+                    CopyArtifacts();
                 });
 
 
@@ -98,6 +100,18 @@ namespace build
             {
                 Console.WriteLine("  Signing " + file);
                 Run("../../tools/signclient", $"sign -c {signClientConfig} -i {file} -r sc-ids@dotnetfoundation.org -s \"{signClientSecret}\" -n 'IdentityServer4'", noEcho: true);
+            }
+        }
+
+        private static void CopyArtifacts()
+        {
+            var files = Directory.GetFiles($"./{ArtifactsDir}");
+
+            foreach (string s in files)
+            {
+                var fileName = Path.GetFileName(s);
+                var destFile = Path.Combine("../../nuget", fileName);
+                File.Copy(s, destFile, true);
             }
         }
 

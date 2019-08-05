@@ -18,10 +18,6 @@ if ($LASTEXITCODE -ne 0)
     exit $LASTEXITCODE
 }
 
-Copy-Item -path .\src\Storage\artifacts\*.nupkg -Destination .\nuget
-
-
-
 # core
 ""
 "###########################################"
@@ -36,10 +32,6 @@ if ($LASTEXITCODE -ne 0)
 {
     exit $LASTEXITCODE
 }
-
-Copy-Item -path .\src\IdentityServer4\artifacts\*.nupkg -Destination .\nuget
-
-
 
 # EF storage
 ""
@@ -56,8 +48,6 @@ if ($LASTEXITCODE -ne 0)
     exit $LASTEXITCODE
 }
 
-Copy-Item -path .\src\EntityFramework.Storage\artifacts\*.nupkg -Destination .\nuget
-
 # EF
 ""
 "###################################################"
@@ -73,8 +63,6 @@ if ($LASTEXITCODE -ne 0)
     exit $LASTEXITCODE
 }
 
-Copy-Item -path .\src\EntityFramework\artifacts\*.nupkg -Destination .\nuget
-
 # aspid
 ""
 "###################################################"
@@ -89,5 +77,3 @@ if ($LASTEXITCODE -ne 0)
 {
     exit $LASTEXITCODE
 }
-
-Copy-Item -path .\src\AspNetIdentity\artifacts\*.nupkg -Destination .\nuget
