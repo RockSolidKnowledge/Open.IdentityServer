@@ -128,7 +128,7 @@ namespace IdentityServer4.Services
             if (request.StateHash.IsPresent())
             {
                 // todo: need constant
-                claims.Add(new Claim("s_hash", request.StateHash));
+                claims.Add(new Claim(JwtClaimTypes.StateHash, request.StateHash));
             }
 
             // add sid if present
