@@ -415,7 +415,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Revocation
             var response = await _mockPipeline.BackChannelClient.PostAsync(IdentityServerPipeline.RevocationEndpoint, new FormUrlEncodedContent(data));
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-            var result = new TokenRevocationResponse(await response.Content.ReadAsStringAsync());
+            var result = await ProtocolResponse.FromHttpResponseAsync<TokenRevocationResponse>(response);
             result.IsError.Should().BeTrue();
             result.Error.Should().Be("invalid_request");
         }
@@ -438,7 +438,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Revocation
             var response = await _mockPipeline.BackChannelClient.PostAsync(IdentityServerPipeline.RevocationEndpoint, new FormUrlEncodedContent(data));
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-            var result = new TokenRevocationResponse(await response.Content.ReadAsStringAsync());
+            var result = await ProtocolResponse.FromHttpResponseAsync<TokenRevocationResponse>(response);
             result.IsError.Should().BeTrue();
             result.Error.Should().Be("unsupported_token_type");
         }

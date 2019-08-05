@@ -151,7 +151,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         private async Task<TokenResponse> GetToken(FormUrlEncodedContent body)
         {
             var response = await _client.PostAsync(TokenEndpoint, body);
-            return new TokenResponse(await response.Content.ReadAsStringAsync());
+            return await ProtocolResponse.FromHttpResponseAsync<TokenResponse>(response);
         }
 
         private void AssertValidToken(TokenResponse response)
