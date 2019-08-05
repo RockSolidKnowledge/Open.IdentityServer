@@ -26,55 +26,22 @@ namespace IdentityServer4.EntityFramework.IntegrationTests
                 .AddEnvironmentVariables()
                 .Build();
 
-            TestDatabaseProviders = new TheoryData<DbContextOptions<TDbContext>>
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                DatabaseProviderBuilder.BuildInMemory<TDbContext>(typeof(TClass).Name)
-            };
+                Console.WriteLine($"Running Local Tests for {typeof(TClass).Name}");
 
-            if (config.GetValue("APPVEYOR", false))
-            {
-                Console.WriteLine($"Running AppVeyor Tests for {typeof(TClass).Name}");
-
-                TestDatabaseProviders.Add(DatabaseProviderBuilder.BuildSqlite<TDbContext>(typeof(TClass).Name));
-                
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                TestDatabaseProviders = new TheoryData<DbContextOptions<TDbContext>>
                 {
-                    TestDatabaseProviders.Add(DatabaseProviderBuilder.BuildAppVeyorSqlServer2016<TDbContext>(typeof(TClass).Name));
-                }
-                else
-                {
-                    Console.WriteLine("Skipping some SqlServer integration tests because on non-Windows");
-                }
+                    DatabaseProviderBuilder.BuildInMemory<TDbContext>(typeof(TClass).Name),
+                    DatabaseProviderBuilder.BuildSqlite<TDbContext>(typeof(TClass).Name),
+                    DatabaseProviderBuilder.BuildLocalDb<TDbContext>(typeof(TClass).Name)
+                };
             }
-            //else
-            //{
-            //    Console.WriteLine($"Running Local Tests for {typeof(TClass).Name}");
-
-            //    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            //    {
-            //        TestDatabaseProviders.Add();
-            //    }
-            //}
-
-            //else
-            //{
-            //    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            //    {
-            //        Console.WriteLine($"Running Local Tests for {typeof(TClass).Name}");
-
-            //        TestDatabaseProviders = new TheoryData<DbContextOptions<TDbContext>>
-            //        {
-            //            DatabaseProviderBuilder.BuildInMemory<TDbContext>(typeof(TClass).Name),
-            //            DatabaseProviderBuilder.BuildSqlite<TDbContext>(typeof(TClass).Name),
-            //            DatabaseProviderBuilder.BuildLocalDb<TDbContext>(typeof(TClass).Name)
-            //        };
-            //    }
-            //    else
-            //    {
-            //        TestDatabaseProviders.Add(DatabaseProviderBuilder.BuildInMemory<TDbContext>(typeof(TClass).Name));
-            //        Console.WriteLine("Skipping DB integration tests on non-Windows");
-            //    }
-            //}
+            else
+            {
+                TestDatabaseProviders.Add(DatabaseProviderBuilder.BuildInMemory<TDbContext>(typeof(TClass).Name));
+                Console.WriteLine("Skipping DB integration tests on non-Windows");
+            }
         }
 
         protected IntegrationTest(DatabaseProviderFixture<TDbContext> fixture)

@@ -17,18 +17,19 @@ namespace IdentityServer4.EntityFramework.IntegrationTests
     {
         public object StoreOptions;
         public List<DbContextOptions<T>> Options;
-        
+
         public void Dispose()
         {
-            //todo: throws NRE
-             
-            //foreach (var option in Options.ToList())
-            //{
-            //    using (var context = (T)Activator.CreateInstance(typeof(T), option, StoreOptions))
-            //    {
-            //        context.Database.EnsureDeleted();
-            //    }
-            //}
+            if (Options != null) // null check since fixtures are created even when tests are skipped
+            {
+                foreach (var option in Options.ToList())
+                {
+                    using (var context = (T)Activator.CreateInstance(typeof(T), option, StoreOptions))
+                    {
+                        context.Database.EnsureDeleted();
+                    }
+                }
+            }
         }
     }
 }
