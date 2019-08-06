@@ -22,8 +22,7 @@ namespace Host
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
-                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
+            services.AddControllersWithViews();
 
             var connectionString = _config.GetConnectionString("db");
 
@@ -50,20 +49,21 @@ namespace Host
 
         public void Configure(IApplicationBuilder app)
         {
-            app.UseRouting();
-
             app.UseMiddleware<Logging.RequestLoggerMiddleware>();
             app.UseDeveloperExceptionPage();
 
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
             app.UseIdentityServer();
 
-            app.UseStaticFiles();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
             });
-                
         }
     }
 }
