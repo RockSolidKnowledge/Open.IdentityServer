@@ -24,10 +24,26 @@ namespace IdentityServer4.Validation
     /// </summary>
     public class JwtRequestValidator
     {
+        private readonly string _audienceUri;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         /// <summary>
         /// The audience URI to use
         /// </summary>
-        protected readonly string AudienceUri;
+        protected string AudienceUri
+        {
+            get
+            {
+                if (_audienceUri.IsPresent())
+                {
+                    return _audienceUri;
+                }
+                else
+                {
+                    return _httpContextAccessor.HttpContext.GetIdentityServerIssuerUri();
+                }
+            }
+        }
 
         /// <summary>
         /// The logger
@@ -39,7 +55,7 @@ namespace IdentityServer4.Validation
         /// </summary>
         public JwtRequestValidator(IHttpContextAccessor contextAccessor, ILogger<JwtRequestValidator> logger)
         {
-            AudienceUri = contextAccessor.HttpContext.GetIdentityServerIssuerUri();
+            _httpContextAccessor = contextAccessor;
             Logger = logger;
         }
 
@@ -48,7 +64,7 @@ namespace IdentityServer4.Validation
         /// </summary>
         internal JwtRequestValidator(string audience, ILogger<JwtRequestValidator> logger)
         {
-            AudienceUri = audience;
+            _audienceUri = audience;
             Logger = logger;
         }
 

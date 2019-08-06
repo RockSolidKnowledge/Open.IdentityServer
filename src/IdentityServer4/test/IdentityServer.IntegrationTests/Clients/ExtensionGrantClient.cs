@@ -74,10 +74,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             payload.Should().Contain("sub", "818727");
             payload.Should().Contain("idp", "local");
 
-            var audiences = ((JArray)payload["aud"]).Select(x => x.ToString());
-            audiences.Count().Should().Be(2);
-            audiences.Should().Contain("https://idsvr4/resources");
-            audiences.Should().Contain("api");
+            payload["aud"].Should().Be("api");
 
             var scopes = payload["scope"] as JArray;
             scopes.First().ToString().Should().Be("api1");
@@ -118,10 +115,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             payload.Should().Contain("iss", "https://idsvr4");
             payload.Should().Contain("client_id", "client.custom");
 
-            var audiences = ((JArray)payload["aud"]).Select(x => x.ToString());
-            audiences.Count().Should().Be(2);
-            audiences.Should().Contain("https://idsvr4/resources");
-            audiences.Should().Contain("api");
+            payload["aud"].Should().Be("api");
 
             var scopes = payload["scope"] as JArray;
             scopes.First().ToString().Should().Be("api1");
@@ -159,10 +153,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             payload.Should().Contain("sub", "818727");
             payload.Should().Contain("idp", "local");
 
-            var audiences = ((JArray)payload["aud"]).Select(x => x.ToString());
-            audiences.Count().Should().Be(2);
-            audiences.Should().Contain("https://idsvr4/resources");
-            audiences.Should().Contain("api");
+            payload["aud"].Should().Be("api");
 
             var amr = payload["amr"] as JArray;
             amr.Count().Should().Be(1);
@@ -285,10 +276,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             payload.Should().Contain("sub", "818727");
             payload.Should().Contain("idp", "local");
 
-            var audiences = ((JArray)payload["aud"]).Select(x => x.ToString());
-            audiences.Count().Should().Be(2);
-            audiences.Should().Contain("https://idsvr4/resources");
-            audiences.Should().Contain("api");
+            payload["aud"].Should().Be("api");
 
             var scopes = payload["scope"] as JArray;
             scopes.First().ToString().Should().Be("api1");
@@ -429,10 +417,7 @@ namespace IdentityServer4.IntegrationTests.Clients
 
             payload.Should().Contain("client_extra", "extra_claim");
 
-            var audiences = ((JArray)payload["aud"]).Select(x => x.ToString());
-            audiences.Count().Should().Be(2);
-            audiences.Should().Contain("https://idsvr4/resources");
-            audiences.Should().Contain("api");
+            payload["aud"].Should().Be("api");
 
             var scopes = payload["scope"] as JArray;
             scopes.First().ToString().Should().Be("api1");
@@ -475,10 +460,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             payload.Should().Contain("client_id", "client.dynamic");
             payload.Should().Contain("client_extra", "extra_claim");
 
-            var audiences = ((JArray)payload["aud"]).Select(x => x.ToString());
-            audiences.Count().Should().Be(2);
-            audiences.Should().Contain("https://idsvr4/resources");
-            audiences.Should().Contain("api");
+            payload["aud"].Should().Be("api");
 
             var scopes = payload["scope"] as JArray;
             scopes.First().ToString().Should().Be("api1");

@@ -30,14 +30,6 @@ namespace IdentityServer4.Validation
         protected readonly IClientStore Clients;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultCustomTokenValidator"/> class.
-        /// </summary>
-        public DefaultCustomTokenValidator()
-        {
-
-        }
-        
-        /// <summary>
         /// Custom validation logic for access tokens.
         /// </summary>
         /// <param name="result">The validation result so far.</param>

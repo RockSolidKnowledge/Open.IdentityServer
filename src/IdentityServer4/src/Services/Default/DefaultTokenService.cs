@@ -186,7 +186,6 @@ namespace IdentityServer4.Services
             var token = new Token(OidcConstants.TokenTypes.AccessToken)
             {
                 CreationTime = Clock.UtcNow.UtcDateTime,
-                Audiences = { string.Format(IdentityServerConstants.AccessTokenAudience, issuer.EnsureTrailingSlash()) },
                 Issuer = issuer,
                 Lifetime = request.ValidatedRequest.AccessTokenLifetime,
                 Claims = claims.Distinct(new ClaimComparer()).ToList(),

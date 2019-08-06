@@ -27,7 +27,7 @@ namespace IdentityServer4.IntegrationTests.Clients
                 new ApiResource
                 {
                     Name = "api",
-                    ApiSecrets = 
+                    ApiSecrets =
                     {
                         new Secret("secret".Sha256())
                     },
@@ -51,7 +51,8 @@ namespace IdentityServer4.IntegrationTests.Clients
                             UserClaims = { "role" }
                         }
                     }
-                }
+                },
+                new ApiResource("other_api")
             };
         }
     }

@@ -97,7 +97,7 @@ namespace IdentityServer4.Validation
             _logger.LogDebug("Client found: {clientId} / {clientName}", client.ClientId, client.ClientName);
 
             var keys = await _keys.GetValidationKeysAsync();
-            var result = await ValidateJwtAsync(token, clientId, keys, validateLifetime);
+            var result = await ValidateJwtAsync(token, keys, audience: clientId, validateLifetime: validateLifetime);
 
             result.Client = client;
 
@@ -171,7 +171,6 @@ namespace IdentityServer4.Validation
                 _log.AccessTokenType = AccessTokenType.Jwt.ToString();
                 result = await ValidateJwtAsync(
                     token,
-                    string.Format(IdentityServerConstants.AccessTokenAudience, _context.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash()),
                     await _keys.GetValidationKeysAsync());
             }
             else
@@ -269,7 +268,7 @@ namespace IdentityServer4.Validation
             return customResult;
         }
 
-        private async Task<TokenValidationResult> ValidateJwtAsync(string jwt, string audience, IEnumerable<SecurityKey> validationKeys, bool validateLifetime = true)
+        private async Task<TokenValidationResult> ValidateJwtAsync(string jwt, IEnumerable<SecurityKey> validationKeys, bool validateLifetime = true, string audience = null)
         {
             var handler = new JwtSecurityTokenHandler();
             handler.InboundClaimTypeMap.Clear();
@@ -279,13 +278,40 @@ namespace IdentityServer4.Validation
                 ValidIssuer = _context.HttpContext.GetIdentityServerIssuerUri(),
                 IssuerSigningKeys = validationKeys,
                 ValidateLifetime = validateLifetime,
-                ValidAudience = audience
             };
+
+            if (audience.IsPresent())
+            {
+                parameters.ValidAudience = audience;
+            }
+            else
+            {
+                parameters.ValidateAudience = false;
+            }
 
             try
             {
-                var id = handler.ValidateToken(jwt, parameters, out var _);
+                var id = handler.ValidateToken(jwt, parameters, out var securityToken);
+                var jwtSecurityToken = securityToken as JwtSecurityToken;
 
+                // if no audience is specified, we make at least sure that it is an access token
+                if (audience.IsMissing())
+                {
+                    if (_options.AccessTokenJwtType.IsPresent())
+                    {
+                        var type = jwtSecurityToken.Header.Typ;
+                        if (!string.Equals(type, _options.AccessTokenJwtType))
+                        {
+                            return new TokenValidationResult
+                            {
+                                IsError = true,
+                                Error = "invalid JWT token type"
+                            };
+                        }
+
+                    }
+                }
+                
                 // if access token contains an ID, log it
                 var jwtId = id.FindFirst(JwtClaimTypes.JwtId);
                 if (jwtId != null)
