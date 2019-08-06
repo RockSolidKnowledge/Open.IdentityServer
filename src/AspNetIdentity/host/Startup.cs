@@ -29,8 +29,7 @@ namespace Host
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddMvc()
-                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
+            services.AddControllersWithViews();
 
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential()
@@ -42,8 +41,6 @@ namespace Host
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseRouting();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -56,7 +53,11 @@ namespace Host
 
             app.UseStaticFiles();
 
+            app.UseRouting();
+
             app.UseIdentityServer();
+
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
