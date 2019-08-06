@@ -29,6 +29,14 @@ namespace IdentityServer4.Configuration
         public string PublicOrigin { get; set; }
 
         /// <summary>
+        /// Gets or sets the value for the JWT typ header for access tokens.
+        /// </summary>
+        /// <value>
+        /// The JWT typ value.
+        /// </value>
+        public string AccessTokenJwtType { get; set; } = "at+jwt";
+
+        /// <summary>
         /// Gets or sets the endpoint configuration.
         /// </summary>
         /// <value>

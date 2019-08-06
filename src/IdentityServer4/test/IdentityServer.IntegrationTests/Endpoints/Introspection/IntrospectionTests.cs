@@ -181,14 +181,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
             var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
 
-            values["aud"].GetType().Name.Should().Be("JArray");
-
-            var audiences = ((JArray)values["aud"]);
-            foreach (var aud in audiences)
-            {
-                aud.Type.Should().Be(JTokenType.String);
-            }
-
+            values["aud"].GetType().Name.Should().Be("String");
             values["iss"].GetType().Name.Should().Be("String");
             values["nbf"].GetType().Name.Should().Be("Int64");
             values["exp"].GetType().Name.Should().Be("Int64");
@@ -227,14 +220,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
             var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
 
-            values["aud"].GetType().Name.Should().Be("JArray");
-
-            var audiences = ((JArray)values["aud"]);
-            foreach (var aud in audiences)
-            {
-                aud.Type.Should().Be(JTokenType.String);
-            }
-
+            values["aud"].GetType().Name.Should().Be("String");
             values["iss"].GetType().Name.Should().Be("String");
             values["nbf"].GetType().Name.Should().Be("Int64");
             values["exp"].GetType().Name.Should().Be("Int64");
@@ -249,7 +235,52 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Response_data_should_be_valid_using_multiple_scopes()
+        public async Task Response_data_should_be_valid_using_multiple_scopes_multiple_audiences()
+        {
+            var tokenResponse = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = TokenEndpoint,
+                ClientId = "client1",
+                ClientSecret = "secret",
+
+                Scope = "api2 api3-a api3-b",
+            });
+
+            tokenResponse.IsError.Should().BeFalse();
+
+            var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
+            {
+                Address = IntrospectionEndpoint,
+                ClientId = "api3",
+                ClientSecret = "secret",
+
+                Token = tokenResponse.AccessToken
+            });
+
+            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
+
+            values["aud"].GetType().Name.Should().Be("JArray");
+
+            var audiences = ((JArray)values["aud"]);
+            foreach (var aud in audiences)
+            {
+                aud.Type.Should().Be(JTokenType.String);
+            }
+
+            values["iss"].GetType().Name.Should().Be("String");
+            values["nbf"].GetType().Name.Should().Be("Int64");
+            values["exp"].GetType().Name.Should().Be("Int64");
+            values["client_id"].GetType().Name.Should().Be("String");
+            values["active"].GetType().Name.Should().Be("Boolean");
+            values["scope"].GetType().Name.Should().Be("String");
+
+            var scopes = values["scope"].ToString();
+            scopes.Should().Be("api3-a api3-b");
+        }
+
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task Response_data_should_be_valid_using_multiple_scopes_single_audience()
         {
             var tokenResponse = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
@@ -273,14 +304,7 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
 
             var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
 
-            values["aud"].GetType().Name.Should().Be("JArray");
-
-            var audiences = ((JArray)values["aud"]);
-            foreach(var aud in audiences)
-            {
-                aud.Type.Should().Be(JTokenType.String);
-            }
-
+            values["aud"].GetType().Name.Should().Be("String");
             values["iss"].GetType().Name.Should().Be("String"); 
             values["nbf"].GetType().Name.Should().Be("Int64"); 
             values["exp"].GetType().Name.Should().Be("Int64"); 

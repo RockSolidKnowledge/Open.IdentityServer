@@ -201,23 +201,6 @@ namespace IdentityServer4.UnitTests.Validation
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task JWT_Token_invalid_Audience()
-        {
-            var signer = Factory.CreateDefaultTokenCreator();
-            var token = TokenFactory.CreateAccessToken(new Client { ClientId = "roclient" }, "valid", 600, "read", "write");
-            token.Audiences.Clear();
-            token.Audiences.Add("invalid");
-            var jwt = await signer.CreateTokenAsync(token);
-
-            var validator = Factory.CreateTokenValidator(null);
-            var result = await validator.ValidateAccessTokenAsync(jwt);
-
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.ProtectedResourceErrors.InvalidToken);
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
         public async Task Valid_AccessToken_but_Client_not_active()
         {
             var store = Factory.CreateReferenceTokenStore();

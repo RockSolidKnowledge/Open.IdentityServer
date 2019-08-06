@@ -62,10 +62,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             payload.Should().Contain("sub", "88421113");
             payload.Should().Contain("idp", "local");
 
-            var audiences = ((JArray)payload["aud"]).Select(x => x.ToString());
-            audiences.Count().Should().Be(2);
-            audiences.Should().Contain("https://idsvr4/resources");
-            audiences.Should().Contain("api");
+            payload["aud"].Should().Be("api");
 
             var scopes = ((JArray)payload["scope"]).Select(x => x.ToString());
             scopes.Count().Should().Be(1);
@@ -103,10 +100,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             payload.Should().Contain("sub", "88421113");
             payload.Should().Contain("idp", "local");
 
-            var audiences = ((JArray)payload["aud"]).Select(x => x.ToString());
-            audiences.Count().Should().Be(2);
-            audiences.Should().Contain("https://idsvr4/resources");
-            audiences.Should().Contain("api");
+            payload["aud"].Should().Be("api");
 
             var amr = payload["amr"] as JArray;
             amr.Count().Should().Be(1);
@@ -155,10 +149,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             payload.Should().Contain("sub", "88421113");
             payload.Should().Contain("idp", "local");
 
-            var audiences = ((JArray)payload["aud"]).Select(x => x.ToString());
-            audiences.Count().Should().Be(2);
-            audiences.Should().Contain("https://idsvr4/resources");
-            audiences.Should().Contain("api");
+            payload["aud"].Should().Be("api");
 
             var amr = payload["amr"] as JArray;
             amr.Count().Should().Be(1);
@@ -199,10 +190,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             payload.Should().Contain("sub", "88421113");
             payload.Should().Contain("idp", "local");
 
-            var audiences = ((JArray)payload["aud"]).Select(x => x.ToString());
-            audiences.Count().Should().Be(2);
-            audiences.Should().Contain("https://idsvr4/resources");
-            audiences.Should().Contain("api");
+            payload["aud"].Should().Be("api");
 
             var amr = payload["amr"] as JArray;
             amr.Count().Should().Be(1);

@@ -121,7 +121,10 @@ namespace IdentityServer4.UnitTests.Validation
         {
             return new DefaultTokenCreationService(
                 new StubClock(),
-                new DefaultKeyMaterialService(new IValidationKeysStore[] { }, new DefaultSigningCredentialsStore(TestCert.LoadSigningCredentials())), TestLogger.Create<DefaultTokenCreationService>());
+                new DefaultKeyMaterialService(new IValidationKeysStore[] { },
+                new DefaultSigningCredentialsStore(TestCert.LoadSigningCredentials())),
+                TestIdentityServerOptions.Create(),
+                TestLogger.Create<DefaultTokenCreationService>());
         }
 
         public static DeviceAuthorizationRequestValidator CreateDeviceAuthorizationRequestValidator(

@@ -3,6 +3,7 @@
 
 
 using IdentityModel;
+using IdentityServer4.Configuration;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -12,6 +13,7 @@ using System;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
+using static IdentityServer4.IdentityServerConstants;
 
 namespace IdentityServer4.Services
 {
@@ -36,15 +38,26 @@ namespace IdentityServer4.Services
         protected readonly ISystemClock Clock;
 
         /// <summary>
+        /// The options
+        /// </summary>
+        protected readonly IdentityServerOptions Options;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DefaultTokenCreationService"/> class.
         /// </summary>
         /// <param name="clock">The options.</param>
         /// <param name="keys">The keys.</param>
+        /// <param name="options">The options.</param>
         /// <param name="logger">The logger.</param>
-        public DefaultTokenCreationService(ISystemClock clock, IKeyMaterialService keys, ILogger<DefaultTokenCreationService> logger)
+        public DefaultTokenCreationService(
+            ISystemClock clock,
+            IKeyMaterialService keys,
+            IdentityServerOptions options,
+            ILogger<DefaultTokenCreationService> logger)
         {
             Clock = clock;
             Keys = keys;
+            Options = options;
             Logger = logger;
         }
 
@@ -89,6 +102,14 @@ namespace IdentityServer4.Services
                 }
 
                 header["x5t"] = Base64Url.Encode(cert.GetCertHash());
+            }
+
+            if (token.Type == TokenTypes.AccessToken)
+            {
+                if (Options.AccessTokenJwtType.IsPresent())
+                {
+                    header["typ"] = Options.AccessTokenJwtType;
+                }
             }
 
             return header;
