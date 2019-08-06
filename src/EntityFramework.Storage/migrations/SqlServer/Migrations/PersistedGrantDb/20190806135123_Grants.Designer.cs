@@ -10,21 +10,20 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SqlServer.Migrations.PersistedGrantDb
 {
     [DbContext(typeof(PersistedGrantDbContext))]
-    [Migration("20190712142715_Grants")]
+    [Migration("20190806135123_Grants")]
     partial class Grants
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.11-servicing-32099")
+                .HasAnnotation("ProductVersion", "3.0.0-preview7.19362.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
                 {
                     b.Property<string>("UserCode")
-                        .ValueGeneratedOnAdd()
                         .HasMaxLength(200);
 
                     b.Property<string>("ClientId")

@@ -15,7 +15,7 @@ namespace SqlServer.Migrations.ConfigurationDb
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.11-servicing-32099")
+                .HasAnnotation("ProductVersion", "3.0.0-preview7.19362.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -562,7 +562,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.ApiResource", "ApiResource")
                         .WithMany("UserClaims")
                         .HasForeignKey("ApiResourceId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiResourceProperty", b =>
@@ -570,7 +571,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.ApiResource", "ApiResource")
                         .WithMany("Properties")
                         .HasForeignKey("ApiResourceId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiScope", b =>
@@ -578,7 +580,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.ApiResource", "ApiResource")
                         .WithMany("Scopes")
                         .HasForeignKey("ApiResourceId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiScopeClaim", b =>
@@ -586,7 +589,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.ApiScope", "ApiScope")
                         .WithMany("UserClaims")
                         .HasForeignKey("ApiScopeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiSecret", b =>
@@ -594,7 +598,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.ApiResource", "ApiResource")
                         .WithMany("Secrets")
                         .HasForeignKey("ApiResourceId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientClaim", b =>
@@ -602,7 +607,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.Client", "Client")
                         .WithMany("Claims")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientCorsOrigin", b =>
@@ -610,7 +616,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.Client", "Client")
                         .WithMany("AllowedCorsOrigins")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientGrantType", b =>
@@ -618,7 +625,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.Client", "Client")
                         .WithMany("AllowedGrantTypes")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientIdPRestriction", b =>
@@ -626,7 +634,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.Client", "Client")
                         .WithMany("IdentityProviderRestrictions")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientPostLogoutRedirectUri", b =>
@@ -634,7 +643,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.Client", "Client")
                         .WithMany("PostLogoutRedirectUris")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientProperty", b =>
@@ -642,7 +652,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.Client", "Client")
                         .WithMany("Properties")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientRedirectUri", b =>
@@ -650,7 +661,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.Client", "Client")
                         .WithMany("RedirectUris")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientScope", b =>
@@ -658,7 +670,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.Client", "Client")
                         .WithMany("AllowedScopes")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientSecret", b =>
@@ -666,7 +679,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.Client", "Client")
                         .WithMany("ClientSecrets")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.IdentityClaim", b =>
@@ -674,7 +688,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.IdentityResource", "IdentityResource")
                         .WithMany("UserClaims")
                         .HasForeignKey("IdentityResourceId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.IdentityResourceProperty", b =>
@@ -682,7 +697,8 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.HasOne("IdentityServer4.EntityFramework.Entities.IdentityResource", "IdentityResource")
                         .WithMany("Properties")
                         .HasForeignKey("IdentityResourceId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

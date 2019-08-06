@@ -11,8 +11,8 @@ namespace SqlServer.Migrations.PersistedGrantDb
                 name: "DeviceCodes",
                 columns: table => new
                 {
-                    DeviceCode = table.Column<string>(maxLength: 200, nullable: false),
                     UserCode = table.Column<string>(maxLength: 200, nullable: false),
+                    DeviceCode = table.Column<string>(maxLength: 200, nullable: false),
                     SubjectId = table.Column<string>(maxLength: 200, nullable: true),
                     ClientId = table.Column<string>(maxLength: 200, nullable: false),
                     CreationTime = table.Column<DateTime>(nullable: false),

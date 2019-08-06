@@ -1,5 +1,3 @@
-dotnet ef database drop -c PersistedGrantDbContext
-
 rmdir /S /Q Migrations
 
 dotnet ef migrations add Grants -c PersistedGrantDbContext -o Migrations/PersistedGrantDb
