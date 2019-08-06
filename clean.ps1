@@ -1,4 +1,4 @@
-git clean -xdf -e samples
+git clean -xdf -e samples -e src/IdentityServer4/.vs
 
 Remove-Item $env:USERPROFILE\.nuget\packages\identityserver4\ -Recurse -ErrorAction SilentlyContinue 
 Remove-Item $env:USERPROFILE\.nuget\packages\identityserver4.storage\ -Recurse -ErrorAction SilentlyContinue 
