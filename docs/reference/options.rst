@@ -9,6 +9,9 @@ IdentityServer Options
 * ``PublicOrigin``
     The origin of this server instance, e.g. https://myorigin.com. If not set, the origin name is inferred from the request.
 
+* ``AccessTokenJwtType``
+    Specifies the value used for the JWT typ header for access tokens (defaults to ``at+jwt``).
+
 Endpoints
 ^^^^^^^^^
 Allows enabling/disabling individual endpoints, e.g. token, authorize, userinfo etc.
