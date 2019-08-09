@@ -363,28 +363,50 @@ namespace IdentityServer4.ResponseHandling
                     var cert64 = Convert.ToBase64String(x509Key.Certificate.RawData);
                     var thumbprint = Base64Url.Encode(x509Key.Certificate.GetCertHash());
 
-                    var pubKey = x509Key.PublicKey as RSA;
-                    var parameters = pubKey.ExportParameters(false);
-                    var exponent = Base64Url.Encode(parameters.Exponent);
-                    var modulus = Base64Url.Encode(parameters.Modulus);
-
-                    var webKey = new Models.JsonWebKey
+                    if (x509Key.PublicKey is RSA rsa)
                     {
-                        kty = "RSA",
-                        use = "sig",
-                        kid = x509Key.KeyId,
-                        x5t = thumbprint,
-                        e = exponent,
-                        n = modulus,
-                        x5c = new[] { cert64 },
-                        alg = algorithm
-                    };
+                        var parameters = rsa.ExportParameters(false);
+                        var exponent = Base64Url.Encode(parameters.Exponent);
+                        var modulus = Base64Url.Encode(parameters.Modulus);
 
-                    webKeys.Add(webKey);
-                    continue;
+                        var rsaJsonWebKey = new Models.JsonWebKey
+                        {
+                            kty = "RSA",
+                            use = "sig",
+                            kid = x509Key.KeyId,
+                            x5t = thumbprint,
+                            e = exponent,
+                            n = modulus,
+                            x5c = new[] { cert64 },
+                            alg = algorithm
+                        };
+                        webKeys.Add(rsaJsonWebKey);
+                    }
+                    else if (x509Key.PublicKey is ECDsa ecdsa)
+                    {
+                        var parameters = ecdsa.ExportParameters(false);
+                        var x = Base64Url.Encode(parameters.Q.X);
+                        var y = Base64Url.Encode(parameters.Q.Y);
+
+                        var ecdsaJsonWebKey = new Models.JsonWebKey
+                        {
+                            kty = "EC",
+                            use = "sig",
+                            kid = x509Key.KeyId,
+                            x5t = thumbprint,
+                            x = x,
+                            y = y,
+                            x5c = new[] { cert64 },
+                            alg = algorithm
+                        };
+                        webKeys.Add(ecdsaJsonWebKey);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"key type: {x509Key.PublicKey.GetType().Name} not supported.");
+                    }
                 }
-
-                if (key is RsaSecurityKey rsaKey)
+                else if (key is RsaSecurityKey rsaKey)
                 {
                     var parameters = rsaKey.Rsa?.ExportParameters(false) ?? rsaKey.Parameters;
                     var exponent = Base64Url.Encode(parameters.Exponent);
@@ -402,8 +424,24 @@ namespace IdentityServer4.ResponseHandling
 
                     webKeys.Add(webKey);
                 }
+                else if (key is ECDsaSecurityKey ecdsaKey)
+                {
+                    var parameters = ecdsaKey.ECDsa.ExportParameters(false);
+                    var x = Base64Url.Encode(parameters.Q.X);
+                    var y = Base64Url.Encode(parameters.Q.Y);
 
-                if (key is JsonWebKey jsonWebKey)
+                    var ecdsaJsonWebKey = new Models.JsonWebKey
+                    {
+                        kty = "EC",
+                        use = "sig",
+                        kid = ecdsaKey.KeyId,
+                        x = x,
+                        y = y,
+                        alg = algorithm
+                    };
+                    webKeys.Add(ecdsaJsonWebKey);
+                }
+                else if (key is JsonWebKey jsonWebKey)
                 {
                     var webKey = new Models.JsonWebKey
                     {
@@ -414,7 +452,10 @@ namespace IdentityServer4.ResponseHandling
                         e = jsonWebKey.E,
                         n = jsonWebKey.N,
                         x5c = jsonWebKey.X5c?.Count == 0 ? null : jsonWebKey.X5c.ToArray(),
-                        alg = jsonWebKey.Alg
+                        alg = jsonWebKey.Alg,
+
+                        x = jsonWebKey.X,
+                        y = jsonWebKey.Y
                     };
 
                     webKeys.Add(webKey);

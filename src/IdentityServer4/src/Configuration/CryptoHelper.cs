@@ -27,6 +27,18 @@ namespace IdentityServer4.Configuration
         }
 
         /// <summary>
+        /// Creates a new RSA security key.
+        /// </summary>
+        /// <returns></returns>
+        public static ECDsaSecurityKey CreateECDsaSecurityKey()
+        {
+            return new ECDsaSecurityKey(ECDsa.Create())
+            {
+                KeyId = CryptoRandom.CreateUniqueId(16)
+            };
+        }
+
+        /// <summary>
         /// Creates an RSA security key.
         /// </summary>
         /// <param name="parameters">The parameters.</param>

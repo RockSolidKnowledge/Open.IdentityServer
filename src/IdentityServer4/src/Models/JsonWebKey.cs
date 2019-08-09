@@ -15,5 +15,8 @@ namespace IdentityServer4.Models
         public string n { get; set; }
         public string[] x5c { get; set; }
         public string alg { get; set; }
+
+        public string x { get; set; }
+        public string y { get; set; }
     }
 }
