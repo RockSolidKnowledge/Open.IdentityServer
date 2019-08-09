@@ -7,12 +7,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.Net;
-using System.Linq;
-using Microsoft.AspNetCore.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace MvcImplicit
@@ -26,7 +21,7 @@ namespace MvcImplicit
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddControllersWithViews();
 
             services.AddAuthentication(options =>
             {
@@ -75,10 +70,16 @@ namespace MvcImplicit
         public void Configure(IApplicationBuilder app)
         {
             app.UseDeveloperExceptionPage();
-
             app.UseStaticFiles();
+
+            app.UseRouting();
             app.UseAuthentication();
-            app.UseMvcWithDefaultRoute();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapDefaultControllerRoute();
+            });
         }
 
         private static string CreateJwtRequest(string clientId, string audience, params Claim[] claims)

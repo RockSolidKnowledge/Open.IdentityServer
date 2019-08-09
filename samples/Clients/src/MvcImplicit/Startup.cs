@@ -1,16 +1,11 @@
 ﻿using Clients;
 using IdentityModel;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.Net;
-using System.Linq;
-using Microsoft.AspNetCore.Authentication;
 
 namespace MvcImplicit
 {
@@ -23,7 +18,7 @@ namespace MvcImplicit
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddControllersWithViews();
 
             services.AddAuthentication(options =>
             {
@@ -60,10 +55,16 @@ namespace MvcImplicit
         public void Configure(IApplicationBuilder app)
         {
             app.UseDeveloperExceptionPage();
-
             app.UseStaticFiles();
+
+            app.UseRouting();
             app.UseAuthentication();
-            app.UseMvcWithDefaultRoute();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapDefaultControllerRoute();
+            });
         }
     }
 }

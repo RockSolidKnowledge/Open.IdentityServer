@@ -21,7 +21,7 @@ namespace MvcHybrid
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddControllersWithViews();
             services.AddHttpClient();
 
             services.AddSingleton<IDiscoveryCache>(r =>
@@ -79,8 +79,15 @@ namespace MvcHybrid
         {
             app.UseDeveloperExceptionPage();
             app.UseStaticFiles();
+
+            app.UseRouting();
             app.UseAuthentication();
-            app.UseMvcWithDefaultRoute();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapDefaultControllerRoute();
+            });
         }
     }
 }

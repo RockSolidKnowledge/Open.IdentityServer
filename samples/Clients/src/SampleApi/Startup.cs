@@ -1,10 +1,6 @@
 ﻿using Clients;
-using IdentityModel;
-using idunno.Authentication.Certificate;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
@@ -15,10 +11,8 @@ namespace SampleApi
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddMvcCore()
-                .AddJsonFormatters()
-                .AddAuthorization();
+            services.AddControllers()
+                .AddNewtonsoftJson();
 
             services.AddCors();
             services.AddDistributedMemoryCache();
@@ -47,22 +41,22 @@ namespace SampleApi
                             return Task.CompletedTask;
                         }
                     };
-                })
-                .AddCertificate("x509", options =>
-                {
-                    options.RevocationMode = System.Security.Cryptography.X509Certificates.X509RevocationMode.NoCheck;
-
-                    options.Events = new CertificateAuthenticationEvents
-                    {
-                        OnValidateCertificate = context =>
-                        {
-                            context.Principal = Principal.CreateFromCertificate(context.ClientCertificate, includeAllClaims: true);
-                            context.Success();
-
-                            return Task.CompletedTask;
-                        }
-                    };
                 });
+                //.AddCertificate("x509", options =>
+                //{
+                //    options.RevocationMode = System.Security.Cryptography.X509Certificates.X509RevocationMode.NoCheck;
+
+                //    options.Events = new CertificateAuthenticationEvents
+                //    {
+                //        OnValidateCertificate = context =>
+                //        {
+                //            context.Principal = Principal.CreateFromCertificate(context.ClientCertificate, includeAllClaims: true);
+                //            context.Success();
+
+                //            return Task.CompletedTask;
+                //        }
+                //    };
+                //});
         }
 
         public void Configure(IApplicationBuilder app)
@@ -78,10 +72,15 @@ namespace SampleApi
                 policy.WithExposedHeaders("WWW-Authenticate");
             });
 
+            app.UseRouting();
             app.UseAuthentication();
-            app.UseMiddleware<ConfirmationValidationMiddleware>();
-            
-            app.UseMvc();
+            app.UseAuthorization();
+            //app.UseMiddleware<ConfirmationValidationMiddleware>();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
