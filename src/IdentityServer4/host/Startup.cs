@@ -4,7 +4,6 @@
 
 using Host.Configuration;
 using IdentityServer4;
-using IdentityServer4.Configuration;
 using IdentityServer4.Quickstart.UI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +29,8 @@ namespace Host
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson();
 
             services.Configure<IISOptions>(iis =>
             {
