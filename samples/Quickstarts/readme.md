@@ -23,7 +23,7 @@ This quickstart adds support for Google authentication.
 
 ## Quickstart #5: OpenID Connect Hybrid Flow Authentication and API Access Tokens
 
-This quickstart adds support for Google authentication.
+This quickstart adds support for hybrid flow authentication.
 
 ## Quickstart #6: JavaScript clients
 
