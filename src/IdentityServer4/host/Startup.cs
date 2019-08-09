@@ -4,6 +4,7 @@
 
 using Host.Configuration;
 using IdentityServer4;
+using IdentityServer4.Configuration;
 using IdentityServer4.Quickstart.UI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -59,6 +60,8 @@ namespace Host
                 .AddTestUsers(TestUsers.Users)
                 .AddMutualTlsSecretValidators();
 
+            //var key = CryptoHelper.CreateECDsaSecurityKey();
+            //builder.AddSigningCredential(key, SecurityAlgorithms.EcdsaSha256);
 
             services.AddExternalIdentityProviders();
             services.AddLocalApiAuthentication(principal =>
