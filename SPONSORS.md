@@ -58,5 +58,4 @@ Alexandru Puiu
 Michael Calasanz  
 Fredrik Karlsson  ([@fredrik_zenit](https://twitter.com/fredrik_zenit))  
 Steve Graddy
-Tomáš Jurásek  ([@tomasjurasek](https://twitter.com/tomasjurasek))  
 Simon Colmer  ([@workshop2](https://twitter.com/workshop2))  
