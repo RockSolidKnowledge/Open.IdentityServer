@@ -22,6 +22,9 @@ See [here](https://identityserver4.readthedocs.io/en/latest/intro/support.html) 
 If you are a fan of the project or a company that relies on IdentityServer, you might want to consider sponsoring.
 This will help us devote more time to answering questions and doing feature development. If you are interested please head to our [Patreon](https://www.patreon.com/identityserver) page which has further details.
 
+### Platinum Sponsors
+[<img src="https://user-images.githubusercontent.com/1454075/62819413-39550c00-bb55-11e9-8f2f-a268c3552c71.png" width="200">](https://udelt.no)
+
 ### Corporate Sponsors
 
 [Thinktecture AG](https://www.thinktecture.com)  
