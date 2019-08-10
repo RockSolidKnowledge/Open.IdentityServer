@@ -32,7 +32,8 @@ namespace IdentityServer4.Configuration
         /// <returns></returns>
         public static ECDsaSecurityKey CreateECDsaSecurityKey()
         {
-            return new ECDsaSecurityKey(ECDsa.Create())
+            // todo: make this more flexible
+            return new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP256))
             {
                 KeyId = CryptoRandom.CreateUniqueId(16)
             };

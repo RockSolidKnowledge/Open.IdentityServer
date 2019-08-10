@@ -356,6 +356,7 @@ namespace IdentityServer4.ResponseHandling
             var signingCredentials = await Keys.GetSigningCredentialsAsync();
             var algorithm = signingCredentials?.Algorithm ?? "unspecified";
 
+            // todo: remove hard-coded crv and infer value from key
             foreach (var key in await Keys.GetValidationKeysAsync())
             {
                 if (key is X509SecurityKey x509Key)
@@ -396,6 +397,7 @@ namespace IdentityServer4.ResponseHandling
                             x5t = thumbprint,
                             x = x,
                             y = y,
+                            crv = "P-256",
                             x5c = new[] { cert64 },
                             alg = algorithm
                         };
@@ -437,6 +439,7 @@ namespace IdentityServer4.ResponseHandling
                         kid = ecdsaKey.KeyId,
                         x = x,
                         y = y,
+                        crv = "P-256",
                         alg = algorithm
                     };
                     webKeys.Add(ecdsaJsonWebKey);

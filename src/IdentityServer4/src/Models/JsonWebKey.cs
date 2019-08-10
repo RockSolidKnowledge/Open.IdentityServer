@@ -18,5 +18,6 @@ namespace IdentityServer4.Models
 
         public string x { get; set; }
         public string y { get; set; }
+        public string crv { get; set; }
     }
 }
