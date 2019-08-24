@@ -13,7 +13,7 @@
     <PackageReference Update="McMaster.Extensions.CommandLineUtils" Version="2.3.3" />
 
     <!--our stuff -->
-    <PackageReference Update="IdentityModel" Version="3.10.10" />
+    <PackageReference Update="IdentityModel" Version="[3.10.10,4.0)" />
 
     <PackageReference Update="IdentityServer4" Version="$(IdentityServerVersion)" />
     <PackageReference Update="IdentityServer4.AspNetIdentity" Version="$(IdentityServerVersion)" />
