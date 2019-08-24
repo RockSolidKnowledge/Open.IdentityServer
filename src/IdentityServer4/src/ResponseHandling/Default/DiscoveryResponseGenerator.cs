@@ -299,9 +299,12 @@ namespace IdentityServer4.ResponseHandling
 
                 entries.Add(OidcConstants.Discovery.TokenEndpointAuthenticationMethodsSupported, types);
             }
+            
+            var signingCredentials = await Keys.GetSigningCredentialsAsync();
+            var algorithm = signingCredentials?.Algorithm ?? SecurityAlgorithms.RsaSha256;
 
             entries.Add(OidcConstants.Discovery.SubjectTypesSupported, new[] { "public" });
-            entries.Add(OidcConstants.Discovery.IdTokenSigningAlgorithmsSupported, new[] { Constants.SigningAlgorithms.RSA_SHA_256 });
+            entries.Add(OidcConstants.Discovery.IdTokenSigningAlgorithmsSupported, new[] { algorithm });
             entries.Add(OidcConstants.Discovery.CodeChallengeMethodsSupported, new[] { OidcConstants.CodeChallengeMethods.Plain, OidcConstants.CodeChallengeMethods.Sha256 });
 
             if (Options.Endpoints.EnableAuthorizeEndpoint)
@@ -397,7 +400,7 @@ namespace IdentityServer4.ResponseHandling
                             x5t = thumbprint,
                             x = x,
                             y = y,
-                            crv = "P-256",
+                            crv = CryptoHelper.GetCrvValueFromCurve(parameters.Curve),
                             x5c = new[] { cert64 },
                             alg = algorithm
                         };
@@ -439,7 +442,7 @@ namespace IdentityServer4.ResponseHandling
                         kid = ecdsaKey.KeyId,
                         x = x,
                         y = y,
-                        crv = "P-256",
+                        crv = CryptoHelper.GetCrvValueFromCurve(parameters.Curve),
                         alg = algorithm
                     };
                     webKeys.Add(ecdsaJsonWebKey);

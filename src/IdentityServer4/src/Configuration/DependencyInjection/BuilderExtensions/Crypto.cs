@@ -42,6 +42,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new InvalidOperationException($"Signing algorithm {credential.Algorithm} is not supported.");
             }
 
+            if (credential.Key is ECDsaSecurityKey key && !IsValidCurveForAlgorithm(key, credential.Algorithm))
+            {
+                throw new InvalidOperationException("Invalid curve for signing algorithm");
+            }
+
             builder.Services.AddSingleton<ISigningCredentialStore>(new DefaultSigningCredentialsStore(credential));
             builder.Services.AddSingleton<IValidationKeysStore>(new DefaultValidationKeysStore(new[] { credential.Key }));
 
@@ -247,6 +252,20 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return certificate;
+        }
+
+        private static bool IsValidCurveForAlgorithm(ECDsaSecurityKey key, string algorithm)
+        {
+            var parameters = key.ECDsa.ExportParameters(false);
+
+            if (algorithm == SecurityAlgorithms.EcdsaSha256 && parameters.Curve.Oid.Value != Constants.CurveOids.P256
+                || algorithm == SecurityAlgorithms.EcdsaSha384 && parameters.Curve.Oid.Value != Constants.CurveOids.P384
+                || algorithm == SecurityAlgorithms.EcdsaSha512 && parameters.Curve.Oid.Value != Constants.CurveOids.P521)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 

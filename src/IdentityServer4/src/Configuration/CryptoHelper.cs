@@ -29,11 +29,12 @@ namespace IdentityServer4.Configuration
         /// <summary>
         /// Creates a new RSA security key.
         /// </summary>
+        /// <param name="curve">The name of the curve as defined in
+        /// https://tools.ietf.org/html/rfc7518#section-6.2.1.1.</param>
         /// <returns></returns>
-        public static ECDsaSecurityKey CreateECDsaSecurityKey()
+        public static ECDsaSecurityKey CreateECDsaSecurityKey(string curve = JsonWebKeyECTypes.P256)
         {
-            // todo: make this more flexible
-            return new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP256))
+            return new ECDsaSecurityKey(ECDsa.Create(GetCurveFromCrvValue(curve)))
             {
                 KeyId = CryptoRandom.CreateUniqueId(16)
             };
@@ -94,6 +95,42 @@ namespace IdentityServer4.Configuration
                     return SHA512.Create();
                 default:
                     throw new InvalidOperationException($"Invalid signing algorithm: {signingAlgorithm}");
+            }
+        }
+
+        /// <summary>
+        /// Returns the matching named curve for RFC 7518 crv value
+        /// </summary>
+        internal static ECCurve GetCurveFromCrvValue(string crv)
+        {
+            switch (crv)
+            {
+                case JsonWebKeyECTypes.P256:
+                    return ECCurve.NamedCurves.nistP256;
+                case JsonWebKeyECTypes.P384:
+                    return ECCurve.NamedCurves.nistP384;
+                case JsonWebKeyECTypes.P521:
+                    return ECCurve.NamedCurves.nistP521;
+                default:
+                    throw new InvalidOperationException($"Unsupported curve type of {crv}");
+            }
+        }
+
+        /// <summary>
+        /// Return the matching RFC 7518 crv value for curve
+        /// </summary>
+        internal static string GetCrvValueFromCurve(ECCurve curve)
+        {
+            switch (curve.Oid.Value)
+            {
+                case Constants.CurveOids.P256:
+                    return JsonWebKeyECTypes.P256;
+                case Constants.CurveOids.P384:
+                    return JsonWebKeyECTypes.P384;
+                case Constants.CurveOids.P521:
+                    return JsonWebKeyECTypes.P521;
+                default:
+                    throw new InvalidOperationException($"Unsupported curve type of {curve.Oid.Value} - {curve.Oid.FriendlyName}");
             }
         }
 
