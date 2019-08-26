@@ -9,6 +9,7 @@ using IdentityServer4.IntegrationTests.Common;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Configuration;
+using IdentityServer4.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
@@ -109,6 +110,30 @@ namespace IdentityServer4.IntegrationTests.Endpoints.Discovery
             var matchingKey = parsedKeys.FirstOrDefault(x => x.KeyId == key.KeyId);
             matchingKey.Should().NotBeNull();
             matchingKey.Should().BeOfType<ECDsaSecurityKey>();
+        }
+
+        [Fact]
+        public async Task Jwks_with_two_key_using_different_algs_expect_different_alg_values()
+        {
+            var ecdsaKey = CryptoHelper.CreateECDsaSecurityKey();
+            var rsaKey = CryptoHelper.CreateRsaSecurityKey();
+
+            IdentityServerPipeline pipeline = new IdentityServerPipeline();
+            pipeline.OnPostConfigureServices += services =>
+            {
+                services.AddIdentityServerBuilder()
+                    .AddSigningCredential(ecdsaKey, "ES256")
+                    .AddValidationKey(new SecurityKeyInfo {Key = rsaKey, SigningAlgorithm = "RS256"});
+            };
+            pipeline.Initialize("/ROOT");
+
+            var result = await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration/jwks");
+
+            var json = await result.Content.ReadAsStringAsync();
+            var jwks = new JsonWebKeySet(json);
+
+            jwks.Keys.Should().Contain(x => x.KeyId == ecdsaKey.KeyId && x.Alg == "ES256");
+            jwks.Keys.Should().Contain(x => x.KeyId == rsaKey.KeyId && x.Alg == "RS256");
         }
 
         [Fact]
