@@ -8,11 +8,9 @@ using IdentityServer4.Configuration;
 using IdentityServer4.Stores;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -42,7 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new InvalidOperationException($"Signing algorithm {credential.Algorithm} is not supported.");
             }
 
-            if (credential.Key is ECDsaSecurityKey key && !IsValidCurveForAlgorithm(key, credential.Algorithm))
+            if (credential.Key is ECDsaSecurityKey key && !CryptoHelper.IsValidCurveForAlgorithm(key, credential.Algorithm))
             {
                 throw new InvalidOperationException("Invalid curve for signing algorithm");
             }
@@ -252,20 +250,6 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return certificate;
-        }
-
-        private static bool IsValidCurveForAlgorithm(ECDsaSecurityKey key, string algorithm)
-        {
-            var parameters = key.ECDsa.ExportParameters(false);
-
-            if (algorithm == SecurityAlgorithms.EcdsaSha256 && parameters.Curve.Oid.Value != Constants.CurveOids.P256
-                || algorithm == SecurityAlgorithms.EcdsaSha384 && parameters.Curve.Oid.Value != Constants.CurveOids.P384
-                || algorithm == SecurityAlgorithms.EcdsaSha512 && parameters.Curve.Oid.Value != Constants.CurveOids.P521)
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 

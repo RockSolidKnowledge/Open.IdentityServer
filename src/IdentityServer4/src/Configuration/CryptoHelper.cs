@@ -27,7 +27,7 @@ namespace IdentityServer4.Configuration
         }
 
         /// <summary>
-        /// Creates a new RSA security key.
+        /// Creates a new ECDSA security key.
         /// </summary>
         /// <param name="curve">The name of the curve as defined in
         /// https://tools.ietf.org/html/rfc7518#section-6.2.1.1.</param>
@@ -132,6 +132,20 @@ namespace IdentityServer4.Configuration
                 default:
                     throw new InvalidOperationException($"Unsupported curve type of {curve.Oid.Value} - {curve.Oid.FriendlyName}");
             }
+        }
+
+        internal static bool IsValidCurveForAlgorithm(ECDsaSecurityKey key, string algorithm)
+        {
+            var parameters = key.ECDsa.ExportParameters(false);
+
+            if (algorithm == SecurityAlgorithms.EcdsaSha256 && parameters.Curve.Oid.Value != Constants.CurveOids.P256
+                || algorithm == SecurityAlgorithms.EcdsaSha384 && parameters.Curve.Oid.Value != Constants.CurveOids.P384
+                || algorithm == SecurityAlgorithms.EcdsaSha512 && parameters.Curve.Oid.Value != Constants.CurveOids.P521)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         // used for serialization to temporary RSA key
