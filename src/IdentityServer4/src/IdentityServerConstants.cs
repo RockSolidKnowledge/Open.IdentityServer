@@ -111,6 +111,24 @@ namespace IdentityServer4
             SecurityAlgorithms.EcdsaSha512,
         };
 
+        public enum RsaSigningAlgorithm
+        {
+            RS256,
+            RS384,
+            RS512,
+
+            PS256,
+            PS384,
+            PS512
+        };
+
+        public enum ECDsaSigningAlgorithm
+        {
+            ES256,
+            ES384,
+            ES512
+        }
+
         public static class StandardScopes
         {
             /// <summary>REQUIRED. Informs the Authorization Server that the Client is making an OpenID Connect request. If the <c>openid</c> scope value is not present, the behavior is entirely unspecified.</summary>

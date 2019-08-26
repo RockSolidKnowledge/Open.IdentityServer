@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using static IdentityServer4.IdentityServerConstants;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -105,6 +106,32 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IIdentityServerBuilder AddSigningCredential(this IIdentityServerBuilder builder, SecurityKey key, string signingAlgorithm)
         {
             var credential = new SigningCredentials(key, signingAlgorithm);
+            return builder.AddSigningCredential(credential);
+        }
+
+        /// <summary>
+        /// Sets an RSA-based signing credential.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="key">The RSA key.</param>
+        /// <param name="signingAlgorithm">The signing algorithm</param>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddSigningCredential(this IIdentityServerBuilder builder, RsaSecurityKey key, RsaSigningAlgorithm signingAlgorithm)
+        {
+            var credential = new SigningCredentials(key, CryptoHelper.GetRsaSigningAlgorithmValue(signingAlgorithm));
+            return builder.AddSigningCredential(credential);
+        }
+
+        /// <summary>
+        /// Sets an ECDsa-based signing credential.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="key">The ECDsa key.</param>
+        /// <param name="signingAlgorithm">The signing algorithm</param>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddSigningCredential(this IIdentityServerBuilder builder, ECDsaSecurityKey key, ECDsaSigningAlgorithm signingAlgorithm)
+        {
+            var credential = new SigningCredentials(key, CryptoHelper.GetECDsaSigningAlgorithmValue(signingAlgorithm));
             return builder.AddSigningCredential(credential);
         }
 
