@@ -268,7 +268,7 @@ namespace IdentityServer4.Validation
             return customResult;
         }
 
-        private async Task<TokenValidationResult> ValidateJwtAsync(string jwt, IEnumerable<SecurityKey> validationKeys, bool validateLifetime = true, string audience = null)
+        private async Task<TokenValidationResult> ValidateJwtAsync(string jwt, IEnumerable<SecurityKeyInfo> validationKeys, bool validateLifetime = true, string audience = null)
         {
             var handler = new JwtSecurityTokenHandler();
             handler.InboundClaimTypeMap.Clear();
@@ -276,7 +276,7 @@ namespace IdentityServer4.Validation
             var parameters = new TokenValidationParameters
             {
                 ValidIssuer = _context.HttpContext.GetIdentityServerIssuerUri(),
-                IssuerSigningKeys = validationKeys,
+                IssuerSigningKeys = validationKeys.Select(k => k.Key),
                 ValidateLifetime = validateLifetime,
             };
 

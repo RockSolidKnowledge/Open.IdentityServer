@@ -5,6 +5,7 @@
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Configuration;
+using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -31,7 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IIdentityServerBuilder AddSigningCredential(this IIdentityServerBuilder builder, SigningCredentials credential)
         {
             if (!(credential.Key is AsymmetricSecurityKey
-                || credential.Key is JsonWebKey && ((JsonWebKey)credential.Key).HasPrivateKey))
+                || credential.Key is IdentityModel.Tokens.JsonWebKey && ((IdentityModel.Tokens.JsonWebKey)credential.Key).HasPrivateKey))
             {
                 throw new InvalidOperationException("Signing key is not asymmetric");
             }
@@ -47,7 +48,14 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             builder.Services.AddSingleton<ISigningCredentialStore>(new DefaultSigningCredentialsStore(credential));
-            builder.Services.AddSingleton<IValidationKeysStore>(new DefaultValidationKeysStore(new[] { credential.Key }));
+
+            var keyInfo = new SecurityKeyInfo
+            {
+                Key = credential.Key,
+                SigningAlgorithm = credential.Algorithm
+            };
+
+            builder.Services.AddSingleton<IValidationKeysStore>(new DefaultValidationKeysStore(new[] { keyInfo }));
 
             return builder;
         }
@@ -116,7 +124,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="key">The RSA key.</param>
         /// <param name="signingAlgorithm">The signing algorithm</param>
         /// <returns></returns>
-        public static IIdentityServerBuilder AddSigningCredential(this IIdentityServerBuilder builder, RsaSecurityKey key, RsaSigningAlgorithm signingAlgorithm)
+        public static IIdentityServerBuilder AddSigningCredential(this IIdentityServerBuilder builder, RsaSecurityKey key, IdentityServerConstants.RsaSigningAlgorithm signingAlgorithm)
         {
             var credential = new SigningCredentials(key, CryptoHelper.GetRsaSigningAlgorithmValue(signingAlgorithm));
             return builder.AddSigningCredential(credential);
@@ -129,7 +137,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="key">The ECDsa key.</param>
         /// <param name="signingAlgorithm">The signing algorithm</param>
         /// <returns></returns>
-        public static IIdentityServerBuilder AddSigningCredential(this IIdentityServerBuilder builder, ECDsaSecurityKey key, ECDsaSigningAlgorithm signingAlgorithm)
+        public static IIdentityServerBuilder AddSigningCredential(this IIdentityServerBuilder builder, ECDsaSecurityKey key, IdentityServerConstants.ECDsaSigningAlgorithm signingAlgorithm)
         {
             var credential = new SigningCredentials(key, CryptoHelper.GetECDsaSigningAlgorithmValue(signingAlgorithm));
             return builder.AddSigningCredential(credential);
@@ -195,24 +203,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds the validation keys.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="certificates">The certificates.</param>
-        /// <returns></returns>
-        public static IIdentityServerBuilder AddValidationKeys(this IIdentityServerBuilder builder, params X509Certificate2[] certificates)
-        {
-            var keys = certificates.Select(certificate => new X509SecurityKey(certificate)).Cast<AsymmetricSecurityKey>();
-
-            builder.Services.AddSingleton<IValidationKeysStore>(new DefaultValidationKeysStore(keys));
-
-            return builder;
-        }
-   
-        /// <summary>
-        /// Adds the validation keys.
-        /// </summary>
-        /// <param name="builder">The builder.</param>
         /// <param name="keys">The keys.</param>
         /// <returns></returns>
-        public static IIdentityServerBuilder AddValidationKeys(this IIdentityServerBuilder builder, params AsymmetricSecurityKey[] keys)
+        public static IIdentityServerBuilder AddValidationKey(this IIdentityServerBuilder builder, params SecurityKeyInfo[] keys)
         {
             builder.Services.AddSingleton<IValidationKeysStore>(new DefaultValidationKeysStore(keys));
 
@@ -224,14 +217,20 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="certificate">The certificate.</param>
+        /// <param name="signingAlgorithm">The signing algorithm</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static IIdentityServerBuilder AddValidationKey(this IIdentityServerBuilder builder, X509Certificate2 certificate)
+        public static IIdentityServerBuilder AddValidationKey(this IIdentityServerBuilder builder, X509Certificate2 certificate, string signingAlgorithm = SecurityAlgorithms.RsaSha256)
         {
             if (certificate == null) throw new ArgumentNullException(nameof(certificate));
 
-            var key = new X509SecurityKey(certificate);
-            return builder.AddValidationKeys(key);
+            var keyInfo = new SecurityKeyInfo
+            {
+                Key = new X509SecurityKey(certificate),
+                SigningAlgorithm = signingAlgorithm
+            };
+
+            return builder.AddValidationKey(keyInfo);
         }
 
         /// <summary>
@@ -241,12 +240,18 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="name">The name.</param>
         /// <param name="location">The location.</param>
         /// <param name="nameType">Name parameter can be either a distinguished name or a thumbprint</param>
-        public static IIdentityServerBuilder AddValidationKey(this IIdentityServerBuilder builder, string name, StoreLocation location = StoreLocation.LocalMachine, NameType nameType = NameType.SubjectDistinguishedName)
+        /// <param name="signingAlgorithm">The signing algorithm</param>
+        public static IIdentityServerBuilder AddValidationKey(
+            this IIdentityServerBuilder builder,
+            string name,
+            StoreLocation location = StoreLocation.LocalMachine,
+            NameType nameType = NameType.SubjectDistinguishedName,
+            string signingAlgorithm = SecurityAlgorithms.RsaSha256)
         {
             var certificate = FindCertificate(name, location, nameType);
             if (certificate == null) throw new InvalidOperationException($"certificate: '{name}' not found in certificate store");
 
-            return builder.AddValidationKey(certificate);
+            return builder.AddValidationKey(certificate, signingAlgorithm);
         }
 
         private static X509Certificate2 FindCertificate(string name, StoreLocation location, NameType nameType)

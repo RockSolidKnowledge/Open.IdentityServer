@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using IdentityServer4.Stores;
+using IdentityServer4.Models;
 
 namespace IdentityServer4.Services
 {
@@ -47,9 +48,9 @@ namespace IdentityServer4.Services
         /// Gets all validation keys.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<SecurityKey>> GetValidationKeysAsync()
+        public async Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync()
         {
-            var keys = new List<SecurityKey>();
+            var keys = new List<SecurityKeyInfo>();
 
             foreach (var store in _validationKeys)
             {

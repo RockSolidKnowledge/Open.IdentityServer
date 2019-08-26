@@ -356,13 +356,10 @@ namespace IdentityServer4.ResponseHandling
         public virtual async Task<IEnumerable<Models.JsonWebKey>> CreateJwkDocumentAsync()
         {
             var webKeys = new List<Models.JsonWebKey>();
-            var signingCredentials = await Keys.GetSigningCredentialsAsync();
-            var algorithm = signingCredentials?.Algorithm ?? "unspecified";
-
-            // todo: remove hard-coded crv and infer value from key
+            
             foreach (var key in await Keys.GetValidationKeysAsync())
             {
-                if (key is X509SecurityKey x509Key)
+                if (key.Key is X509SecurityKey x509Key)
                 {
                     var cert64 = Convert.ToBase64String(x509Key.Certificate.RawData);
                     var thumbprint = Base64Url.Encode(x509Key.Certificate.GetCertHash());
@@ -382,7 +379,7 @@ namespace IdentityServer4.ResponseHandling
                             e = exponent,
                             n = modulus,
                             x5c = new[] { cert64 },
-                            alg = algorithm
+                            alg = key.SigningAlgorithm
                         };
                         webKeys.Add(rsaJsonWebKey);
                     }
@@ -402,7 +399,7 @@ namespace IdentityServer4.ResponseHandling
                             y = y,
                             crv = CryptoHelper.GetCrvValueFromCurve(parameters.Curve),
                             x5c = new[] { cert64 },
-                            alg = algorithm
+                            alg = key.SigningAlgorithm
                         };
                         webKeys.Add(ecdsaJsonWebKey);
                     }
@@ -411,7 +408,7 @@ namespace IdentityServer4.ResponseHandling
                         throw new InvalidOperationException($"key type: {x509Key.PublicKey.GetType().Name} not supported.");
                     }
                 }
-                else if (key is RsaSecurityKey rsaKey)
+                else if (key.Key is RsaSecurityKey rsaKey)
                 {
                     var parameters = rsaKey.Rsa?.ExportParameters(false) ?? rsaKey.Parameters;
                     var exponent = Base64Url.Encode(parameters.Exponent);
@@ -424,12 +421,12 @@ namespace IdentityServer4.ResponseHandling
                         kid = rsaKey.KeyId,
                         e = exponent,
                         n = modulus,
-                        alg = algorithm
+                        alg = key.SigningAlgorithm
                     };
 
                     webKeys.Add(webKey);
                 }
-                else if (key is ECDsaSecurityKey ecdsaKey)
+                else if (key.Key is ECDsaSecurityKey ecdsaKey)
                 {
                     var parameters = ecdsaKey.ECDsa.ExportParameters(false);
                     var x = Base64Url.Encode(parameters.Q.X);
@@ -443,11 +440,11 @@ namespace IdentityServer4.ResponseHandling
                         x = x,
                         y = y,
                         crv = CryptoHelper.GetCrvValueFromCurve(parameters.Curve),
-                        alg = algorithm
+                        alg = key.SigningAlgorithm
                     };
                     webKeys.Add(ecdsaJsonWebKey);
                 }
-                else if (key is JsonWebKey jsonWebKey)
+                else if (key.Key is JsonWebKey jsonWebKey)
                 {
                     var webKey = new Models.JsonWebKey
                     {
