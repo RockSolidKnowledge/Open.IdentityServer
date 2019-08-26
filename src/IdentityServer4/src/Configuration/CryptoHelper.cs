@@ -6,7 +6,6 @@ using System;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using static IdentityServer4.IdentityServerConstants;
 
 namespace IdentityServer4.Configuration
 {
@@ -149,27 +148,28 @@ namespace IdentityServer4.Configuration
             return true;
         }
 
-        internal static string GetRsaSigningAlgorithmValue(RsaSigningAlgorithm value)
+        internal static string GetRsaSigningAlgorithmValue(IdentityServerConstants.RsaSigningAlgorithm value)
         {
             return value switch
             {
-                RsaSigningAlgorithm.RS256 => SecurityAlgorithms.RsaSha256,
-                RsaSigningAlgorithm.RS384 => SecurityAlgorithms.RsaSha384,
-                RsaSigningAlgorithm.RS512 => SecurityAlgorithms.RsaSha512,
-                RsaSigningAlgorithm.PS256 => SecurityAlgorithms.RsaSsaPssSha256,
-                RsaSigningAlgorithm.PS384 => SecurityAlgorithms.RsaSsaPssSha384,
-                RsaSigningAlgorithm.PS512 => SecurityAlgorithms.RsaSsaPssSha512,
+                IdentityServerConstants.RsaSigningAlgorithm.RS256 => SecurityAlgorithms.RsaSha256,
+                IdentityServerConstants.RsaSigningAlgorithm.RS384 => SecurityAlgorithms.RsaSha384,
+                IdentityServerConstants.RsaSigningAlgorithm.RS512 => SecurityAlgorithms.RsaSha512,
+
+                IdentityServerConstants.RsaSigningAlgorithm.PS256 => SecurityAlgorithms.RsaSsaPssSha256,
+                IdentityServerConstants.RsaSigningAlgorithm.PS384 => SecurityAlgorithms.RsaSsaPssSha384,
+                IdentityServerConstants.RsaSigningAlgorithm.PS512 => SecurityAlgorithms.RsaSsaPssSha512,
                 _ => throw new ArgumentException("Invalid RSA signing algorithm value", nameof(value)),
             };
         }
 
-        internal static string GetECDsaSigningAlgorithmValue(ECDsaSigningAlgorithm value)
+        internal static string GetECDsaSigningAlgorithmValue(IdentityServerConstants.ECDsaSigningAlgorithm value)
         {
             return value switch
             {
-                ECDsaSigningAlgorithm.ES256 => SecurityAlgorithms.EcdsaSha256,
-                ECDsaSigningAlgorithm.ES384 => SecurityAlgorithms.EcdsaSha384,
-                ECDsaSigningAlgorithm.ES512 => SecurityAlgorithms.EcdsaSha512,
+                IdentityServerConstants.ECDsaSigningAlgorithm.ES256 => SecurityAlgorithms.EcdsaSha256,
+                IdentityServerConstants.ECDsaSigningAlgorithm.ES384 => SecurityAlgorithms.EcdsaSha384,
+                IdentityServerConstants.ECDsaSigningAlgorithm.ES512 => SecurityAlgorithms.EcdsaSha512,
                 _ => throw new ArgumentException("Invalid ECDsa signing algorithm value", nameof(value)),
             };
         }

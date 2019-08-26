@@ -180,7 +180,13 @@ namespace IdentityServer4.ResponseHandling
                 string stateHash = null;
                 if (request.State.IsPresent())
                 {
-                    var algorithm = (await KeyMaterialService.GetSigningCredentialsAsync()).Algorithm;
+                    var credential = await KeyMaterialService.GetSigningCredentialsAsync();
+                    if (credential == null)
+                    {
+                        throw new InvalidOperationException("No signing credential is configured.");
+                    }
+
+                    var algorithm = credential.Algorithm;
                     stateHash = CryptoHelper.CreateHashClaimValue(request.State, algorithm);
                 }
 
@@ -222,7 +228,13 @@ namespace IdentityServer4.ResponseHandling
             string stateHash = null;
             if (request.State.IsPresent())
             {
-                var algorithm = (await KeyMaterialService.GetSigningCredentialsAsync()).Algorithm;
+                var credential = await KeyMaterialService.GetSigningCredentialsAsync();
+                if (credential == null)
+                {
+                    throw new InvalidOperationException("No signing credential is configured.");
+                }
+
+                var algorithm = credential.Algorithm;
                 stateHash = CryptoHelper.CreateHashClaimValue(request.State, algorithm);
             }
 

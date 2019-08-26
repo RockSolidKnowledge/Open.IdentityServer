@@ -98,7 +98,13 @@ namespace IdentityServer4.Services
             Logger.LogTrace("Creating identity token");
             request.Validate();
 
-            var signingAlgorithm = (await KeyMaterialService.GetSigningCredentialsAsync()).Algorithm;
+            var credential = await KeyMaterialService.GetSigningCredentialsAsync();
+            if (credential == null)
+            {
+                throw new InvalidOperationException("No signing credential is configured.");
+            }
+
+            var signingAlgorithm = credential.Algorithm;
 
             // host provided claims
             var claims = new List<Claim>();

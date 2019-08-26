@@ -301,10 +301,13 @@ namespace IdentityServer4.ResponseHandling
             }
             
             var signingCredentials = await Keys.GetSigningCredentialsAsync();
-            var algorithm = signingCredentials?.Algorithm ?? SecurityAlgorithms.RsaSha256;
+            if (signingCredentials != null)
+            {
+                var algorithm = signingCredentials.Algorithm;
+                entries.Add(OidcConstants.Discovery.IdTokenSigningAlgorithmsSupported, new[] { algorithm });
+            }
 
             entries.Add(OidcConstants.Discovery.SubjectTypesSupported, new[] { "public" });
-            entries.Add(OidcConstants.Discovery.IdTokenSigningAlgorithmsSupported, new[] { algorithm });
             entries.Add(OidcConstants.Discovery.CodeChallengeMethodsSupported, new[] { OidcConstants.CodeChallengeMethods.Plain, OidcConstants.CodeChallengeMethods.Sha256 });
 
             if (Options.Endpoints.EnableAuthorizeEndpoint)

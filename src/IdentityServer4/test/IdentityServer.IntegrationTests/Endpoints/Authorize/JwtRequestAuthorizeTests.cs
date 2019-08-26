@@ -15,7 +15,6 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Microsoft.IdentityModel.Logging;
 using System.Net.Http;
