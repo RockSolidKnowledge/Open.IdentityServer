@@ -101,12 +101,12 @@ namespace IdentityServer4.ResponseHandling
             if (request.PromptMode == OidcConstants.PromptModes.Login ||
                 request.PromptMode == OidcConstants.PromptModes.SelectAccount)
             {
+                Logger.LogInformation("Showing login: request contains prompt={0}", request.PromptMode);
+
                 // remove prompt so when we redirect back in from login page
                 // we won't think we need to force a prompt again
                 request.RemovePrompt();
-
-                Logger.LogInformation("Showing login: request contains prompt={0}", request.PromptMode);
-
+                
                 return new InteractionResponse { IsLogin = true };
             }
 
