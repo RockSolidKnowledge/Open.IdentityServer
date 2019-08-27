@@ -13,7 +13,7 @@ namespace IdentityServer4.Events
     public class ConsentGrantedEvent : Event
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConsentDeniedEvent" /> class.
+        /// Initializes a new instance of the <see cref="ConsentGrantedEvent" /> class.
         /// </summary>
         /// <param name="subjectId">The subject identifier.</param>
         /// <param name="clientId">The client identifier.</param>
