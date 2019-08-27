@@ -121,17 +121,13 @@ namespace IdentityServer4.Configuration
         /// </summary>
         internal static string GetCrvValueFromCurve(ECCurve curve)
         {
-            switch (curve.Oid.Value)
+            return curve.Oid.Value switch
             {
-                case Constants.CurveOids.P256:
-                    return JsonWebKeyECTypes.P256;
-                case Constants.CurveOids.P384:
-                    return JsonWebKeyECTypes.P384;
-                case Constants.CurveOids.P521:
-                    return JsonWebKeyECTypes.P521;
-                default:
-                    throw new InvalidOperationException($"Unsupported curve type of {curve.Oid.Value} - {curve.Oid.FriendlyName}");
-            }
+                Constants.CurveOids.P256 => JsonWebKeyECTypes.P256,
+                Constants.CurveOids.P384 => JsonWebKeyECTypes.P384,
+                Constants.CurveOids.P521 => JsonWebKeyECTypes.P521,
+                _ => throw new InvalidOperationException($"Unsupported curve type of {curve.Oid.Value} - {curve.Oid.FriendlyName}"),
+            };
         }
 
         internal static bool IsValidCurveForAlgorithm(ECDsaSecurityKey key, string algorithm)
