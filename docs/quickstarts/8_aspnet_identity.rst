@@ -22,7 +22,7 @@ The first step is to add a new project for ASP.NET Identity to your solution.
 We provide a template that contains the minimal UI assets needed to ASP.NET Identity with IdentityServer.
 You will eventually delete the old project for IdentityServer, but there are some items that you will need to migrate over.
 
-Start by creating a the new IdentityServer project that will use ASP.NET Identity::
+Start by creating a new IdentityServer project that will use ASP.NET Identity::
     
     cd quickstart/src
     dotnet new is4aspid -n IdentityServerAspNetIdentity
