@@ -1,10 +1,13 @@
 ﻿using IdentityModel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace IdentityServer4.Configuration
@@ -170,6 +173,36 @@ namespace IdentityServer4.Configuration
             };
         }
 
+        internal static X509Certificate2 FindCertificate(string name, StoreLocation location, NameType nameType)
+        {
+            X509Certificate2 certificate = null;
+
+            if (location == StoreLocation.LocalMachine)
+            {
+                if (nameType == NameType.SubjectDistinguishedName)
+                {
+                    certificate = X509.LocalMachine.My.SubjectDistinguishedName.Find(name, validOnly: false).FirstOrDefault();
+                }
+                else if (nameType == NameType.Thumbprint)
+                {
+                    certificate = X509.LocalMachine.My.Thumbprint.Find(name, validOnly: false).FirstOrDefault();
+                }
+            }
+            else
+            {
+                if (nameType == NameType.SubjectDistinguishedName)
+                {
+                    certificate = X509.CurrentUser.My.SubjectDistinguishedName.Find(name, validOnly: false).FirstOrDefault();
+                }
+                else if (nameType == NameType.Thumbprint)
+                {
+                    certificate = X509.CurrentUser.My.Thumbprint.Find(name, validOnly: false).FirstOrDefault();
+                }
+            }
+
+            return certificate;
+        }
+
         // used for serialization to temporary RSA key
         internal class TemporaryRsaKey
         {
@@ -188,5 +221,21 @@ namespace IdentityServer4.Configuration
                 return property;
             }
         }
+    }
+
+    /// <summary>
+    /// Describes the string so we know what to search for in certificate store
+    /// </summary>
+    public enum NameType
+    {
+        /// <summary>
+        /// subject distinguished name
+        /// </summary>
+        SubjectDistinguishedName,
+
+        /// <summary>
+        /// thumbprint
+        /// </summary>
+        Thumbprint
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Configuration;
 using IdentityServer4.Models;
@@ -97,7 +96,7 @@ namespace Microsoft.Extensions.DependencyInjection
             NameType nameType = NameType.SubjectDistinguishedName,
             string signingAlgorithm = SecurityAlgorithms.RsaSha256)
         {
-            var certificate = FindCertificate(name, location, nameType);
+            var certificate = CryptoHelper.FindCertificate(name, location, nameType);
             if (certificate == null) throw new InvalidOperationException($"certificate: '{name}' not found in certificate store");
 
             return builder.AddSigningCredential(certificate, signingAlgorithm);
@@ -154,7 +153,7 @@ namespace Microsoft.Extensions.DependencyInjection
             this IIdentityServerBuilder builder,
             bool persistKey = true,
             string filename = null,
-            string signingAlgorithm = SecurityAlgorithms.RsaSha256)
+            IdentityServerConstants.RsaSigningAlgorithm signingAlgorithm = IdentityServerConstants.RsaSigningAlgorithm.RS256)
         {
             if (filename == null)
             {
@@ -212,6 +211,48 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// Adds an RSA-based validation key.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="key">The RSA key</param>
+        /// <param name="signingAlgorithm">The RSA-based signing algorithm</param>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddValidationKey(
+            this IIdentityServerBuilder builder,
+            RsaSecurityKey key,
+            IdentityServerConstants.RsaSigningAlgorithm signingAlgorithm = IdentityServerConstants.RsaSigningAlgorithm.RS256)
+        {
+            var keyInfo = new SecurityKeyInfo
+            {
+                Key = key,
+                SigningAlgorithm = CryptoHelper.GetRsaSigningAlgorithmValue(signingAlgorithm)
+            };
+
+            return builder.AddValidationKey(keyInfo);
+        }
+
+        /// <summary>
+        /// Adds an ECDSA-based validation key.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="key">The ECDSA key</param>
+        /// <param name="signingAlgorithm">The ECDSA-based signing algorithm</param>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddValidationKey(
+            this IIdentityServerBuilder builder,
+            ECDsaSecurityKey key,
+            IdentityServerConstants.ECDsaSigningAlgorithm signingAlgorithm = IdentityServerConstants.ECDsaSigningAlgorithm.ES256)
+        {
+            var keyInfo = new SecurityKeyInfo
+            {
+                Key = key,
+                SigningAlgorithm = CryptoHelper.GetECDsaSigningAlgorithmValue(signingAlgorithm)
+            };
+
+            return builder.AddValidationKey(keyInfo);
+        }
+
+        /// <summary>
         /// Adds the validation key.
         /// </summary>
         /// <param name="builder">The builder.</param>
@@ -219,7 +260,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="signingAlgorithm">The signing algorithm</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static IIdentityServerBuilder AddValidationKey(this IIdentityServerBuilder builder, X509Certificate2 certificate, string signingAlgorithm = SecurityAlgorithms.RsaSha256)
+        public static IIdentityServerBuilder AddValidationKey(
+            this IIdentityServerBuilder builder,
+            X509Certificate2 certificate,
+            string signingAlgorithm = SecurityAlgorithms.RsaSha256)
         {
             if (certificate == null) throw new ArgumentNullException(nameof(certificate));
 
@@ -247,56 +291,10 @@ namespace Microsoft.Extensions.DependencyInjection
             NameType nameType = NameType.SubjectDistinguishedName,
             string signingAlgorithm = SecurityAlgorithms.RsaSha256)
         {
-            var certificate = FindCertificate(name, location, nameType);
+            var certificate = CryptoHelper.FindCertificate(name, location, nameType);
             if (certificate == null) throw new InvalidOperationException($"certificate: '{name}' not found in certificate store");
 
             return builder.AddValidationKey(certificate, signingAlgorithm);
         }
-
-        private static X509Certificate2 FindCertificate(string name, StoreLocation location, NameType nameType)
-        {
-            X509Certificate2 certificate = null;
-
-            if (location == StoreLocation.LocalMachine)
-            {
-                if (nameType == NameType.SubjectDistinguishedName)
-                {
-                    certificate = X509.LocalMachine.My.SubjectDistinguishedName.Find(name, validOnly: false).FirstOrDefault();
-                }
-                else if (nameType == NameType.Thumbprint)
-                {
-                    certificate = X509.LocalMachine.My.Thumbprint.Find(name, validOnly: false).FirstOrDefault();
-                }
-            }
-            else
-            {
-                if (nameType == NameType.SubjectDistinguishedName)
-                {
-                    certificate = X509.CurrentUser.My.SubjectDistinguishedName.Find(name, validOnly: false).FirstOrDefault();
-                }
-                else if (nameType == NameType.Thumbprint)
-                {
-                    certificate = X509.CurrentUser.My.Thumbprint.Find(name, validOnly: false).FirstOrDefault();
-                }
-            }
-
-            return certificate;
-        }
-    }
-
-    /// <summary>
-    /// Describes the string so we know what to search for in certificate store
-    /// </summary>
-    public enum NameType
-    {
-        /// <summary>
-        /// subject distinguished name
-        /// </summary>
-        SubjectDistinguishedName,
-
-        /// <summary>
-        /// thumbprint
-        /// </summary>
-        Thumbprint
     }
 }
