@@ -177,7 +177,7 @@ namespace IdentityServer4.Hosting
                 var time = new DateTimeOffset(authTime).ToUnixTimeSeconds().ToString();
 
                 _logger.LogDebug("Adding auth_time claim with value: {value}", time);
-                identity.AddClaim(new Claim(JwtClaimTypes.AuthenticationTime, time, ClaimValueTypes.Integer));
+                identity.AddClaim(new Claim(JwtClaimTypes.AuthenticationTime, time, ClaimValueTypes.Integer64));
             }
         }
     }

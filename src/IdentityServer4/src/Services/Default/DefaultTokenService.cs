@@ -116,7 +116,7 @@ namespace IdentityServer4.Services
             }
 
             // add iat claim
-            claims.Add(new Claim(JwtClaimTypes.IssuedAt, Clock.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer));
+            claims.Add(new Claim(JwtClaimTypes.IssuedAt, Clock.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64));
 
             // add at_hash claim
             if (request.AccessTokenToHash.IsPresent())

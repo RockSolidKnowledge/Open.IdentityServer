@@ -234,7 +234,7 @@ namespace IdentityServer4.Services
             var claims = new List<Claim>
             {
                 new Claim(JwtClaimTypes.Subject, subject.GetSubjectId()),
-                new Claim(JwtClaimTypes.AuthenticationTime, subject.GetAuthenticationTimeEpoch().ToString(), ClaimValueTypes.Integer),
+                new Claim(JwtClaimTypes.AuthenticationTime, subject.GetAuthenticationTimeEpoch().ToString(), ClaimValueTypes.Integer64),
                 new Claim(JwtClaimTypes.IdentityProvider, subject.GetIdentityProvider())
             };
 
