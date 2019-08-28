@@ -50,6 +50,7 @@
     <PackageReference Update="Microsoft.AspNetCore.TestHost" Version="$(FrameworkVersion)" />
     <PackageReference Update="Microsoft.AspNetCore.Identity" Version="$(FrameworkVersion)" />
     <PackageReference Update="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(FrameworkVersion)" />
+    <PackageReference Update="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="$(FrameworkVersion)" />
     
     <!--microsoft entity framework -->
     <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="$(EntityFrameworkVersion)" />
