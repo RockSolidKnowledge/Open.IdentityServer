@@ -135,22 +135,7 @@ namespace IdentityServer4.Validation
         /// <returns></returns>
         protected virtual Task<List<SecurityKey>> GetKeysAsync(Client client)
         {
-            var secrets = client.ClientSecrets.ToList().AsReadOnly();
-
-            var keys = new List<SecurityKey>();
-
-            var certificates = GetCertificates(secrets)
-                                .Select(c => (SecurityKey)new X509SecurityKey(c))
-                                .ToList();
-            keys.AddRange(certificates);
-
-            var jwks = secrets
-                        .Where(s => s.Type == IdentityServerConstants.SecretTypes.JsonWebKey)
-                        .Select(s => new Microsoft.IdentityModel.Tokens.JsonWebKey(s.Value))
-                        .ToList();
-            keys.AddRange(jwks);
-
-            return Task.FromResult(keys);
+            return client.ClientSecrets.GetKeysAsync();
         }
 
         /// <summary>
@@ -214,28 +199,6 @@ namespace IdentityServer4.Validation
             }
 
             return Task.FromResult(payload);
-        }
-
-        private List<X509Certificate2> GetCertificates(IEnumerable<Secret> secrets)
-        {
-            return secrets
-                .Where(s => s.Type == IdentityServerConstants.SecretTypes.X509CertificateBase64)
-                .Select(s => GetCertificateFromString(s.Value))
-                .Where(c => c != null)
-                .ToList();
-        }
-
-        private X509Certificate2 GetCertificateFromString(string value)
-        {
-            try
-            {
-                return new X509Certificate2(Convert.FromBase64String(value));
-            }
-            catch
-            {
-                Logger.LogWarning("Could not read certificate from string: " + value);
-                return null;
-            }
         }
     }
 }

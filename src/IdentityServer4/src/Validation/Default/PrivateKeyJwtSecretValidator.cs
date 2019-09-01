@@ -42,40 +42,36 @@ namespace IdentityServer4.Validation
         /// A validation result
         /// </returns>
         /// <exception cref="System.ArgumentException">ParsedSecret.Credential is not a JWT token</exception>
-        public Task<SecretValidationResult> ValidateAsync(IEnumerable<Secret> secrets, ParsedSecret parsedSecret)
+        public async Task<SecretValidationResult> ValidateAsync(IEnumerable<Secret> secrets, ParsedSecret parsedSecret)
         {
-            var fail = Task.FromResult(new SecretValidationResult { Success = false });
-            var success = Task.FromResult(new SecretValidationResult { Success = true });
+            var fail = new SecretValidationResult { Success = false };
+            var success = new SecretValidationResult { Success = true };
 
             if (parsedSecret.Type != IdentityServerConstants.ParsedSecretTypes.JwtBearer)
             {
                 return fail;
             }
 
-            var jwtTokenString = parsedSecret.Credential as string;
-
-            if (jwtTokenString == null)
+            if (!(parsedSecret.Credential is string jwtTokenString))
             {
                 _logger.LogError("ParsedSecret.Credential is not a string.");
                 return fail;
             }
 
-            var enumeratedSecrets = secrets.ToList().AsReadOnly();
-
-            List<SecurityKey> trustedKeys; 
+            List<SecurityKey> trustedKeys;
             try
             {
-                trustedKeys = GetTrustedKeys(enumeratedSecrets);
+                trustedKeys = await secrets.GetKeysAsync();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Could not parse assertion as JWT token");
+                _logger.LogError(e, "Could not parse secrets");
                 return fail;
             }
 
             if (!trustedKeys.Any())
             {
-                _logger.LogError("There are no certificates available to validate client assertion.");
+                _logger.LogError("There are no keys available to validate client assertion.");
                 return fail;
             }
 
@@ -111,43 +107,6 @@ namespace IdentityServer4.Validation
             {
                 _logger.LogError(e, "JWT token validation error");
                 return fail;
-            }
-        }
-
-        private List<SecurityKey> GetTrustedKeys(IReadOnlyCollection<Secret> secrets)
-        {
-            var trustedKeys = GetAllTrustedCertificates(secrets)
-                                .Select(c => (SecurityKey)new X509SecurityKey(c))
-                                .ToList();
-
-            if (!trustedKeys.Any()
-                && secrets.Any(s => s.Type == IdentityServerConstants.SecretTypes.X509CertificateThumbprint))
-            {
-                _logger.LogWarning("Cannot validate client assertion token using only thumbprint. Client must be configured with X509CertificateBase64 secret.");
-            }
-
-            return trustedKeys;
-        }
-
-        private List<X509Certificate2> GetAllTrustedCertificates(IEnumerable<Secret> secrets)
-        {
-            return secrets
-                .Where(s => s.Type == IdentityServerConstants.SecretTypes.X509CertificateBase64)
-                .Select(s => GetCertificateFromString(s.Value))
-                .Where(c => c != null)
-                .ToList();
-        }
-
-        private X509Certificate2 GetCertificateFromString(string value)
-        {
-            try
-            {
-                return new X509Certificate2(Convert.FromBase64String(value));
-            }
-            catch
-            {
-                _logger.LogWarning("Could not read certificate from string: " + value);
-                return null;
             }
         }
     }
