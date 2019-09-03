@@ -13,7 +13,7 @@ namespace Host
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -36,10 +36,12 @@ namespace Host
             {
                 Log.Information("Starting host...");
                 CreateHostBuilder(args).Build().Run();
+                return 0;
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex, "Host terminated unexpectedly.");
+                return 1;
             }
             finally
             {
