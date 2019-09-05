@@ -27,7 +27,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
             }
         }
 
-        [Theory(Skip = "EfCore3 in-mem db does not support Include"), MemberData(nameof(TestDatabaseProviders))]
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
         public void FindClientByIdAsync_WhenClientExists_ExpectClientRetured(DbContextOptions<ConfigurationDbContext> options)
         {
             var testClient = new Client
@@ -52,7 +52,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
             Assert.NotNull(client);
         }
 
-        [Theory(Skip = "EfCore3 in-mem db does not support Include"), MemberData(nameof(TestDatabaseProviders))]
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
         public void FindClientByIdAsync_WhenClientExists_ExpectClientPropertiesRetured(DbContextOptions<ConfigurationDbContext> options)
         {
             var testClient = new Client

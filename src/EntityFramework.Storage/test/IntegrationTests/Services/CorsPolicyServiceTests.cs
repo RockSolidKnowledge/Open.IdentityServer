@@ -29,7 +29,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Services
             }
         }
 
-        [Theory(Skip = "EFCore3 doesn't seem to support SelectMany"), MemberData(nameof(TestDatabaseProviders))]
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
         public void IsOriginAllowedAsync_WhenOriginIsAllowed_ExpectTrue(DbContextOptions<ConfigurationDbContext> options)
         {
             const string testCorsOrigin = "https://identityserver.io/";
@@ -68,7 +68,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Services
             Assert.True(result);
         }
 
-        [Theory(Skip = "EFCore3 doesn't seem to support SelectMany"), MemberData(nameof(TestDatabaseProviders))]
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
         public void IsOriginAllowedAsync_WhenOriginIsNotAllowed_ExpectFalse(DbContextOptions<ConfigurationDbContext> options)
         {
             using (var context = new ConfigurationDbContext(options, StoreOptions))

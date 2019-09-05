@@ -220,7 +220,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
             code.Subject.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject && x.Value == expectedSubject).Should().NotBeNull();
         }
 
-        [Theory(Skip = "Strange NRE for InMemory provider"), MemberData(nameof(TestDatabaseProviders))]
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
         public async Task FindByUserCodeAsync_WhenUserCodeDoesNotExist_ExpectNull(DbContextOptions<PersistedGrantDbContext> options)
         {
             using (var context = new PersistedGrantDbContext(options, StoreOptions))
@@ -276,7 +276,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
             code.Subject.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject && x.Value == expectedSubject).Should().NotBeNull();
         }
 
-        [Theory(Skip = "Strange NRE for InMemory provider"), MemberData(nameof(TestDatabaseProviders))]
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
         public async Task FindByDeviceCodeAsync_WhenDeviceCodeDoesNotExist_ExpectNull(DbContextOptions<PersistedGrantDbContext> options)
         {
             using (var context = new PersistedGrantDbContext(options, StoreOptions))
@@ -353,7 +353,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
             parsedCode.Subject.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject && x.Value == expectedSubject).Should().NotBeNull();
         }
 
-        [Theory(Skip = "Strange NRE for InMemory provider"), MemberData(nameof(TestDatabaseProviders))]
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
         public async Task RemoveByDeviceCodeAsync_WhenDeviceCodeExists_ExpectDeviceCodeDeleted(DbContextOptions<PersistedGrantDbContext> options)
         {
             var testDeviceCode = $"device_{Guid.NewGuid().ToString()}";
@@ -393,7 +393,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 context.DeviceFlowCodes.FirstOrDefault(x => x.UserCode == testUserCode).Should().BeNull();
             }
         }
-        [Theory(Skip = "Strange NRE for InMemory provider"), MemberData(nameof(TestDatabaseProviders))]
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
         public async Task RemoveByDeviceCodeAsync_WhenDeviceCodeDoesNotExists_ExpectSuccess(DbContextOptions<PersistedGrantDbContext> options)
         {
             using (var context = new PersistedGrantDbContext(options, StoreOptions))

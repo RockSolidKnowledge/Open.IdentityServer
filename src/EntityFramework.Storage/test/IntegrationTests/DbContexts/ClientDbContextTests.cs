@@ -22,7 +22,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.DbContexts
             }
         }
 
-        [Theory(Skip = "EfCore3 in-mem db does not support Include"), MemberData(nameof(TestDatabaseProviders))]
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
         public void CanAddAndDeleteClientScopes(DbContextOptions<ConfigurationDbContext> options)
         {
             using (var db = new ConfigurationDbContext(options, StoreOptions))
@@ -67,7 +67,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.DbContexts
             }
         }
 
-        [Theory(Skip = "EfCore3 in-mem db does not support Include"), MemberData(nameof(TestDatabaseProviders))]
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
         public void CanAddAndDeleteClientRedirectUri(DbContextOptions<ConfigurationDbContext> options)
         {
             using (var db = new ConfigurationDbContext(options, StoreOptions))
