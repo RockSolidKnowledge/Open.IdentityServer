@@ -6,7 +6,7 @@ You can run custom code as part of the token issuance pipeline at the token endp
 This allows e.g. for
 
 * adding additional validation logic
-* changing certain parameters (e.g. token lifetime) dynamicaly
+* changing certain parameters (e.g. token lifetime) dynamically
 
 For this purpose, implement (and register) the ``ICustomTokenRequestValidator`` interface::
 
