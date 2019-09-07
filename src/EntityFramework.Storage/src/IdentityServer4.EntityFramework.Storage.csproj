@@ -25,6 +25,7 @@
   <ItemGroup>
     <PackageReference Include="IdentityServer4.Storage" />
     <PackageReference Include="AutoMapper" Version="8.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Abstractions" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
