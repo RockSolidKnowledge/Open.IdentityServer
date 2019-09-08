@@ -8,11 +8,22 @@ It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and oper
 
 For project documentation, please visit [readthedocs](https://identityserver4.readthedocs.io).
 
+## Branch structure
+Active development happens on the master branch. This always contains the latest version. Each (pre-) release is tagged with the corresponding version. The [aspnetcore1](https://github.com/IdentityServer/IdentityServer4/tree/aspnetcore1) and [aspnetcore2](https://github.com/IdentityServer/IdentityServer4/tree/aspnetcore2) branches contain the latest versions of the older ASP.NET Core based versions.
+
 ## How to build
-IdentityServer is built against the latest ASP.NET Core 2.
+IdentityServer is built against the latest ASP.NET Core 3.
 
 * [Install](https://www.microsoft.com/net/download/core#/current) the [required](https://github.com/IdentityServer/IdentityServer4/blob/master/global.json) .NET Core SDK
 * Run `build.ps1` or `build.sh` in the root of the repo
+
+## Documentation
+For project documentation, please visit [readthedocs](https://identityserver4.readthedocs.io).
+
+See [here](http://docs.identityserver.io/en/aspnetcore1/) for the 2.x docs, and [here](http://docs.identityserver.io/en/aspnetcore2/) for the 1.x docs.
+
+## Bug reports and feature requests
+Please use the [issue tracker](https://github.com/IdentityServer/IdentityServer4/issues) for that. We only support the latest version for free, for older versions, you can get a commercial support agreement with us. Write us an email for that.
 
 ## Commercial and Community Support
 If you need help with implementing IdentityServer4 or your security architecture in general, there are both free and commercial support options.
