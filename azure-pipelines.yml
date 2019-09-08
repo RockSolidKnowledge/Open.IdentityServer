@@ -1,6 +1,7 @@
 trigger:
 - master
 - features/*
+- aspnetcore2
 
 jobs:
 - job: Linux
