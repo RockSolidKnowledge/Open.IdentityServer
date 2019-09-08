@@ -1,5 +1,5 @@
-Welcome to IdentityServer4
-==========================
+Welcome to IdentityServer4 (ASP.NET Core 3.x)
+=============================================
 
 .. image:: images/logo.png
    :align: center
