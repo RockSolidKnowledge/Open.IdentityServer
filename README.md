@@ -20,7 +20,7 @@ IdentityServer is built against the latest ASP.NET Core 3.
 ## Documentation
 For project documentation, please visit [readthedocs](https://identityserver4.readthedocs.io).
 
-See [here](http://docs.identityserver.io/en/aspnetcore1/) for the 2.x docs, and [here](http://docs.identityserver.io/en/aspnetcore2/) for the 1.x docs.
+See [here](http://docs.identityserver.io/en/aspnetcore1/) for the 1.x docs, and [here](http://docs.identityserver.io/en/aspnetcore2/) for the 2.x docs.
 
 ## Bug reports and feature requests
 Please use the [issue tracker](https://github.com/IdentityServer/IdentityServer4/issues) for that. We only support the latest version for free, for older versions, you can get a commercial support agreement with us. Write us an email for that.
