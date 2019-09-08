@@ -23,7 +23,7 @@ For project documentation, please visit [readthedocs](https://identityserver4.re
 See [here](http://docs.identityserver.io/en/aspnetcore1/) for the 1.x docs, and [here](http://docs.identityserver.io/en/aspnetcore2/) for the 2.x docs.
 
 ## Bug reports and feature requests
-Please use the [issue tracker](https://github.com/IdentityServer/IdentityServer4/issues) for that. We only support the latest version for free, for older versions, you can get a commercial support agreement with us. Write us an email for that.
+Please use the [issue tracker](https://github.com/IdentityServer/IdentityServer4/issues) for that. We only support the latest version for free. For older versions, you can get a commercial support agreement with us.
 
 ## Commercial and Community Support
 If you need help with implementing IdentityServer4 or your security architecture in general, there are both free and commercial support options.
