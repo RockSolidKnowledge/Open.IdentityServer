@@ -35,6 +35,10 @@ namespace migrations.Migrations.KeyManagement
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[Name] IS NOT NULL");
+
                     b.ToTable("DataProtectionKeys");
                 });
 
@@ -53,6 +57,10 @@ namespace migrations.Migrations.KeyManagement
                         .IsRequired();
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[Name] IS NOT NULL");
 
                     b.ToTable("SigningKeys");
                 });

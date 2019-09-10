@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace migrations.Migrations.KeyManagement
 {
     [DbContext(typeof(KeyManagementDbContext))]
-    [Migration("20190830175557_KeyManagement")]
+    [Migration("20190910134450_KeyManagement")]
     partial class KeyManagement
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,6 +37,10 @@ namespace migrations.Migrations.KeyManagement
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[Name] IS NOT NULL");
+
                     b.ToTable("DataProtectionKeys");
                 });
 
@@ -55,6 +59,10 @@ namespace migrations.Migrations.KeyManagement
                         .IsRequired();
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[Name] IS NOT NULL");
 
                     b.ToTable("SigningKeys");
                 });

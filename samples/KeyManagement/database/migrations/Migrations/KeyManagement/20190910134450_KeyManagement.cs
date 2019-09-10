@@ -37,6 +37,20 @@ namespace migrations.Migrations.KeyManagement
                 {
                     table.PrimaryKey("PK_SigningKeys", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DataProtectionKeys_Name",
+                table: "DataProtectionKeys",
+                column: "Name",
+                unique: true,
+                filter: "[Name] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SigningKeys_Name",
+                table: "SigningKeys",
+                column: "Name",
+                unique: true,
+                filter: "[Name] IS NOT NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

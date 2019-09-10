@@ -3,13 +3,15 @@
 
 
 using System;
+using System.Linq;
+using IdentityModel;
 using IdentityServer4.KeyManagement.EntityFramework;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 
 namespace sample
@@ -29,6 +31,9 @@ namespace sample
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var name = "CN=test.dataprotection";
+            var cert = X509.LocalMachine.My.SubjectDistinguishedName.Find(name, false).FirstOrDefault();
+
             var cn = Configuration.GetConnectionString("db");
 
             services.AddDataProtection()
@@ -36,7 +41,8 @@ namespace sample
                 {
                     ConfigureDbContext = b => b.UseSqlServer(cn),
                     LoggerFactory = LoggerFactory,
-                });
+                })
+                .ProtectKeysWithCertificate(cert);
 
             var builder = services.AddIdentityServer()
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())

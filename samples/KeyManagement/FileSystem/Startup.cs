@@ -25,7 +25,7 @@ namespace sample
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var name = "CN=foo";
+            var name = "CN=test.dataprotection";
             var cert = X509.LocalMachine.My.SubjectDistinguishedName.Find(name, false).FirstOrDefault();
 
             services.AddDataProtection()

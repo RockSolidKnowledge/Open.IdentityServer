@@ -29,8 +29,16 @@ CREATE TABLE [SigningKeys] (
 
 GO
 
+CREATE UNIQUE INDEX [IX_DataProtectionKeys_Name] ON [DataProtectionKeys] ([Name]) WHERE [Name] IS NOT NULL;
+
+GO
+
+CREATE UNIQUE INDEX [IX_SigningKeys_Name] ON [SigningKeys] ([Name]) WHERE [Name] IS NOT NULL;
+
+GO
+
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20190830175557_KeyManagement', N'2.1.11-servicing-32099');
+VALUES (N'20190910134450_KeyManagement', N'2.1.11-servicing-32099');
 
 GO
 
