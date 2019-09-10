@@ -71,6 +71,7 @@ namespace IdentityModel.AspNetCore
                         if (response.IsError)
                         {
                             _logger.LogWarning("Error refreshing token: {error}", response.Error);
+                            context.RejectPrincipal();
                             return;
                         }
 
