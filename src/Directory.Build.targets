@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <!--build related-->
-    <PackageReference Include="MinVer" Version="1.1.0" PrivateAssets="All" />
+    <PackageReference Include="MinVer" Version="2.0.0-alpha.2" PrivateAssets="All" />
     <PackageReference Update="SimpleExec" Version="6.1.0-beta.1" />
     <PackageReference Update="Bullseye" Version="3.0.0-beta.3" />
     <PackageReference Update="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
