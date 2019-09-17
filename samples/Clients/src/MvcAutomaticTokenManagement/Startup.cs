@@ -77,10 +77,10 @@ namespace MvcCode
                 });
 
             // add automatic token management
-            services.AddTokenManagement();
+            services.AddAccessTokenManagement();
 
             // add HTTP client to call protected API
-            services.AddApiClient("client", client =>
+            services.AddAccessTokenClient("client", client =>
             {
                 client.BaseAddress = new Uri(Constants.SampleApi);
             });
