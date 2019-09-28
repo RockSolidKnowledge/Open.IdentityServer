@@ -56,6 +56,7 @@ Erik Gulbrandsen
 Olga Klimova  
 Alexandru Puiu  
 Michael Calasanz  
-Fredrik Karlsson  ([@fredrik_zenit](https://twitter.com/fredrik_zenit))  
+Fredrik Karlsson ([@fredrik_zenit](https://twitter.com/fredrik_zenit))  
 Steve Graddy
-Simon Colmer  ([@workshop2](https://twitter.com/workshop2))  
+Simon Colmer ([@workshop2](https://twitter.com/workshop2))  
+Jeremy Sinclair ([@sinclairinator](https://twitter.com/sinclairinator)) 
