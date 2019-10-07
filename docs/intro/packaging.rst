@@ -10,6 +10,7 @@ IdentityServer4 main repo
 Contains the core IdentityServer object model, services and middleware as well as the EntityFramework and ASP.NET Identity integration.
 
 nugets:
+
 * `IdentityServer4 <https://www.nuget.org/packages/IdentityServer4/>`_
 * `IdentityServer4.EntityFramework <https://www.nuget.org/packages/IdentityServer4.EntityFramework>`_
 * `IdentityServer4.AspNetIdentity <https://www.nuget.org/packages/IdentityServer4.AspNetIdentity>`_
