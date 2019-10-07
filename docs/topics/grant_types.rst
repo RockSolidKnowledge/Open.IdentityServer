@@ -20,8 +20,6 @@ You can also specify the grant types list manually::
         "my_custom_grant_type" 
     };
 
-.. Note:: For security reasons, not all grant type combinations are allowed. See below for more details.
-
 While IdentityServer supports all standard grant types, you really only need to know a handful of them for common application scenarios.
 
 Machine to Machine Communication
@@ -37,101 +35,73 @@ Interactive Clients
 ===================
 This is the most common type of client scenario: web applications, SPAs or native/mobile apps with interactive users.
 
+.. Note:: Feel free to skip to the summary, if you don't care about all the technical details.
+
 For this type of clients, the ``authorization code`` flow was designed. That flow consists of two physical operations:
 
 * a front-channel step via the browser where all "interactive" things happen, e.g. login page, consent etc. This step results in an authorization code that represents the outcome of the front-channel operation.
 * a back-channel step where the authorization code from step 1 gets exchanged with the requested tokens. Confidential clients need to authenticate at this point.
 
+This flow has the following security properties:
+
+* no data (besides the authorization code which is basically a random string) gets leaked over the browser channel
+* authorization codes can only be used once
+* the authorization code can only be turned into tokens when (for confidential clients - more on that later) the client secret is known
+
+This sounds all very good - still there is one problem called `code substitution attack <https://nat.sakimura.org/2016/01/25/cut-and-pasted-code-attack-in-oauth-2-0-rfc6749/>`_.
+There are two modern mitigation techniques for this:
+
+**OpenID Connect Hybrid Flow**
+
+This uses a response type of ``code id_token`` to add an additional identity token to the response. This token is signed and protected against substitution.
+In addition it contains the hash of code via the ``c_hash`` claim. This allows checking that you indeed got the right code (experts call this a detached signature).
+
+This solves the problem but has the following down-sides:
+
+* the ``id_token`` gets transmitted over the font-channel and might leak additional (personal identifiable) data
+* all the mitigitation steps (e.g. crypto) need to be implemented by the client. This results in more complicated client library implementations.
+
+**RFC 7636 - Proof Key for Code Exchange (PKCE)**
+
+This essentially introduces a per-request secret for code flow (please read up on the details `here <https://tools.ietf.org/html/rfc7636>`_.
+All the client has to implement for this, is creating a random string and hashing it using SHA256.
+
+This also solves the substition problem, because the client can prove that it is the same client on front and back-channel, and has the following additional advantages:
+
+* the client implementation is very simples
+* it also solves the problem of the absence of a static secret for public clients
+* no additional front-channel response artifacts are needed
+
+**Summary**
+Interactive clients should use an authorization code-based flow. To protect against code substitution, either hybrid flow or PKCE should be used.
+If PKCE is available, this is the simpler solution to the problem.
+
+PKCE is already the official recommendation for `native <https://tools.ietf.org/html/rfc8252#section-6>`_ applications and `SPAs <https://tools.ietf.org/html/draft-ietf-oauth-browser-based-apps-03#section-4>`_ - and with the release of ASP.NET Core 3 also by default supported in their OpenID Connect handler as well.
+
+This is how you would configure an interactive client::
+
+    var client = new Client
+    {
+        ClientId = "...",
+
+        // set client secret for confidential clients
+        ClientSecret = { ... },
+
+        // ...or turn off for public clients
+        RequireClientSecret = false,
+
+        AllowedGrantTypes = GrantTypes.Code,
+        RequirePkce = true
+    };
 
 
+Interactive clients without browsers or with constrained input devices
+======================================================================
+This grant type is detailed `RFC 8628 <https://tools.ietf.org/html/rfc8628>`_.
 
+This flow outsources user authentication and consent to an external device (e.g. a smart phone).
+It is typically used by devices that don't have proper keyboards (e.g. a TVs, gaming consoles...) and can request both identity and API resources.
 
-
-
-Resource owner password
-=======================
-The resource owner password grant type allows to request tokens on behalf of a user by sending the user's name and password to the token endpoint.
-This is so called "non-interactive" authentication and is generally not recommended.
-
-There might be reasons for certain legacy or first-party integration scenarios, where this grant type is useful, but the general recommendation
-is to use an interactive flow like implicit or hybrid for user authentication instead.
-
-See the :ref:`Resource Owner Password Quick Start <_refResourceOwnerQuickstart>` for a sample how to use it.
-You also need to provide code for the username/password validation which can be supplied by implementing the ``IResourceOwnerPasswordValidator`` interface.
-You can find more information about this interface :ref:`here <refResourceOwnerPasswordValidator>`. 
-
-
-
-
-
-
-
-Implicit
-========
-The implicit grant type is optimized for browser-based applications. Either for user authentication-only (both server-side and JavaScript applications),
-or authentication and access token requests (JavaScript applications).
-
-In the implicit flow, all tokens are transmitted via the browser, and advanced features like refresh tokens are thus not allowed.
-
-:ref:`This <refImplicitQuickstart>` quickstart shows authentication for server-side web apps, and 
-:ref:`this <refJavaScriptQuickstart>` shows JavaScript.
-
-.. Note:: For JavaScript-based applications, Implicit is not recommended anymore. Use Authorization Code with PKCE instead.
-
-
-
-
-
-
-
-Authorization code
-==================
-Authorization code flow was originally specified by OAuth 2, and provides a way to retrieve tokens on a back-channel as opposed to the browser front-channel.
-It also support client authentication.
-
-While this grant type is supported on its own, it is generally recommended you combine that with identity tokens
-which turns it into the so called hybrid flow.
-Hybrid flow gives you important extra features like signed protocol responses.
-
-Hybrid
-======
-Hybrid flow is a combination of the implicit and authorization code flow - it uses combinations of multiple grant types, most typically ``code id_token``.
-
-In hybrid flow the identity token is transmitted via the browser channel and contains the signed protocol response along with signatures for other artifacts
-like the authorization code. This mitigates a number of attacks that apply to the browser channel.
-After successful validation of the response, the back-channel is used to retrieve the access and refresh token.
-
-This is the recommended flow for native applications that want to retrieve access tokens (and possibly refresh tokens as well) and is used
-for server-side web applications and native desktop/mobile applications.
-
-See :ref:`this <refHybridQuickstart>` quickstart for more information about using hybrid flow with MVC. 
-
-Device flow
-===========
-Device flow is designed for browserless and input constrained devices, where the device is unable to securely capture user credentials. This flow outsources user authentication and consent to an external device (e.g. a smart phone).
-
-This flow is typically used by IoT devices and can request both identity and API resources.
-
-Refresh tokens
-==============
-Refresh tokens allow gaining long lived access to APIs.
-
-You typically want to keep the lifetime of access tokens as short as possible, but at the same time don't want to bother the user
-over and over again with doing a front-channel roundtrips to IdentityServer for requesting new ones.
-
-Refresh tokens allow requesting new access tokens without user interaction. Every time the client refreshes a token it needs to make an 
-(authenticated) back-channel call to IdentityServer. This allows checking if the refresh token is still valid, or has been revoked in the meantime.
-
-Refresh tokens are supported in hybrid, authorization code, device flow and resource owner password flows. 
-To request a refresh token, the client needs to include the ``offline_access`` scope in the token request (and must be authorized to request for that scope). 
-
-Extension grants
+Custom scenarios
 ================
 Extension grants allow extending the token endpoint with new grant types. See :ref:`this <refExtensionGrants>` for more details. 
-
-Incompatible grant types
-========================
-Some grant type combinations are forbidden:
-
-* Mixing implicit and authorization code or hybrid would allow a downgrade attack from the more secure code based flow to implicit.
-* Same concern exists for allowing both authorization code and hybrid
