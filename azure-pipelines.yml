@@ -8,7 +8,7 @@ jobs:
     vmImage: 'ubuntu-16.04'
   steps:
   - task: UseDotNet@2
-    displayName: 'Install .NET Core 3.x SDK'
+    displayName: 'Install .NET Core SDK'
     inputs:
       packageType: 'sdk'
       useGlobalJson: true
