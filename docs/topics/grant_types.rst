@@ -1,9 +1,9 @@
 Grant Types
 ^^^^^^^^^^^
 The OpenID Connect and OAuth 2.0 specifications define so-called grant types (often also called flows - or protocol flows).
-Grant types specify how a client interacts with the token service.
+Grant types specify how a client can interact with the token service.
 
-You need to specify which grant type a client can use via the ``AllowedGrantTypes`` property on the ``Client`` configuration.
+You need to specify which grant types a client can use via the ``AllowedGrantTypes`` property on the ``Client`` configuration.
 This allows locking down the protocol interactions that are allowed for a given client.
 
 A client can be configured to use more than a single grant type (e.g. Authorization Code flow for user centric operations and client credentials for server to server communication).
@@ -20,7 +20,7 @@ You can also specify the grant types list manually::
         "my_custom_grant_type" 
     };
 
-While IdentityServer supports all standard grant types, you really only need to know a handful of them for common application scenarios.
+While IdentityServer supports all standard grant types, you really only need to know a two of them for common application scenarios.
 
 Machine to Machine Communication
 ================================
@@ -63,20 +63,22 @@ This solves the problem but has the following down-sides:
 
 **RFC 7636 - Proof Key for Code Exchange (PKCE)**
 
-This essentially introduces a per-request secret for code flow (please read up on the details `here <https://tools.ietf.org/html/rfc7636>`_.
+This essentially introduces a per-request secret for code flow (please read up on the details `here <https://tools.ietf.org/html/rfc7636>`_).
 All the client has to implement for this, is creating a random string and hashing it using SHA256.
 
 This also solves the substition problem, because the client can prove that it is the same client on front and back-channel, and has the following additional advantages:
 
-* the client implementation is very simples
+* the client implementation is very simple compared to hybrid flow
 * it also solves the problem of the absence of a static secret for public clients
 * no additional front-channel response artifacts are needed
 
 **Summary**
+
 Interactive clients should use an authorization code-based flow. To protect against code substitution, either hybrid flow or PKCE should be used.
 If PKCE is available, this is the simpler solution to the problem.
 
-PKCE is already the official recommendation for `native <https://tools.ietf.org/html/rfc8252#section-6>`_ applications and `SPAs <https://tools.ietf.org/html/draft-ietf-oauth-browser-based-apps-03#section-4>`_ - and with the release of ASP.NET Core 3 also by default supported in their OpenID Connect handler as well.
+PKCE is already the official recommendation for `native <https://tools.ietf.org/html/rfc8252#section-6>`_ applications 
+and `SPAs <https://tools.ietf.org/html/draft-ietf-oauth-browser-based-apps-03#section-4>`_ - and with the release of ASP.NET Core 3 also by default supported in the OpenID Connect handler as well.
 
 This is how you would configure an interactive client::
 
@@ -100,7 +102,7 @@ Interactive clients without browsers or with constrained input devices
 This grant type is detailed `RFC 8628 <https://tools.ietf.org/html/rfc8628>`_.
 
 This flow outsources user authentication and consent to an external device (e.g. a smart phone).
-It is typically used by devices that don't have proper keyboards (e.g. a TVs, gaming consoles...) and can request both identity and API resources.
+It is typically used by devices that don't have proper keyboards (e.g. TVs, gaming consoles...) and can request both identity and API resources.
 
 Custom scenarios
 ================
