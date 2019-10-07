@@ -21,10 +21,6 @@ Please log a new issue in the appropriate GitHub repo:
 * `Core <https://github.com/IdentityServer/IdentityServer4>`_
 * `AccessTokenValidation <https://github.com/IdentityServer/IdentityServer4.AccessTokenValidation>`_
 
-Other discussions
-^^^^^^^^^^^^^^^^^
-https://gitter.im/IdentityServer/IdentityServer4
-
 Contributing code and content
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 You will need to sign a Contributor License Agreement before you can contribute any code or content.
@@ -41,8 +37,8 @@ We generally don't want to take ownership of those contribution libraries, we ar
 
 As of October 2017, the IdentityServer4.* nuget namespace is reserved for our packages. Please use the following naming conventions:
 
-YourProjectName.IdentityServer4
+``YourProjectName.IdentityServer4``
 
 or
 
-IdentityServer4.Contrib.YourProjectName
+``IdentityServer4.Contrib.YourProjectName
