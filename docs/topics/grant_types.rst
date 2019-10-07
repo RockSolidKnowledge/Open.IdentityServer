@@ -1,51 +1,51 @@
 Grant Types
 ^^^^^^^^^^^
+The OpenID Connect and OAuth 2.0 specifications define so-called grant types (often also called flows - or protocol flows).
+Grant types specify how a client interacts with the token service.
 
-Grant types are a way to specify how a client wants to interact with IdentityServer.
-The OpenID Connect and OAuth 2 specs define the following grant types:
+You need to specify which grant type a client can use via the ``AllowedGrantTypes`` property on the ``Client`` configuration.
+This allows locking down the protocol interactions that are allowed for a given client.
 
-* Implicit
-* Authorization code
-* Hybrid
-* Client credentials
-* Resource owner password
-* Device flow
-* Refresh tokens
-* Extension grants
-
-You can specify which grant type a client can use via the ``AllowedGrantTypes`` property on the ``Client`` configuration.
-
-A client can be configured to use more than a single grant type (e.g. Hybrid for user centric operations and client credentials for server to server communication).
+A client can be configured to use more than a single grant type (e.g. Authorization Code flow for user centric operations and client credentials for server to server communication).
 The ``GrantTypes`` class can be used to pick from typical grant type combinations::
 
-    Client.AllowedGrantTypes = GrantTypes.HybridAndClientCredentials;
+    Client.AllowedGrantTypes = GrantTypes.CodeAndClientCredentials;
 
 You can also specify the grant types list manually::
 
     Client.AllowedGrantTypes = 
     {
-        GrantType.Hybrid, 
+        GrantType.Code, 
         GrantType.ClientCredentials,
         "my_custom_grant_type" 
     };
 
-If you want to transmit access tokens via the browser channel, you also need to allow that explicitly on the client configuration::
-
-    Client.AllowAccessTokensViaBrowser = true;
-
 .. Note:: For security reasons, not all grant type combinations are allowed. See below for more details.
 
-For the remainder, the grant types are briefly described, and when you would use them.
-It is also recommended, that in addition you read the corresponding specs to get a better understanding of the differences.
+While IdentityServer supports all standard grant types, you really only need to know a handful of them for common application scenarios.
 
-Client credentials
-==================
-This is the simplest grant type and is used for server to server communication - tokens are always requested on behalf of a client, not a user.
+Machine to Machine Communication
+================================
+This is the simplest type of communication. Tokens are always requested on behalf of a client, no interactive user is present.
 
-With this grant type you send a token request to the token endpoint, and get an access token back that represents the client.
+In this scenario, you send a token request to the token endpoint using the ``client credentials`` grant type.
 The client typically has to authenticate with the token endpoint using its client ID and secret.
 
 See the :ref:`Client Credentials Quick Start <refClientCredentialsQuickstart>` for a sample how to use it. 
+
+Interactive Clients
+===================
+This is the most common type of client scenario: web applications, SPAs or native/mobile apps with interactive users.
+
+For this type of clients, the ``authorization code`` flow was designed. That flow consists of two physical operations:
+
+* a front-channel step via the browser where all "interactive" things happen, e.g. login page, consent etc. This step results in an authorization code that represents the outcome of the front-channel operation.
+* a back-channel step where the authorization code from step 1 gets exchanged with the requested tokens. Confidential clients need to authenticate at this point.
+
+
+
+
+
 
 
 Resource owner password
@@ -60,6 +60,12 @@ See the :ref:`Resource Owner Password Quick Start <_refResourceOwnerQuickstart>`
 You also need to provide code for the username/password validation which can be supplied by implementing the ``IResourceOwnerPasswordValidator`` interface.
 You can find more information about this interface :ref:`here <refResourceOwnerPasswordValidator>`. 
 
+
+
+
+
+
+
 Implicit
 ========
 The implicit grant type is optimized for browser-based applications. Either for user authentication-only (both server-side and JavaScript applications),
@@ -71,6 +77,12 @@ In the implicit flow, all tokens are transmitted via the browser, and advanced f
 :ref:`this <refJavaScriptQuickstart>` shows JavaScript.
 
 .. Note:: For JavaScript-based applications, Implicit is not recommended anymore. Use Authorization Code with PKCE instead.
+
+
+
+
+
+
 
 Authorization code
 ==================
