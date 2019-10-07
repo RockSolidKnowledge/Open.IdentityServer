@@ -41,4 +41,4 @@ As of October 2017, the IdentityServer4.* nuget namespace is reserved for our pa
 
 or
 
-``IdentityServer4.Contrib.YourProjectName
+``IdentityServer4.Contrib.YourProjectName``
