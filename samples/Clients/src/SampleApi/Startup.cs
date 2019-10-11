@@ -11,8 +11,7 @@ namespace SampleApi
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers()
-                .AddNewtonsoftJson();
+            services.AddControllers();
 
             services.AddCors();
             services.AddDistributedMemoryCache();

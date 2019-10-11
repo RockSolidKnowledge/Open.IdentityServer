@@ -11,13 +11,8 @@
   <ItemGroup>
     <PackageReference Include="IdentityServer4.AccessTokenValidation" />
     
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
-    
     <PackageReference Include="Serilog.AspNetCore" Version="3.0.0" />
-    
-    
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-    
   </ItemGroup>
 
 </Project>
