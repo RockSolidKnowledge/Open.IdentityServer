@@ -18,6 +18,8 @@ namespace IdentityServer4.Extensions
                     return options.EnableAuthorizeEndpoint;
                 case EndpointNames.CheckSession:
                     return options.EnableCheckSessionEndpoint;
+                case EndpointNames.DeviceAuthorization:
+                    return options.EnableDeviceAuthorizationEndpoint;
                 case EndpointNames.Discovery:
                     return options.EnableDiscoveryEndpoint;
                 case EndpointNames.EndSession:
