@@ -63,5 +63,6 @@ Michael Calasanz
 Fredrik Karlsson ([@fredrik_zenit](https://twitter.com/fredrik_zenit))  
 Steve Graddy  
 Jeremy Sinclair ([@sinclairinator](https://twitter.com/sinclairinator))  
-Veikko Eeva
+Veikko Eeva  
+Bruno Brito  
 
