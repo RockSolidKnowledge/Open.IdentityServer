@@ -7,6 +7,7 @@ using IdentityServer4.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using IdentityServer4.Configuration;
+using IdentityServer4.Extensions;
 
 namespace IdentityServer4.Endpoints.Results
 {
