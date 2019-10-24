@@ -59,7 +59,7 @@ In addition it contains the hash of the code via the ``c_hash`` claim. This allo
 
 This solves the problem but has the following down-sides:
 
-* the ``id_token`` gets transmitted over the font-channel and might leak additional (personal identifiable) data
+* the ``id_token`` gets transmitted over the front-channel and might leak additional (personal identifiable) data
 * all the mitigitation steps (e.g. crypto) need to be implemented by the client. This results in more complicated client library implementations.
 
 **RFC 7636 - Proof Key for Code Exchange (PKCE)**
