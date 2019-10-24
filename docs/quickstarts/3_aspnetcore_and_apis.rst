@@ -12,7 +12,7 @@ the identity token containing the information about the authentication and sessi
 Modifying the client configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Updating the client configuration in IdentityServer is straightforward - we simply need to add the ``api1`` resource to the allowed scopes list.
-In addition we enable support for refresh tokens via the ``EnableOfflineAccess`` property::
+In addition we enable support for refresh tokens via the ``AllowOfflineAccess`` property::
 
     new Client
     {
