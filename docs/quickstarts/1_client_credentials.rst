@@ -160,6 +160,12 @@ Add a new class called ``IdentityController``::
 
 This controller will be used later to test the authorization requirement, as well as visualize the claims identity through the eyes of the API.
 
+Adding a Nuget Dependency
+-----------------------
+In order for the configuration step to work the nuget package dependency has to be added, run this command in the root directory.
+
+    dotnet add .\src\api\Api.csproj package Microsoft.AspNetCore.Authentication.JwtBearer
+
 Configuration
 -------------
 The last step is to add the authentication services to DI (dependency injection) and the authentication middleware to the pipeline.
@@ -199,7 +205,6 @@ Update `Startup` to look like this::
             });
         }
     }
-
 
 * ``AddAuthentication`` adds the authentication services to DI and configures ``Bearer`` as the default scheme. 
 * ``UseAuthentication`` adds the authentication middleware to the pipeline so authentication will be performed automatically on every call into the host.
