@@ -85,6 +85,56 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
         [Fact]
+        public async Task Valid_client_with_extra_claim_should_succeed()
+        {
+            var response = await _client.RequestTokenAsync(new TokenRequest
+            {
+                Address = TokenEndpoint,
+                GrantType = "custom",
+
+                ClientId = "client.custom",
+                ClientSecret = "secret",
+
+                Parameters =
+                {
+                    { "custom_credential", "custom credential"},
+                    { "extra_claim", "extra_value" },
+                    { "scope", "api1" }
+                }
+            });
+
+            response.IsError.Should().BeFalse();
+            response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
+            response.ExpiresIn.Should().Be(3600);
+            response.TokenType.Should().Be("Bearer");
+            response.IdentityToken.Should().BeNull();
+            response.RefreshToken.Should().BeNull();
+
+            var payload = GetPayload(response);
+
+            var unixNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var exp = Int64.Parse(payload["exp"].ToString());
+            exp.Should().BeLessThan(unixNow + 3605);
+            exp.Should().BeGreaterThan(unixNow + 3595);
+
+            payload.Count().Should().Be(11);
+            payload.Should().Contain("iss", "https://idsvr4");
+            payload.Should().Contain("client_id", "client.custom");
+            payload.Should().Contain("sub", "818727");
+            payload.Should().Contain("idp", "local");
+            payload.Should().Contain("extra_claim", "extra_value");
+
+            payload["aud"].Should().Be("api");
+
+            var scopes = payload["scope"] as JArray;
+            scopes.First().ToString().Should().Be("api1");
+
+            var amr = payload["amr"] as JArray;
+            amr.Count().Should().Be(1);
+            amr.First().ToString().Should().Be("custom");
+        }
+
+        [Fact]
         public async Task Valid_client_no_subject_should_succeed()
         {
             var response = await _client.RequestTokenAsync(new TokenRequest
