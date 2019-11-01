@@ -238,7 +238,7 @@ namespace IdentityServer4.IntegrationTests.Clients
             scopes.First().ToString().Should().Be("api1");
         }
 
-        [Fact(Skip = "Discuss offline_access scope in access token")]
+        [Fact]
         public async Task Valid_client_with_default_scopes_should_succeed()
         {
             var response = await _client.RequestTokenAsync(new TokenRequest
@@ -277,9 +277,10 @@ namespace IdentityServer4.IntegrationTests.Clients
             amr.First().ToString().Should().Be("custom");
 
             var scopes = payload["scope"] as JArray;
-            scopes.Count().Should().Be(2);
+            scopes.Count().Should().Be(3);
             scopes.First().ToString().Should().Be("api1");
             scopes.Skip(1).First().ToString().Should().Be("api2");
+            scopes.Skip(2).First().ToString().Should().Be("offline_access");
         }
 
         [Fact]
