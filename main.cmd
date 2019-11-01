@@ -1,1 +1,1 @@
-./src/IdentityServer4/IdentityServer4.sln
+start ./src/IdentityServer4/IdentityServer4.sln
