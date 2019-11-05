@@ -164,7 +164,7 @@ Adding a Nuget Dependency
 -----------------------
 In order for the configuration step to work the nuget package dependency has to be added, run this command in the root directory.
 
-    dotnet add .\src\api\Api.csproj package Microsoft.AspNetCore.Authentication.JwtBearer
+    dotnet add .\\src\\api\\Api.csproj package Microsoft.AspNetCore.Authentication.JwtBearer
 
 Configuration
 -------------
