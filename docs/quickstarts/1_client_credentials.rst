@@ -17,7 +17,7 @@ In order to make following these quickstarts easier for you the team has created
 
 To install the custom templates open a console window and type the following command::
 
-    dotnet new -i IdentityServer4.Templates
+    dotnet new -i IdentityServer4.Templates::2.6.1
 
 They will be used as a starting point for the various tutorials.
 
