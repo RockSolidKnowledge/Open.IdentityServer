@@ -37,6 +37,11 @@ namespace IdentityServer4.Configuration
         public string AccessTokenJwtType { get; set; } = "at+jwt";
 
         /// <summary>
+        /// Emits an aud claim with the format issuer/resources. That's needed for some older access token validation plumbing. Defaults to false.
+        /// </summary>
+        public bool EmitLegacyResourceAudienceClaim { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets the endpoint configuration.
         /// </summary>
         /// <value>

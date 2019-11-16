@@ -59,6 +59,11 @@ namespace IdentityServer4.Services
         protected readonly IKeyMaterialService KeyMaterialService;
 
         /// <summary>
+        /// The IdentityServer options
+        /// </summary>
+        protected readonly IdentityServerOptions Options;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DefaultTokenService" /> class.
         /// </summary>
         /// <param name="claimsProvider">The claims provider.</param>
@@ -67,6 +72,7 @@ namespace IdentityServer4.Services
         /// <param name="contextAccessor">The HTTP context accessor.</param>
         /// <param name="clock">The clock.</param>
         /// <param name="keyMaterialService"></param>
+        /// <param name="options">The IdentityServer options</param>
         /// <param name="logger">The logger.</param>
         public DefaultTokenService(
             IClaimsService claimsProvider, 
@@ -75,6 +81,7 @@ namespace IdentityServer4.Services
             IHttpContextAccessor contextAccessor, 
             ISystemClock clock, 
             IKeyMaterialService keyMaterialService,
+            IdentityServerOptions options,
             ILogger<DefaultTokenService> logger)
         {
             Context = contextAccessor;
@@ -83,6 +90,7 @@ namespace IdentityServer4.Services
             CreationService = creationService;
             Clock = clock;
             KeyMaterialService = keyMaterialService;
+            Options = options;
             Logger = logger;
         }
 
@@ -198,6 +206,11 @@ namespace IdentityServer4.Services
                 ClientId = request.ValidatedRequest.Client.ClientId,
                 AccessTokenType = request.ValidatedRequest.AccessTokenType
             };
+
+            if (Options.EmitLegacyResourceAudienceClaim)
+            {
+                token.Audiences.Add(string.Format(IdentityServerConstants.AccessTokenAudience, issuer.EnsureTrailingSlash()));
+            }
 
             foreach(var api in request.Resources.ApiResources)
             {

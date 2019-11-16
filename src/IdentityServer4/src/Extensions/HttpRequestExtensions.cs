@@ -2,11 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using Microsoft.AspNetCore.Http;
 using System.Linq;
 
 #pragma warning disable 1591
 
-namespace Microsoft.AspNetCore.Http
+namespace IdentityServer4.Extensions
 {
     public static class HttpRequestExtensions
     {

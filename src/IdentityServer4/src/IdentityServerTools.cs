@@ -21,8 +21,8 @@ namespace IdentityServer4
     public class IdentityServerTools
     {
         internal readonly IHttpContextAccessor ContextAccessor;
-        private readonly ISystemClock _clock;
         private readonly ITokenCreationService _tokenCreation;
+        private readonly ISystemClock _clock;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IdentityServerTools" /> class.
@@ -32,8 +32,8 @@ namespace IdentityServer4
         /// <param name="clock">The clock.</param>
         public IdentityServerTools(IHttpContextAccessor contextAccessor, ITokenCreationService tokenCreation, ISystemClock clock)
         {
-            _tokenCreation = tokenCreation;
             ContextAccessor = contextAccessor;
+            _tokenCreation = tokenCreation;
             _clock = clock;
         }
 

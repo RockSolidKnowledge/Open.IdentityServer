@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
@@ -11,6 +14,7 @@ using IdentityServer4.EntityFramework.Stores;
 using IdentityServer4.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Xunit.Sdk;
 
 namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
 {
@@ -28,7 +32,18 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         }
 
         [Theory, MemberData(nameof(TestDatabaseProviders))]
-        public void FindClientByIdAsync_WhenClientExists_ExpectClientRetured(DbContextOptions<ConfigurationDbContext> options)
+        public async Task FindClientByIdAsync_WhenClientDoesNotExist_ExpectNull(DbContextOptions<ConfigurationDbContext> options)
+        {
+            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            {
+                var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
+                var client = await store.FindClientByIdAsync(Guid.NewGuid().ToString());
+                client.Should().BeNull();
+            }
+        }
+
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
+        public async Task FindClientByIdAsync_WhenClientExists_ExpectClientRetured(DbContextOptions<ConfigurationDbContext> options)
         {
             var testClient = new Client
             {
@@ -46,24 +61,28 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
             using (var context = new ConfigurationDbContext(options, StoreOptions))
             {
                 var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
-                client = store.FindClientByIdAsync(testClient.ClientId).Result;
+                client = await store.FindClientByIdAsync(testClient.ClientId);
             }
 
-            Assert.NotNull(client);
+            client.Should().NotBeNull();
         }
 
         [Theory, MemberData(nameof(TestDatabaseProviders))]
-        public void FindClientByIdAsync_WhenClientExists_ExpectClientPropertiesRetured(DbContextOptions<ConfigurationDbContext> options)
+        public async Task FindClientByIdAsync_WhenClientExistsWithCollections_ExpectClientReturnedCollections(DbContextOptions<ConfigurationDbContext> options)
         {
             var testClient = new Client
             {
                 ClientId = "properties_test_client",
                 ClientName = "Properties Test Client",
-                Properties =
-                {
-                    { "foo1", "bar1" },
-                    { "foo2", "bar2" },
-                }
+                AllowedCorsOrigins = {"https://localhost"},
+                AllowedGrantTypes = GrantTypes.HybridAndClientCredentials,
+                AllowedScopes = {"openid", "profile", "api1"},
+                Claims = {new Claim("test", "value")},
+                ClientSecrets = {new Secret("secret".Sha256())},
+                IdentityProviderRestrictions = {"AD"},
+                PostLogoutRedirectUris = {"https://locahost/signout-callback"},
+                Properties = {{"foo1", "bar1"}, {"foo2", "bar2"},},
+                RedirectUris = {"https://locahost/signin"}
             };
 
             using (var context = new ConfigurationDbContext(options, StoreOptions))
@@ -76,15 +95,68 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
             using (var context = new ConfigurationDbContext(options, StoreOptions))
             {
                 var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
-                client = store.FindClientByIdAsync(testClient.ClientId).Result;
+                client = await store.FindClientByIdAsync(testClient.ClientId);
             }
 
-            client.Properties.Should().NotBeNull();
-            client.Properties.Count.Should().Be(2);
-            client.Properties.ContainsKey("foo1").Should().BeTrue();
-            client.Properties.ContainsKey("foo2").Should().BeTrue();
-            client.Properties["foo1"].Should().Be("bar1");
-            client.Properties["foo2"].Should().Be("bar2");
+            client.Should().BeEquivalentTo(testClient);
+        }
+
+        [Theory, MemberData(nameof(TestDatabaseProviders))]
+        public async Task FindClientByIdAsync_WhenClientsExistWithManyCollections_ExpectClientReturnedInUnderFiveSeconds(DbContextOptions<ConfigurationDbContext> options)
+        {
+            var testClient = new Client
+            {
+                ClientId = "test_client_with_uris",
+                ClientName = "Test client with URIs",
+                AllowedScopes = {"openid", "profile", "api1"},
+                AllowedGrantTypes = GrantTypes.CodeAndClientCredentials
+            };
+
+            for (int i = 0; i < 50; i++)
+            {
+                testClient.RedirectUris.Add($"https://localhost/{i}");
+                testClient.PostLogoutRedirectUris.Add($"https://localhost/{i}");
+                testClient.AllowedCorsOrigins.Add($"https://localhost:{i}");
+            }
+
+            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            {
+                context.Clients.Add(testClient.ToEntity());
+
+                for (int i = 0; i < 50; i++)
+                {
+                    context.Clients.Add(new Client
+                    {
+                        ClientId = testClient.ClientId + i,
+                        ClientName = testClient.ClientName,
+                        AllowedScopes = testClient.AllowedScopes,
+                        AllowedGrantTypes = testClient.AllowedGrantTypes,
+                        RedirectUris = testClient.RedirectUris,
+                        PostLogoutRedirectUris = testClient.PostLogoutRedirectUris,
+                        AllowedCorsOrigins = testClient.AllowedCorsOrigins,
+                    }.ToEntity());
+                }
+
+                context.SaveChanges();
+            }
+            
+            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            {
+                var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
+
+                const int timeout = 5000;
+                var task = Task.Run(() => store.FindClientByIdAsync(testClient.ClientId));
+
+                if (await Task.WhenAny(task, Task.Delay(timeout)) == task)
+                {
+                    var client = task.Result;
+                    client.Should().BeEquivalentTo(testClient);
+                }
+                else
+                {
+                    throw new TestTimeoutException(timeout);
+                }
+            }
         }
     }
 }

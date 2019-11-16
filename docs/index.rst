@@ -51,15 +51,10 @@ It enables the following features in your applications:
 
    quickstarts/0_overview
    quickstarts/1_client_credentials
-   quickstarts/2_resource_owner_passwords
-   quickstarts/3_interactive_login
-   quickstarts/4_external_authentication
-   quickstarts/5_hybrid_and_api_access
-   quickstarts/6_javascript_client
-   quickstarts/7_entity_framework
-   quickstarts/8_aspnet_identity
-   quickstarts/community
-
+   quickstarts/2_interactive_aspnetcore
+   quickstarts/3_aspnetcore_and_apis
+   quickstarts/4_entityframework
+   
 .. toctree::
    :maxdepth: 3
    :hidden:

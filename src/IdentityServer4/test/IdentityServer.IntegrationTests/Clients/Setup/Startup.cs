@@ -42,6 +42,8 @@ namespace IdentityServer4.IntegrationTests.Clients
             builder.AddExtensionGrantValidator<NoSubjectExtensionGrantValidator>();
             builder.AddExtensionGrantValidator<DynamicParameterExtensionGrantValidator>();
 
+            builder.AddProfileService<CustomProfileService>();
+
             builder.AddSecretParser<JwtBearerClientAssertionSecretParser>();
             builder.AddSecretValidator<PrivateKeyJwtSecretValidator>();
             builder.AddSecretValidator<ConfirmationSecretValidator>();
@@ -56,7 +58,6 @@ namespace IdentityServer4.IntegrationTests.Clients
         public void Configure(IApplicationBuilder app)
         {
             app.UseIdentityServer();
-            app.UseAuthentication();
         }
     }
 }

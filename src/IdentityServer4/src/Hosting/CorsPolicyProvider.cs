@@ -11,6 +11,7 @@ using IdentityServer4.Configuration;
 using IdentityServer4.Configuration.DependencyInjection;
 using IdentityServer4.Services;
 using Microsoft.Extensions.DependencyInjection;
+using IdentityServer4.Extensions;
 
 namespace IdentityServer4.Hosting
 {

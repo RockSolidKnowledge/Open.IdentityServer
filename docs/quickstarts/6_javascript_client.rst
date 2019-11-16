@@ -4,7 +4,7 @@ Adding a JavaScript client
 
 .. note:: For any pre-requisites (like e.g. templates) have a look at the :ref:`overview <refQuickstartOverview>` first.
 
-This quickstart will show how to build a browser-based JavaScript client application (sometimes referred to as a "`SPA`").
+This quickstart will show how to build a browser-based JavaScript client application (sometimes referred to as a "Single Page Application" or "`SPA`").
 
 The user will login to IdentityServer, invoke the web API with an access token issued by IdentityServer, and logout of IdentityServer. 
 All of this will be driven from the JavaScript running in the browser.

@@ -11,6 +11,8 @@ IdentityServer Options
 
 * ``AccessTokenJwtType``
     Specifies the value used for the JWT typ header for access tokens (defaults to ``at+jwt``).
+* ``EmitLegacyResourceAudienceClaim``
+    Emits an ``aud`` claim with the format issuer/resources. That's needed for some older access token validation plumbing. Defaults to false.
 
 Endpoints
 ^^^^^^^^^

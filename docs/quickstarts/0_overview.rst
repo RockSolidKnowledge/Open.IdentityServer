@@ -11,7 +11,6 @@ it is recommended you do them in order.
 * securing web applications and APIs
 * adding support for EntityFramework based configuration
 * adding support for ASP.NET Identity
-* adding AdminUI community edition to manage users and configuration
 
 Every quickstart has a reference solution - you can find the code in the 
 `samples <https://github.com/IdentityServer/IdentityServer4/tree/master/samples/Quickstarts>`_ folder.
@@ -25,3 +24,5 @@ The first thing you should do is install our templates::
 They will be used as a starting point for the various tutorials.
 
 OK - let's get started!
+
+.. note:: The quickstarts target the latest version of IdentityServer and ASP.NET Core (3.0) - there are also quickstarts for `ASP.NET Core 2 <http://docs.identityserver.io/en/aspnetcore2/quickstarts/0_overview.html>`_ and `ASP.NET Core 1 <http://docs.identityserver.io/en/aspnetcore1/quickstarts/0_overview.html>`_.
