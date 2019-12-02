@@ -23,7 +23,7 @@ Steinar	Noem
 Effectory ([@effectory](https://twitter.com/effectory))  
 Real Page ([@RealPage](https://twitter.com/RealPage))  
 FireGiant ([@firegiantco](https://twitter.com/firegiantco))  
-Glenn Henriksen
+Justify ([@justify_legal](https://twitter.com/justify_legal))
 
 ## Individuals
 
