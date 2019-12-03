@@ -23,7 +23,7 @@ This is useful for key rollover.
 A rollover typically works like this:
 
 1. you request/create new key material
-2. you publish the new validation key in addition to the current one. You can use the ``AddValidationKeys`` builder extension method for that.
+2. you publish the new validation key in addition to the current one. You can use the ``AddValidationKey`` builder extension method for that.
 3. all clients and APIs now have a chance to learn about the new key the next time they update their local copy of the discovery document
 4. after a certain amount of time (e.g. 24h) all clients and APIs should now accept both the old and the new key material
 5. keep the old key material around for as long as you like, maybe you have long-lived tokens that need validation
