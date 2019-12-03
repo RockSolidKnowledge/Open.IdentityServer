@@ -1,11 +1,11 @@
 <Project>
 
   <PropertyGroup>
-    <FrameworkVersion>3.0.0</FrameworkVersion>
-    <ExtensionsVersion>3.0.0</ExtensionsVersion>
-    <EntityFrameworkVersion>3.0.0</EntityFrameworkVersion>
+    <FrameworkVersion>3.1.0</FrameworkVersion>
+    <ExtensionsVersion>3.1.0</ExtensionsVersion>
+    <EntityFrameworkVersion>3.1.0</EntityFrameworkVersion>
     
-    <IdentityServerVersion>3.0.3-*</IdentityServerVersion>
+    <IdentityServerVersion>3.1.0-*</IdentityServerVersion>
   </PropertyGroup>
 
   <ItemGroup>
