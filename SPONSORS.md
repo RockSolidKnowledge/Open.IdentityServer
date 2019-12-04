@@ -35,7 +35,6 @@ Alexander Zeitler ([@alexzeitler_](https://twitter.com/alexzeitler_))
 Tobias Höft ([@tobiashoeft](https://twitter.com/tobiashoeft))  
 Gusztav Varga ([@gusztavvargadr](https://twitter.com/gusztavvargadr))  
 William Grow  
-John Korsnes ([@johnkors](https://twitter.com/johnkors))  
 James Roberts  
 Chris Simmons ([@netchrisdotcom](https://twitter.com/netchrisdotcom))  
 Shawn Wildermuth  
@@ -50,7 +49,6 @@ Ibrahim Šuta ([@ibrahimsuta](https://twitter.com/ibrahimsuta))
 Dave Noderer  ([@davenoderer](https://twitter.com/davenoderer))  
 VIJAYA PAL NALLALA  
 Martijn Boland  
-Clinton Rocksmith  
 Giuseppe Turitto  
 Mauricio Schneider  
 Norman L Covington  
@@ -67,4 +65,3 @@ Jeremy Sinclair ([@sinclairinator](https://twitter.com/sinclairinator))
 Veikko Eeva  
 Bruno Brito  
 James Hough  
-
