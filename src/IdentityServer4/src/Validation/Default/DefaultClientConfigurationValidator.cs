@@ -158,13 +158,9 @@ namespace IdentityServer4.Validation
 
                     if (!string.IsNullOrWhiteSpace(origin) && Uri.TryCreate(origin, UriKind.Absolute, out var uri))
                     {
-                        if (uri.Scheme.Equals("http", StringComparison.OrdinalIgnoreCase) ||
-                            uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
+                        if (uri.AbsolutePath == "/" && !origin.EndsWith("/"))
                         {
-                            if (uri.AbsolutePath == "/" && !origin.EndsWith("/"))
-                            {
-                                fail = false;
-                            }
+                            fail = false;
                         }
                     }
 
