@@ -42,9 +42,9 @@ namespace IdentityServer4.UnitTests.Endpoints.Results
             _context.Response.StatusCode.Should().Be(200);
             _context.Response.ContentType.Should().StartWith("text/html");
             _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("default-src 'none';");
-            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("script-src 'sha256-vNR+ikfJGR2UIDJapd+QYis00VgOtb2ndDNSsbXui6s='");
+            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("script-src 'sha256-bBR11t3xOeLLkccl6Pn1hYbkHCL+JE4CLkgBydaPSE0='");
             _context.Response.Headers["X-Content-Security-Policy"].First().Should().Contain("default-src 'none';");
-            _context.Response.Headers["X-Content-Security-Policy"].First().Should().Contain("script-src 'sha256-vNR+ikfJGR2UIDJapd+QYis00VgOtb2ndDNSsbXui6s='");
+            _context.Response.Headers["X-Content-Security-Policy"].First().Should().Contain("script-src 'sha256-bBR11t3xOeLLkccl6Pn1hYbkHCL+JE4CLkgBydaPSE0='");
             _context.Response.Body.Seek(0, SeekOrigin.Begin);
             using (var rdr = new StreamReader(_context.Response.Body))
             {
@@ -60,8 +60,8 @@ namespace IdentityServer4.UnitTests.Endpoints.Results
 
             await _subject.ExecuteAsync(_context);
 
-            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("script-src 'unsafe-inline' 'sha256-vNR+ikfJGR2UIDJapd+QYis00VgOtb2ndDNSsbXui6s='");
-            _context.Response.Headers["X-Content-Security-Policy"].First().Should().Contain("script-src 'unsafe-inline' 'sha256-vNR+ikfJGR2UIDJapd+QYis00VgOtb2ndDNSsbXui6s='");
+            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("script-src 'unsafe-inline' 'sha256-bBR11t3xOeLLkccl6Pn1hYbkHCL+JE4CLkgBydaPSE0='");
+            _context.Response.Headers["X-Content-Security-Policy"].First().Should().Contain("script-src 'unsafe-inline' 'sha256-bBR11t3xOeLLkccl6Pn1hYbkHCL+JE4CLkgBydaPSE0='");
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace IdentityServer4.UnitTests.Endpoints.Results
 
             await _subject.ExecuteAsync(_context);
 
-            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("script-src 'sha256-vNR+ikfJGR2UIDJapd+QYis00VgOtb2ndDNSsbXui6s='");
+            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("script-src 'sha256-bBR11t3xOeLLkccl6Pn1hYbkHCL+JE4CLkgBydaPSE0='");
             _context.Response.Headers["X-Content-Security-Policy"].Should().BeEmpty();
         }
     }
