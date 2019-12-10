@@ -23,6 +23,8 @@ var config = {
     silent_redirect_uri: window.location.origin + "/silent.html",
     automaticSilentRenew: true,
 
+    monitorAnonymousSession: true,
+
     // will revoke (reference) access tokens at logout time
     revokeAccessTokenOnSignout: true,
 
@@ -48,6 +50,9 @@ mgr.events.addAccessTokenExpiring(function () {
 });
 mgr.events.addSilentRenewError(function (err) {
     log("Silent renew error: " + err.message);
+});
+mgr.events.addUserSignedIn(function (e) {
+    log("user logged in to the token server");
 });
 mgr.events.addUserSignedOut(function () {
     log("User signed out of OP");

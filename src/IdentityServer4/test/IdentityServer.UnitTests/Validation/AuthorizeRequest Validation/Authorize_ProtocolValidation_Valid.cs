@@ -164,5 +164,23 @@ namespace IdentityServer4.UnitTests.Validation.AuthorizeRequest
 
             result.IsError.Should().BeFalse();
         }
+
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task anonymous_user_should_produce_session_state_value()
+        {
+            var parameters = new NameValueCollection();
+            parameters.Add(OidcConstants.AuthorizeRequest.ClientId, "codeclient");
+            parameters.Add(OidcConstants.AuthorizeRequest.Scope, "openid");
+            parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, "https://server/cb");
+            parameters.Add(OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code);
+            parameters.Add(OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment);
+            parameters.Add(OidcConstants.AuthorizeRequest.Prompt, OidcConstants.PromptModes.None);
+
+            var validator = Factory.CreateAuthorizeRequestValidator();
+            var result = await validator.ValidateAsync(parameters);
+
+            result.ValidatedRequest.SessionId.Should().NotBeNull();
+        }
     }
 }

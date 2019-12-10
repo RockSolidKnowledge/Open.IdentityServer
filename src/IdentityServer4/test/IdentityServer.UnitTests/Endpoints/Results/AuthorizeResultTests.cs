@@ -83,6 +83,30 @@ namespace IdentityServer4.UnitTests.Endpoints.Results
             location.Should().StartWith("http://client/callback");
         }
 
+        [Theory]
+        [InlineData(OidcConstants.AuthorizeErrors.AccountSelectionRequired)]
+        [InlineData(OidcConstants.AuthorizeErrors.LoginRequired)]
+        [InlineData(OidcConstants.AuthorizeErrors.ConsentRequired)]
+        [InlineData(OidcConstants.AuthorizeErrors.InteractionRequired)]
+        public async Task prompt_none_errors_for_anonymous_users_should_include_session_state(string error)
+        {
+            _response.Error = error;
+            _response.Request = new ValidatedAuthorizeRequest
+            {
+                ResponseMode = OidcConstants.ResponseModes.Query,
+                RedirectUri = "http://client/callback",
+                PromptMode = "none",
+            };
+            _response.SessionState = "some_session_state";
+
+            await _subject.ExecuteAsync(_context);
+
+            _mockUserSession.Clients.Count.Should().Be(0);
+            _context.Response.StatusCode.Should().Be(302);
+            var location = _context.Response.Headers["Location"].First();
+            location.Should().Contain("session_state=some_session_state");
+        }
+
         [Fact]
         public async Task access_denied_should_return_to_client()
         {

@@ -52,6 +52,25 @@ namespace IdentityServer4.UnitTests.Endpoints.Authorize
 
         [Fact]
         [Trait("Category", Category)]
+        public async Task error_resurect_with_prompt_none_should_include_session_state_in_response()
+        {
+            _params.Add("prompt", "none");
+            _stubAuthorizeRequestValidator.Result.ValidatedRequest.IsOpenIdRequest = true;
+            _stubAuthorizeRequestValidator.Result.ValidatedRequest.ClientId = "client";
+            _stubAuthorizeRequestValidator.Result.ValidatedRequest.SessionId = "some_session";
+            _stubAuthorizeRequestValidator.Result.ValidatedRequest.RedirectUri = "http://redirect";
+            _stubAuthorizeRequestValidator.Result.IsError = true;
+            _stubAuthorizeRequestValidator.Result.Error = "login_required";
+
+            var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+            result.Should().BeOfType<AuthorizeResult>();
+            ((AuthorizeResult)result).Response.IsError.Should().BeTrue();
+            ((AuthorizeResult)result).Response.SessionState.Should().NotBeNull();
+        }
+
+        [Fact]
+        [Trait("Category", Category)]
         public async Task authorize_request_validation_produces_error_should_display_error_page()
         {
             _stubAuthorizeRequestValidator.Result.IsError = true;

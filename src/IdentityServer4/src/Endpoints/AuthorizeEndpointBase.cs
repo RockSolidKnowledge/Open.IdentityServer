@@ -130,7 +130,8 @@ namespace IdentityServer4.Endpoints
             {
                 Request = request,
                 Error = error,
-                ErrorDescription = errorDescription
+                ErrorDescription = errorDescription,
+                SessionState = request?.GenerateSessionStateValue()
             });
         }
 
