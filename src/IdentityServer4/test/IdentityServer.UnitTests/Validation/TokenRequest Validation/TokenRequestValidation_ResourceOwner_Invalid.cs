@@ -150,24 +150,6 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Missing_ResourceOwner_Password()
-        {
-            var client = await _clients.FindEnabledClientByIdAsync("roclient");
-            var validator = Factory.CreateTokenRequestValidator();
-
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
-            parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
-            parameters.Add(OidcConstants.TokenRequest.UserName, "bob");
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
         public async Task Invalid_ResourceOwner_Credentials()
         {
             var client = await _clients.FindEnabledClientByIdAsync("roclient");
@@ -184,6 +166,23 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
             result.IsError.Should().BeTrue();
             result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
             result.ErrorDescription.Should().Be("invalid_username_or_password");
+        }
+        
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task Missing_ResourceOwner_password_for_user_with_password_should_fail()
+        {
+            var client = await _clients.FindEnabledClientByIdAsync("roclient");
+            var validator = Factory.CreateTokenRequestValidator();
+
+            var parameters = new NameValueCollection();
+            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
+            parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
+            parameters.Add(OidcConstants.TokenRequest.UserName, "bob_with_password");
+
+            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+            result.IsError.Should().BeTrue();
         }
 
         [Fact]

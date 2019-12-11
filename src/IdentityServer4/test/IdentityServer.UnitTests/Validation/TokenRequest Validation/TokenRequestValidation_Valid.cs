@@ -23,7 +23,25 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_Code_Request()
+        public async Task Missing_ResourceOwner_password_for_user_with_no_password_should_succeed()
+        {
+            var client = await _clients.FindEnabledClientByIdAsync("roclient");
+            var validator = Factory.CreateTokenRequestValidator();
+
+            var parameters = new NameValueCollection();
+            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
+            parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
+            parameters.Add(OidcConstants.TokenRequest.UserName, "bob_no_password");
+
+            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+            result.IsError.Should().BeFalse();
+            result.ValidatedRequest.UserName.Should().Be("bob_no_password");
+        }
+        
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task Valid_code_request_should_succeed()
         {
             var client = await _clients.FindEnabledClientByIdAsync("codeclient");
             var grants = Factory.CreateAuthorizationCodeStore();
@@ -58,7 +76,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_Code_Request_with_Refresh_Token()
+        public async Task Valid_code_request_with_refresh_token_should_succeed()
         {
             var client = await _clients.FindEnabledClientByIdAsync("codeclient");
             var grants = Factory.CreateAuthorizationCodeStore();
@@ -94,7 +112,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_ClientCredentials_Request()
+        public async Task Valid_client_credentials_request_should_succeed()
         {
             var client = await _clients.FindEnabledClientByIdAsync("client");
 
@@ -111,7 +129,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_ClientCredentials_Request_with_default_Scopes()
+        public async Task Valid_client_credentials_request_with_default_scopes_should_succeed()
         {
             var client = await _clients.FindEnabledClientByIdAsync("client_restricted");
 
@@ -128,7 +146,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_ClientCredentials_Request_for_Implicit_and_ClientCredentials_Client()
+        public async Task Valid_client_credentials_request_for_implicit_and_client_credentials_client_should_succeed()
         {
             var client = await _clients.FindEnabledClientByIdAsync("implicit_and_client_creds_client");
 
@@ -145,7 +163,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_ClientCredentials_Request_Restricted_Client()
+        public async Task Valid_client_credentials_request_restricted_client_should_succeed()
         {
             var client = await _clients.FindEnabledClientByIdAsync("client_restricted");
 
@@ -162,7 +180,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_ResourceOwner_Request()
+        public async Task Valid_resource_owner_request_should_succeed()
         {
             var client = await _clients.FindEnabledClientByIdAsync("roclient");
 
@@ -181,7 +199,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_ResourceOwner_Request_with_Refresh_Token()
+        public async Task Valid_resource_wwner_request_with_refresh_token_should_succeed()
         {
             var client = await _clients.FindEnabledClientByIdAsync("roclient");
 
@@ -200,7 +218,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_ResourceOwner_Request_Restricted_Client()
+        public async Task Valid_resource_owner_request_restricted_client_should_succeed()
         {
             var client = await _clients.FindEnabledClientByIdAsync("roclient_restricted");
 
@@ -219,7 +237,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_ExtensionGrant_Request()
+        public async Task valid_extension_grant_request_should_succeed()
         {
             var client = await _clients.FindEnabledClientByIdAsync("customgrantclient");
 
@@ -236,7 +254,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_RefreshToken_Request()
+        public async Task Valid_refresh_token_request_should_succeed()
         {
             var subjectClaim = new Claim(JwtClaimTypes.Subject, "foo");
 
@@ -270,7 +288,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
 
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_RefreshToken_Request_using_Restricted_Client()
+        public async Task Valid_refresh_token_request_using_restricted_client_should_succeed()
         {
             var subjectClaim = new Claim(JwtClaimTypes.Subject, "foo");
 
@@ -305,7 +323,7 @@ namespace IdentityServer4.UnitTests.Validation.TokenRequest
         
         [Fact]
         [Trait("Category", Category)]
-        public async Task Valid_DeviceCode_Request()
+        public async Task Valid_device_code_request_should_succeed()
         {
             var deviceCode = new DeviceCode
             {

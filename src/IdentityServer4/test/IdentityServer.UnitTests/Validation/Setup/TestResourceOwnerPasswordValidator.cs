@@ -36,6 +36,11 @@ namespace IdentityServer4.UnitTests.Validation
             {
                 context.Result = new GrantValidationResult(context.UserName, "password");
             }
+            
+            if (context.UserName == "bob_no_password" && context.Password == "")
+            {
+                context.Result = new GrantValidationResult(context.UserName, "password");
+            }
 
             return Task.CompletedTask;
         }

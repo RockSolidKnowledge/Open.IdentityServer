@@ -386,10 +386,15 @@ namespace IdentityServer4.Validation
             var userName = parameters.Get(OidcConstants.TokenRequest.UserName);
             var password = parameters.Get(OidcConstants.TokenRequest.Password);
 
-            if (userName.IsMissing() || password.IsMissing())
+            if (userName.IsMissing())
             {
-                LogError("Username or password missing");
+                LogError("Username is missing");
                 return Invalid(OidcConstants.TokenErrors.InvalidGrant);
+            }
+
+            if (password.IsMissing())
+            {
+                password = "";
             }
 
             if (userName.Length > _options.InputLengthRestrictions.UserName ||
