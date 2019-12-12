@@ -7,14 +7,15 @@ using System.Collections.Specialized;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityModel;
+using IdentityServer.UnitTests.Common;
 using IdentityServer.UnitTests.Validation.Setup;
+using IdentityServer4;
 using IdentityServer4.Configuration;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
-using IdentityServer4.UnitTests.Common;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.Validation.TokenRequest
+namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation
 {
     public class TokenRequestValidation_DeviceCode_Invalid
     {

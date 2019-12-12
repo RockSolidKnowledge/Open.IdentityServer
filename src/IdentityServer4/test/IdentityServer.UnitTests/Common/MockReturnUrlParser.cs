@@ -4,10 +4,10 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using IdentityServer4.Services;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 
-namespace IdentityServer4.UnitTests.Common
+namespace IdentityServer.UnitTests.Common
 {
     public class MockReturnUrlParser : ReturnUrlParser
     {

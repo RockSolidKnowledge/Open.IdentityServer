@@ -3,8 +3,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityModel.Client;
+using IdentityServer.IntegrationTests.Common;
 using IdentityServer4.Configuration;
-using IdentityServer4.IntegrationTests.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

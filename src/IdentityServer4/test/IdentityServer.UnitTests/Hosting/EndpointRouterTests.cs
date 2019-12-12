@@ -6,14 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
-using IdentityServer4.Hosting;
-using Xunit;
-using Microsoft.AspNetCore.Http;
+using IdentityServer.UnitTests.Common;
 using IdentityServer4.Configuration;
-using IdentityServer4.UnitTests.Common;
+using IdentityServer4.Hosting;
+using Microsoft.AspNetCore.Http;
+using Xunit;
 using static IdentityServer4.Constants;
 
-namespace IdentityServer4.UnitTests.Hosting
+namespace IdentityServer.UnitTests.Hosting
 {
     public class EndpointRouterTests
     {

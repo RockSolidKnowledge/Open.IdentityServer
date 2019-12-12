@@ -2,25 +2,24 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityModel;
-using IdentityServer4.Configuration;
-using IdentityServer4.Endpoints.Results;
-using IdentityServer4.Extensions;
-using IdentityServer4.ResponseHandling;
-using IdentityServer4.UnitTests.Common;
-using IdentityServer4.Validation;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
+using FluentAssertions;
+using IdentityModel;
 using IdentityServer.UnitTests.Common;
+using IdentityServer4.Configuration;
+using IdentityServer4.Endpoints.Results;
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using IdentityServer4.ResponseHandling;
+using IdentityServer4.Validation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
+using Xunit;
 
-namespace IdentityServer4.UnitTests.Endpoints.Results
+namespace IdentityServer.UnitTests.Endpoints.Results
 {
     public class AuthorizeResultTests
     {
@@ -29,7 +28,7 @@ namespace IdentityServer4.UnitTests.Endpoints.Results
         private AuthorizeResponse _response = new AuthorizeResponse();
         private IdentityServerOptions _options = new IdentityServerOptions();
         private MockUserSession _mockUserSession = new MockUserSession();
-        private MockMessageStore<Models.ErrorMessage> _mockErrorMessageStore = new MockMessageStore<Models.ErrorMessage>();
+        private MockMessageStore<IdentityServer4.Models.ErrorMessage> _mockErrorMessageStore = new MockMessageStore<IdentityServer4.Models.ErrorMessage>();
 
         private DefaultHttpContext _context = new DefaultHttpContext();
 

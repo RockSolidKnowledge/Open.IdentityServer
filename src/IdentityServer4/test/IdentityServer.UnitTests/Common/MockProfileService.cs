@@ -2,14 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Services;
-using System.Threading.Tasks;
-using IdentityServer4.Models;
-using System.Security.Claims;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
 
-namespace IdentityServer4.UnitTests.Common
+namespace IdentityServer.UnitTests.Common
 {
     public class MockProfileService : IProfileService
     {

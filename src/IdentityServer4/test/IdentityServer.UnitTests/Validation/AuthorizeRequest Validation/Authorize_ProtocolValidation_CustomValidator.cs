@@ -2,15 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityModel;
 using System;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
-using Xunit;
+using FluentAssertions;
+using IdentityModel;
+using IdentityServer.UnitTests.Validation.Setup;
 using IdentityServer4.Validation;
+using Xunit;
 
-namespace IdentityServer4.UnitTests.Validation.AuthorizeRequest
+namespace IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation
 {
     public class Authorize_ProtocolValidation_CustomValidator
     {

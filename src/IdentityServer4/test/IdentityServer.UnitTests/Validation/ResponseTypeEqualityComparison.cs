@@ -6,7 +6,7 @@ using FluentAssertions;
 using IdentityServer4.Validation;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.Validation
+namespace IdentityServer.UnitTests.Validation
 {
     /// <summary>
     /// Tests for ResponseTypeEqualityComparer

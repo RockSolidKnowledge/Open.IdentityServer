@@ -2,20 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using System.Threading.Tasks;
-using Xunit;
-using FluentAssertions;
-using System.Net;
 using System.Collections.Generic;
-using IdentityServer4.Models;
-using System.Security.Claims;
+using System.Net;
 using System.Net.Http;
-using IdentityServer4.IntegrationTests.Common;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using FluentAssertions;
+using IdentityServer.IntegrationTests.Common;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Test;
 using Microsoft.Extensions.DependencyInjection;
-using IdentityServer4.Services;
+using Xunit;
 
-namespace IdentityServer4.IntegrationTests.Pipeline
+namespace IdentityServer.IntegrationTests.Pipeline
 {
     public class CorsTests
     {

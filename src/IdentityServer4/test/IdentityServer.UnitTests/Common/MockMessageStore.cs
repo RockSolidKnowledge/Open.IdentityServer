@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
+using IdentityServer4.Models;
+using IdentityServer4.Stores;
 
-namespace IdentityServer4.UnitTests.Common
+namespace IdentityServer.UnitTests.Common
 {
     public class MockMessageStore<TModel> : IMessageStore<TModel>
     {

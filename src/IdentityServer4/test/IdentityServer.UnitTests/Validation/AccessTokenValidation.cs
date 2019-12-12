@@ -2,20 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityModel;
-using IdentityServer4.Configuration;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
-using IdentityServer4.UnitTests.Common;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
+using FluentAssertions;
+using IdentityModel;
 using IdentityServer.UnitTests.Common;
+using IdentityServer.UnitTests.Validation.Setup;
+using IdentityServer4.Configuration;
+using IdentityServer4.Models;
+using IdentityServer4.Stores;
+using Xunit;
 
-namespace IdentityServer4.UnitTests.Validation
+namespace IdentityServer.UnitTests.Validation
 {
     public class AccessTokenValidation
     {

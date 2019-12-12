@@ -7,9 +7,9 @@ using System.Collections.Specialized;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityModel;
+using IdentityServer.UnitTests.Validation.Setup;
 using IdentityServer4;
 using IdentityServer4.Models;
-using IdentityServer4.UnitTests.Validation;
 using IdentityServer4.Validation;
 using Xunit;
 

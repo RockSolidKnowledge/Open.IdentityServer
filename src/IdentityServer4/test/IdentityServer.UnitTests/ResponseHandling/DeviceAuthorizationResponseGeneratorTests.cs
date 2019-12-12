@@ -13,12 +13,11 @@ using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using IdentityServer4.Services.Default;
 using IdentityServer4.Stores;
-using IdentityServer4.UnitTests.Common;
 using IdentityServer4.Validation;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.ResponseHandling
+namespace IdentityServer.UnitTests.ResponseHandling
 {
     public class DeviceAuthorizationResponseGeneratorTests
     {

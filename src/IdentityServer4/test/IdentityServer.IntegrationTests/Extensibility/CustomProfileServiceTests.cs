@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityModel;
-using IdentityServer4.IntegrationTests.Common;
+using IdentityServer.IntegrationTests.Common;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.Extensions.DependencyInjection;

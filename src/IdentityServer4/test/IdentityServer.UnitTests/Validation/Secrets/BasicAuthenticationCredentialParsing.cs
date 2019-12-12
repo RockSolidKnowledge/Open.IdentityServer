@@ -2,17 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityServer4.Configuration;
-using IdentityServer4.Validation;
 using System;
 using System.Text;
-using Xunit;
-using Microsoft.Extensions.Primitives;
+using FluentAssertions;
+using IdentityServer.UnitTests.Common;
+using IdentityServer4;
+using IdentityServer4.Configuration;
+using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
-using IdentityServer4.UnitTests.Common;
+using Microsoft.Extensions.Primitives;
+using Xunit;
 
-namespace IdentityServer4.UnitTests.Validation.Secrets
+namespace IdentityServer.UnitTests.Validation.Secrets
 {
     public class BasicAuthenticationSecretParsing
     {

@@ -2,21 +2,22 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using Microsoft.AspNetCore.TestHost;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Xunit;
-using FluentAssertions;
-using System.Net;
-using IdentityModel.Client;
 using System.Linq;
-using Microsoft.AspNetCore.Hosting;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
+using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
+using FluentAssertions;
+using IdentityModel.Client;
+using IdentityServer.IntegrationTests.Endpoints.Introspection.Setup;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Xunit;
 
-namespace IdentityServer4.IntegrationTests.Endpoints.Introspection
+namespace IdentityServer.IntegrationTests.Endpoints.Introspection
 {
     public class IntrospectionTests
     {

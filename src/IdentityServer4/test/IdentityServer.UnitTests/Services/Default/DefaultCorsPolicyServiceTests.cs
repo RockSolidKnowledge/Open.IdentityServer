@@ -4,11 +4,11 @@
 
 using System;
 using FluentAssertions;
+using IdentityServer.UnitTests.Common;
 using IdentityServer4.Services;
-using IdentityServer4.UnitTests.Common;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.Services.Default
+namespace IdentityServer.UnitTests.Services.Default
 {
     public class DefaultCorsPolicyServiceTests
     {

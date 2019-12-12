@@ -2,20 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityServer4.UnitTests.Common;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Xunit;
+using FluentAssertions;
+using IdentityServer.UnitTests.Common;
 using IdentityServer4.Configuration;
 using IdentityServer4.Configuration.DependencyInjection;
-using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using IdentityServer4.Services;
 using IdentityServer4.Hosting;
+using IdentityServer4.Services;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
-namespace IdentityServer4.UnitTests.Hosting.Cors
+namespace IdentityServer.UnitTests.Cors
 {
     public class PolicyProviderTests
     {

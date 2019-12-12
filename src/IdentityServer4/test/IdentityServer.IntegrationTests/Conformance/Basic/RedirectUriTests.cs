@@ -2,18 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityServer4.Models;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Xunit;
-using IdentityServer4.IntegrationTests.Common;
+using FluentAssertions;
+using IdentityServer.IntegrationTests.Common;
+using IdentityServer4.Models;
 using IdentityServer4.Test;
+using Xunit;
 
-namespace IdentityServer4.IntegrationTests.Conformance.Basic
+namespace IdentityServer.IntegrationTests.Conformance.Basic
 {
     public class RedirectUriTests
     {

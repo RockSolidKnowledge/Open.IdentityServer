@@ -2,20 +2,21 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
-using IdentityServer4.Stores.Serialization;
-using IdentityServer4.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using FluentAssertions;
+using IdentityServer.UnitTests.Common;
+using IdentityServer4;
+using IdentityServer4.Extensions;
+using IdentityServer4.Models;
+using IdentityServer4.Stores;
+using IdentityServer4.Stores.Serialization;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.Stores.Default
+namespace IdentityServer.UnitTests.Stores.Default
 {
     public class DefaultPersistedGrantStoreTests
     {

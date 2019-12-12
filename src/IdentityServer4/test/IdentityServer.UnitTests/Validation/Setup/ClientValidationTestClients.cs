@@ -2,14 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Models;
-using IdentityServer4.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
+using IdentityServer.UnitTests.Common;
+using IdentityServer4;
+using IdentityServer4.Models;
 using static IdentityServer4.IdentityServerConstants;
 
-namespace IdentityServer4.UnitTests.Validation
+namespace IdentityServer.UnitTests.Validation.Setup
 {
     internal static class ClientValidationTestClients
     {

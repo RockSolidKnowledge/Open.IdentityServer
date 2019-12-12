@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.ResponseHandling;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
+using IdentityServer4.ResponseHandling;
 using IdentityServer4.Validation;
 
-namespace IdentityServer4.UnitTests.Endpoints.Authorize
+namespace IdentityServer.UnitTests.Endpoints.Authorize
 {
     internal class StubAuthorizeInteractionResponseGenerator : IAuthorizeInteractionResponseGenerator
     {

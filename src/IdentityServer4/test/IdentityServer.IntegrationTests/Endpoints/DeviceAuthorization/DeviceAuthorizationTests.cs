@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityModel;
-using IdentityServer4.IntegrationTests.Common;
+using IdentityServer.IntegrationTests.Common;
 using IdentityServer4.Models;
 using Newtonsoft.Json;
 using Xunit;

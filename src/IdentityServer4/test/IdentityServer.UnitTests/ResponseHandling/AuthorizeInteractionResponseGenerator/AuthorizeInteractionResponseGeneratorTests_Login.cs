@@ -2,34 +2,33 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityModel;
-using IdentityServer4.Configuration;
-using IdentityServer4.Models;
-using IdentityServer4.ResponseHandling;
-using IdentityServer4.UnitTests.Common;
-using IdentityServer4.Validation;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
-using Xunit;
+using FluentAssertions;
+using IdentityModel;
 using IdentityServer.UnitTests.Common;
-using System;
+using IdentityServer4;
+using IdentityServer4.Configuration;
+using IdentityServer4.Models;
+using IdentityServer4.Validation;
+using Xunit;
 
-namespace IdentityServer4.UnitTests.ResponseHandling
+namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponseGenerator
 {
     public class AuthorizeInteractionResponseGeneratorTests_Login
     {
         private IdentityServerOptions _options = new IdentityServerOptions();
-        private AuthorizeInteractionResponseGenerator _subject;
+        private IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator _subject;
         private MockConsentService _mockConsentService = new MockConsentService();
         private StubClock _clock = new StubClock();
 
         public AuthorizeInteractionResponseGeneratorTests_Login()
         {
-            _subject = new AuthorizeInteractionResponseGenerator(
+            _subject = new IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator(
                 _clock,
-                TestLogger.Create<AuthorizeInteractionResponseGenerator>(),
+                TestLogger.Create<IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator>(),
                 _mockConsentService,
                 new MockProfileService());
         }

@@ -2,25 +2,26 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using System.Threading.Tasks;
-using Xunit;
-using FluentAssertions;
-using System.Collections.Generic;
-using IdentityServer4.Models;
-using System.Security.Claims;
-using IdentityServer4.IntegrationTests.Common;
-using IdentityServer4.Test;
-using IdentityModel;
 using System;
-using System.Security.Cryptography.X509Certificates;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using FluentAssertions;
+using IdentityModel;
+using IdentityServer.IntegrationTests.Common;
+using IdentityServer4;
+using IdentityServer4.Configuration;
+using IdentityServer4.Models;
+using IdentityServer4.Test;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using Microsoft.IdentityModel.Logging;
-using System.Net.Http;
-using IdentityServer4.Configuration;
+using Xunit;
 
-namespace IdentityServer4.IntegrationTests.Endpoints.Authorize
+namespace IdentityServer.IntegrationTests.Endpoints.Authorize
 {
     public class JwtRequestAuthorizeTests
     {

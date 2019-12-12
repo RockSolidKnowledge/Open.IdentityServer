@@ -2,15 +2,17 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System.Threading.Tasks;
 using FluentAssertions;
+using IdentityServer.UnitTests.Validation.Setup;
+using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.Validation.Secrets
+namespace IdentityServer.UnitTests.Validation.Secrets
 {
     public class PlainTextClientSecretValidation
     {

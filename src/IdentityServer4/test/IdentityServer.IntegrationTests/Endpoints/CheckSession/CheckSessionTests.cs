@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityServer4.IntegrationTests.Common;
 using System.Net;
 using System.Threading.Tasks;
+using FluentAssertions;
+using IdentityServer.IntegrationTests.Common;
 using Xunit;
 
-namespace IdentityServer4.IntegrationTests.Endpoints.CheckSession
+namespace IdentityServer.IntegrationTests.Endpoints.CheckSession
 {
     public class CheckSessionTests
     {

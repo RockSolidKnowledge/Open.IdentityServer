@@ -2,16 +2,17 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityModel.Client;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FluentAssertions;
+using IdentityModel.Client;
+using IdentityServer.IntegrationTests.Clients.Setup;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
 using Xunit;
 
-namespace IdentityServer4.IntegrationTests.Clients
+namespace IdentityServer.IntegrationTests.Clients
 {
     public class CustomTokenRequestValidatorClient
     {

@@ -2,18 +2,19 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityModel;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using IdentityServer4.UnitTests.Common;
-using IdentityServer4.Validation;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using FluentAssertions;
+using IdentityModel;
+using IdentityServer.UnitTests.Common;
+using IdentityServer4;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
+using IdentityServer4.Validation;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.Services.Default
+namespace IdentityServer.UnitTests.Services.Default
 {
     public class DefaultClaimsServiceTests
     {

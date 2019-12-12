@@ -3,18 +3,19 @@
 
 
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityModel.Client;
-using IdentityServer4.IntegrationTests.Common;
-using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
+using IdentityServer.IntegrationTests.Common;
+using IdentityServer4;
 using IdentityServer4.Configuration;
 using IdentityServer4.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace IdentityServer4.IntegrationTests.Endpoints.Discovery
+namespace IdentityServer.IntegrationTests.Endpoints.Discovery
 {
     public class DiscoveryEndpointTests
     {

@@ -3,7 +3,7 @@ using IdentityServer4.Models;
 using IdentityServer4.Test;
 using Microsoft.Extensions.Logging;
 
-namespace IdentityServer4.IntegrationTests.Clients
+namespace IdentityServer.IntegrationTests.Clients.Setup
 {
     class CustomProfileService : TestUserProfileService
     {

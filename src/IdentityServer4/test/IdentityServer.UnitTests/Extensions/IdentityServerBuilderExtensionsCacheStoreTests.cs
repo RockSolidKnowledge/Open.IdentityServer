@@ -8,7 +8,7 @@ using IdentityServer4.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.Extensions
+namespace IdentityServer.UnitTests.Extensions
 {
     public class IdentityServerBuilderExtensionsCacheStoreTests
     {

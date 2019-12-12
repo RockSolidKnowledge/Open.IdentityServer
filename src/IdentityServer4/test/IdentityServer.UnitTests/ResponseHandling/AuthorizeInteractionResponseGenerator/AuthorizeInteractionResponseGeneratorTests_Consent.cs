@@ -2,28 +2,26 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityModel;
-using IdentityServer4.Configuration;
-using IdentityServer4.Models;
-using IdentityServer4.ResponseHandling;
-using IdentityServer4.Stores;
-using IdentityServer4.UnitTests.Common;
-using IdentityServer4.Validation;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Xunit;
+using FluentAssertions;
+using IdentityModel;
 using IdentityServer.UnitTests.Common;
+using IdentityServer4.Configuration;
+using IdentityServer4.Models;
+using IdentityServer4.Stores;
+using IdentityServer4.Validation;
+using Microsoft.Extensions.Logging;
+using Xunit;
 
-namespace IdentityServer4.UnitTests.ResponseHandling
+namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponseGenerator
 {
     public class AuthorizeInteractionResponseGeneratorTests_Consent
     {
-        private AuthorizeInteractionResponseGenerator _subject;
+        private IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator _subject;
         private IdentityServerOptions _options = new IdentityServerOptions();
         private MockConsentService _mockConsent = new MockConsentService();
         private MockProfileService _fakeUserService = new MockProfileService();
@@ -91,9 +89,9 @@ namespace IdentityServer4.UnitTests.ResponseHandling
         
         public AuthorizeInteractionResponseGeneratorTests_Consent()
         {
-            _subject = new AuthorizeInteractionResponseGenerator(
+            _subject = new IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator(
                 new StubClock(),
-                TestLogger.Create<AuthorizeInteractionResponseGenerator>(),
+                TestLogger.Create<IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator>(),
                 _mockConsent,
                 _fakeUserService);
         }

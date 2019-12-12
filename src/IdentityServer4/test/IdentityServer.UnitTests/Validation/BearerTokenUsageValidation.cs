@@ -2,16 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityServer4.UnitTests.Common;
-using IdentityServer4.Validation;
-using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using FluentAssertions;
+using IdentityServer.UnitTests.Common;
+using IdentityServer4.Validation;
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.Validation
+namespace IdentityServer.UnitTests.Validation
 {
     public class BearerTokenUsageValidation
     {

@@ -2,18 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityServer4.Configuration;
 using IdentityServer4.Endpoints.Results;
 using IdentityServer4.Extensions;
-using Microsoft.AspNetCore.Http;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
 using IdentityServer4.Models;
+using Microsoft.AspNetCore.Http;
+using Xunit;
 
-namespace IdentityServer4.UnitTests.Endpoints.Results
+namespace IdentityServer.UnitTests.Endpoints.Results
 {
     public class CheckSessionResultTests
     {

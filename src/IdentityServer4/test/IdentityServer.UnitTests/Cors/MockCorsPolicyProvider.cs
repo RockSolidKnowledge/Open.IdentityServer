@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
 
-namespace IdentityServer4.UnitTests.Hosting.Cors
+namespace IdentityServer.UnitTests.Cors
 {
     public class MockCorsPolicyProvider : ICorsPolicyProvider
     {

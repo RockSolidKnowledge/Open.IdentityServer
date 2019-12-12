@@ -5,7 +5,7 @@
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 
-namespace IdentityServer4.IntegrationTests.Common
+namespace IdentityServer.IntegrationTests.Common
 {
     internal static class TestCert
     {

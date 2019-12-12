@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using IdentityServer4.Models;
-using System;
 using Xunit;
-using System.Collections.Generic;
 
-namespace IdentityServer4.UnitTests.Validation
+namespace IdentityServer.UnitTests.Validation
 {
     public class GrantTypesValidation
     {

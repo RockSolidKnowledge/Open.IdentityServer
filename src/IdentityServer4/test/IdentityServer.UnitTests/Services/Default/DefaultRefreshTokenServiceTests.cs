@@ -5,7 +5,6 @@ using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
-using IdentityServer4.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;

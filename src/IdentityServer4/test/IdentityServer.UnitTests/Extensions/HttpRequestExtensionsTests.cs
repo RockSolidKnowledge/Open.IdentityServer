@@ -7,7 +7,7 @@ using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.Extensions
+namespace IdentityServer.UnitTests.Extensions
 {
     public class HttpRequestExtensionsTests
     {

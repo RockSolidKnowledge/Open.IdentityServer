@@ -2,17 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
-using IdentityModel;
-using IdentityServer4.Models;
-using IdentityServer4.UnitTests.Common;
-using IdentityServer4.Validation;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using FluentAssertions;
+using IdentityModel;
+using IdentityServer.UnitTests.Common;
+using IdentityServer4;
+using IdentityServer4.Models;
+using IdentityServer4.Validation;
 using Xunit;
 
-namespace IdentityServer4.UnitTests.Validation
+namespace IdentityServer.UnitTests.Validation
 {
     public class RevocationRequestValidation
     {
