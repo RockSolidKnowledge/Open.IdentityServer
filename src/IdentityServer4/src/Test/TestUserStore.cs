@@ -36,11 +36,17 @@ namespace IdentityServer4.Test
         public bool ValidateCredentials(string username, string password)
         {
             var user = FindByUsername(username);
+            
             if (user != null)
             {
+                if (string.IsNullOrWhiteSpace(user.Password) && string.IsNullOrWhiteSpace(password))
+                {
+                    return true;
+                }
+                
                 return user.Password.Equals(password);
             }
-
+            
             return false;
         }
 

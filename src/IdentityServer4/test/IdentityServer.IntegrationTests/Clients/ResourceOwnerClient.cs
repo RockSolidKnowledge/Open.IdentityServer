@@ -223,9 +223,27 @@ namespace IdentityServer4.IntegrationTests.Clients
             response.HttpStatusCode.Should().Be(HttpStatusCode.BadRequest);
             response.Error.Should().Be("invalid_grant");
         }
-
+        
         [Fact]
-        public async Task User_with_invalid_password_should_fail()
+        public async Task User_with_empty_password_should_succeed()
+        {
+            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
+            {
+                Address = TokenEndpoint,
+                ClientId = "roclient",
+                ClientSecret = "secret",
+
+                Scope = "api1",
+                UserName = "bob_no_password"
+            });
+
+            response.IsError.Should().Be(false);
+        }
+
+        [Theory]
+        [InlineData("invalid")]
+        [InlineData("")]
+        public async Task User_with_invalid_password_should_fail(string password)
         {
             var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
             {
@@ -235,7 +253,7 @@ namespace IdentityServer4.IntegrationTests.Clients
 
                 Scope = "api1",
                 UserName = "bob",
-                Password = "invalid"
+                Password = password
             });
 
             response.IsError.Should().Be(true);
@@ -245,7 +263,7 @@ namespace IdentityServer4.IntegrationTests.Clients
         }
 
 
-        private Dictionary<string, object> GetPayload(IdentityModel.Client.TokenResponse response)
+        private static Dictionary<string, object> GetPayload(IdentityModel.Client.TokenResponse response)
         {
             var token = response.AccessToken.Split('.').Skip(1).Take(1).First();
             var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(
