@@ -31,11 +31,6 @@ Exchanging external tokens from Facebook, Google and Twitter
 
 https://github.com/waqaskhan540/IdentityServerExternalAuth
 
-ASP.NET Core MVC RazorPages template for IdentityServer4 Quickstart UI
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-`Razor Pages based QuickStart sample <https://github.com/IdentityServer4Contrib/IdentityServer4.Contrib.Templates.RazorPages>`_ by `Martin Fletcher <https://github.com/martinfletcher>`_.
-
 
 .NET Core and ASP.NET Core "Platform" scenario
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
