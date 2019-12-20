@@ -129,7 +129,10 @@ namespace IdentityServer4.Extensions
             {
                 uri = context.GetIdentityServerOrigin() + context.GetIdentityServerBasePath();
                 if (uri.EndsWith("/")) uri = uri.Substring(0, uri.Length - 1);
-                uri = uri.ToLowerInvariant();
+                if (options.LowerCaseIssuerUri)
+                {
+                    uri = uri.ToLowerInvariant();
+                }
             }
 
             return uri;

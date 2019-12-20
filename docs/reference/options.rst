@@ -6,6 +6,9 @@ IdentityServer Options
     Set the issuer name that will appear in the discovery document and the issued JWT tokens.
     It is recommended to not set this property, which infers the issuer name from the host name that is used by the clients.
 
+* ``LowerCaseIssuerUri``
+    Set to ``false`` to preserve the original casing of the IssuerUri. Defaults to ``true``.
+
 * ``PublicOrigin``
     The origin of this server instance, e.g. https://myorigin.com. If not set, the origin name is inferred from the request.
 
