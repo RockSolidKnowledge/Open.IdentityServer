@@ -120,7 +120,14 @@ namespace IdentityServer4.Quickstart.UI
             ProcessLoginCallbackForSaml2p(result, additionalLocalClaims, localSignInProps);
 
             // issue authentication cookie for user
-            await HttpContext.SignInAsync(user.SubjectId, user.Username, provider, localSignInProps, additionalLocalClaims.ToArray());
+            var isuser = new IdentityServerUser(user.SubjectId)
+            {
+                DisplayName = user.Username,
+                IdentityProvider = provider,
+                AdditionalClaims = additionalLocalClaims
+            };
+
+            await HttpContext.SignInAsync(isuser, localSignInProps);
 
             // delete temporary cookie used during external authentication
             await HttpContext.SignOutAsync(IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme);
