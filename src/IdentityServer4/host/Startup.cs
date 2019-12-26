@@ -17,6 +17,7 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Host.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Host
 {
@@ -102,6 +103,11 @@ namespace Host
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+            
             app.UseCookiePolicy();
             
             app.UseSerilogRequestLogging();
