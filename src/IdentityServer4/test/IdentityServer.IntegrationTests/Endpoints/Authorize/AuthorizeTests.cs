@@ -37,6 +37,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                     ClientId = "client1",
                     AllowedGrantTypes = GrantTypes.Implicit,
                     RequireConsent = false,
+                    
                     AllowedScopes = new List<string> { "openid", "profile" },
                     RedirectUris = new List<string> { "https://client1/callback" },
                     AllowAccessTokensViaBrowser = true
@@ -46,6 +47,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                     ClientId = "client2",
                     AllowedGrantTypes = GrantTypes.Implicit,
                     RequireConsent = true,
+                    
                     AllowedScopes = new List<string> { "openid", "profile", "api1", "api2" },
                     RedirectUris = new List<string> { "https://client2/callback" },
                     AllowAccessTokensViaBrowser = true
@@ -55,6 +57,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                     ClientId = "client3",
                     AllowedGrantTypes = GrantTypes.Implicit,
                     RequireConsent = false,
+                    
                     AllowedScopes = new List<string> { "openid", "profile", "api1", "api2" },
                     RedirectUris = new List<string> { "https://client3/callback" },
                     AllowAccessTokensViaBrowser = true,
@@ -67,6 +70,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                     AllowedGrantTypes = GrantTypes.Code,
                     RequireClientSecret = false,
                     RequireConsent = false,
+                    RequirePkce = false,
                     AllowedScopes = new List<string> { "openid", "profile", "api1", "api2" },
                     RedirectUris = new List<string> { "https://client4/callback" },
                 },

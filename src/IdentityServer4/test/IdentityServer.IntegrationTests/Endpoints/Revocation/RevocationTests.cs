@@ -37,6 +37,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Revocation
                 ClientSecrets = new List<Secret> { new Secret(client_secret.Sha256()) },
                 AllowedGrantTypes = GrantTypes.Code,
                 RequireConsent = false,
+                RequirePkce = false,
                 AllowOfflineAccess = true,
                 AllowedScopes = new List<string> { "api" },
                 RedirectUris = new List<string> { redirect_uri },

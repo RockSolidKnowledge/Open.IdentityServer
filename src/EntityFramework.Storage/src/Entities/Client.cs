@@ -22,11 +22,11 @@ namespace IdentityServer4.EntityFramework.Entities
         public string Description { get; set; }
         public string ClientUri { get; set; }
         public string LogoUri { get; set; }
-        public bool RequireConsent { get; set; } = true;
+        public bool RequireConsent { get; set; } = false;
         public bool AllowRememberConsent { get; set; } = true;
         public bool AlwaysIncludeUserClaimsInIdToken { get; set; }
         public List<ClientGrantType> AllowedGrantTypes { get; set; }
-        public bool RequirePkce { get; set; }
+        public bool RequirePkce { get; set; } = true;
         public bool AllowPlainTextPkce { get; set; }
         public bool AllowAccessTokensViaBrowser { get; set; }
         public List<ClientRedirectUri> RedirectUris { get; set; }

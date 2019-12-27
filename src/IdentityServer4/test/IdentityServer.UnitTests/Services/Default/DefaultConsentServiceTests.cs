@@ -35,7 +35,9 @@ namespace IdentityServer.UnitTests.Services.Default
 
             _client = new Client
             {
-                ClientId = "client"
+                ClientId = "client",
+                RequireConsent = true,
+                RequirePkce = false
             };
 
             _user = new IdentityServerUser("bob")

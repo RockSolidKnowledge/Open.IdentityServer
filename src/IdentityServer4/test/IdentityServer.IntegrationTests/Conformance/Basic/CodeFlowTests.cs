@@ -41,6 +41,7 @@ namespace IdentityServer.IntegrationTests.Conformance.Basic
                 AllowedScopes = { "openid" },
 
                 RequireConsent = false,
+                RequirePkce = false,
                 RedirectUris = new List<string>
                 {
                     "https://code_pipeline.Client/callback",

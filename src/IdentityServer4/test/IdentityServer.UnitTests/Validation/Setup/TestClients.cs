@@ -28,6 +28,7 @@ namespace IdentityServer.UnitTests.Validation.Setup
                     AllowedScopes = { "openid", "profile", "resource", "resource2" },
 
                     RequireConsent = false,
+                    RequirePkce = false,
 
                     RedirectUris = new List<string>
                     {
@@ -121,6 +122,7 @@ namespace IdentityServer.UnitTests.Validation.Setup
                         AllowAccessTokensViaBrowser = true,
 
                         RequireConsent = false,
+                        RequirePkce = false,
 
                         RedirectUris = new List<string>
                         {
@@ -168,6 +170,7 @@ namespace IdentityServer.UnitTests.Validation.Setup
                         AllowAccessTokensViaBrowser = false,
 
                         RequireConsent = false,
+                        RequirePkce = false,
 
                         RedirectUris = new List<string>
                         {
@@ -239,6 +242,7 @@ namespace IdentityServer.UnitTests.Validation.Setup
 
                         AllowedGrantTypes = GrantTypes.Code,
                         RequireConsent = false,
+                        RequirePkce = false,
 
                         AllowedScopes = new List<string>
                         {

@@ -50,6 +50,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                     AllowedGrantTypes = GrantTypes.Hybrid,
                     ClientSecrets = { new Secret("secret".Sha256()) },
                     RequireConsent = false,
+                    RequirePkce = false,
                     AllowedScopes = new List<string> { "openid" },
                     RedirectUris = new List<string> { "https://client3/callback" },
                     AllowAccessTokensViaBrowser = true
@@ -60,6 +61,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                     AllowedGrantTypes = GrantTypes.Hybrid,
                     ClientSecrets = { new Secret("secret".Sha256()) },
                     RequireConsent = false,
+                    RequirePkce = false,
                     AllowedScopes = new List<string> { "openid" },
                     RedirectUris = new List<string> { "https://client4/callback" },
                     AllowAccessTokensViaBrowser = false
