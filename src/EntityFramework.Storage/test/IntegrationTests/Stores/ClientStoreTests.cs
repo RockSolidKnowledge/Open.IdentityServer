@@ -77,7 +77,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 AllowedCorsOrigins = {"https://localhost"},
                 AllowedGrantTypes = GrantTypes.HybridAndClientCredentials,
                 AllowedScopes = {"openid", "profile", "api1"},
-                Claims = {new Claim("test", "value")},
+                Claims = {new ClientClaim("test", "value")},
                 ClientSecrets = {new Secret("secret".Sha256())},
                 IdentityProviderRestrictions = {"AD"},
                 PostLogoutRedirectUris = {"https://locahost/signout-callback"},

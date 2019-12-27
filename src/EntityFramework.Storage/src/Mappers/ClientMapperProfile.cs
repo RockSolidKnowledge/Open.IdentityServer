@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using AutoMapper;
+using IdentityServer4.Models;
 
 namespace IdentityServer4.EntityFramework.Mappers
 {
@@ -38,8 +39,8 @@ namespace IdentityServer4.EntityFramework.Mappers
                 .ReverseMap()
                 .ForMember(dest => dest.Provider, opt => opt.MapFrom(src => src));
 
-            CreateMap<Entities.ClientClaim, Claim>(MemberList.None)
-                .ConstructUsing(src => new Claim(src.Type, src.Value))
+            CreateMap<Entities.ClientClaim, ClientClaim>(MemberList.None)
+                .ConstructUsing(src => new ClientClaim(src.Type, src.Value, ClaimValueTypes.String))
                 .ReverseMap();
 
             CreateMap<Entities.ClientScope, string>()

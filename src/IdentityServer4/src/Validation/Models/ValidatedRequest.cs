@@ -124,7 +124,7 @@ namespace IdentityServer4.Validation
 
             AccessTokenLifetime = client.AccessTokenLifetime;
             AccessTokenType = client.AccessTokenType;
-            ClientClaims = client.Claims.Select(c => new Claim(c.Type, c.Value, c.ValueType, c.Issuer)).ToList();
+            ClientClaims = client.Claims.Select(c => new Claim(c.Type, c.Value, c.ValueType)).ToList();
         }
     }
 }

@@ -31,7 +31,7 @@ namespace IdentityServer.UnitTests.Services.Default
             _client = new Client
             {
                 ClientId = "client",
-                Claims = { new Claim("some_claim", "some_claim_value") }
+                Claims = { new ClientClaim("some_claim", "some_claim_value") }
             };
 
             _user = new IdentityServerUser("bob")

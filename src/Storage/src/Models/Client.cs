@@ -242,7 +242,7 @@ namespace IdentityServer4.Models
         /// <value>
         /// The claims.
         /// </value>
-        public ICollection<Claim> Claims { get; set; } = new HashSet<Claim>(new ClaimComparer());
+        public ICollection<ClientClaim> Claims { get; set; } = new HashSet<ClientClaim>();
 
         /// <summary>
         /// Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow.
