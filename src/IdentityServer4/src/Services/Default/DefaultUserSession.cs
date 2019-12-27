@@ -28,11 +28,6 @@ namespace IdentityServer4.Services
         protected readonly IHttpContextAccessor HttpContextAccessor;
 
         /// <summary>
-        /// The schemes
-        /// </summary>
-        protected readonly IAuthenticationSchemeProvider Schemes;
-
-        /// <summary>
         /// The handlers
         /// </summary>
         protected readonly IAuthenticationHandlerProvider Handlers;
@@ -89,35 +84,16 @@ namespace IdentityServer4.Services
         /// <param name="logger">The logger.</param>
         public DefaultUserSession(
             IHttpContextAccessor httpContextAccessor,
-            IAuthenticationSchemeProvider schemes,
             IAuthenticationHandlerProvider handlers,
             IdentityServerOptions options,
             ISystemClock clock,
             ILogger<IUserSession> logger)
         {
             HttpContextAccessor = httpContextAccessor;
-            Schemes = schemes;
             Handlers = handlers;
             Options = options;
             Clock = clock;
             Logger = logger;
-        }
-
-        // todo: remove this in 3.0 and use extension method on http context
-        private async Task<string> GetCookieSchemeAsync()
-        {
-            if (Options.Authentication.CookieAuthenticationScheme != null)
-            {
-                return Options.Authentication.CookieAuthenticationScheme;
-            }
-
-            var defaultScheme = await Schemes.GetDefaultAuthenticateSchemeAsync();
-            if (defaultScheme == null)
-            {
-                throw new InvalidOperationException("No DefaultAuthenticateScheme found.");
-            }
-
-            return defaultScheme.Name;
         }
 
         // we need this helper (and can't call HttpContext.AuthenticateAsync) so we don't run
@@ -137,7 +113,7 @@ namespace IdentityServer4.Services
         {
             if (Principal == null || Properties == null)
             {
-                var scheme = await GetCookieSchemeAsync();
+                var scheme = await HttpContext.GetCookieAuthenticationSchemeAsync();
 
                 var handler = await Handlers.GetHandlerAsync(HttpContext, scheme);
                 if (handler == null)
@@ -359,7 +335,7 @@ namespace IdentityServer4.Services
                 Properties.Items[ClientListKey] = value;
             }
 
-            var scheme = await GetCookieSchemeAsync();
+            var scheme = await HttpContext.GetCookieAuthenticationSchemeAsync();
             await HttpContext.SignInAsync(scheme, Principal, Properties);
         }
 

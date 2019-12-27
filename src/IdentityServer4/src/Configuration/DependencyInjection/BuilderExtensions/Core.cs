@@ -126,11 +126,6 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<BearerTokenUsageValidator>();
             builder.Services.AddTransient<JwtRequestValidator>();
 
-            // todo: remove in 3.0
-#pragma warning disable CS0618 // Type or member is obsolete
-            builder.Services.AddTransient<BackChannelHttpClient>();
-#pragma warning restore CS0618 // Type or member is obsolete
-
             builder.Services.AddTransient<ReturnUrlParser>();
             builder.Services.AddTransient<IdentityServerTools>();
 

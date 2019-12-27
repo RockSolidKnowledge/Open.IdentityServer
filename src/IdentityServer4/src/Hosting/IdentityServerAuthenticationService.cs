@@ -50,26 +50,10 @@ namespace IdentityServer4.Hosting
             _logger = logger;
         }
 
-        // todo: remove this in 3.0 and use extension method on http context
-        private async Task<string> GetCookieAuthenticationSchemeAsync()
-        {
-            if (_options.Authentication.CookieAuthenticationScheme != null)
-            {
-                return _options.Authentication.CookieAuthenticationScheme;
-            }
-
-            var scheme = await _schemes.GetDefaultAuthenticateSchemeAsync();
-            if (scheme == null)
-            {
-                throw new InvalidOperationException("No DefaultAuthenticateScheme found.");
-            }
-            return scheme.Name;
-        }
-
         public async Task SignInAsync(HttpContext context, string scheme, ClaimsPrincipal principal, AuthenticationProperties properties)
         {
             var defaultScheme = await _schemes.GetDefaultSignInSchemeAsync();
-            var cookieScheme = await GetCookieAuthenticationSchemeAsync();
+            var cookieScheme = await context.GetCookieAuthenticationSchemeAsync();
 
             if ((scheme == null && defaultScheme?.Name == cookieScheme) || scheme == cookieScheme)
             {
@@ -93,7 +77,7 @@ namespace IdentityServer4.Hosting
         public async Task SignOutAsync(HttpContext context, string scheme, AuthenticationProperties properties)
         {
             var defaultScheme = await _schemes.GetDefaultSignOutSchemeAsync();
-            var cookieScheme = await GetCookieAuthenticationSchemeAsync();
+            var cookieScheme = await context.GetCookieAuthenticationSchemeAsync();
 
             if ((scheme == null && defaultScheme?.Name == cookieScheme) || scheme == cookieScheme)
             {

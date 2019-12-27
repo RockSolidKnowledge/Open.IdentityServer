@@ -14,15 +14,6 @@ namespace IdentityServer4.Validation
     {
         private readonly IdentityServerOptions _options;
 
-        // todo: default ctor for backwards compat; remove in 3.0
-
-        /// <summary>
-        /// Constructor for DefaultClientConfigurationValidator
-        /// </summary>
-        public DefaultClientConfigurationValidator()
-        {
-        }
-
         /// <summary>
         /// Constructor for DefaultClientConfigurationValidator
         /// </summary>
@@ -189,30 +180,26 @@ namespace IdentityServer4.Validation
         /// <returns></returns>
         protected virtual Task ValidateUriSchemesAsync(ClientConfigurationValidationContext context)
         {
-            // todo: null check for backwards compat; remove in 3.0
-            if (_options != null)
+            if (context.Client.RedirectUris?.Any() == true)
             {
-                if (context.Client.RedirectUris?.Any() == true)
+                foreach (var uri in context.Client.RedirectUris)
                 {
-                    foreach (var uri in context.Client.RedirectUris)
+                    if (_options.Validation.InvalidRedirectUriPrefixes
+                            .Any(scheme => uri?.StartsWith(scheme, StringComparison.OrdinalIgnoreCase) == true))
                     {
-                        if (_options.Validation.InvalidRedirectUriPrefixes
-                                .Any(scheme => uri?.StartsWith(scheme, StringComparison.OrdinalIgnoreCase) == true))
-                        {
-                            context.SetError($"RedirectUri '{uri}' uses invalid scheme. If this scheme should be allowed, then configure it via ValidationOptions.");
-                        }
+                        context.SetError($"RedirectUri '{uri}' uses invalid scheme. If this scheme should be allowed, then configure it via ValidationOptions.");
                     }
                 }
+            }
 
-                if (context.Client.PostLogoutRedirectUris?.Any() == true)
+            if (context.Client.PostLogoutRedirectUris?.Any() == true)
+            {
+                foreach (var uri in context.Client.PostLogoutRedirectUris)
                 {
-                    foreach (var uri in context.Client.PostLogoutRedirectUris)
+                    if (_options.Validation.InvalidRedirectUriPrefixes
+                            .Any(scheme => uri.StartsWith(scheme, StringComparison.OrdinalIgnoreCase)))
                     {
-                        if (_options.Validation.InvalidRedirectUriPrefixes
-                                .Any(scheme => uri.StartsWith(scheme, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            context.SetError($"PostLogoutRedirectUri '{uri}' uses invalid scheme. If this scheme should be allowed, then configure it via ValidationOptions.");
-                        }
+                        context.SetError($"PostLogoutRedirectUri '{uri}' uses invalid scheme. If this scheme should be allowed, then configure it via ValidationOptions.");
                     }
                 }
             }

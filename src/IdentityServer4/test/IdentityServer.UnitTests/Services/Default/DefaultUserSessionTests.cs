@@ -22,7 +22,6 @@ namespace IdentityServer.UnitTests.Services.Default
     {
         private DefaultUserSession _subject;
         private MockHttpContextAccessor _mockHttpContext = new MockHttpContextAccessor();
-        private MockAuthenticationSchemeProvider _mockAuthenticationSchemeProvider = new MockAuthenticationSchemeProvider();
         private MockAuthenticationHandlerProvider _mockAuthenticationHandlerProvider = new MockAuthenticationHandlerProvider();
         private MockAuthenticationHandler _mockAuthenticationHandler = new MockAuthenticationHandler();
 
@@ -37,7 +36,6 @@ namespace IdentityServer.UnitTests.Services.Default
             _user = new IdentityServerUser("123").CreatePrincipal();
             _subject = new DefaultUserSession(
                 _mockHttpContext, 
-                _mockAuthenticationSchemeProvider,
                 _mockAuthenticationHandlerProvider,
                 _options,
                 new StubClock(), 
