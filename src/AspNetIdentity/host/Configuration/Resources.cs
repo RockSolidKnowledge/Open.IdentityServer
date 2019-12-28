@@ -36,7 +36,9 @@ namespace Host.Configuration
                 new ApiResource("api1", "Some API 1")
                 {
                     // this is needed for introspection when using reference tokens
-                    ApiSecrets = { new Secret("secret".Sha256()) }
+                    ApiSecrets = { new Secret("secret".Sha256()) },
+
+                    //AllowedSigningAlgorithms = { "RS256", "ES256" }
                 },
                 
                 // expanded version if more control is needed
@@ -48,6 +50,8 @@ namespace Host.Configuration
                     {
                         new Secret("secret".Sha256())
                     },
+
+                    //AllowedSigningAlgorithms = { "PS256", "ES256", "RS256" },
 
                     UserClaims =
                     {
