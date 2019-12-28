@@ -192,21 +192,21 @@ One exception is the `ResourceOwnerClient` -- the password will need to be updat
 
 Launch the MVC client application, and you should be able to click the "Secure" link to get logged in.
 
-.. image:: images/8_mvc_client.png
+.. image:: images/aspid_mvc_client.png
 
 You should be redirected to the ASP.NET Identity login page.
 Login with your newly created user:
 
-.. image:: images/8_login.png
+.. image:: images/aspid_login.png
 
 After login you see the normal consent page. 
 After consent you will be redirected back to the MVC client application where your user's claims should be listed.
 
-.. image:: images/8_claims.png
+.. image:: images/aspid_claims.png
 
 You should also be able to click "Call API using application identity" to invoke the API on behalf of the user:
 
-.. image:: images/8_api_claims.png
+.. image:: images/aspid_api_claims.png
 
 And now you're using users from ASP.NET Identity in IdentityServer.
 
