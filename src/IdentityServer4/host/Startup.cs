@@ -136,9 +136,9 @@ namespace Host
 
             // use an RSA-based certificate with RS256
             var cert = new X509Certificate2("./keys/identityserver.test.rsa.p12", "changeit");
-            //builder.AddSigningCredential(cert, "RS256");
+            builder.AddSigningCredential(cert, "RS256");
 
-            // ...or PS256
+            // ...and PS256
             builder.AddSigningCredential(cert, "PS256");
 
             // or manually extract ECDSA key from certificate (directly using the certificate is not support by Microsoft right now)

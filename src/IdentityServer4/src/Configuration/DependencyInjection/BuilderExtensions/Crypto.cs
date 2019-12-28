@@ -76,7 +76,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new InvalidOperationException("X509 certificate does not have a private key.");
             }
 
-            var credential = new SigningCredentials(new X509SecurityKey(certificate), signingAlgorithm);
+            // add signing algorithm name to key ID to allow using the same key for two different algorithms (e.g. RS256 and PS56);
+            var key = new X509SecurityKey(certificate);
+            key.KeyId += signingAlgorithm;
+            
+            var credential = new SigningCredentials(key, signingAlgorithm);
             return builder.AddSigningCredential(credential);
         }
 
