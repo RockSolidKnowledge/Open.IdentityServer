@@ -5,7 +5,7 @@ Entity Framework Support
 An EntityFramework-based implementation is provided for the configuration and operational data extensibility points in IdentityServer.
 The use of EntityFramework allows any EF-supported database to be used with this library.
 
-The repo for this library is located `here <https://github.com/IdentityServer/IdentityServer4.EntityFramework/>`_ and the NuGet package is `here <https://www.nuget.org/packages/IdentityServer4.EntityFramework>`_.
+The code for this library is located `here <https://github.com/IdentityServer/IdentityServer4/tree/master/src/EntityFramework>`_ (with the underlying storage code `here <https://github.com/IdentityServer/IdentityServer4/tree/master/src/EntityFramework.Storage>`_) and the NuGet package is `here <https://www.nuget.org/packages/IdentityServer4.EntityFramework>`_.
 
 The features provided by this library are broken down into two main areas: configuration store and operational store support.
 These two different areas can be used independently or together, based upon the needs of the hosting application.
