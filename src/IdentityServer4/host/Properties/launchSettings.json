@@ -30,11 +30,11 @@
     "Reverse Proxy": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "https://identityserver.local",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:5000",
-      "launchUrl": "https://identityserver.local"
+      "applicationUrl": "http://localhost:5000"
     },
     "IIS": {
       "commandName": "IIS",
