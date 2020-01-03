@@ -6,6 +6,8 @@ Welcome to IdentityServer4 (latest)
 
 IdentityServer4 is an OpenID Connect and OAuth 2.0 framework for ASP.NET Core.
 
+.. note:: This docs cover the latest version on master. This might not be released yet. Use the version picker in the lower left corner to select docs for a specific version.
+
 It enables the following features in your applications:
 
 
