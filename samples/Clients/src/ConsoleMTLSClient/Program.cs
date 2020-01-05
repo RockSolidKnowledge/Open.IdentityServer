@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace ConsoleMTLSClient
@@ -24,21 +25,19 @@ namespace ConsoleMTLSClient
 
         static async Task<TokenResponse> RequestTokenAsync()
         {
-            var handler = new HttpClientHandler();
-            var cert = X509.CurrentUser.My.Thumbprint.Find("bf6e2ca4f07994430b86bf9d48833a33f27a5c24").Single();
-            handler.ClientCertificates.Add(cert);
+            var client = new HttpClient(GetHandler());
 
-            var client = new HttpClient(handler);
-
-            var disco = await client.GetDiscoveryDocumentAsync(Constants.Authority);
+            var disco = await client.GetDiscoveryDocumentAsync("https://identityserver.local");
             if (disco.IsError) throw new Exception(disco.Error);
 
+            var endpoint = disco
+                    .TryGetValue(OidcConstants.Discovery.MtlsEndpointAliases)
+                    .Value<string>(OidcConstants.Discovery.TokenEndpoint)
+                    .ToString();
+            
             var response = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
-                Address = disco
-                            .TryGetValue(OidcConstants.Discovery.MtlsEndpointAliases)
-                            .Value<string>(OidcConstants.Discovery.TokenEndpoint)
-                            .ToString(),
+                Address = endpoint,
 
                 ClientId = "mtls",
                 Scope = "api1"
@@ -50,15 +49,9 @@ namespace ConsoleMTLSClient
 
         static async Task CallServiceAsync(string token)
         {
-            var baseAddress = Constants.SampleApi;
-
-            var handler = new HttpClientHandler();
-            var cert = X509.CurrentUser.My.Thumbprint.Find("bf6e2ca4f07994430b86bf9d48833a33f27a5c24").Single();
-            handler.ClientCertificates.Add(cert);
-
-            var client = new HttpClient(handler)
+            var client = new HttpClient(GetHandler())
             {
-                BaseAddress = new Uri(baseAddress)
+                BaseAddress = new Uri(Constants.SampleApi)
             };
 
             client.SetBearerToken(token);
@@ -66,6 +59,16 @@ namespace ConsoleMTLSClient
 
             "\n\nService claims:".ConsoleGreen();
             Console.WriteLine(JArray.Parse(response));
+        }
+
+        static SocketsHttpHandler GetHandler()
+        {
+            var handler = new SocketsHttpHandler();
+            
+            var cert = new X509Certificate2("client.p12", "changeit");
+            handler.SslOptions.ClientCertificates = new X509CertificateCollection { cert };
+
+            return handler;
         }
     }
 }

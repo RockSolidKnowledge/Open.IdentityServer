@@ -154,27 +154,51 @@ namespace IdentityServer4.ResponseHandling
                 if (Options.MutualTls.Enabled)
                 {
                     var mtlsEndpoints = new Dictionary<string, string>();
-
+                    
                     if (Options.Endpoints.EnableTokenEndpoint)
                     {
-                        mtlsEndpoints.Add(OidcConstants.Discovery.TokenEndpoint, baseUrl + Constants.ProtocolRoutePaths.MtlsToken);
+                        mtlsEndpoints.Add(OidcConstants.Discovery.TokenEndpoint, ConstructMtlsEndpoint(Constants.ProtocolRoutePaths.Token));
                     }
                     if (Options.Endpoints.EnableTokenRevocationEndpoint)
                     {
-                        mtlsEndpoints.Add(OidcConstants.Discovery.RevocationEndpoint, baseUrl + Constants.ProtocolRoutePaths.MtlsRevocation);
+                        mtlsEndpoints.Add(OidcConstants.Discovery.RevocationEndpoint, ConstructMtlsEndpoint(Constants.ProtocolRoutePaths.Revocation));
                     }
                     if (Options.Endpoints.EnableIntrospectionEndpoint)
                     {
-                        mtlsEndpoints.Add(OidcConstants.Discovery.IntrospectionEndpoint, baseUrl + Constants.ProtocolRoutePaths.MtlsIntrospection);
+                        mtlsEndpoints.Add(OidcConstants.Discovery.IntrospectionEndpoint, ConstructMtlsEndpoint(Constants.ProtocolRoutePaths.Introspection));
                     }
                     if (Options.Endpoints.EnableDeviceAuthorizationEndpoint)
                     {
-                        mtlsEndpoints.Add(OidcConstants.Discovery.DeviceAuthorizationEndpoint, baseUrl + Constants.ProtocolRoutePaths.MtlsDeviceAuthorization);
+                        mtlsEndpoints.Add(OidcConstants.Discovery.DeviceAuthorizationEndpoint, ConstructMtlsEndpoint(Constants.ProtocolRoutePaths.DeviceAuthorization));
                     }
 
                     if (mtlsEndpoints.Any())
                     {
                         entries.Add(OidcConstants.Discovery.MtlsEndpointAliases, mtlsEndpoints);
+                    }    
+                        
+                    string ConstructMtlsEndpoint(string endpoint)
+                    {
+                        // path based
+                        if (Options.MutualTls.DomainName.IsMissing())
+                        {
+                            return baseUrl + endpoint.Replace(Constants.ProtocolRoutePaths.ConnectPathPrefix, Constants.ProtocolRoutePaths.MtlsPathPrefix);
+                        }
+                        else
+                        {
+                            // domain based
+                            if (Options.MutualTls.DomainName.Contains("."))
+                            {
+                                return $"https://{Options.MutualTls.DomainName}/{endpoint}";
+                            }
+                            // sub-domain based
+                            else
+                            {
+
+                                var parts = baseUrl.Split("://");
+                                return $"https://{Options.MutualTls.DomainName}.{parts[1]}{endpoint}";
+                            }
+                        }
                     }
                 }
             }

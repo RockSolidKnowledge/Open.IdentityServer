@@ -9,9 +9,11 @@ using FluentAssertions;
 using IdentityModel;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4;
+using IdentityServer4.Configuration;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Services.Default
@@ -49,9 +51,10 @@ namespace IdentityServer.UnitTests.Services.Default
                 }
             }.CreatePrincipal();
 
-            _subject = new DefaultClaimsService(_mockMockProfileService, TestLogger.Create<DefaultClaimsService>());
+            _subject = new DefaultClaimsService(_mockMockProfileService, new HttpContextAccessor(), TestLogger.Create<DefaultClaimsService>());
 
             _validatedRequest = new ValidatedRequest();
+            _validatedRequest.Options = new IdentityServerOptions();
             _validatedRequest.SetClient(_client);
         }
 

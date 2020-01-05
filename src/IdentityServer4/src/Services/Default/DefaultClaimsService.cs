@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace IdentityServer4.Services
 {
@@ -30,14 +31,21 @@ namespace IdentityServer4.Services
         protected readonly IProfileService Profile;
 
         /// <summary>
+        /// The HTTP context accessor
+        /// </summary>
+        protected readonly IHttpContextAccessor ContextAccessor;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DefaultClaimsService"/> class.
         /// </summary>
         /// <param name="profile">The profile service</param>
+        /// <param name="contextAccessor">The HTTP context accessor</param>
         /// <param name="logger">The logger</param>
-        public DefaultClaimsService(IProfileService profile, ILogger<DefaultClaimsService> logger)
+        public DefaultClaimsService(IProfileService profile, IHttpContextAccessor contextAccessor, ILogger<DefaultClaimsService> logger)
         {
             Logger = logger;
             Profile = profile;
+            ContextAccessor = contextAccessor;
         }
 
         /// <summary>
@@ -129,6 +137,18 @@ namespace IdentityServer4.Services
             if (request.Confirmation.IsPresent())
             {
                 outputClaims.Add(new Claim(JwtClaimTypes.Confirmation, request.Confirmation, IdentityServerConstants.ClaimValueTypes.Json));
+            }
+            else
+            {
+                if (request.Options.MutualTls.AlwaysEmitConfirmationClaim)
+                {
+                    var clientCertificate = await ContextAccessor.HttpContext.Connection.GetClientCertificateAsync();
+                    if (clientCertificate != null)
+                    {
+                        outputClaims.Add(new Claim(JwtClaimTypes.Confirmation, clientCertificate.CreateThumbprintCnf(), IdentityServerConstants.ClaimValueTypes.Json));
+                    }
+                }
+                
             }
 
             // check for client claims

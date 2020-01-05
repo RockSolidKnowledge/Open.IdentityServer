@@ -41,7 +41,7 @@ namespace Microsoft.AspNetCore.Builder
             if (options == null) options = new IdentityServerMiddlewareOptions();
             options.AuthenticationMiddleware(app);
 
-            app.UseMiddleware<MutualTlsTokenEndpointMiddleware>();
+            app.UseMiddleware<MutualTlsEndpointMiddleware>();
             app.UseMiddleware<IdentityServerMiddleware>();
 
             return app;

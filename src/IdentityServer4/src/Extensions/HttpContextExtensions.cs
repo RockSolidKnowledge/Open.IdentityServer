@@ -47,9 +47,24 @@ namespace IdentityServer4.Extensions
 
         public static string GetIdentityServerOrigin(this HttpContext context)
         {
+            var options = context.RequestServices.GetRequiredService<IdentityServerOptions>();
             var request = context.Request;
+            
+            if (options.MutualTls.Enabled && options.MutualTls.DomainName.IsPresent())
+            {
+                if (!options.MutualTls.DomainName.Contains("."))
+                {
+                    if (request.Host.Value.StartsWith(options.MutualTls.DomainName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return request.Scheme + "://" +
+                               request.Host.Value.Substring(options.MutualTls.DomainName.Length + 1);
+                    }
+                }
+            }
+            
             return request.Scheme + "://" + request.Host.Value;
         }
+
 
         internal static void SetSignOutCalled(this HttpContext context)
         {

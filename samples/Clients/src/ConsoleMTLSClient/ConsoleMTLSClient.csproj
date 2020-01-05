@@ -9,4 +9,10 @@
     <ProjectReference Include="..\Constants\Constants.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="client.p12">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
