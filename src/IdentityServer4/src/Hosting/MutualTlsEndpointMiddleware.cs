@@ -55,7 +55,7 @@ namespace IdentityServer4.Hosting
                     // sub-domain
                     else
                     {
-                        if (context.Request.Host.Host.StartsWith(_options.MutualTls.DomainName, StringComparison.OrdinalIgnoreCase))
+                        if (context.Request.Host.Host.StartsWith(_options.MutualTls.DomainName + ".", StringComparison.OrdinalIgnoreCase))
                         {
                             var result = await TriggerCertificateAuthentication(context);
                             if (!result.Succeeded)

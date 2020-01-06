@@ -148,7 +148,6 @@ namespace IdentityServer4.Services
                         outputClaims.Add(new Claim(JwtClaimTypes.Confirmation, clientCertificate.CreateThumbprintCnf(), IdentityServerConstants.ClaimValueTypes.Json));
                     }
                 }
-                
             }
 
             // check for client claims
