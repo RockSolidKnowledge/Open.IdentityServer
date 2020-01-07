@@ -1,2 +1,2 @@
-../clean.sh
-../build.sh quick
+./clean.sh
+./build.sh quick
