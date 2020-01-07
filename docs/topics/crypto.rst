@@ -7,8 +7,14 @@ IdentityServer relies on a couple of crypto mechanisms to do its job.
 Token signing and validation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 IdentityServer needs an asymmetric key pair to sign and validate JWTs. 
-This keypair can be a certificate/private key combination or raw RSA keys.
-In any case it must support RSA with SHA256.
+This keymaterial can be either packaged as a certificate or just raw keys.
+Both RSA and ECDSA keys are supported and the supported signing algorithms are: RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384 and ES512.
+
+You can use multiple signing keys simultaneously, but only one signing key per algorithm is supported.
+The first signing key you register is considered the default signing key.
+
+Both :ref:`clients <refClient>` and :ref:`API resources <refApiResource>` can express preferences on the signing algorithm.
+If you request a single token for multiple API resources, all resources need to agree on at least one allowed signing algorithm.
 
 Loading of signing key and the corresponding validation part is done by implementations of ``ISigningCredentialStore`` and ``IValidationKeysStore``.
 If you want to customize the loading of the keys, you can implement those interfaces and register them with DI.
@@ -20,7 +26,7 @@ Signing key rollover
 While you can only use one signing key at a time, you can publish more than one validation key to the discovery document.
 This is useful for key rollover.
 
-A rollover typically works like this:
+In a nutshell, a rollover typically works like this:
 
 1. you request/create new key material
 2. you publish the new validation key in addition to the current one. You can use the ``AddValidationKey`` builder extension method for that.
@@ -31,6 +37,9 @@ A rollover typically works like this:
 7. all clients and APIs will "forget" the old key next time they update their local copy of the discovery document
 
 This requires that clients and APIs use the discovery document, and also have a feature to periodically refresh their configuration.
+
+Brock wrote a more detailed `blog post <https://brockallen.com/2019/08/09/identityserver-and-signing-key-rotation/>`_ about key rotation, and also
+created a `commercial component <https://www.identityserver.com/products/keymanagement>`_, that can automatically take care of all those details.
 
 Data protection
 ^^^^^^^^^^^^^^^

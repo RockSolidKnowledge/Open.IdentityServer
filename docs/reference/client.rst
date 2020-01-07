@@ -63,6 +63,8 @@ Token
 
 ``IdentityTokenLifetime``
     Lifetime to identity token in seconds (defaults to 300 seconds / 5 minutes)
+``AllowedIdentityTokenSigningAlgorithms``
+    List of allowed signing algorithms for identity token. If empty, will use the server default signing algorithm.
 ``AccessTokenLifetime``
     Lifetime of access token in seconds (defaults to 3600 seconds / 1 hour)
 ``AuthorizationCodeLifetime``

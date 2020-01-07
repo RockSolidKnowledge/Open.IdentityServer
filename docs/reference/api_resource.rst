@@ -13,6 +13,8 @@ This class model an API resource.
     This value can be used e.g. on the consent screen.
 ``ApiSecrets``
     The API secret is used for the introspection endpoint. The API can authenticate with introspection using the API name and secret.
+``AllowedAccessTokenSigningAlgorithms``
+    List of allowed signing algorithms for access token. If empty, will use the server default signing algorithm.
 ``UserClaims``
     List of associated user claim types that should be included in the access token.
 ``Scopes``
