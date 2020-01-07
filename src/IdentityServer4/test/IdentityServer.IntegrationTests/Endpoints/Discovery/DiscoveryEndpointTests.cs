@@ -80,7 +80,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
 
             var json = await result.Content.ReadAsStringAsync();
             var data = JObject.Parse(json);
-            var algorithmsSupported = data["id_token_signing_alg_values_supported"].First();
+            var algorithmsSupported = data["id_token_signing_alg_values_supported"];
 
             algorithmsSupported.Count().Should().Be(2);
             
