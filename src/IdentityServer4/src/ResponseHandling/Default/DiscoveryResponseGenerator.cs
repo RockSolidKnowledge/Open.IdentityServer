@@ -327,7 +327,8 @@ namespace IdentityServer4.ResponseHandling
             var signingCredentials = await Keys.GetAllSigningCredentialsAsync();
             if (signingCredentials.Any())
             {
-                entries.Add(OidcConstants.Discovery.IdTokenSigningAlgorithmsSupported, new[] { signingCredentials.Select(c => c.Algorithm).Distinct() });
+                var signingAlgorithms = signingCredentials.Select(c => c.Algorithm).Distinct();
+                entries.Add(OidcConstants.Discovery.IdTokenSigningAlgorithmsSupported, signingAlgorithms );
             }
 
             entries.Add(OidcConstants.Discovery.SubjectTypesSupported, new[] { "public" });
