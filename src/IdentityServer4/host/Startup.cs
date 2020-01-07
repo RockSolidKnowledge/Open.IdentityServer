@@ -76,6 +76,7 @@ namespace Host
                 .AddJwtBearerClientAuthentication()
                 .AddAppAuthRedirectUriValidator()
                 .AddTestUsers(TestUsers.Users)
+                .AddProfileService<HostProfileService>()
                 .AddMutualTlsSecretValidators();
 
             services.AddExternalIdentityProviders();
