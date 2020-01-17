@@ -6,11 +6,11 @@ Currently Windows authentication is available when you host IdentityServer using
 
 * `Kestrel <https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel>`_ on Windows using IIS and the IIS integration package
 * `HTTP.sys <https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/httpsys>`_ server on Windows
-* The Negotiate authentication handler from Microsoft (required .NET Core 3.x or higher)
+* The Negotiate authentication handler from Microsoft (requires .NET Core 3.x or higher)
 
 In all cases, Windows authentication is triggered by using the ``ChallengeAsync`` API on the ``HttpContext``.
 
-The account controller in our `quickstart UI <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI>`_ implements the necessary logic.
+The ``ExternalController`` in our `quickstart UI <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI>`_ implements the necessary logic.
 
 Using Kestrel
 ^^^^^^^^^^^^^
