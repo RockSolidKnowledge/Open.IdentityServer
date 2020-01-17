@@ -51,7 +51,7 @@ namespace IdentityServer.UnitTests.Services.Default
                 }
             }.CreatePrincipal();
 
-            _subject = new DefaultClaimsService(_mockMockProfileService, new HttpContextAccessor(), TestLogger.Create<DefaultClaimsService>());
+            _subject = new DefaultClaimsService(_mockMockProfileService, TestLogger.Create<DefaultClaimsService>());
 
             _validatedRequest = new ValidatedRequest();
             _validatedRequest.Options = new IdentityServerOptions();

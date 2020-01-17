@@ -31,7 +31,7 @@ namespace IdentityServer4.Services
         /// <summary>
         /// The HTTP context accessor
         /// </summary>
-        protected readonly IHttpContextAccessor Context;
+        protected readonly IHttpContextAccessor ContextAccessor;
 
         /// <summary>
         /// The claims provider
@@ -84,7 +84,7 @@ namespace IdentityServer4.Services
             IdentityServerOptions options,
             ILogger<DefaultTokenService> logger)
         {
-            Context = contextAccessor;
+            ContextAccessor = contextAccessor;
             ClaimsProvider = claimsProvider;
             ReferenceTokenStore = referenceTokenStore;
             CreationService = creationService;
@@ -157,7 +157,7 @@ namespace IdentityServer4.Services
                 request.IncludeAllIdentityClaims,
                 request.ValidatedRequest));
 
-            var issuer = Context.HttpContext.GetIdentityServerIssuerUri();
+            var issuer = ContextAccessor.HttpContext.GetIdentityServerIssuerUri();
 
             var token = new Token(OidcConstants.TokenTypes.IdentityToken)
             {
@@ -197,7 +197,7 @@ namespace IdentityServer4.Services
                 claims.Add(new Claim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16)));
             }
 
-            var issuer = Context.HttpContext.GetIdentityServerIssuerUri();
+            var issuer = ContextAccessor.HttpContext.GetIdentityServerIssuerUri();
             var token = new Token(OidcConstants.TokenTypes.AccessToken)
             {
                 CreationTime = Clock.UtcNow.UtcDateTime,
@@ -212,6 +212,23 @@ namespace IdentityServer4.Services
             if (Options.EmitLegacyResourceAudienceClaim)
             {
                 token.Audiences.Add(string.Format(IdentityServerConstants.AccessTokenAudience, issuer.EnsureTrailingSlash()));
+            }
+
+            // add cnf if present
+            if (request.ValidatedRequest.Confirmation.IsPresent())
+            {
+                token.Confirmation = request.ValidatedRequest.Confirmation;
+            }
+            else
+            {
+                if (Options.MutualTls.AlwaysEmitConfirmationClaim)
+                {
+                    var clientCertificate = await ContextAccessor.HttpContext.Connection.GetClientCertificateAsync();
+                    if (clientCertificate != null)
+                    {
+                        token.Confirmation = clientCertificate.CreateThumbprintCnf();
+                    }
+                }
             }
 
             foreach (var api in request.Resources.ApiResources)
