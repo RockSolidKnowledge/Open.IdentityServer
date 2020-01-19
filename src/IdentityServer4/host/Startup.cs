@@ -131,14 +131,14 @@ namespace Host
         public static IIdentityServerBuilder AddSigningCredential(this IIdentityServerBuilder builder)
         {
             // create random RS256 key
-            builder.AddDeveloperSigningCredential();
+            //builder.AddDeveloperSigningCredential();
 
             // use an RSA-based certificate with RS256
-            var cert = new X509Certificate2("./keys/identityserver.test.rsa.p12", "changeit");
-            builder.AddSigningCredential(cert, "RS256");
+            var rsaCert = new X509Certificate2("./keys/identityserver.test.rsa.p12", "changeit");
+            builder.AddSigningCredential(rsaCert, "RS256");
 
             // ...and PS256
-            builder.AddSigningCredential(cert, "PS256");
+            builder.AddSigningCredential(rsaCert, "PS256");
 
             // or manually extract ECDSA key from certificate (directly using the certificate is not support by Microsoft right now)
             var ecCert = new X509Certificate2("./keys/identityserver.test.ecdsa.p12", "changeit");
