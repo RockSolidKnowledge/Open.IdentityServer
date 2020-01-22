@@ -198,11 +198,11 @@ namespace IdentityServer.UnitTests.Validation.Setup
 
                     ClientSecrets = new List<Secret>
                     {
-                        new Secret(@"CN=idsrv3test", "mtls.test")
+                        new Secret(@"CN=identityserver_testing", "mtls.test")
                         {
                             Type = SecretTypes.X509CertificateName
                         },
-                        new Secret("6B7ACC520305BFDB4F7252DAEB2177CC091FAAE1", "mtls.test")
+                        new Secret("4B5FE072C7AD8A9B5DCFDD1A20608BB54DE0954F", "mtls.test")
                         {
                             Type = SecretTypes.X509CertificateThumbprint
                         },
