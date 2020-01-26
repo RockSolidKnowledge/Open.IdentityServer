@@ -25,14 +25,21 @@ For symmetric and RSA you need to add a `JWK <https://tools.ietf.org/html/rfc751
 
 .. note:: Microsoft.IdentityModel.Tokens.JsonWebKeyConverter has various helpers to convert keys to JWKs
 
-Because of a bug in Microsoft's JWT library, X509 certificates cannot be formatted as JWKs right now. You can use the base64 representation instead::
+X.509 certificates are supported both in base64 or JWK representation::
 
     ClientSecrets =     
     {
         new Secret
         {
+            // base64 
             Type = IdentityServerConstants.SecretTypes.X509CertificateBase64,
             Value = Convert.ToBase64String(cert.Export(X509ContentType.Cert))
+        },
+        new Secret
+        {
+            // JWK
+            Type = IdentityServerConstants.SecretTypes.JsonWebKey,
+            Value = JsonConvert.SerializeObject(JsonWebKeyConverter.ConvertFromX509SecurityKey(new X509SecurityKey(TestCert.Load())))
         }
     }
 
