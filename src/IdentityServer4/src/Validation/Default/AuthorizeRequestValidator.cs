@@ -13,6 +13,7 @@ using System;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using IdentityServer4.Logging.Models;
 
@@ -62,11 +63,10 @@ namespace IdentityServer4.Validation
             var request = new ValidatedAuthorizeRequest
             {
                 Options = _options,
-                Subject = subject ?? Principal.Anonymous
+                Subject = subject ?? Principal.Anonymous,
+                Raw = parameters ?? throw new ArgumentNullException(nameof(parameters))
             };
-
-            request.Raw = parameters ?? throw new ArgumentNullException(nameof(parameters));
-
+            
             // load client_id
             var loadClientResult = await LoadClientAsync(request);
             if (loadClientResult.IsError)
@@ -164,10 +164,18 @@ namespace IdentityServer4.Validation
             // look for optional request params
             /////////////////////////////////////////////////////////
             var jwtRequest = request.Raw.Get(OidcConstants.AuthorizeRequest.Request);
+            var jwtRequestUri = request.Raw.Get(OidcConstants.AuthorizeRequest.RequestUri);
 
+            if (request.Client.RequireRequestObject)
+            {
+                if (jwtRequest.IsMissing() && jwtRequestUri.IsMissing())
+                {
+                    return Invalid(request, description: "Client must use request object, but no request or request_uri parameter present");
+                }
+            }
+            
             if (_options.Endpoints.EnableJwtRequestUri)
             {
-                var jwtRequestUri = request.Raw.Get(OidcConstants.AuthorizeRequest.RequestUri);
                 if (jwtRequest.IsPresent() && jwtRequestUri.IsPresent())
                 {
                     LogError("Both request and request_uri are present", request);

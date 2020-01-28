@@ -46,6 +46,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                     ClientName = "Client with keys",
                     ClientId = "client",
                     Enabled = true,
+                    RequireRequestObject = true,
 
                     RedirectUris = { "https://client/callback" },
 
@@ -136,6 +137,25 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                 subject: Identity.Create("pwd", claims));
 
             return handler.WriteToken(token);
+        }
+        
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task missing_request_object_should_fail()
+        {
+            var url = _mockPipeline.CreateAuthorizeUrl(
+                clientId: _client.ClientId,
+                responseType: "id_token",
+                scope: "openid profile",
+                state: "123state",
+                nonce: "123nonce",
+                redirectUri: "https://client/callback");
+            
+            var response = await _mockPipeline.BrowserClient.GetAsync(url);
+
+            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request");
+            _mockPipeline.ErrorMessage.ErrorDescription.Should().Be("Client must use request object, but no request or request_uri parameter present");
+            _mockPipeline.LoginRequest.Should().BeNull();
         }
 
         [Fact]
