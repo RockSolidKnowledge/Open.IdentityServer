@@ -45,6 +45,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new InvalidOperationException("Invalid curve for signing algorithm");
             }
 
+            if (credential.Key is IdentityModel.Tokens.JsonWebKey jsonWebKey)
+            {
+                if (jsonWebKey.Kty == JsonWebAlgorithmsKeyTypes.EllipticCurve && !CryptoHelper.IsValidCrvValueForAlgorithm(jsonWebKey.Crv))
+                    throw new InvalidOperationException("Invalid crv value for signing algorithm");
+            }
+
             builder.Services.AddSingleton<ISigningCredentialStore>(new InMemorySigningCredentialsStore(credential));
 
             var keyInfo = new SecurityKeyInfo
@@ -79,7 +85,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // add signing algorithm name to key ID to allow using the same key for two different algorithms (e.g. RS256 and PS56);
             var key = new X509SecurityKey(certificate);
             key.KeyId += signingAlgorithm;
-            
+
             var credential = new SigningCredentials(key, signingAlgorithm);
             return builder.AddSigningCredential(credential);
         }
@@ -196,7 +202,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     File.WriteAllText(filename, JsonConvert.SerializeObject(tempKey, new JsonSerializerSettings { ContractResolver = new CryptoHelper.RsaKeyContractResolver() }));
                 }
-                
+
                 return builder.AddSigningCredential(key, signingAlgorithm);
             }
         }

@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using System;
-using System.IO;
-using System.Security.Cryptography;
 using IdentityServer4;
 using IdentityServer4.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IO;
+using System.Security.Cryptography;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Extensions
@@ -84,7 +84,7 @@ namespace IdentityServer.UnitTests.Extensions
             try
             {
                 identityServerBuilder.AddDeveloperSigningCredential();
-            
+
                 //calling a second time will try to load the saved rsa key from disk. An exception will be throw if the private key is not serialized properly.
                 identityServerBuilder.AddDeveloperSigningCredential();
             }
@@ -126,6 +126,36 @@ namespace IdentityServer.UnitTests.Extensions
                 ECCurve.CreateFromOid(Oid.FromOidValue(curveOid, OidGroup.All))));
 
             Assert.Throws<InvalidOperationException>(() => identityServerBuilder.AddSigningCredential(key, alg));
+        }
+
+
+
+        [Theory]
+        [InlineData(Constants.CurveOids.P256, SecurityAlgorithms.EcdsaSha256, JsonWebKeyECTypes.P256)]
+        [InlineData(Constants.CurveOids.P384, SecurityAlgorithms.EcdsaSha384, JsonWebKeyECTypes.P384)]
+        [InlineData(Constants.CurveOids.P521, SecurityAlgorithms.EcdsaSha512, JsonWebKeyECTypes.P521)]
+        public void AddSigningCredential_with_invalid_crv_value_should_throw_exception(string curveOid, string alg, string crv)
+        {
+            IServiceCollection services = new ServiceCollection();
+            IIdentityServerBuilder identityServerBuilder = new IdentityServerBuilder(services);
+
+            var key = new ECDsaSecurityKey(ECDsa.Create(
+                ECCurve.CreateFromOid(Oid.FromOidValue(curveOid, OidGroup.All))));
+            var parameters = key.ECDsa.ExportParameters(true);
+
+            var jsonWebKeyFromECDsa = new JsonWebKey()
+            {
+                Kty = JsonWebAlgorithmsKeyTypes.EllipticCurve,
+                Use = "sig",
+                Kid = key.KeyId,
+                KeyId = key.KeyId,
+                X = Base64UrlEncoder.Encode(parameters.Q.X),
+                Y = Base64UrlEncoder.Encode(parameters.Q.Y),
+                D = Base64UrlEncoder.Encode(parameters.D),
+                Crv = crv.Replace("-", string.Empty),
+                Alg = SecurityAlgorithms.EcdsaSha256
+            };
+            Assert.Throws<InvalidOperationException>(() => identityServerBuilder.AddSigningCredential(jsonWebKeyFromECDsa, alg));
         }
     }
 }

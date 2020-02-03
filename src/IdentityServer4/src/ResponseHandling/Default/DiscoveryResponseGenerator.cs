@@ -154,7 +154,7 @@ namespace IdentityServer4.ResponseHandling
                 if (Options.MutualTls.Enabled)
                 {
                     var mtlsEndpoints = new Dictionary<string, string>();
-                    
+
                     if (Options.Endpoints.EnableTokenEndpoint)
                     {
                         mtlsEndpoints.Add(OidcConstants.Discovery.TokenEndpoint, ConstructMtlsEndpoint(Constants.ProtocolRoutePaths.Token));
@@ -175,8 +175,8 @@ namespace IdentityServer4.ResponseHandling
                     if (mtlsEndpoints.Any())
                     {
                         entries.Add(OidcConstants.Discovery.MtlsEndpointAliases, mtlsEndpoints);
-                    }    
-                        
+                    }
+
                     string ConstructMtlsEndpoint(string endpoint)
                     {
                         // path based
@@ -328,7 +328,7 @@ namespace IdentityServer4.ResponseHandling
             if (signingCredentials.Any())
             {
                 var signingAlgorithms = signingCredentials.Select(c => c.Algorithm).Distinct();
-                entries.Add(OidcConstants.Discovery.IdTokenSigningAlgorithmsSupported, signingAlgorithms );
+                entries.Add(OidcConstants.Discovery.IdTokenSigningAlgorithmsSupported, signingAlgorithms);
             }
 
             entries.Add(OidcConstants.Discovery.SubjectTypesSupported, new[] { "public" });
@@ -383,7 +383,7 @@ namespace IdentityServer4.ResponseHandling
         public virtual async Task<IEnumerable<Models.JsonWebKey>> CreateJwkDocumentAsync()
         {
             var webKeys = new List<Models.JsonWebKey>();
-            
+
             foreach (var key in await Keys.GetValidationKeysAsync())
             {
                 if (key.Key is X509SecurityKey x509Key)
@@ -483,7 +483,7 @@ namespace IdentityServer4.ResponseHandling
                         n = jsonWebKey.N,
                         x5c = jsonWebKey.X5c?.Count == 0 ? null : jsonWebKey.X5c.ToArray(),
                         alg = jsonWebKey.Alg,
-
+                        crv = jsonWebKey.Crv,
                         x = jsonWebKey.X,
                         y = jsonWebKey.Y
                     };
