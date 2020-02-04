@@ -165,6 +165,14 @@ namespace IdentityServer4.Validation
         public Dictionary<string, string> RequestObjectValues { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
+        /// Gets or sets the request object (either passed by value or retrieved by reference)
+        /// </summary>
+        /// <value>
+        /// The request object
+        /// </value>
+        public string RequestObject { get; set; }
+        
+        /// <summary>
         /// Gets a value indicating whether an access token was requested.
         /// </summary>
         /// <value>
