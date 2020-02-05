@@ -86,6 +86,54 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
 
         [Fact]
         [Trait("Category", Category)]
+        public async Task Jwks_entries_should_countain_crv()
+        {
+            var ecdsaKey = CryptoHelper.CreateECDsaSecurityKey(JsonWebKeyECTypes.P256);
+            var parameters = ecdsaKey.ECDsa.ExportParameters(true);
+
+            IdentityServerPipeline pipeline = new IdentityServerPipeline();
+
+            var jsonWebKeyFromECDsa = new Microsoft.IdentityModel.Tokens.JsonWebKey()
+            {
+                Kty = JsonWebAlgorithmsKeyTypes.EllipticCurve,
+                Use = "sig",
+                Kid = ecdsaKey.KeyId,
+                KeyId = ecdsaKey.KeyId,
+                X = Base64UrlEncoder.Encode(parameters.Q.X),
+                Y = Base64UrlEncoder.Encode(parameters.Q.Y),
+                D = Base64UrlEncoder.Encode(parameters.D),
+                Crv = JsonWebKeyECTypes.P256,
+                Alg = SecurityAlgorithms.EcdsaSha256
+            };
+            pipeline.OnPostConfigureServices += services =>
+            {
+                // add ECDsa as JsonWebKey
+                services.AddIdentityServerBuilder()
+                    .AddSigningCredential(jsonWebKeyFromECDsa, SecurityAlgorithms.EcdsaSha256);
+            };
+
+            pipeline.Initialize("/ROOT");
+
+            var result = await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration/jwks");
+
+            var json = await result.Content.ReadAsStringAsync();
+            var data = JObject.Parse(json);
+
+            var keys = data["keys"];
+            keys.Should().NotBeNull();
+
+            var key = keys[1];
+            key.Should().NotBeNull();
+
+            var crv = key["crv"];
+            crv.Should().NotBeNull();
+
+            crv.Value<string>().Should().Be(JsonWebKeyECTypes.P256);
+
+        }
+
+        [Fact]
+        [Trait("Category", Category)]
         public async Task Jwks_entries_should_contain_alg()
         {
             IdentityServerPipeline pipeline = new IdentityServerPipeline();

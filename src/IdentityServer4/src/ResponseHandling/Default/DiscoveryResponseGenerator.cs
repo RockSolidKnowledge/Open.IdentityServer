@@ -459,7 +459,7 @@ namespace IdentityServer4.ResponseHandling
                         n = jsonWebKey.N,
                         x5c = jsonWebKey.X5c?.Count == 0 ? null : jsonWebKey.X5c.ToArray(),
                         alg = jsonWebKey.Alg,
-
+                        crv = jsonWebKey.Crv,
                         x = jsonWebKey.X,
                         y = jsonWebKey.Y
                     };

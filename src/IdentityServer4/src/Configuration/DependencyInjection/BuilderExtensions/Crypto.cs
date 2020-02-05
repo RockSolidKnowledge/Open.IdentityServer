@@ -44,6 +44,11 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 throw new InvalidOperationException("Invalid curve for signing algorithm");
             }
+            if (credential.Key is IdentityModel.Tokens.JsonWebKey jsonWebKey)
+            {
+                if (jsonWebKey.Kty == JsonWebAlgorithmsKeyTypes.EllipticCurve && !CryptoHelper.IsValidCrvValueForAlgorithm(jsonWebKey.Crv))
+                    throw new InvalidOperationException("Invalid crv value for signing algorithm");
+            }
 
             builder.Services.AddSingleton<ISigningCredentialStore>(new DefaultSigningCredentialsStore(credential));
 
