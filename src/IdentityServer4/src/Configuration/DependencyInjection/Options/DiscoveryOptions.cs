@@ -78,5 +78,13 @@ namespace IdentityServer4.Configuration
         /// Adds custom entries to the discovery document
         /// </summary>
         public Dictionary<string, object> CustomEntries { get; set; } = new Dictionary<string, object>();
+        
+        /// <summary>
+        /// Gets or sets the value for the HTTP content type of the JWK discovery document
+        /// </summary>
+        /// <value>
+        /// The JWT typ value.
+        /// </value>
+        public string JwkSetContentType { get; set; } = "application/jwk-set+json";
     }
 }
