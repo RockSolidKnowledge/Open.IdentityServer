@@ -32,6 +32,8 @@ Allows enabling/disabling various sections of the discovery document, e.g. endpo
 
 The ``CustomEntries`` dictionary allows adding custom elements to the discovery document.
 
+The ``JwkSetContentType`` allows setting the HTTP content type of the JWK document. It defaults to ``application/jwk-set+json`` for backwards compatibility reasons. Some implementations need this to be ``application/json``.
+
 Authentication
 ^^^^^^^^^^^^^^
 * ``CookieAuthenticationScheme``
