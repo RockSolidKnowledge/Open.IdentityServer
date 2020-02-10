@@ -35,7 +35,7 @@ The ``CustomEntries`` dictionary allows adding custom elements to the discovery 
 Authentication
 ^^^^^^^^^^^^^^
 * ``CookieAuthenticationScheme``
-    Sets the cookie authenitcation scheme confgured by the host used for interactive users. If not set, the scheme will inferred from the host's default authentication scheme. This setting is typically used when AddPolicyScheme is used in the host as the default scheme.
+    Sets the cookie authentication scheme confgured by the host used for interactive users. If not set, the scheme will be inferred from the host's default authentication scheme. This setting is typically used when AddPolicyScheme is used in the host as the default scheme.
 
 * ``CookieLifetime``
     The authentication cookie lifetime (only effective if the IdentityServer-provided cookie handler is used).
@@ -86,7 +86,7 @@ UserInteraction
 
 Caching
 ^^^^^^^
-These setting only apply if the respective caching has been enabled in the services configuration in startup.
+These settings only apply if the respective caching has been enabled in the services configuration in startup.
 
 * ``ClientStoreExpiration``
     Cache duration of client configuration loaded from the client store.
