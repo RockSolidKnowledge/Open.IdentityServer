@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace IdentityServer4.Validation
 {
     /// <summary>
-    /// Modles the validation result of access tokens and id tokens.
+    /// Models the validation result of access tokens and id tokens.
     /// </summary>
     public class TokenValidationResult : ValidationResult
     {

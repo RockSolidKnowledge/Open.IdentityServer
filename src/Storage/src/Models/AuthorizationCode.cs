@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace IdentityServer4.Models
 {
     /// <summary>
-    /// Modles an authorization code.
+    /// Models an authorization code.
     /// </summary>
     public class AuthorizationCode
     {
