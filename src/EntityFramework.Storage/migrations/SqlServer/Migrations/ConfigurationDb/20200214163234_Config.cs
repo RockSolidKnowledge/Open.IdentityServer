@@ -47,6 +47,7 @@ namespace SqlServer.Migrations.ConfigurationDb
                     AlwaysIncludeUserClaimsInIdToken = table.Column<bool>(nullable: false),
                     RequirePkce = table.Column<bool>(nullable: false),
                     AllowPlainTextPkce = table.Column<bool>(nullable: false),
+                    RequireRequestObject = table.Column<bool>(nullable: false),
                     AllowAccessTokensViaBrowser = table.Column<bool>(nullable: false),
                     FrontChannelLogoutUri = table.Column<string>(maxLength: 2000, nullable: true),
                     FrontChannelLogoutSessionRequired = table.Column<bool>(nullable: false),

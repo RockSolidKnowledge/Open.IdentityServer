@@ -347,6 +347,9 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.Property<bool>("RequirePkce")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("RequireRequestObject")
+                        .HasColumnType("bit");
+
                     b.Property<int>("SlidingRefreshTokenLifetime")
                         .HasColumnType("int");
 
