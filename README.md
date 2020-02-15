@@ -18,6 +18,7 @@ Active development happens on the master branch. This always contains the latest
 IdentityServer is built against the latest ASP.NET Core 3.
 
 * [Install](https://www.microsoft.com/net/download/core#/current) the [required](https://github.com/IdentityServer/IdentityServer4/blob/master/global.json) .NET Core SDK
+* Install Git
 * Run `build.ps1` or `build.sh` in the root of the repo
 
 ## Documentation
