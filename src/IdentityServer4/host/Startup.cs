@@ -20,6 +20,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Host.Extensions;
+using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -82,7 +83,7 @@ namespace Host
                 .AddProfileService<HostProfileService>()
                 .AddMutualTlsSecretValidators();
             
-            // use this for persisted grants
+            // use this for persisted grants store
             // var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             // const string connectionString = "DataSource=identityserver.db";
             // builder.AddOperationalStore(options =>
@@ -113,6 +114,9 @@ namespace Host
 
         public void Configure(IApplicationBuilder app)
         {
+            // use this for persisted grants store
+            // app.InitializePersistedGrantsStore();
+            
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -162,6 +166,14 @@ namespace Host
             return builder.AddSigningCredential(
                 key,
                 IdentityServerConstants.ECDsaSigningAlgorithm.ES256);
+        }
+
+        public static void InitializePersistedGrantsStore(this IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>().Database.Migrate();
+            }
         }
     }
 
