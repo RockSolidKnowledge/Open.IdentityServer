@@ -541,6 +541,41 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
             _mockPipeline.ErrorMessage.ErrorDescription.Should().Be("Invalid client_id");
             _mockPipeline.LoginRequest.Should().BeNull();
         }
+        
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task authorize_should_reject_jwt_request_without_client_id_in_jwt()
+        {
+            var requestJwt = CreateRequestJwt(
+                issuer: _client.ClientId,
+                audience: IdentityServerPipeline.BaseUrl,
+                credential: new X509SigningCredentials(TestCert.Load()),
+                claims: new[] {
+                    new Claim("response_type", "id_token"),
+                    new Claim("scope", "openid profile"),
+                    new Claim("state", "123state"),
+                    new Claim("nonce", "123nonce"),
+                    new Claim("redirect_uri", "https://client/callback"),
+                    new Claim("acr_values", "acr_1 acr_2 tenant:tenant_value idp:idp_value"),
+                    new Claim("login_hint", "login_hint_value"),
+                    new Claim("display", "popup"),
+                    new Claim("ui_locales", "ui_locale_value"),
+                    new Claim("foo", "123foo"),
+                });
+
+            var url = _mockPipeline.CreateAuthorizeUrl(
+                clientId: _client.ClientId,
+                responseType: "id_token",
+                extra: new
+                {
+                    request = requestJwt
+                });
+            var response = await _mockPipeline.BrowserClient.GetAsync(url);
+
+            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request");
+            _mockPipeline.ErrorMessage.ErrorDescription.Should().Be("Invalid JWT request");
+            _mockPipeline.LoginRequest.Should().BeNull();
+        }
 
         [Fact]
         [Trait("Category", Category)]
