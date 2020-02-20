@@ -10,7 +10,7 @@ using System.Linq;
 
 #pragma warning disable 1591
 
-namespace IdentityServer4.Extensions
+namespace Microsoft.AspNetCore.Http
 {
     public static class IReadableStringCollectionExtensions
     {
