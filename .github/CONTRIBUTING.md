@@ -5,7 +5,7 @@ Then we can decide if and how a feature or a change could be implemented and if 
 
 Also read this first: [Being a good open source citizen](https://hackernoon.com/being-a-good-open-source-citizen-9060d0ab9732#.x3hocgw85)
 
-## Found and issue or a bug?
+## Found an issue or a bug?
 Please start a discussion on the [core repo issue tracker](https://github.com/IdentityServer/IdentityServer4/issues).
 
 ## Filing issues

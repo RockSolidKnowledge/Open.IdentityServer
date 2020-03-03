@@ -159,7 +159,7 @@ namespace IdentityServer4.Models
         public ICollection<string> AllowedScopes { get; set; } = new HashSet<string>();
 
         /// <summary>
-        /// When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint.
+        /// When requesting both an id token and access token, should the user claims always be added to the id token instead of requiring the client to use the userinfo endpoint.
         /// Defaults to <c>false</c>.
         /// </summary>
         public bool AlwaysIncludeUserClaimsInIdToken { get; set; } = false;
