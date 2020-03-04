@@ -43,8 +43,6 @@ This will help us devote more time to answering questions and doing feature deve
 [<img src="https://user-images.githubusercontent.com/1454075/66454740-fb973580-ea68-11e9-9993-6c1014881528.png" width="200">](https://github.com/dotnet-at-microsoft)
 
 ### Corporate Sponsors
-
-[Thinktecture AG](https://www.thinktecture.com)  
 [Ritter Insurance Marketing](https://www.ritterim.com)  
 [Intuit](https://www.intuit.com)  
 [ExtraNetUserManager](https://www.extranetusermanager.com/)  
