@@ -263,11 +263,23 @@ namespace IdentityServer4.Validation
                     LogError("client_id is missing in JWT payload", request);
                     return Invalid(request, description: "Invalid JWT request");   
                 }
-
+                
                 // merge jwt payload values into original request parameters
                 foreach (var key in jwtRequestValidationResult.Payload.Keys)
                 {
                     var value = jwtRequestValidationResult.Payload[key];
+
+                    // todo: overwrite or error?
+                    // var qsValue = request.Raw.Get(key);
+                    // if (qsValue != null)
+                    // {
+                    //     if (!string.Equals(value, qsValue, StringComparison.Ordinal))
+                    //     {
+                    //         LogError("parameter mismatch between request object and query string parameter.", request);
+                    //         return Invalid(request, description: "Invalid JWT request");
+                    //     }
+                    // }
+                    
                     request.Raw.Set(key, value);
                 }
 
