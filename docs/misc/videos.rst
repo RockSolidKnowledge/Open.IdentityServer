@@ -1,5 +1,10 @@
 Videos
 ======
+2020
+^^^^
+* `January [NDC London] -- Implementing OpenID Connect and OAuth 2.0 – Tips from the Trenches  <https://www.youtube.com/watch?v=QpkVnB-N20c>`_
+* `January [NDC London] -- OpenID Connect & OAuth 2.0 – Security Best Practices  <https://www.youtube.com/watch?v=AUgZffkurK0>`_
+
 2019
 ^^^^
 * `October [TDC] -- Securing Web Applications and APIs with ASP.NET Core 3.0  <https://vimeo.com/369311388>`_
