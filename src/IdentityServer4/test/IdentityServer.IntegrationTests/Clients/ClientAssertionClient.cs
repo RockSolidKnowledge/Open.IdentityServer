@@ -101,6 +101,46 @@ namespace IdentityServer.IntegrationTests.Clients
 
             AssertValidToken(response);
         }
+        
+        [Fact]
+        public async Task Valid_client_with_token_replay_should_fail()
+        {
+            var token = CreateToken(ClientId);
+
+            var response = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = TokenEndpoint,
+
+                ClientId = ClientId,
+                ClientAssertion =
+                {
+                    Type = OidcConstants.ClientAssertionTypes.JwtBearer,
+                    Value = token
+                },
+
+                Scope = "api1"
+            });
+
+            AssertValidToken(response);
+            
+            // replay
+            response = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = TokenEndpoint,
+
+                ClientId = ClientId,
+                ClientAssertion =
+                {
+                    Type = OidcConstants.ClientAssertionTypes.JwtBearer,
+                    Value = token
+                },
+
+                Scope = "api1"
+            });
+
+            response.IsError.Should().BeTrue();
+            response.Error.Should().Be("invalid_client");
+        }
 
         [Fact]
         public async Task Client_with_invalid_secret_should_fail()

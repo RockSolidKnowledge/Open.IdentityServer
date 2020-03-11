@@ -44,8 +44,7 @@ namespace IdentityServer.IntegrationTests.Clients.Setup
 
             builder.AddProfileService<CustomProfileService>();
 
-            builder.AddSecretParser<JwtBearerClientAssertionSecretParser>();
-            builder.AddSecretValidator<PrivateKeyJwtSecretValidator>();
+            builder.AddJwtBearerClientAuthentication();
             builder.AddSecretValidator<ConfirmationSecretValidator>();
 
             // add a custom token request validator if set

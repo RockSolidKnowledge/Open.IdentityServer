@@ -10,6 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -21,15 +22,19 @@ namespace IdentityServer4.Validation
     /// </summary>
     public class PrivateKeyJwtSecretValidator : ISecretValidator
     {
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IReplayCache _replayCache;
         private readonly ILogger _logger;
-        private readonly string _audienceUri;
 
+        private const string Purpose = nameof(PrivateKeyJwtSecretValidator);
+        
         /// <summary>
         /// Instantiates an instance of private_key_jwt secret validator
         /// </summary>
-        public PrivateKeyJwtSecretValidator(IHttpContextAccessor contextAccessor, ILogger<PrivateKeyJwtSecretValidator> logger)
+        public PrivateKeyJwtSecretValidator(IHttpContextAccessor contextAccessor, IReplayCache replayCache, ILogger<PrivateKeyJwtSecretValidator> logger)
         {
-            _audienceUri = string.Concat(contextAccessor.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash(), Constants.ProtocolRoutePaths.Token);
+            _contextAccessor = contextAccessor;
+            _replayCache = replayCache;
             _logger = logger;
         }
 
@@ -75,6 +80,16 @@ namespace IdentityServer4.Validation
                 return fail;
             }
 
+            var validAudiences = new[]
+            {
+                // issuer URI
+                _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
+                
+                // token endpoint URL
+                string.Concat(_contextAccessor.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash(),
+                    Constants.ProtocolRoutePaths.Token)
+            };
+            
             var tokenValidationParameters = new TokenValidationParameters
             {
                 IssuerSigningKeys = trustedKeys,
@@ -83,11 +98,13 @@ namespace IdentityServer4.Validation
                 ValidIssuer = parsedSecret.Id,
                 ValidateIssuer = true,
 
-                ValidAudience = _audienceUri,
+                ValidAudiences = validAudiences,
                 ValidateAudience = true,
 
                 RequireSignedTokens = true,
-                RequireExpirationTime = true
+                RequireExpirationTime = true,
+                
+                ClockSkew = TimeSpan.FromMinutes(5)
             };
             try
             {
@@ -99,6 +116,30 @@ namespace IdentityServer4.Validation
                 {
                     _logger.LogError("Both 'sub' and 'iss' in the client assertion token must have a value of client_id.");
                     return fail;
+                }
+                
+                var exp = jwtToken.Payload.Exp;
+                if (!exp.HasValue)
+                {
+                    _logger.LogError("exp is missing.");
+                    return fail;
+                }
+                
+                var jti = jwtToken.Payload.Jti;
+                if (jti.IsMissing())
+                {
+                    _logger.LogError("jti is missing.");
+                    return fail;
+                }
+
+                if (await _replayCache.ExistsAsync(Purpose, jti))
+                {
+                    _logger.LogError("jti is found in replay cache. Possible replay attack.");
+                    return fail;
+                }
+                else
+                {
+                    await _replayCache.AddAsync(Purpose, jti, DateTimeOffset.FromUnixTimeSeconds(exp.Value).AddMinutes(5));
                 }
 
                 return success;
