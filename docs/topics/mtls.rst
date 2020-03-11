@@ -291,7 +291,7 @@ This is useful for situations where you already have client secrets in place tha
 Still, if a client certificate is present, the confirmation claim can be embedded in outgoing access tokens. And as long as the client is using the same client certitificate to 
 request the token and calling the API, this will give you the desired proof-of-possession properties.
 
-For this enable the following settin in the options::
+For this enable the following setting in the options::
 
     var builder = services.AddIdentityServer(options =>
     {
