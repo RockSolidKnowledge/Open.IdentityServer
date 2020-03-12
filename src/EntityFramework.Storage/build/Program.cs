@@ -19,7 +19,11 @@ namespace build
         
         static void Main(string[] args)
         {
-            var app = new CommandLineApplication(throwOnUnexpectedArg: false);
+            var app = new CommandLineApplication
+            {
+                UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.StopParsingAndCollect
+            };
+            
             var sign = app.Option<(bool hasValue, int theValue)>("--sign", "Sign binaries and nuget package", CommandOptionType.SingleOrNoValue);
 
             CleanArtifacts();
