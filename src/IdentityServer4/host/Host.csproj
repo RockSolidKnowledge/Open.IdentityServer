@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="IdentityServer4.EntityFramework" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="All" />
+    <PackageReference Include="System.Security.Principal.Windows" />
     
     <ProjectReference Include="..\src\IdentityServer4.csproj" />
   </ItemGroup>
