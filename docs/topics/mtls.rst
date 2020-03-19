@@ -81,7 +81,7 @@ For example::
         options.MutualTls.ClientCertificateAuthenticationScheme = "Certificate";
         
         // uses sub-domain hosting
-        options.DomainName = "mtls";
+        options.MutualTls.DomainName = "mtls";
     });
 
 IdentityServer's discovery document reflects those endpoints:
