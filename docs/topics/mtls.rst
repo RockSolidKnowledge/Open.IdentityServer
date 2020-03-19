@@ -6,7 +6,7 @@ Mutual TLS support in IdentityServer allows for two features:
 * Client authentication to IdentityServer endpoints using a TLS X.509 client certificate
 * Binding of access tokens to clients using a TLS X.509 client certificate
 
-.. Note:: See the `"OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens" <https://tools.ietf.org/wg/oauth/draft-ietf-oauth-mtls/>`_ spec for more information
+.. Note:: See the `"OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens" <https://tools.ietf.org/html/rfc8705>`_ spec for more information
 
 Setting up MTLS involves a couple of steps.
 
