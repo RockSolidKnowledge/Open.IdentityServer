@@ -53,37 +53,37 @@ namespace SampleApi
                 {
                     options.AllowedCertificateTypes = CertificateTypes.All;
                 });
-            
+
             // enable for MTLS scenarios
-            // services.AddCertificateForwarding(options =>
-            // {
-            //     options.CertificateHeader = "X-SSL-CERT";
-            //
-            //     options.HeaderConverter = (headerValue) =>
-            //     {
-            //         X509Certificate2 clientCertificate = null;
-            //
-            //         if(!string.IsNullOrWhiteSpace(headerValue))
-            //         {
-            //             byte[] bytes = Encoding.UTF8.GetBytes(Uri.UnescapeDataString(headerValue));
-            //             clientCertificate = new X509Certificate2(bytes);
-            //         }
-            //
-            //         return clientCertificate;
-            //     };
-            // });
+            //services.AddCertificateForwarding(options =>
+            //{
+            //    options.CertificateHeader = "X-SSL-CERT";
+
+            //    options.HeaderConverter = (headerValue) =>
+            //    {
+            //        X509Certificate2 clientCertificate = null;
+
+            //        if (!string.IsNullOrWhiteSpace(headerValue))
+            //        {
+            //            byte[] bytes = Encoding.UTF8.GetBytes(Uri.UnescapeDataString(headerValue));
+            //            clientCertificate = new X509Certificate2(bytes);
+            //        }
+
+            //        return clientCertificate;
+            //    };
+            //});
         }
 
         public void Configure(IApplicationBuilder app)
         {
             // enable for MTLS scenarios
-            // app.UseForwardedHeaders(new ForwardedHeadersOptions
-            // {
-            //     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            // });
-            //
-            // app.UseCertificateForwarding();
-            
+            //app.UseForwardedHeaders(new ForwardedHeadersOptions
+            //{
+            //    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            //});
+
+            //app.UseCertificateForwarding();
+
             app.UseCors(policy =>
             {
                 policy.WithOrigins(
@@ -97,16 +97,16 @@ namespace SampleApi
 
             app.UseRouting();
             app.UseAuthentication();
-            
+
             // enable for MTLS scenarios
-            // app.UseMiddleware<ConfirmationValidationMiddleware>(new ConfirmationValidationMiddlewareOptions
-            // {
-            //     CertificateSchemeName = CertificateAuthenticationDefaults.AuthenticationScheme,
-            //     JwtBearerSchemeName = "token"
-            // });
+            //app.UseConfirmationValidation(new ConfirmationValidationMiddlewareOptions
+            //{
+            //    CertificateSchemeName = CertificateAuthenticationDefaults.AuthenticationScheme,
+            //    JwtBearerSchemeName = "token"
+            //});
 
             app.UseAuthorization();
-            
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

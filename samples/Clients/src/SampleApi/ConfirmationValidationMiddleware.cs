@@ -6,9 +6,18 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 
 namespace SampleApi
 {
+    public static class ConfirmationValidationExtensions
+    {
+        public static IApplicationBuilder UseConfirmationValidation(this IApplicationBuilder app, ConfirmationValidationMiddlewareOptions options = null)
+        {
+            return app.UseMiddleware<ConfirmationValidationMiddleware>(options);
+        }
+    }
+
     public class ConfirmationValidationMiddlewareOptions
     {
         public string CertificateSchemeName { get; set; } = CertificateAuthenticationDefaults.AuthenticationScheme;
