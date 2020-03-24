@@ -41,7 +41,7 @@ namespace Host.Configuration
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature1"
+                        "feature1", "feature2"
                     }
                 },
                 
@@ -73,7 +73,7 @@ namespace Host.Configuration
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature1"
+                        "feature1", "feature2"
                     }
                 },
                 
@@ -105,7 +105,7 @@ namespace Host.Configuration
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature1"
+                        "feature1", "feature2"
                     }
                 },
                 
@@ -137,7 +137,7 @@ namespace Host.Configuration
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature1"
+                        "feature1", "feature2"
                     }
                 }
             };
