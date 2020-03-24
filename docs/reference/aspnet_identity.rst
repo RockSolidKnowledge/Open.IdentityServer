@@ -23,3 +23,5 @@ Then use the ``AddAspNetIdentity`` extension method after the call to ``AddIdent
 ``AddAspNetIdentity`` requires as a generic parameter the class that models your user for ASP.NET Identity (and the same one passed to ``AddIdentity`` to configure ASP.NET Identity).
 This configures IdentityServer to use the ASP.NET Identity implementations of ``IUserClaimsPrincipalFactory``, ``IResourceOwnerPasswordValidator``, and ``IProfileService``.
 It also configures some of ASP.NET Identity's options for use with IdentityServer (such as claim types to use and authentication cookie settings).
+
+When using your own implementation of ``IUserClaimsPrincipalFactory``, make sure that you register it before calling the IdentityServer ``AddAspNetIdentity`` extension method.
