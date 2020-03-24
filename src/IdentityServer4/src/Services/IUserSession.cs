@@ -13,7 +13,7 @@ namespace IdentityServer4.Services
         /// <summary>
         /// Creates a session identifier for the signin context and issues the session id cookie.
         /// </summary>
-        Task CreateSessionIdAsync(ClaimsPrincipal principal, AuthenticationProperties properties);
+        Task<string> CreateSessionIdAsync(ClaimsPrincipal principal, AuthenticationProperties properties);
 
         /// <summary>
         /// Gets the current authenticated user.
