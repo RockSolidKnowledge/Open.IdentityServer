@@ -71,6 +71,25 @@ namespace IdentityServer.UnitTests.Services.Default
             CheckCacheEntry(handle);
         }
 
+        /// <summary>
+        /// Addresses race condition from #3860
+        /// </summary>
+        [Fact]
+        public async Task Expired_Device_Code_Should_Not_Have_Expiry_in_Past()
+        {
+            var handle = Guid.NewGuid().ToString();
+            deviceCode.CreationTime = testDate.AddSeconds(-deviceCode.Lifetime * 2);
+
+            var service = new DistributedDeviceFlowThrottlingService(cache, new StubClock { UtcNowFunc = () => testDate }, options);
+
+            var result = await service.ShouldSlowDown(handle, deviceCode);
+            
+            result.Should().BeFalse();
+
+            cache.Items.TryGetValue(CacheKey + handle, out var values).Should().BeTrue();
+            values?.Item2.AbsoluteExpiration.Should().BeOnOrAfter(testDate);
+        }
+
         private void CheckCacheEntry(string handle)
         {
             cache.Items.TryGetValue(CacheKey + handle, out var values).Should().BeTrue();
@@ -79,7 +98,7 @@ namespace IdentityServer.UnitTests.Services.Default
             var dateTime = DateTime.Parse(dateTimeAsString);
             dateTime.Should().Be(testDate);
 
-            values?.Item2.AbsoluteExpiration.Should().BeCloseTo(deviceCode.CreationTime.AddSeconds(deviceCode.Lifetime));
+            values?.Item2.AbsoluteExpiration.Should().BeCloseTo(testDate.AddSeconds(deviceCode.Lifetime));
         }
     }
 
