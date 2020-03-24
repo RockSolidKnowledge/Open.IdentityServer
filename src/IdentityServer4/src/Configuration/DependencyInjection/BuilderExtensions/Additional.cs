@@ -403,5 +403,21 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return builder;
         }
+
+        /// <summary>
+        /// Adds a custom user session.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="builder">The builder.</param>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddUserSession<T>(this IIdentityServerBuilder builder)
+            where T : class, IUserSession
+        {
+            // This is added as scoped due to the note regarding the AuthenticateAsync
+            // method in the IdentityServer4.Services.DefaultUserSession implementation.
+            builder.Services.AddScoped<IUserSession, T>();
+
+            return builder;
+        }
     }
 }
