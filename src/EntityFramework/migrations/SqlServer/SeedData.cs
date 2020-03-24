@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Host.Configuration;
+using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,14 +14,14 @@ namespace SqlServer
         {
             using (var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                using (var context = scope.ServiceProvider.GetService<IConfigurationDbContext>())
+                using (var context = scope.ServiceProvider.GetService<ConfigurationDbContext>())
                 {
                     EnsureSeedData(context);
                 }
             }
         }
 
-        private static void EnsureSeedData(IConfigurationDbContext context)
+        private static void EnsureSeedData(ConfigurationDbContext context)
         {
             Console.WriteLine("Seeding database...");
 
