@@ -5,6 +5,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using IdentityModel;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4.Configuration;
 using IdentityServer4.Models;
@@ -113,6 +114,42 @@ namespace IdentityServer.UnitTests.Services.Default
             var result = await _subject.CreateAccessTokenAsync(request);
 
             result.Audiences.Count.Should().Be(0);
+        }
+
+
+        [Fact]
+        public async Task CreateAccessTokenAsync_when_no_session_should_not_include_sid()
+        {
+            var request = new TokenCreationRequest
+            {
+                ValidatedResources = new ResourceValidationResult(),
+                ValidatedRequest = new ValidatedRequest()
+                {
+                    Client = new Client { },
+                    SessionId = null
+                }
+            };
+
+            var result = await _subject.CreateAccessTokenAsync(request);
+
+            result.Claims.SingleOrDefault(x => x.Type == JwtClaimTypes.SessionId).Should().BeNull();
+        }
+        [Fact]
+        public async Task CreateAccessTokenAsync_when_session_should_include_sid()
+        {
+            var request = new TokenCreationRequest
+            {
+                ValidatedResources = new ResourceValidationResult(),
+                ValidatedRequest = new ValidatedRequest()
+                {
+                    Client = new Client { },
+                    SessionId = "123"
+                }
+            };
+
+            var result = await _subject.CreateAccessTokenAsync(request);
+
+            result.Claims.SingleOrDefault(x => x.Type == JwtClaimTypes.SessionId).Value.Should().Be("123");
         }
     }
 }

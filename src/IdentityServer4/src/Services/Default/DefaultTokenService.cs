@@ -197,6 +197,11 @@ namespace IdentityServer4.Services
                 claims.Add(new Claim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16)));
             }
 
+            if (request.ValidatedRequest.SessionId.IsPresent())
+            {
+                claims.Add(new Claim(JwtClaimTypes.SessionId, request.ValidatedRequest.SessionId));
+            }
+
             var issuer = ContextAccessor.HttpContext.GetIdentityServerIssuerUri();
             var token = new Token(OidcConstants.TokenTypes.AccessToken)
             {
@@ -236,7 +241,7 @@ namespace IdentityServer4.Services
                     }
                 }
             }
-
+            
             return token;
         }
 
