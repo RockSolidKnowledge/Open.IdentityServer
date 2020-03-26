@@ -282,7 +282,7 @@ namespace IdentityServer4.Validation
             if (redirectUri.Equals(_validatedRequest.AuthorizationCode.RedirectUri, StringComparison.Ordinal) == false)
             {
                 LogError("Invalid redirect_uri", new { redirectUri, expectedRedirectUri = _validatedRequest.AuthorizationCode.RedirectUri });
-                return Invalid(OidcConstants.TokenErrors.UnauthorizedClient);
+                return Invalid(OidcConstants.TokenErrors.InvalidGrant);
             }
 
             /////////////////////////////////////////////
@@ -526,7 +526,7 @@ namespace IdentityServer4.Validation
         private async Task<TokenRequestValidationResult> ValidateDeviceCodeRequestAsync(NameValueCollection parameters)
         {
             _logger.LogDebug("Start validation of device code request");
-            
+
             /////////////////////////////////////////////
             // check if client is authorized for grant type
             /////////////////////////////////////////////
@@ -559,7 +559,7 @@ namespace IdentityServer4.Validation
             await _deviceCodeValidator.ValidateAsync(deviceCodeContext);
 
             if (deviceCodeContext.Result.IsError) return deviceCodeContext.Result;
-            
+
             _logger.LogDebug("Validation of authorization code token request success");
 
             return Valid();
@@ -820,7 +820,7 @@ namespace IdentityServer4.Validation
                     {
                         _logger.Log(logLevel, message + "{@values}, details: {@details}", values, details);
                     }
-                    
+
                 }
                 catch (Exception ex)
                 {
