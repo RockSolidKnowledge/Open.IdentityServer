@@ -288,7 +288,7 @@ namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation
             var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.UnauthorizedClient);
+            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
         }
 
         [Fact]
