@@ -331,7 +331,7 @@ namespace IdentityServer4.Validation
             if (await _uriValidator.IsRedirectUriValidAsync(redirectUri, request.Client) == false)
             {
                 LogError("Invalid redirect_uri", redirectUri, request);
-                return Invalid(request, OidcConstants.AuthorizeErrors.UnauthorizedClient, "Invalid redirect_uri");
+                return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest, "Invalid redirect_uri");
             }
 
             request.RedirectUri = redirectUri;

@@ -48,7 +48,7 @@ namespace IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation
             var result = await validator.ValidateAsync(parameters);
             
             result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.AuthorizeErrors.UnauthorizedClient);
+            result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
         }
 
         [Fact]
