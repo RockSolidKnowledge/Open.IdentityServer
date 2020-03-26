@@ -118,6 +118,7 @@ namespace IdentityServer4.Validation
             if (idTokenHint.IsPresent())
             {
                 // validate id_token - no need to validate token life time
+                // todo: consider passing a flag to not call IsActive on the profile service? #3470
                 var tokenValidationResult = await TokenValidator.ValidateIdentityTokenAsync(idTokenHint, null, false);
                 if (tokenValidationResult.IsError)
                 {
@@ -132,6 +133,8 @@ namespace IdentityServer4.Validation
                 {
                     if (subject.GetSubjectId() != subClaim.Value)
                     {
+                        // todo: consider not failing here and continue processing and check post logout redirect uri
+                        // this would mean a change to how that's validated (and not require client validated via id_token_hint)
                         return Invalid("Current user does not match identity token", validatedRequest);
                     }
 
