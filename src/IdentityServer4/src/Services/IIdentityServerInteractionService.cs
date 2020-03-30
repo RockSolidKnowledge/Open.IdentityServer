@@ -52,6 +52,15 @@ namespace IdentityServer4.Services
         Task GrantConsentAsync(AuthorizationRequest request, ConsentResponse consent, string subject = null);
 
         /// <summary>
+        /// Triggers error back to the client for the authorization request.
+        /// This API is a simpler helper on top of GrantConsentAsync.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="error"></param>
+        /// <param name="errorDescription"></param>
+        Task DenyAuthorizationAsync(AuthorizationRequest request, AuthorizationError error, string errorDescription = null);
+
+        /// <summary>
         /// Returns a collection representing all of the user's consents and grants.
         /// </summary>
         Task<IEnumerable<Consent>> GetAllUserConsentsAsync();

@@ -70,13 +70,21 @@ namespace IdentityServer4.ResponseHandling
         {
             Logger.LogTrace("ProcessInteractionAsync");
 
-            if (consent != null && consent.Granted == false && request.Subject.IsAuthenticated() == false)
+            if (consent != null && consent.Granted == false && consent.Error.HasValue && request.Subject.IsAuthenticated() == false)
             {
-                // special case when anonymous user has issued a deny prior to authenticating
-                Logger.LogInformation("Error: User denied consent");
+                // special case when anonymous user has issued an error prior to authenticating
+                Logger.LogInformation("Error: User consent result: {error}", consent.Error);
+
+                var error = consent.Error == AuthorizationError.AccountSelectionRequired ? OidcConstants.AuthorizeErrors.AccountSelectionRequired :
+                    consent.Error == AuthorizationError.ConsentRequired ? OidcConstants.AuthorizeErrors.ConsentRequired :
+                    consent.Error == AuthorizationError.InteractionRequired ? OidcConstants.AuthorizeErrors.InteractionRequired :
+                    consent.Error == AuthorizationError.LoginRequired ? OidcConstants.AuthorizeErrors.LoginRequired : 
+                        OidcConstants.AuthorizeErrors.AccessDenied;
+                
                 return new InteractionResponse
                 {
-                    Error = OidcConstants.AuthorizeErrors.AccessDenied
+                    Error = error,
+                    ErrorDescription = consent.ErrorDescription
                 };
             }
 
@@ -269,9 +277,17 @@ namespace IdentityServer4.ResponseHandling
                     if (consent.Granted == false)
                     {
                         // no need to show consent screen again
-                        // build access denied error to return to client
-                        response.Error = OidcConstants.AuthorizeErrors.AccessDenied;
-                        Logger.LogInformation("Error: User denied consent");
+                        // build error to return to client
+                        Logger.LogInformation("Error: User consent result: {error}", consent.Error);
+
+                        var error = consent.Error == AuthorizationError.AccountSelectionRequired ? OidcConstants.AuthorizeErrors.AccountSelectionRequired :
+                            consent.Error == AuthorizationError.ConsentRequired ? OidcConstants.AuthorizeErrors.ConsentRequired :
+                            consent.Error == AuthorizationError.InteractionRequired ? OidcConstants.AuthorizeErrors.InteractionRequired :
+                            consent.Error == AuthorizationError.LoginRequired ? OidcConstants.AuthorizeErrors.LoginRequired :
+                                OidcConstants.AuthorizeErrors.AccessDenied;
+
+                        response.Error = error;
+                        response.ErrorDescription = consent.ErrorDescription;
                     }
                     else
                     {

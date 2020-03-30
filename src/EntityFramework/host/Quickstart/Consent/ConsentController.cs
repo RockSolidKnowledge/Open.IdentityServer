@@ -64,9 +64,10 @@ namespace IdentityServer4.Quickstart.UI
 
             if (result.IsRedirect)
             {
-                if (result.Client.IsPkceClient())
+                var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
+                if (context?.IsNativeClient() == true)
                 {
-                    // if the client is PKCE then we assume it's native, so this change in how to
+                    // The client is native, so this change in how to
                     // return the response is for better UX for the end user.
                     return this.LoadingPage("Redirect", result.RedirectUri);
                 }
@@ -103,7 +104,7 @@ namespace IdentityServer4.Quickstart.UI
             // user clicked 'no' - send back the standard 'access_denied' response
             if (model?.Button == "no")
             {
-                grantedConsent = ConsentResponse.Denied;
+                grantedConsent = new ConsentResponse { Error = AuthorizationError.AccessDenied };
 
                 // emit event
                 await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.ScopeValues));

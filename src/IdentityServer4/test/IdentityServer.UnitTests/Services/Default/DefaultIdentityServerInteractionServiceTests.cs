@@ -129,7 +129,7 @@ namespace IdentityServer.UnitTests.Services.Default
                 Client = new Client { ClientId = "client" },
                 ValidatedResources = _resourceValidationResult
             };
-            await _subject.GrantConsentAsync(req, ConsentResponse.Denied, null);
+            await _subject.GrantConsentAsync(req, new ConsentResponse { Error = AuthorizationError.AccessDenied }, null);
         }
 
         [Fact]

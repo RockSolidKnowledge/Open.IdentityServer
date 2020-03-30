@@ -134,6 +134,16 @@ namespace IdentityServer4.Services
             await _consentMessageStore.WriteAsync(consentRequest.Id, new Message<ConsentResponse>(consent, _clock.UtcNow.UtcDateTime));
         }
 
+        public Task DenyAuthorizationAsync(AuthorizationRequest request, AuthorizationError error, string errorDescription = null)
+        {
+            var response = new ConsentResponse 
+            {
+                Error = error,
+                ErrorDescription = errorDescription
+            };
+            return GrantConsentAsync(request, response);
+        }
+
         public bool IsValidReturnUrl(string returnUrl)
         {
             var result = _returnUrlParser.IsValidReturnUrl(returnUrl);

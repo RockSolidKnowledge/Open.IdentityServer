@@ -13,9 +13,14 @@ namespace IdentityServer4.Models
     public class ConsentResponse
     {
         /// <summary>
-        /// A denied consent response
+        /// Error, if any, for the consent response.
         /// </summary>
-        public static ConsentResponse Denied = new ConsentResponse();
+        public AuthorizationError? Error { get; set; }
+
+        /// <summary>
+        /// Error description.
+        /// </summary>
+        public string ErrorDescription { get; set; }
 
         /// <summary>
         /// Gets if consent was granted.
@@ -23,7 +28,7 @@ namespace IdentityServer4.Models
         /// <value>
         ///   <c>true</c> if consent was granted; otherwise, <c>false</c>.
         /// </value>
-        public bool Granted => ScopesValuesConsented != null && ScopesValuesConsented.Any();
+        public bool Granted => ScopesValuesConsented != null && ScopesValuesConsented.Any() && Error == null;
 
         /// <summary>
         /// Gets or sets the scope values consented to.
@@ -41,4 +46,36 @@ namespace IdentityServer4.Models
         /// </value>
         public bool RememberConsent { get; set; }
     }
+
+    /// <summary>
+    /// Enum to model interaction authorization errors.
+    /// </summary>
+    public enum AuthorizationError
+    {
+        /// <summary>
+        /// Access denied
+        /// </summary>
+        AccessDenied,
+
+        /// <summary>
+        /// Interaction required
+        /// </summary>
+        InteractionRequired,
+
+        /// <summary>
+        /// Login required
+        /// </summary>
+        LoginRequired,
+
+        /// <summary>
+        /// Account selection required
+        /// </summary>
+        AccountSelectionRequired,
+
+        /// <summary>
+        /// Consent required
+        /// </summary>
+        ConsentRequired,
+    }
+
 }
