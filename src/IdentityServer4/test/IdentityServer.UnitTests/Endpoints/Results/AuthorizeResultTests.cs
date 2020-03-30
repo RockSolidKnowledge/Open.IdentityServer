@@ -71,7 +71,7 @@ namespace IdentityServer.UnitTests.Endpoints.Results
             {
                 ResponseMode = OidcConstants.ResponseModes.Query,
                 RedirectUri = "http://client/callback",
-                PromptMode = "none"
+                PromptModes = new[] { "none" }
             };
 
             await _subject.ExecuteAsync(_context);
@@ -94,7 +94,7 @@ namespace IdentityServer.UnitTests.Endpoints.Results
             {
                 ResponseMode = OidcConstants.ResponseModes.Query,
                 RedirectUri = "http://client/callback",
-                PromptMode = "none",
+                PromptModes = new[] { "none" },
             };
             _response.SessionState = "some_session_state";
 

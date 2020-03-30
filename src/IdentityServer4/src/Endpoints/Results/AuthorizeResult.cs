@@ -16,6 +16,7 @@ using IdentityServer4.Stores;
 using IdentityServer4.ResponseHandling;
 using Microsoft.AspNetCore.Authentication;
 using System.Text.Encodings.Web;
+using System.Linq;
 
 namespace IdentityServer4.Endpoints.Results
 {
@@ -79,7 +80,7 @@ namespace IdentityServer4.Endpoints.Results
                 Response.Error == OidcConstants.AuthorizeErrors.InteractionRequired;
 
             if (Response.Error == OidcConstants.AuthorizeErrors.AccessDenied ||
-                (isPromptNoneError && Response.Request?.PromptMode == OidcConstants.PromptModes.None)
+                (isPromptNoneError && Response.Request?.PromptModes.Contains(OidcConstants.PromptModes.None) == true)
             )
             {
                 // this scenario we can return back to the client

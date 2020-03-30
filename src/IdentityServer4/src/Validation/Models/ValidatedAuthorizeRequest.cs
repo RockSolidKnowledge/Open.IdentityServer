@@ -4,6 +4,7 @@
 
 using IdentityModel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IdentityServer4.Validation
 {
@@ -118,12 +119,12 @@ namespace IdentityServer4.Validation
         public string DisplayMode { get; set; }
 
         /// <summary>
-        /// Gets or sets the prompt mode.
+        /// Gets or sets the collection of prompt modes.
         /// </summary>
         /// <value>
-        /// The prompt mode.
+        /// The collection of prompt modes.
         /// </value>
-        public string PromptMode { get; set; }
+        public IEnumerable<string> PromptModes { get; set; } = Enumerable.Empty<string>();
 
         /// <summary>
         /// Gets or sets the maximum age.

@@ -385,5 +385,24 @@ namespace IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation
             result.IsError.Should().BeTrue();
             result.Error.Should().Be(OidcConstants.AuthorizeErrors.UnsupportedResponseType);
         }
+
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task prompt_none_and_other_values_should_fail()
+        {
+            var parameters = new NameValueCollection();
+            parameters.Add(OidcConstants.AuthorizeRequest.ClientId, "codeclient");
+            parameters.Add(OidcConstants.AuthorizeRequest.Scope, "openid");
+            parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, "https://server/cb");
+            parameters.Add(OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code);
+            parameters.Add(OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment);
+            parameters.Add(OidcConstants.AuthorizeRequest.Prompt, "none login");
+
+            var validator = Factory.CreateAuthorizeRequestValidator();
+            var result = await validator.ValidateAsync(parameters);
+
+            result.IsError.Should().BeTrue();
+            result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+        }
     }
 }

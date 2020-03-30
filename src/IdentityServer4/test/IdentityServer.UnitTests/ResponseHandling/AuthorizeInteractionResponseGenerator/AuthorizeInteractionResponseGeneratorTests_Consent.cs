@@ -123,7 +123,7 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
                 ResponseMode = OidcConstants.ResponseModes.Fragment,
                 State = "12345",
                 RedirectUri = "https://client.com/callback",
-                PromptMode = OidcConstants.PromptModes.Consent,
+                PromptModes = new[] { OidcConstants.PromptModes.Consent },
                 RequestedScopes = new List<string> { "openid", "read", "write" },
                 ValidatedResources = GetValidatedResources("openid", "read", "write"),
             };
@@ -139,7 +139,7 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
                 ResponseMode = OidcConstants.ResponseModes.Fragment,
                 State = "12345",
                 RedirectUri = "https://client.com/callback",
-                PromptMode = OidcConstants.PromptModes.Login,
+                PromptModes = new[] { OidcConstants.PromptModes.Login },
                 RequestedScopes = new List<string> { "openid", "read", "write" },
                 ValidatedResources = GetValidatedResources("openid", "read", "write"),
             };
@@ -159,7 +159,7 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
                 ResponseMode = OidcConstants.ResponseModes.Fragment,
                 State = "12345",
                 RedirectUri = "https://client.com/callback",
-                PromptMode = OidcConstants.PromptModes.SelectAccount,
+                PromptModes = new[] { OidcConstants.PromptModes.SelectAccount },
                 RequestedScopes = new List<string> { "openid", "read", "write" },
                 ValidatedResources = GetValidatedResources("openid", "read", "write"),
             };
@@ -180,7 +180,7 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
                 ResponseMode = OidcConstants.ResponseModes.Fragment,
                 State = "12345",
                 RedirectUri = "https://client.com/callback",
-                PromptMode = OidcConstants.PromptModes.None,
+                PromptModes = new[] { OidcConstants.PromptModes.None },
                 RequestedScopes = new List<string> { "openid", "read", "write" },
                 ValidatedResources = GetValidatedResources("openid", "read", "write"),
             };
@@ -200,7 +200,7 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
                 ResponseMode = OidcConstants.ResponseModes.Fragment,
                 State = "12345",
                 RedirectUri = "https://client.com/callback",
-                PromptMode = OidcConstants.PromptModes.Consent,
+                PromptModes = new[] { OidcConstants.PromptModes.Consent },
                 RequestedScopes = new List<string> { "openid", "read", "write" },
                 ValidatedResources = GetValidatedResources("openid", "read", "write"),
             };
@@ -219,7 +219,7 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
                 ResponseMode = OidcConstants.ResponseModes.Fragment,
                 State = "12345",
                 RedirectUri = "https://client.com/callback",
-                PromptMode = OidcConstants.PromptModes.Consent,
+                PromptModes = new[] { OidcConstants.PromptModes.Consent },
                 RequestedScopes = new List<string> { "openid", "read", "write" },
                 ValidatedResources = GetValidatedResources("openid", "read", "write"),
             };
@@ -237,7 +237,7 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
                 ResponseMode = OidcConstants.ResponseModes.Fragment,
                 State = "12345",
                 RedirectUri = "https://client.com/callback",
-                PromptMode = OidcConstants.PromptModes.Consent,
+                PromptModes = new[] { OidcConstants.PromptModes.Consent },
                 RequestedScopes = new List<string> { "openid", "read", "write" },
                 ValidatedResources = GetValidatedResources("openid", "read", "write"),
             };

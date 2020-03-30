@@ -98,10 +98,10 @@ namespace IdentityServer4.ResponseHandling
         /// <returns></returns>
         protected internal virtual async Task<InteractionResponse> ProcessLoginAsync(ValidatedAuthorizeRequest request)
         {
-            if (request.PromptMode == OidcConstants.PromptModes.Login ||
-                request.PromptMode == OidcConstants.PromptModes.SelectAccount)
+            if (request.PromptModes.Contains(OidcConstants.PromptModes.Login) ||
+                request.PromptModes.Contains(OidcConstants.PromptModes.SelectAccount))
             {
-                Logger.LogInformation("Showing login: request contains prompt={0}", request.PromptMode);
+                Logger.LogInformation("Showing login: request contains prompt={0}", request.PromptModes.ToSpaceSeparatedString());
 
                 // remove prompt so when we redirect back in from login page
                 // we won't think we need to force a prompt again
@@ -127,7 +127,7 @@ namespace IdentityServer4.ResponseHandling
             if (!isAuthenticated || !isActive)
             {
                 // prompt=none means user must be signed in already
-                if (request.PromptMode == OidcConstants.PromptModes.None)
+                if (request.PromptModes.Contains(OidcConstants.PromptModes.None))
                 {
                     if (!isAuthenticated)
                     {
@@ -229,17 +229,17 @@ namespace IdentityServer4.ResponseHandling
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
 
-            if (request.PromptMode != null &&
-                request.PromptMode != OidcConstants.PromptModes.None &&
-                request.PromptMode != OidcConstants.PromptModes.Consent)
+            if (request.PromptModes.Any() &&
+                !request.PromptModes.Contains(OidcConstants.PromptModes.None) &&
+                !request.PromptModes.Contains(OidcConstants.PromptModes.Consent))
             {
-                Logger.LogError("Invalid prompt mode: {promptMode}", request.PromptMode);
+                Logger.LogError("Invalid prompt mode: {promptMode}", request.PromptModes.ToSpaceSeparatedString());
                 throw new ArgumentException("Invalid PromptMode");
             }
 
             var consentRequired = await Consent.RequiresConsentAsync(request.Subject, request.Client, request.ValidatedResources.ParsedScopes);
 
-            if (consentRequired && request.PromptMode == OidcConstants.PromptModes.None)
+            if (consentRequired && request.PromptModes.Contains(OidcConstants.PromptModes.None))
             {
                 Logger.LogInformation("Error: prompt=none requested, but consent is required.");
 
@@ -249,7 +249,7 @@ namespace IdentityServer4.ResponseHandling
                 };
             }
 
-            if (request.PromptMode == OidcConstants.PromptModes.Consent || consentRequired)
+            if (request.PromptModes.Contains(OidcConstants.PromptModes.Consent) || consentRequired)
             {
                 var response = new InteractionResponse();
 

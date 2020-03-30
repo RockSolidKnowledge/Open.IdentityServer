@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityModel;
@@ -183,6 +184,26 @@ namespace IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation
             var result = await validator.ValidateAsync(parameters);
 
             result.ValidatedRequest.SessionId.Should().NotBeNull();
+        }
+        
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task multiple_prompt_values_should_be_accepted()
+        {
+            var parameters = new NameValueCollection();
+            parameters.Add(OidcConstants.AuthorizeRequest.ClientId, "codeclient");
+            parameters.Add(OidcConstants.AuthorizeRequest.Scope, "openid");
+            parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, "https://server/cb");
+            parameters.Add(OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code);
+            parameters.Add(OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment);
+            parameters.Add(OidcConstants.AuthorizeRequest.Prompt, OidcConstants.PromptModes.Consent.ToString() + " " + OidcConstants.PromptModes.Login.ToString());
+
+            var validator = Factory.CreateAuthorizeRequestValidator();
+            var result = await validator.ValidateAsync(parameters);
+
+            result.ValidatedRequest.PromptModes.Count().Should().Be(2);
+            result.ValidatedRequest.PromptModes.Should().Contain(OidcConstants.PromptModes.Login);
+            result.ValidatedRequest.PromptModes.Should().Contain(OidcConstants.PromptModes.Consent);
         }
     }
 }

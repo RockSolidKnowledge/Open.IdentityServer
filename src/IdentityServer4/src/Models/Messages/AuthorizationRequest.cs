@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using IdentityServer4.Extensions;
 using IdentityServer4.Validation;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 
 namespace IdentityServer4.Models
 {
@@ -71,12 +73,12 @@ namespace IdentityServer4.Models
         public string LoginHint { get; internal set; }
 
         /// <summary>
-        /// Gets or sets the prompt mode.
+        /// Gets or sets the collection of prompt modes.
         /// </summary>
         /// <value>
-        /// The prompt mode.
+        /// The collection of prompt modes.
         /// </value>
-        public string PromptMode { get; internal set; }
+        public IEnumerable<string> PromptModes { get; internal set; } = Enumerable.Empty<string>();
 
         /// <summary>
         /// The acr values passed from the authorization request.
@@ -129,7 +131,7 @@ namespace IdentityServer4.Models
             IdP = request.GetIdP();
             Tenant = request.GetTenant();
             LoginHint = request.LoginHint;
-            PromptMode = request.PromptMode;
+            PromptModes = request.PromptModes;
             AcrValues = request.GetAcrValues();
             ValidatedResources = request.ValidatedResources;
             Parameters = request.Raw;
