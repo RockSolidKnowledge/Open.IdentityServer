@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace migrations.Migrations.KeyManagement
@@ -13,7 +12,7 @@ namespace migrations.Migrations.KeyManagement
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Created = table.Column<DateTime>(nullable: false),
                     Name = table.Column<string>(maxLength: 200, nullable: true),
                     Value = table.Column<string>(nullable: false)
@@ -28,7 +27,7 @@ namespace migrations.Migrations.KeyManagement
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Created = table.Column<DateTime>(nullable: false),
                     Name = table.Column<string>(maxLength: 200, nullable: true),
                     Value = table.Column<string>(nullable: false)

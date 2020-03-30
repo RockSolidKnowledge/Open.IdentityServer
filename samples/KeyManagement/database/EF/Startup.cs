@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace sample
@@ -19,10 +20,10 @@ namespace sample
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        public IHostingEnvironment Environment { get; }
+        public IWebHostEnvironment Environment { get; }
         public ILoggerFactory LoggerFactory { get; set; }
 
-        public Startup(IConfiguration config, IHostingEnvironment environment, ILoggerFactory loggerFactory)
+        public Startup(IConfiguration config, IWebHostEnvironment environment, ILoggerFactory loggerFactory)
         {
             Configuration = config;
             Environment = environment;

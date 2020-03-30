@@ -38,7 +38,7 @@ CREATE UNIQUE INDEX [IX_SigningKeys_Name] ON [SigningKeys] ([Name]) WHERE [Name]
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20190910134450_KeyManagement', N'2.1.11-servicing-32099');
+VALUES (N'20200327143521_KeyManagement', N'3.1.3');
 
 GO
 
