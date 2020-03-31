@@ -26,7 +26,7 @@ namespace Host.Configuration
                     ClientId = "client",
                     ClientSecrets = {new Secret("secret".Sha256())},
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    AllowedScopes = {"api1", "api2.read_only", IdentityServerConstants.LocalApi.ScopeName}
+                    AllowedScopes = { "feature1", "feature2", IdentityServerConstants.LocalApi.ScopeName}
                 },
 
                 ///////////////////////////////////////////
@@ -48,7 +48,7 @@ namespace Host.Configuration
                     },
                     AccessTokenType = AccessTokenType.Jwt,
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    AllowedScopes = {"api1", "api2.read_only"}
+                    AllowedScopes = { "feature1", "feature2" }
                 },
 
                 ///////////////////////////////////////////
@@ -73,7 +73,7 @@ namespace Host.Configuration
                         }
                     },
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    AllowedScopes = {"api1", "api2.read_only"}
+                    AllowedScopes = { "feature1", "feature2" }
                 },
 
                 ///////////////////////////////////////////
@@ -84,7 +84,7 @@ namespace Host.Configuration
                     ClientId = "client.custom",
                     ClientSecrets = {new Secret("secret".Sha256())},
                     AllowedGrantTypes = {"custom", "custom.nosubject"},
-                    AllowedScopes = {"api1", "api2.read_only"}
+                    AllowedScopes = { "feature1", "feature2" }
                 },
 
                 ///////////////////////////////////////////
@@ -100,8 +100,7 @@ namespace Host.Configuration
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         "custom.profile",
-                        "api1",
-                        "api2.read_only"
+                        "feature1", "feature2"
                     }
                 },
 
@@ -118,8 +117,7 @@ namespace Host.Configuration
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Email,
-                        "api1",
-                        "api2.read_only"
+                        "feature1", "feature2"
                     }
                 },
 
@@ -140,8 +138,7 @@ namespace Host.Configuration
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "api1",
-                        "api2.read_only"
+                        "feature1", "feature2"
                     }
                 },
                 ///////////////////////////////////////////
@@ -163,8 +160,7 @@ namespace Host.Configuration
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "api1",
-                        "api2.read_only"
+                        "feature1", "feature2"
                     }
                 },
 
@@ -177,7 +173,7 @@ namespace Host.Configuration
                     ClientId = "roclient.reference",
                     ClientSecrets = {new Secret("secret".Sha256())},
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                    AllowedScopes = {"api1", "api2.read_only"},
+                    AllowedScopes = {"feature1", "feature2"},
                     AccessTokenType = AccessTokenType.Reference
                 },
                 
@@ -201,7 +197,7 @@ namespace Host.Configuration
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "api1", "api2.read_only", "api2.full_access"
+                        "feature1", "feature2"
                     }
                 }
             };

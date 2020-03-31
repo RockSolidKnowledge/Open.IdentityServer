@@ -8,6 +8,7 @@ using IdentityServer4.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace IdentityServer4.AspNetIdentity
@@ -72,18 +73,47 @@ namespace IdentityServer4.AspNetIdentity
             var sub = context.Subject?.GetSubjectId();
             if (sub == null) throw new Exception("No sub claim present");
 
-            var user = await UserManager.FindByIdAsync(sub);
-            if (user == null)
-            {
-                Logger?.LogWarning("No user found matching subject Id: {0}", sub);
-            }
-            else
-            {
-                var principal = await ClaimsFactory.CreateAsync(user);
-                if (principal == null) throw new Exception("ClaimsFactory failed to create a principal");
+            await GetProfileDataAsync(context, sub);
+        }
 
-                context.AddRequestedClaims(principal.Claims);
+        /// <summary>
+        /// Called to get the claims for the subject based on the profile request.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="subjectId"></param>
+        /// <returns></returns>
+        protected virtual async Task GetProfileDataAsync(ProfileDataRequestContext context, string subjectId)
+        {
+            var user = await FindUserAsync(subjectId);
+            if (user != null)
+            {
+                await GetProfileDataAsync(context, user);
             }
+        }
+
+        /// <summary>
+        /// Called to get the claims for the user based on the profile request.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        protected virtual async Task GetProfileDataAsync(ProfileDataRequestContext context, TUser user)
+        {
+            var principal = await GetUserClaimsAsync(user);
+            context.AddRequestedClaims(principal.Claims);
+        }
+
+        /// <summary>
+        /// Gets the claims for a user.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        protected virtual async Task<ClaimsPrincipal> GetUserClaimsAsync(TUser user)
+        {
+            var principal = await ClaimsFactory.CreateAsync(user);
+            if (principal == null) throw new Exception("ClaimsFactory failed to create a principal");
+            
+            return principal;
         }
 
         /// <summary>
@@ -97,13 +127,63 @@ namespace IdentityServer4.AspNetIdentity
             var sub = context.Subject?.GetSubjectId();
             if (sub == null) throw new Exception("No subject Id claim present");
 
-            var user = await UserManager.FindByIdAsync(sub);
+            await IsActiveAsync(context, sub);
+        }
+
+        /// <summary>
+        /// Determines if the subject is active.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="subjectId"></param>
+        /// <returns></returns>
+        protected virtual async Task IsActiveAsync(IsActiveContext context, string subjectId)
+        {
+            var user = await FindUserAsync(subjectId);
+            if (user != null)
+            {
+                await IsActiveAsync(context, user);
+            }
+            else
+            {
+                context.IsActive = false;
+            }
+        }
+
+        /// <summary>
+        /// Determines if the user is active.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        protected virtual async Task IsActiveAsync(IsActiveContext context, TUser user)
+        {
+            context.IsActive = await IsUserActiveAsync(user);
+        }
+
+        /// <summary>
+        /// Returns if the user is active.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public virtual Task<bool> IsUserActiveAsync(TUser user)
+        {
+            return Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Loads the user by the subject id.
+        /// </summary>
+        /// <param name="subjectId"></param>
+        /// <returns></returns>
+        protected virtual async Task<TUser> FindUserAsync(string subjectId)
+        {
+            var user = await UserManager.FindByIdAsync(subjectId);
             if (user == null)
             {
-                Logger?.LogWarning("No user found matching subject Id: {0}", sub);
+                Logger?.LogWarning("No user found matching subject Id: {subjectId}", subjectId);
             }
 
-            context.IsActive = user != null;
+            return user;
         }
     }
 }

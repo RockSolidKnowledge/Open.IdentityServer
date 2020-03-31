@@ -28,12 +28,12 @@ namespace Host.Configuration
                 // simple version with ctor
                 new ApiResource("api1", "Some API 1")
                 {
-                    // this is needed for introspection when using reference tokens
-                    ApiSecrets = { new Secret("secret".Sha256()) },
+                    //// this is needed for introspection when using reference tokens
+                    //ApiSecrets = { new Secret("secret".Sha256()) },
 
                     //AllowedSigningAlgorithms = { "RS256", "ES256" }
 
-                    Scopes = { "api1" }
+                    Scopes = { "feature1" }
                 },
                 
                 // expanded version if more control is needed
@@ -54,35 +54,17 @@ namespace Host.Configuration
                         JwtClaimTypes.Email
                     },
 
-                    Scopes = { "api2.full_access", "api2.read_only", "api2.internal" }
+                    Scopes = { "feature2", "feature3" }
                 }
             };
 
         public static IEnumerable<ApiScope> ApiScopes = new[]
             {
                 // local API
-                // todo: dom, should we also use a resource id for this?
                 new ApiScope(LocalApi.ScopeName),
-                new ApiScope("api1"),
-                new ApiScope
-                {
-                    Name = "api2.full_access",
-                    DisplayName = "Full access to API 2"
-                },
-                new ApiScope
-                {
-                    Name = "api2.read_only",
-                    DisplayName = "Read only access to API 2"
-                },
-                new ApiScope
-                {
-                    Name = "api2.internal",
-                    ShowInDiscoveryDocument = false,
-                    UserClaims =
-                    {
-                        "internal_id"
-                    }
-                },
+                new ApiScope("feature1"),
+                new ApiScope("feature2"),
+                new ApiScope("feature3"),
                 new ApiScope
                 {
                     Name = "transaction"
