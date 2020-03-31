@@ -20,7 +20,7 @@ namespace IdentityServer4.Services
         /// <returns></returns>
         public Task<string> GenerateAsync(int length)
         {
-            return Task.FromResult(CryptoRandom.CreateUniqueId(length));
+            return Task.FromResult(CryptoRandom.CreateUniqueId(length, CryptoRandom.OutputFormat.Hex));
         }
     }
 }

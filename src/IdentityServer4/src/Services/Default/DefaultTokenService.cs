@@ -194,7 +194,7 @@ namespace IdentityServer4.Services
 
             if (request.ValidatedRequest.Client.IncludeJwtId)
             {
-                claims.Add(new Claim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16)));
+                claims.Add(new Claim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)));
             }
 
             if (request.ValidatedRequest.SessionId.IsPresent())

@@ -134,7 +134,7 @@ namespace IdentityServer4.Test
             }
 
             // create a new unique subject id
-            var sub = CryptoRandom.CreateUniqueId();
+            var sub = CryptoRandom.CreateUniqueId(format: CryptoRandom.OutputFormat.Hex);
 
             // check if a display name is available, otherwise fallback to subject id
             var name = filtered.FirstOrDefault(c => c.Type == JwtClaimTypes.Name)?.Value ?? sub;

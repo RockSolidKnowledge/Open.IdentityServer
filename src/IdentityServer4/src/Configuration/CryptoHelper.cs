@@ -24,7 +24,7 @@ namespace IdentityServer4.Configuration
         {
             return new RsaSecurityKey(RSA.Create(keySize))
             {
-                KeyId = CryptoRandom.CreateUniqueId(16)
+                KeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
             };
         }
 
@@ -38,7 +38,7 @@ namespace IdentityServer4.Configuration
         {
             return new ECDsaSecurityKey(ECDsa.Create(GetCurveFromCrvValue(curve)))
             {
-                KeyId = CryptoRandom.CreateUniqueId(16)
+                KeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
             };
         }
 

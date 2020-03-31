@@ -124,7 +124,7 @@ namespace IdentityServer4.Services
                 new Claim(JwtClaimTypes.Subject, client.SubjectId),
                 new Claim(JwtClaimTypes.Audience, client.ClientId),
                 new Claim(JwtClaimTypes.IssuedAt, Clock.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
-                new Claim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16)),
+                new Claim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)),
                 new Claim(JwtClaimTypes.Events, json, IdentityServerConstants.ClaimValueTypes.Json)
             };
 
