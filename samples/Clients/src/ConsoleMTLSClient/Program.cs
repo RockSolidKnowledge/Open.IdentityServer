@@ -40,7 +40,7 @@ namespace ConsoleMTLSClient
                 Address = endpoint,
 
                 ClientId = "mtls",
-                Scope = "feature1"
+                Scope = "scope1"
             });
 
             if (response.IsError) throw new Exception(response.Error);

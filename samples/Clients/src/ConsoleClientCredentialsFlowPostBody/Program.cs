@@ -34,7 +34,7 @@ namespace ConsoleClientCredentialsFlow
 
                 ClientId = "client",
                 ClientSecret = "secret",
-                Scope = "feature1"
+                Scope = "scope1"
             });
 
             if (response.IsError) throw new Exception(response.Error);

@@ -59,7 +59,7 @@ namespace MvcHybrid
                     options.Scope.Add("openid");
                     options.Scope.Add("profile");
                     options.Scope.Add("email");
-                    options.Scope.Add("feature1");
+                    options.Scope.Add("scope1");
                     options.Scope.Add("offline_access");
 
                     options.ClaimActions.MapAllExcept("iss", "nbf", "exp", "aud", "nonce", "iat", "c_hash");
