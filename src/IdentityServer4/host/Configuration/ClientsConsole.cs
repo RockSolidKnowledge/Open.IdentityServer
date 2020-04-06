@@ -26,7 +26,7 @@ namespace Host.Configuration
                     ClientId = "client",
                     ClientSecrets = {new Secret("secret".Sha256())},
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    AllowedScopes = { "feature1", "feature2", IdentityServerConstants.LocalApi.ScopeName}
+                    AllowedScopes = { "scope1", "scope2", IdentityServerConstants.LocalApi.ScopeName}
                 },
 
                 ///////////////////////////////////////////
@@ -48,7 +48,7 @@ namespace Host.Configuration
                     },
                     AccessTokenType = AccessTokenType.Jwt,
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    AllowedScopes = { "feature1", "feature2" }
+                    AllowedScopes = { "scope1", "scope2" }
                 },
 
                 ///////////////////////////////////////////
@@ -73,7 +73,7 @@ namespace Host.Configuration
                         }
                     },
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    AllowedScopes = { "feature1", "feature2" }
+                    AllowedScopes = { "scope1", "scope2" }
                 },
 
                 ///////////////////////////////////////////
@@ -84,7 +84,7 @@ namespace Host.Configuration
                     ClientId = "client.custom",
                     ClientSecrets = {new Secret("secret".Sha256())},
                     AllowedGrantTypes = {"custom", "custom.nosubject"},
-                    AllowedScopes = { "feature1", "feature2" }
+                    AllowedScopes = { "scope1", "scope2" }
                 },
 
                 ///////////////////////////////////////////
@@ -100,7 +100,7 @@ namespace Host.Configuration
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         "custom.profile",
-                        "feature1", "feature2"
+                        "scope1", "scope2"
                     }
                 },
 
@@ -117,7 +117,7 @@ namespace Host.Configuration
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature2"
+                        "scope1", "scope2"
                     }
                 },
 
@@ -138,7 +138,7 @@ namespace Host.Configuration
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature2"
+                        "scope1", "scope2"
                     }
                 },
                 ///////////////////////////////////////////
@@ -160,7 +160,7 @@ namespace Host.Configuration
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature2"
+                        "scope1", "scope2"
                     }
                 },
 
@@ -173,7 +173,7 @@ namespace Host.Configuration
                     ClientId = "roclient.reference",
                     ClientSecrets = {new Secret("secret".Sha256())},
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                    AllowedScopes = {"feature1", "feature2"},
+                    AllowedScopes = {"scope1", "scope2"},
                     AccessTokenType = AccessTokenType.Reference
                 },
                 
@@ -190,14 +190,12 @@ namespace Host.Configuration
 
                     AllowOfflineAccess = true,
 
-                    AllowedCorsOrigins = { "http://localhost:5001" }, // JS test client only
-
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature2"
+                        "scope1", "scope2"
                     }
                 }
             };

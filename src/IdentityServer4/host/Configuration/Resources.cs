@@ -32,9 +32,9 @@ namespace Host.Configuration
                 new ApiScope(LocalApi.ScopeName),
 
                 // some generic scopes
-                new ApiScope("feature1"),
-                new ApiScope("feature2"), 
-                new ApiScope("feature3"),
+                new ApiScope("scope1"),
+                new ApiScope("scope2"), 
+                new ApiScope("scope3"),
 
                 // used as a dynamic scope
                 new ApiScope("transaction")
@@ -45,21 +45,19 @@ namespace Host.Configuration
             new[]
             {
                 // simple version with ctor
-                new ApiResource("api1", "Some API 1")
+                new ApiResource("resource1", "Resource 1")
                 {
                     //// this is needed for introspection when using reference tokens
                     //ApiSecrets = { new Secret("secret".Sha256()) },
 
                     //AllowedSigningAlgorithms = { "RS256", "ES256" }
 
-                    Scopes = { "feature1" }
+                    Scopes = { "scope1" }
                 },
                 
                 // expanded version if more control is needed
-                new ApiResource
+                new ApiResource("resource2", "Resource 2")
                 {
-                    Name = "api2",
-
                     ApiSecrets =
                     {
                         new Secret("secret".Sha256())
@@ -73,7 +71,11 @@ namespace Host.Configuration
                         JwtClaimTypes.Email
                     },
 
-                    Scopes = { "feature2", "feature3" }
+                    Scopes =
+                    {
+                        "api2.scope1",
+                        "api2.scope2"
+                    }
                 }
             };
     }
