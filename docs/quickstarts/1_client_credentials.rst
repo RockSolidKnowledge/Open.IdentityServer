@@ -272,10 +272,10 @@ Calling the API
 To send the access token to the API you typically use the HTTP Authorization header. This is done using the ``SetBearerToken`` extension method::
 
     // call api
-    var client = new HttpClient();
-    client.SetBearerToken(tokenResponse.AccessToken);
+    var apiClient = new HttpClient();
+    apiClient.SetBearerToken(tokenResponse.AccessToken);
 
-    var response = await client.GetAsync("http://localhost:5001/identity");
+    var response = await apiClient.GetAsync("http://localhost:5001/identity");
     if (!response.IsSuccessStatusCode)
     {
         Console.WriteLine(response.StatusCode);
