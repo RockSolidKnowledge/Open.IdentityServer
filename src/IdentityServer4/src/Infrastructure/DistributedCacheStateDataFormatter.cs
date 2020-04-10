@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -54,8 +55,8 @@ namespace IdentityServer4.Infrastructure
         public string Protect(AuthenticationProperties data, string purpose)
         {
             var key = Guid.NewGuid().ToString();
-            var cacheKey = $"{CacheKeyPrefix}-{purpose}-{key}";
-            var json = ObjectSerializer.ToString(data);
+            var cacheKey = $"{CacheKeyPrefix}-{_name}-{purpose}-{key}";
+            var json = ObjectSerializer.ToString(data.Items);
 
             var options = new DistributedCacheEntryOptions();
             if (data.ExpiresUtc.HasValue)
@@ -99,7 +100,7 @@ namespace IdentityServer4.Infrastructure
 
             // Decrypt the key and retrieve the data from the cache.
             var key = Protector.Unprotect(protectedText);
-            var cacheKey = $"{CacheKeyPrefix}-{purpose}-{key}";
+            var cacheKey = $"{CacheKeyPrefix}-{_name}-{purpose}-{key}";
             var json = Cache.GetString(cacheKey);
 
             if (json == null)
@@ -107,7 +108,9 @@ namespace IdentityServer4.Infrastructure
                 return null;
             }
 
-            return ObjectSerializer.FromString<AuthenticationProperties>(json);
+            var items = ObjectSerializer.FromString<Dictionary<string, string>>(json);
+            var props = new AuthenticationProperties(items);
+            return props;
         }
     }
 }
