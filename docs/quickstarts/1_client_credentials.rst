@@ -57,7 +57,7 @@ Defining an API Resource
 An API is a resource in your system that you want to protect. 
 Resource definitions can be loaded in many ways, the template you used to create the project above shows how to use a "code as configuration" approach.
 
-For this add a new class to your project and call it ``Config`` - add the following code to it::
+The Config.cs is already created for you. Open it, update the code to look like this::
 
     public static class Config
     {
