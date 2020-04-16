@@ -66,7 +66,7 @@ namespace IdentityServer.IntegrationTests.Clients
             userInfo.Claims.Should().Contain(c => c.Type == "email_verified" && c.Value == "true");
         }
 
-        [Fact(Skip = "discuss")]
+        [Fact]
         public async Task Request_address_scope_should_return_expected_response()
         {
             var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
@@ -89,7 +89,7 @@ namespace IdentityServer.IntegrationTests.Clients
             });
 
             userInfo.IsError.Should().BeFalse();
-            userInfo.Raw.Should().Be("{\"address\":{\"street_address\":\"One Hacker Way\",\"locality\":\"Heidelberg\",\"postal_code\":69118,\"country\":\"Germany\"},\"sub\":\"88421113\"}");
+            userInfo.Claims.First().Value.Should().Be("{ 'street_address': 'One Hacker Way', 'locality': 'Heidelberg', 'postal_code': 69118, 'country': 'Germany' }");
         }
 
         [Fact]
