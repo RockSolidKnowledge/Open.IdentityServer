@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Buffers.Text;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -50,13 +52,14 @@ namespace SampleApi
                         return;
                     }
 
-                    var thumbprint = certResult.Principal.FindFirst(ClaimTypes.Thumbprint).Value;
+                    var certificate = await ctx.Connection.GetClientCertificateAsync();
+                    var thumbprint = Base64UrlTextEncoder.Encode(certificate.GetCertHash(HashAlgorithmName.SHA256));
 
                     var cnf = JObject.Parse(cnfJson);
                     var sha256 = cnf.Value<string>("x5t#S256");
 
                     if (String.IsNullOrWhiteSpace(sha256) ||
-                        !thumbprint.Equals(sha256, StringComparison.OrdinalIgnoreCase))
+                        !thumbprint.Equals(sha256, StringComparison.Ordinal))
                     {
                         await ctx.ChallengeAsync(_options.JwtBearerSchemeName);
                         return;
