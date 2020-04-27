@@ -38,7 +38,7 @@ This will send the ``Www-Authenticate`` header back to the browser which will th
 You can tell that Windows authentication was successful, when you call ``AuthenticateAsync`` on the ``Windows`` scheme and the principal returned
 is of type ``WindowsPrincipal``.
 
-The principal will have information like user and group SID and the Windows account name. The following snipper shows how to
+The principal will have information like user and group SID and the Windows account name. The following snippet shows how to
 trigger authentication, and if successful convert the information into a standard ``ClaimsPrincipal`` for the temp-Cookie approach::
 
     private async Task<IActionResult> ChallengeWindowsAsync(string returnUrl)
