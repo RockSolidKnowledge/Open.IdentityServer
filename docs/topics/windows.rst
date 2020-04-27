@@ -41,7 +41,7 @@ is of type ``WindowsPrincipal``.
 The principal will have information like user and group SID and the Windows account name. The following snipper shows how to
 trigger authentication, and if successful convert the information into a standard ``ClaimsPrincipal`` for the temp-Cookie approach::
 
-    private async Task<IActionResult> ProcessWindowsLoginAsync(string returnUrl)
+    private async Task<IActionResult> ChallengeWindowsAsync(string returnUrl)
     {
         // see if windows auth has already been requested and succeeded
         var result = await HttpContext.AuthenticateAsync(AccountOptions.WindowsAuthenticationSchemeName);
