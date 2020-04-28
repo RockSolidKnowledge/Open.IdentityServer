@@ -69,18 +69,16 @@ trigger authentication, and if successful convert the information into a standar
             id.AddClaim(new Claim(JwtClaimTypes.Name, wp.Identity.Name));
 
             // add the groups as claims -- be careful if the number of groups is too large
-            if (AccountOptions.IncludeWindowsGroups)
-            {
-                var wi = wp.Identity as WindowsIdentity;
+            var wi = wp.Identity as WindowsIdentity;
 
-                // translate group SIDs to display names
-                var groups = wi.Groups.Translate(typeof(NTAccount));
-                var roles = groups.Select(x => new Claim(JwtClaimTypes.Role, x.Value));
-                id.AddClaims(roles);
-            }
+            // translate group SIDs to display names
+            var groups = wi.Groups.Translate(typeof(NTAccount));
+            var roles = groups.Select(x => new Claim(JwtClaimTypes.Role, x.Value));
+            id.AddClaims(roles);
+            
 
             await HttpContext.SignInAsync(
-                IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme,
+                IdentityServerConstants.ExternalCookieAuthenticationScheme,
                 new ClaimsPrincipal(id),
                 props);
             return Redirect(props.RedirectUri);
