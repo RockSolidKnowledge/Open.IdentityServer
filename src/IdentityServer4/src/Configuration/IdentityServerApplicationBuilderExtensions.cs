@@ -119,17 +119,7 @@ namespace Microsoft.AspNetCore.Builder
         private static void ValidateOptions(IdentityServerOptions options, ILogger logger)
         {
             if (options.IssuerUri.IsPresent()) logger.LogDebug("Custom IssuerUri set to {0}", options.IssuerUri);
-
-            if (options.PublicOrigin.IsPresent())
-            {
-                if (!Uri.TryCreate(options.PublicOrigin, UriKind.Absolute, out var uri))
-                {
-                    throw new InvalidOperationException($"PublicOrigin is not valid: {options.PublicOrigin}");
-                }
-
-                logger.LogDebug("PublicOrigin explicitly set to {0}", options.PublicOrigin);
-            }
-
+            
             // todo: perhaps different logging messages?
             //if (options.UserInteraction.LoginUrl.IsMissing()) throw new InvalidOperationException("LoginUrl is not configured");
             //if (options.UserInteraction.LoginReturnUrlParameter.IsMissing()) throw new InvalidOperationException("LoginReturnUrlParameter is not configured");

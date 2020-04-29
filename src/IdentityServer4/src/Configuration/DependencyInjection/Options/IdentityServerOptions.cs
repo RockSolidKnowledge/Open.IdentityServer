@@ -24,16 +24,6 @@ namespace IdentityServer4.Configuration
         public bool LowerCaseIssuerUri { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the origin of this server instance, e.g. https://myorigin.com.
-        /// If not set, the origin name is inferred from the request
-        /// Note: Do not set a URL or include a path.
-        /// </summary>
-        /// <value>
-        /// Origin of this server instance, e.g. https://myorigin.com
-        /// </value>
-        public string PublicOrigin { get; set; }
-
-        /// <summary>
         /// Gets or sets the value for the JWT typ header for access tokens.
         /// </summary>
         /// <value>

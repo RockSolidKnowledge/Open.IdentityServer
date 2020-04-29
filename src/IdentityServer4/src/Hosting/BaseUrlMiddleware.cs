@@ -25,12 +25,7 @@ namespace IdentityServer4.Hosting
         public async Task Invoke(HttpContext context)
         {
             var request = context.Request;
-
-            if (_options.PublicOrigin.IsPresent())
-            {
-                context.SetIdentityServerOrigin(_options.PublicOrigin);
-            }
-
+            
             context.SetIdentityServerBasePath(request.PathBase.Value.RemoveTrailingSlash());
 
             await _next(context);
