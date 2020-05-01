@@ -35,6 +35,7 @@ namespace Host.Configuration
                 new ApiScope("scope1"),
                 new ApiScope("scope2"), 
                 new ApiScope("scope3"),
+                new ApiScope("shared.scope"),
 
                 // used as a dynamic scope
                 new ApiScope("transaction")
@@ -47,12 +48,12 @@ namespace Host.Configuration
                 // simple version with ctor
                 new ApiResource("resource1", "Resource 1")
                 {
-                    //// this is needed for introspection when using reference tokens
-                    //ApiSecrets = { new Secret("secret".Sha256()) },
+                    // this is needed for introspection when using reference tokens
+                    ApiSecrets = { new Secret("secret".Sha256()) },
 
                     //AllowedSigningAlgorithms = { "RS256", "ES256" }
 
-                    Scopes = { "scope1" }
+                    Scopes = { "scope1", "shared.scope" }
                 },
                 
                 // expanded version if more control is needed
@@ -71,11 +72,7 @@ namespace Host.Configuration
                         JwtClaimTypes.Email
                     },
 
-                    Scopes =
-                    {
-                        "scope1",
-                        "scope2"
-                    }
+                    Scopes = { "scope2", "shared.scope" }
                 }
             };
     }
