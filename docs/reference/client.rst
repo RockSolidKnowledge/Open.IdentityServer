@@ -86,7 +86,7 @@ Token
 ``AccessTokenType``
     Specifies whether the access token is a reference token or a self contained JWT token (defaults to `Jwt`).
 ``IncludeJwtId``
-    Specifies whether JWT access tokens should have an embedded unique ID (via the `jti` claim).
+    Specifies whether JWT access tokens should have an embedded unique ID (via the `jti` claim). Defaults to ``true``.
 ``AllowedCorsOrigins``
     If specified, will be used by the default CORS policy service implementations (In-Memory and EF) to build a CORS policy for JavaScript clients.
 ``Claims``

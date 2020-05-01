@@ -84,7 +84,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
             // token content
             var payload = GetPayload(response);
-            payload.Count().Should().Be(10);
+            payload.Count().Should().Be(11);
             payload.Should().Contain("iss", "https://idsvr4");
             payload.Should().Contain("client_id", "roclient");
             payload.Should().Contain("sub", "bob");
@@ -203,7 +203,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
             // token content
             var payload = GetPayload(response);
-            payload.Count().Should().Be(10);
+            payload.Count().Should().Be(11);
             payload.Should().Contain("iss", "https://idsvr4");
             payload.Should().Contain("client_id", "client.custom");
             payload.Should().Contain("sub", "bob");

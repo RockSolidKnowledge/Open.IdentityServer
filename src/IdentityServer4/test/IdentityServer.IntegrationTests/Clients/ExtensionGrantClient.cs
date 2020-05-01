@@ -69,7 +69,7 @@ namespace IdentityServer.IntegrationTests.Clients
             exp.Should().BeLessThan(unixNow + 3605);
             exp.Should().BeGreaterThan(unixNow + 3595);
 
-            payload.Count().Should().Be(10);
+            payload.Count().Should().Be(11);
             payload.Should().Contain("iss", "https://idsvr4");
             payload.Should().Contain("client_id", "client.custom");
             payload.Should().Contain("sub", "818727");
@@ -118,7 +118,7 @@ namespace IdentityServer.IntegrationTests.Clients
             exp.Should().BeLessThan(unixNow + 3605);
             exp.Should().BeGreaterThan(unixNow + 3595);
 
-            payload.Count().Should().Be(11);
+            payload.Count().Should().Be(12);
             payload.Should().Contain("iss", "https://idsvr4");
             payload.Should().Contain("client_id", "client.custom");
             payload.Should().Contain("sub", "818727");
@@ -185,7 +185,7 @@ namespace IdentityServer.IntegrationTests.Clients
             exp.Should().BeLessThan(unixNow + 3605);
             exp.Should().BeGreaterThan(unixNow + 3595);
 
-            payload.Count().Should().Be(11);
+            payload.Count().Should().Be(12);
             payload.Should().Contain("iss", "https://idsvr4");
             payload.Should().Contain("client_id", "client.custom");
             payload.Should().Contain("sub", "818727");
@@ -229,7 +229,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
             var payload = GetPayload(response);
 
-            payload.Count().Should().Be(6);
+            payload.Count().Should().Be(7);
             payload.Should().Contain("iss", "https://idsvr4");
             payload.Should().Contain("client_id", "client.custom");
 
@@ -265,7 +265,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
             var payload = GetPayload(response);
 
-            payload.Count().Should().Be(10);
+            payload.Count().Should().Be(11);
             payload.Should().Contain("iss", "https://idsvr4");
             payload.Should().Contain("client_id", "client.custom");
             payload.Should().Contain("sub", "818727");
@@ -528,7 +528,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
             var payload = GetPayload(response);
 
-            payload.Count().Should().Be(11);
+            payload.Count().Should().Be(12);
             payload.Should().Contain("iss", "https://idsvr4");
             payload.Should().Contain("client_id", "client.dynamic");
             payload.Should().Contain("sub", "818727");
@@ -574,7 +574,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
             var payload = GetPayload(response);
 
-            payload.Count().Should().Be(7);
+            payload.Count().Should().Be(8);
             payload.Should().Contain("iss", "https://idsvr4");
             payload.Should().Contain("client_id", "client.dynamic");
             payload.Should().Contain("client_extra", "extra_claim");

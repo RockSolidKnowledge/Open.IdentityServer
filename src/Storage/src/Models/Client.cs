@@ -244,7 +244,7 @@ namespace IdentityServer4.Models
         /// <value>
         /// <c>true</c> to add an id; otherwise, <c>false</c>.
         /// </value>
-        public bool IncludeJwtId { get; set; } = false;
+        public bool IncludeJwtId { get; set; } = true;
 
         /// <summary>
         /// Allows settings claims for the client (will be included in the access token).
