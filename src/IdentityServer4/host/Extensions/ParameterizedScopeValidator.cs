@@ -8,20 +8,21 @@ using System.Threading.Tasks;
 
 namespace Host.Extensions
 {
-    public class CustomResourceValidator : ResourceValidator
+    public class ParameterizedScopeValidator : ResourceValidator
     {
-        public CustomResourceValidator(IResourceStore store, ILogger<ResourceValidator> logger) : base(store, logger)
+        public ParameterizedScopeValidator(IResourceStore store, ILogger<ResourceValidator> logger) : base(store, logger)
         {
         }
 
         public override Task<ParsedScopeValue> ParseScopeValue(string scopeValue)
         {
             const string transactionScopeName = "transaction";
-            const string transactionScopePrefix = transactionScopeName + ":";
+            const string separator = ":";
+            const string transactionScopePrefix = transactionScopeName + separator;
 
             if (scopeValue.StartsWith(transactionScopePrefix))
             {
-                var parts = scopeValue.Split(':', StringSplitOptions.RemoveEmptyEntries);
+                var parts = scopeValue.Split(separator, StringSplitOptions.RemoveEmptyEntries);
                 return Task.FromResult(new ParsedScopeValue(transactionScopeName, scopeValue, parts[1]));
             }
 

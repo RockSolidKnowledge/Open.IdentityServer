@@ -66,9 +66,10 @@ namespace Host
                 .AddAppAuthRedirectUriValidator()
                 .AddTestUsers(TestUsers.Users)
                 .AddProfileService<HostProfileService>()
+                .AddCustomTokenRequestValidator<ParameterizedScopeTokenRequestValidator>()
                 .AddMutualTlsSecretValidators();
 
-            services.AddTransient<IResourceValidator, CustomResourceValidator>();
+            services.AddTransient<IResourceValidator, ParameterizedScopeValidator>();
             
             // use this for persisted grants store
             // var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
