@@ -16,8 +16,6 @@ namespace Host.Extensions
             }
 
             return Task.CompletedTask;
-            
-            return Task.CompletedTask;
         }
     }
 }
