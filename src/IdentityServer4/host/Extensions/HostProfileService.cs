@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
@@ -18,15 +19,10 @@ namespace Host.Extensions
             await base.GetProfileDataAsync(context);
 
             var transaction = context.RequestedResources.ParsedScopes.FirstOrDefault(x => x.Name == "transaction");
-            if (transaction != null)
+            if (transaction?.ParameterValue != null)
             {
-                context.IssuedClaims.Add(new System.Security.Claims.Claim("transaction", transaction.ParameterValue));
+                context.IssuedClaims.Add(new Claim("transaction_id", transaction.ParameterValue));
             }
-        }
-
-        public override Task IsActiveAsync(IsActiveContext context)
-        {
-            return base.IsActiveAsync(context);
         }
     }
 }
