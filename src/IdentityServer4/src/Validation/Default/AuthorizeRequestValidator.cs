@@ -65,19 +65,20 @@ namespace IdentityServer4.Validation
                 Subject = subject ?? Principal.Anonymous,
                 Raw = parameters ?? throw new ArgumentNullException(nameof(parameters))
             };
+            
+            // load client_id
+            // client_id must always be present on the request
+            var loadClientResult = await LoadClientAsync(request);
+            if (loadClientResult.IsError)
+            {
+                return loadClientResult;
+            }
 
             // load request object
             var roLoadResult = await LoadRequestObjectAsync(request);
             if (roLoadResult.IsError)
             {
                 return roLoadResult;
-            }
-
-            // load client_id
-            var loadClientResult = await LoadClientAsync(request);
-            if (loadClientResult.IsError)
-            {
-                return loadClientResult;
             }
 
             // validate request object
@@ -189,11 +190,6 @@ namespace IdentityServer4.Validation
             /////////////////////////////////////////////////////////
             var clientId = request.Raw.Get(OidcConstants.AuthorizeRequest.ClientId);
 
-            if (clientId.IsMissing() && request.RequestObject.IsPresent())
-            {
-                clientId = await _jwtRequestValidator.LoadClientId(request.RequestObject);
-            }
-
             if (clientId.IsMissingOrTooLong(_options.InputLengthRestrictions.ClientId))
             {
                 LogError("client_id is missing or too long", request);
@@ -246,10 +242,10 @@ namespace IdentityServer4.Validation
                     }
                 }
 
+                // validate client_id mismatch
                 if (jwtRequestValidationResult.Payload.TryGetValue(OidcConstants.AuthorizeRequest.ClientId, out var payloadClientId))
                 {
-                    var queryClientId = request.Raw.Get(OidcConstants.AuthorizeRequest.ClientId);
-                    if (queryClientId.IsPresent() && !string.Equals(queryClientId, payloadClientId, StringComparison.Ordinal))
+                    if (!string.Equals(request.Client.ClientId, payloadClientId, StringComparison.Ordinal))
                     {
                         LogError("client_id in JWT payload does not match client_id in request", request);
                         return Invalid(request, description: "Invalid JWT request");

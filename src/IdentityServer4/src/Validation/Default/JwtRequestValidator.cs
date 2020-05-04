@@ -136,19 +136,6 @@ namespace IdentityServer4.Validation
         }
 
         /// <summary>
-        /// Tries to extract client_id from JWT request
-        /// </summary>
-        /// <param name="jwtRequest"></param>
-        /// <returns></returns>
-        public virtual Task<string> LoadClientId(string jwtRequest)
-        {
-            var token = Handler.ReadJwtToken(jwtRequest);
-
-            return Task.FromResult(token.Payload.Claims
-                .FirstOrDefault(c => c.Type == OidcConstants.AuthorizeRequest.ClientId)?.Value);
-        }
-
-        /// <summary>
         /// Retrieves keys for a given client
         /// </summary>
         /// <param name="client">The client</param>
