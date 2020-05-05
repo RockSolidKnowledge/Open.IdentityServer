@@ -168,7 +168,33 @@ namespace IdentityServer.UnitTests.Validation
 
             result.IsError.Should().BeFalse();
         }
+        
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        [Trait("Category", Category)]
+        public async Task JWT_Token_with_scopes_have_expected_claims(bool flag)
+        {
+            var options = TestIdentityServerOptions.Create();
+            options.EmitScopesAsSpaceDelimitedStringInJwt = flag;
+            
+            var signer = Factory.CreateDefaultTokenCreator(options);
+            var jwt = await signer.CreateTokenAsync(TokenFactory.CreateAccessToken(new Client { ClientId = "roclient" }, "valid", 600, "read", "write"));
 
+            var validator = Factory.CreateTokenValidator(null);
+            var result = await validator.ValidateAccessTokenAsync(jwt);
+
+            result.IsError.Should().BeFalse();
+            result.Jwt.Should().NotBeNullOrEmpty();
+            result.Client.ClientId.Should().Be("roclient");
+
+            result.Claims.Count().Should().Be(9);
+            var scopes = result.Claims.Where(c => c.Type == "scope").Select(c => c.Value).ToArray();
+            scopes.Count().Should().Be(2);
+            scopes[0].Should().Be("read");
+            scopes[1].Should().Be("write");
+        }
+        
         [Fact]
         [Trait("Category", Category)]
         public async Task JWT_Token_invalid_Issuer()

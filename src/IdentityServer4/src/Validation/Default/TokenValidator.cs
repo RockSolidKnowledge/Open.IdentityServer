@@ -308,11 +308,32 @@ namespace IdentityServer4.Validation
                     }
                 }
 
+                var claims = id.Claims.ToList();
+                
+                // check the scope format (array vs space delimited string)
+                var scopes = claims.Where(c => c.Type == JwtClaimTypes.Scope).ToArray();
+                if (scopes.Any())
+                {
+                    foreach (var scope in scopes)
+                    {
+                        if (scope.Value.Contains(" "))
+                        {
+                            claims.Remove(scope);
+                            
+                            var values = scope.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            foreach (var value in values)
+                            {
+                                claims.Add(new Claim(JwtClaimTypes.Scope, value));
+                            }
+                        }
+                    }
+                }
+
                 return new TokenValidationResult
                 {
                     IsError = false,
 
-                    Claims = id.Claims,
+                    Claims = claims,
                     Client = client,
                     Jwt = jwt
                 };

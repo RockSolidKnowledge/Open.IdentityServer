@@ -120,13 +120,13 @@ namespace IdentityServer.UnitTests.Validation.Setup
             return new ResourceValidator(store, TestLogger.Create<ResourceValidator>());
         }
 
-        internal static ITokenCreationService CreateDefaultTokenCreator()
+        internal static ITokenCreationService CreateDefaultTokenCreator(IdentityServerOptions options = null)
         {
             return new DefaultTokenCreationService(
                 new StubClock(),
                 new DefaultKeyMaterialService(new IValidationKeysStore[] { },
                     new ISigningCredentialStore[] { new InMemorySigningCredentialsStore(TestCert.LoadSigningCredentials()) }),
-                TestIdentityServerOptions.Create(),
+                options ?? TestIdentityServerOptions.Create(),
                 TestLogger.Create<DefaultTokenCreationService>());
         }
 
