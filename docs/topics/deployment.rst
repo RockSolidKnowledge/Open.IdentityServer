@@ -53,3 +53,15 @@ ASP.NET Core itself needs shared key material for protecting sensitive data like
 See the official docs `here <https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/>`_.
 
 You can either re-use one of the above persistence store or use something simple like a shared file if possible.
+
+ASP.NET Core distributed caching
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Some components rely on ASP.NET Core distributed caching. In order to work in a multi server environment, this needs to be set up correctly. 
+The `official docs <https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed/>`_ describe several options.
+
+The following components rely on ``IDistributedCache``:
+
+* ``services.AddOidcStateDataFormatterCache()`` configures the OpenIdConnect handlers to persist the state parameter into the server-side ``IDistributedCache``.
+* ``DefaultReplayCache``
+* ``DistributedDeviceFlowThrottlingService``
+* ``DistributedCacheAuthorizationParametersMessageStore``
