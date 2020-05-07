@@ -809,12 +809,12 @@ namespace IdentityServer4.Validation
 
         private Task RaiseSuccessfulResourceOwnerAuthenticationEventAsync(string userName, string subjectId, string clientId)
         {
-            return _events.RaiseAsync(new UserLoginSuccessEvent(userName, subjectId, null, false, clientId));
+            return _events.RaiseAsync(new UserLoginSuccessEvent(userName, subjectId, null, interactive: false, clientId));
         }
 
         private Task RaiseFailedResourceOwnerAuthenticationEventAsync(string userName, string error, string clientId)
         {
-            return _events.RaiseAsync(new UserLoginFailureEvent(userName, error, clientId: clientId));
+            return _events.RaiseAsync(new UserLoginFailureEvent(userName, error, interactive: false, clientId: clientId));
         }
     }
 }
