@@ -64,10 +64,23 @@ namespace IdentityServer4.Validation
             return false;
         }
 
-        // check if http://127.0.0.1:random_port is used
+        /// <summary>
+        /// Check if <paramref name="requestedUri"/> is of the form http://127.0.0.1:port/path.
+        /// </summary>
+        /// <param name="requestedUri">The requested URI.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="requestedUri"/> is a valid Loopback URI; <c>false</c> otherwise.
+        /// </returns>
         internal bool IsLoopback(string requestedUri)
         {
             _logger.LogDebug("Checking for 127.0.0.1 redirect URI");
+
+            // Validate that the requestedUri is not null or empty.
+            if (string.IsNullOrEmpty(requestedUri))
+            {
+                _logger.LogDebug("'requestedUri' is null or empty");
+                return false;
+            }
 
             var parts = requestedUri.Split(':');
 
@@ -84,9 +97,24 @@ namespace IdentityServer4.Validation
                 return false;
             }
 
-            if (int.TryParse(parts[2], out var port))
+            string portAsString;
+            int indexOfPathSeparator = parts[2].IndexOfAny(new char[] { '/', '?', '#' });
+            if (indexOfPathSeparator > 0)
             {
-                if (port >= 0 && port <= 65536) return true;
+                portAsString = parts[2].Substring(0, indexOfPathSeparator);
+            }
+            else
+            {
+                portAsString = parts[2];
+            }
+
+            // Valid port range is 0 through 65535.
+            if (int.TryParse(portAsString, out var port))
+            {
+                if (port >= 0 && port < 65536)
+                {
+                    return true;
+                }
             }
 
             _logger.LogDebug("invalid port");
