@@ -348,7 +348,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
         
         [Fact]
         [Trait("Category", Category)]
-        public async Task jwt_values_should_have_precedence_over_query_params()
+        public async Task mismatch_in_jwt_values_should_error()
         {
             var requestJwt = CreateRequestJwt(
                 issuer: _client.ClientId,
@@ -386,21 +386,9 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                 });
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
 
-            _mockPipeline.LoginRequest.Should().NotBeNull();
-            _mockPipeline.LoginRequest.Client.ClientId.Should().Be(_client.ClientId);
-            _mockPipeline.LoginRequest.DisplayMode.Should().Be("popup");
-            _mockPipeline.LoginRequest.UiLocales.Should().Be("ui_locale_value");
-            _mockPipeline.LoginRequest.IdP.Should().Be("idp_value");
-            _mockPipeline.LoginRequest.Tenant.Should().Be("tenant_value");
-            _mockPipeline.LoginRequest.LoginHint.Should().Be("login_hint_value");
-            _mockPipeline.LoginRequest.AcrValues.Should().BeEquivalentTo(new string[] { "acr_2", "acr_1" });
-
-            _mockPipeline.LoginRequest.Parameters.AllKeys.Should().Contain("foo");
-            _mockPipeline.LoginRequest.Parameters["foo"].Should().Be("123foo");
-
-            _mockPipeline.LoginRequest.RequestObjectValues.Count.Should().Be(11);
-            _mockPipeline.LoginRequest.RequestObjectValues.Should().ContainKey("foo");
-            _mockPipeline.LoginRequest.RequestObjectValues["foo"].Should().Be("123foo");
+            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request");
+            _mockPipeline.ErrorMessage.ErrorDescription.Should().Be("Parameter mismatch in JWT request");
+            _mockPipeline.LoginRequest.Should().BeNull();
         }
 
         [Fact]
@@ -526,7 +514,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                 });
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
 
-            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request");
+            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request_object");
             _mockPipeline.ErrorMessage.ErrorDescription.Should().Be("Invalid JWT request");
             _mockPipeline.LoginRequest.Should().BeNull();
         }
@@ -563,7 +551,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
 
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
 
-            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request");
+            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request_object");
             _mockPipeline.ErrorMessage.ErrorDescription.Should().Be("Invalid JWT request");
             _mockPipeline.LoginRequest.Should().BeNull();
         }
@@ -600,7 +588,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
 
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
 
-            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request");
+            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request_object");
             _mockPipeline.ErrorMessage.ErrorDescription.Should().Be("Invalid JWT request");
             _mockPipeline.LoginRequest.Should().BeNull();
         }
@@ -637,7 +625,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
 
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
 
-            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request");
+            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request_object");
             _mockPipeline.ErrorMessage.ErrorDescription.Should().Be("Invalid JWT request");
             _mockPipeline.LoginRequest.Should().BeNull();
         }
@@ -674,7 +662,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
 
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
 
-            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request");
+            _mockPipeline.ErrorMessage.Error.Should().Be("invalid_request_object");
             _mockPipeline.ErrorMessage.ErrorDescription.Should().Be("Invalid JWT request");
             _mockPipeline.LoginRequest.Should().BeNull();
         }

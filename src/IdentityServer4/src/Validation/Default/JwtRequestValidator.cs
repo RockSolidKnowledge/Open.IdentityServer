@@ -170,6 +170,8 @@ namespace IdentityServer4.Validation
             };
 
             Handler.ValidateToken(jwtTokenString, tokenValidationParameters, out var token);
+            
+            // todo: add validation for "typ" header
 
             return Task.FromResult((JwtSecurityToken)token);
         }

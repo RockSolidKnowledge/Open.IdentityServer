@@ -155,18 +155,23 @@ namespace IdentityServer4.Validation
                     if (jwtRequestUri.Length > 512)
                     {
                         LogError("request_uri is too long", request);
-                        return Invalid(request, description: "request_uri is too long");
+                        return Invalid(request, error: OidcConstants.AuthorizeErrors.InvalidRequestUri, description: "request_uri is too long");
                     }
 
                     var jwt = await _jwtRequestUriHttpClient.GetJwtAsync(jwtRequestUri, request.Client);
                     if (jwt.IsMissing())
                     {
                         LogError("no value returned from request_uri", request);
-                        return Invalid(request, description: "no value returned from request_uri");
+                        return Invalid(request, error: OidcConstants.AuthorizeErrors.InvalidRequestUri, description: "no value returned from request_uri");
                     }
 
                     jwtRequest = jwt;
                 }
+            }
+            else if (jwtRequestUri.IsPresent())
+            {
+                LogError("request_uri present but config prohibits", request);
+                return Invalid(request, error: OidcConstants.AuthorizeErrors.RequestUriNotSupported);
             }
 
             // check length restrictions
@@ -175,7 +180,7 @@ namespace IdentityServer4.Validation
                 if (jwtRequest.Length >= _options.InputLengthRestrictions.Jwt)
                 {
                     LogError("request value is too long", request);
-                    return Invalid(request, description: "Invalid request value");
+                    return Invalid(request, error: OidcConstants.AuthorizeErrors.InvalidRequestObject, description: "Invalid request value");
                 }
             }
 
@@ -186,7 +191,7 @@ namespace IdentityServer4.Validation
         private async Task<AuthorizeRequestValidationResult> LoadClientAsync(ValidatedAuthorizeRequest request)
         {
             //////////////////////////////////////////////////////////
-            // client_id must be present (either on the query string or the request object)
+            // client_id must be present
             /////////////////////////////////////////////////////////
             var clientId = request.Raw.Get(OidcConstants.AuthorizeRequest.ClientId);
 
@@ -225,7 +230,7 @@ namespace IdentityServer4.Validation
                 if (jwtRequestValidationResult.IsError)
                 {
                     LogError("request JWT validation failure", request);
-                    return Invalid(request, description: "Invalid JWT request");
+                    return Invalid(request, error: OidcConstants.AuthorizeErrors.InvalidRequestObject, description: "Invalid JWT request");
                 }
 
                 // validate response_type match
@@ -254,7 +259,7 @@ namespace IdentityServer4.Validation
                 else
                 {
                     LogError("client_id is missing in JWT payload", request);
-                    return Invalid(request, description: "Invalid JWT request");
+                    return Invalid(request, error: OidcConstants.AuthorizeErrors.InvalidRequestObject, description: "Invalid JWT request");
                 }
 
                 // merge jwt payload values into original request parameters
@@ -263,15 +268,15 @@ namespace IdentityServer4.Validation
                     var value = jwtRequestValidationResult.Payload[key];
 
                     // todo: overwrite or error?
-                    // var qsValue = request.Raw.Get(key);
-                    // if (qsValue != null)
-                    // {
-                    //     if (!string.Equals(value, qsValue, StringComparison.Ordinal))
-                    //     {
-                    //         LogError("parameter mismatch between request object and query string parameter.", request);
-                    //         return Invalid(request, description: "Invalid JWT request");
-                    //     }
-                    // }
+                    var qsValue = request.Raw.Get(key);
+                    if (qsValue != null)
+                    {
+                        if (!string.Equals(value, qsValue, StringComparison.Ordinal))
+                        {
+                            LogError("parameter mismatch between request object and query string parameter.", request);
+                            return Invalid(request, description: "Parameter mismatch in JWT request");
+                        }
+                    }
 
                     request.Raw.Set(key, value);
                 }

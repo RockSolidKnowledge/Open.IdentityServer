@@ -44,10 +44,12 @@ namespace IdentityServer4.Services
             {
                 _logger.LogDebug("Success http response from jwt url {url}", url);
 
+                // todo: check for content-type of "application/oauth.authz.req+jwt"?
+                // this might break OIDC's 
                 var json = await response.Content.ReadAsStringAsync();
                 return json;
             }
-
+                
             _logger.LogError("Invalid http status code {status} from jwt url {url}", response.StatusCode, url);
 
             return null;
