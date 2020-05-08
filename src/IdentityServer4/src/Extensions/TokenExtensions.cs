@@ -45,9 +45,6 @@ namespace IdentityServer4.Extensions
                 payload.AddClaim(new Claim(JwtClaimTypes.Audience, aud));
             }
 
-            // iat claim as required by JWT profile
-            payload.AddClaim(new Claim(JwtClaimTypes.IssuedAt, clock.UtcNow.ToUnixTimeSeconds().ToString()));
-
             var amrClaims = token.Claims.Where(x => x.Type == JwtClaimTypes.AuthenticationMethod).ToArray();
             var scopeClaims = token.Claims.Where(x => x.Type == JwtClaimTypes.Scope).ToArray();
             var jsonClaims = token.Claims.Where(x => x.ValueType == IdentityServerConstants.ClaimValueTypes.Json).ToList();

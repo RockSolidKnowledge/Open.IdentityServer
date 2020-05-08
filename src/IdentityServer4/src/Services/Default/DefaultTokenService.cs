@@ -201,6 +201,10 @@ namespace IdentityServer4.Services
             {
                 claims.Add(new Claim(JwtClaimTypes.SessionId, request.ValidatedRequest.SessionId));
             }
+            
+            // iat claim as required by JWT profile
+            claims.Add(new Claim(JwtClaimTypes.IssuedAt, Clock.UtcNow.ToUnixTimeSeconds().ToString(),
+                ClaimValueTypes.Integer64));
 
             var issuer = ContextAccessor.HttpContext.GetIdentityServerIssuerUri();
             var token = new Token(OidcConstants.TokenTypes.AccessToken)
