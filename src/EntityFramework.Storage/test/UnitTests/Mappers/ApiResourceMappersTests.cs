@@ -5,7 +5,6 @@
 using System.Linq;
 using FluentAssertions;
 using IdentityServer4.EntityFramework.Mappers;
-using IdentityServer4.Models;
 using Xunit;
 using ApiResource = IdentityServer4.Models.ApiResource;
 

@@ -3,7 +3,6 @@
 
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.EntityFramework.Entities;

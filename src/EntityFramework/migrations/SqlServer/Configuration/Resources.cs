@@ -11,7 +11,8 @@ namespace Host.Configuration
 {
     public class Resources
     {
-        public static IEnumerable<IdentityResource> IdentityResources =
+        // identity resources represent identity data about a user that can be requested via the scope parameter (OpenID Connect)
+        public static readonly IEnumerable<IdentityResource> IdentityResources =
             new[]
             {
                 // some standard scopes from the OIDC spec
@@ -23,24 +24,41 @@ namespace Host.Configuration
                 new IdentityResource("custom.profile", new[] { JwtClaimTypes.Name, JwtClaimTypes.Email, "location" })
             };
 
-        public static IEnumerable<ApiResource> ApiResources = new[]
+        // API scopes represent values that describe scope of access and can be requested by the scope parameter (OAuth)
+        public static readonly IEnumerable<ApiScope> ApiScopes =
+            new[]
+            {
+                // local feature
+                new ApiScope(LocalApi.ScopeName),
+
+                // some generic scopes
+                new ApiScope("scope1"),
+                new ApiScope("scope2"), 
+                new ApiScope("scope3"),
+                new ApiScope("shared.scope"),
+
+                // used as a dynamic scope
+                new ApiScope("transaction")
+            };
+
+        // API resources are more formal representation of a resource with processing rules and their scopes (if any)
+        public static readonly IEnumerable<ApiResource> ApiResources = 
+            new[]
             {
                 // simple version with ctor
-                new ApiResource("api1", "Some API 1")
+                new ApiResource("resource1", "Resource 1")
                 {
-                    //// this is needed for introspection when using reference tokens
-                    //ApiSecrets = { new Secret("secret".Sha256()) },
+                    // this is needed for introspection when using reference tokens
+                    ApiSecrets = { new Secret("secret".Sha256()) },
 
                     //AllowedSigningAlgorithms = { "RS256", "ES256" }
 
-                    Scopes = { "feature1" }
+                    Scopes = { "scope1", "shared.scope" }
                 },
                 
                 // expanded version if more control is needed
-                new ApiResource
+                new ApiResource("resource2", "Resource 2")
                 {
-                    Name = "api2",
-
                     ApiSecrets =
                     {
                         new Secret("secret".Sha256())
@@ -54,20 +72,7 @@ namespace Host.Configuration
                         JwtClaimTypes.Email
                     },
 
-                    Scopes = { "feature2", "feature3" }
-                }
-            };
-
-        public static IEnumerable<ApiScope> ApiScopes = new[]
-            {
-                // local API
-                new ApiScope(LocalApi.ScopeName),
-                new ApiScope("feature1"),
-                new ApiScope("feature2"),
-                new ApiScope("feature3"),
-                new ApiScope
-                {
-                    Name = "transaction"
+                    Scopes = { "scope2", "shared.scope" }
                 }
             };
     }

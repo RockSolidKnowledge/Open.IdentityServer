@@ -9,6 +9,16 @@ namespace Host.Configuration
 {
     public static class ClientsWeb
     {
+        static string[] allowedScopes = 
+        {
+            IdentityServerConstants.StandardScopes.OpenId,
+            IdentityServerConstants.StandardScopes.Profile,
+            IdentityServerConstants.StandardScopes.Email,
+            "scope1", 
+            "scope2",
+            "transaction"
+        };
+        
         public static IEnumerable<Client> Get()
         {
             return new List<Client>
@@ -36,13 +46,7 @@ namespace Host.Configuration
                     PostLogoutRedirectUris = { "https://localhost:44300/index.html" },
                     AllowedCorsOrigins = { "https://localhost:44300" },
 
-                    AllowedScopes =
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature2"
-                    }
+                    AllowedScopes = allowedScopes
                 },
                 
                 ///////////////////////////////////////////
@@ -68,13 +72,7 @@ namespace Host.Configuration
 
                     AllowOfflineAccess = true,
 
-                    AllowedScopes =
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature2"
-                    }
+                    AllowedScopes = allowedScopes
                 },
                 
                 ///////////////////////////////////////////
@@ -100,14 +98,7 @@ namespace Host.Configuration
 
                     AllowOfflineAccess = true,
 
-                    AllowedScopes =
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature2", 
-                        "transaction"
-                    }
+                    AllowedScopes = allowedScopes
                 },
                 
                 ///////////////////////////////////////////
@@ -133,13 +124,7 @@ namespace Host.Configuration
 
                     AllowOfflineAccess = true,
 
-                    AllowedScopes =
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                        "feature1", "feature2"
-                    }
+                    AllowedScopes = allowedScopes
                 }
             };
         }

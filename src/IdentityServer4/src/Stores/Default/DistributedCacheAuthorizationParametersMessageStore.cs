@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Models;

@@ -188,11 +188,8 @@ namespace IdentityServer4.Services
             if (user != null)
             {
                 var subject = user.GetSubjectId();
-                var clients = await _userSession.GetClientListAsync();
-                foreach (var client in clients)
-                {
-                    await _grants.RemoveAllGrantsAsync(subject, client);
-                }
+                var sessionId = await _userSession.GetSessionIdAsync();
+                await _grants.RemoveAllGrantsAsync(subject, sessionId: sessionId);
             }
         }
     }

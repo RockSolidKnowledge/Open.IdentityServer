@@ -1,7 +1,5 @@
 using System;
-using System.Threading.Tasks;
 using IdentityServer4.Models;
-using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityServer4.Quickstart.UI

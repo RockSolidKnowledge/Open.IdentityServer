@@ -11,7 +11,6 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using JsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
 

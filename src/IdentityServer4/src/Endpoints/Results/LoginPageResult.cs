@@ -13,7 +13,6 @@ using IdentityServer4.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using IdentityServer4.Stores;
 using IdentityServer4.Models;
-using System.Collections.Specialized;
 
 namespace IdentityServer4.Endpoints.Results
 {

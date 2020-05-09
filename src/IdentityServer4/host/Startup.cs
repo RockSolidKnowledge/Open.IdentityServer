@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 using Host.Extensions;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.HttpOverrides;
-using IdentityServer4.Validation;
 
 namespace Host
 {

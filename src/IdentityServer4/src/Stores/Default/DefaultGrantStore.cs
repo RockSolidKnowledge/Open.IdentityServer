@@ -196,7 +196,12 @@ namespace IdentityServer4.Stores
         /// <returns></returns>
         protected virtual async Task RemoveAllAsync(string subjectId, string clientId)
         {
-            await Store.RemoveAllAsync(subjectId, clientId, GrantType);
+            await Store.RemoveAllAsync(new PersistedGrantFilter
+            {
+                SubjectId = subjectId,
+                ClientId = clientId,
+                Type = GrantType
+            });
         }
     }
 }

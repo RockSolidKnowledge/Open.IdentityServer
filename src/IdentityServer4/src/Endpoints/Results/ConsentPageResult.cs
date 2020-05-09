@@ -12,7 +12,6 @@ using IdentityServer4.Validation;
 using IdentityServer4.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using IdentityServer4.Stores;
-using System.Collections.Specialized;
 using IdentityServer4.Models;
 
 namespace IdentityServer4.Endpoints.Results

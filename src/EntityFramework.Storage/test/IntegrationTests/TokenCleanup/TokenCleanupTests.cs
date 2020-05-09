@@ -12,7 +12,6 @@ using IdentityServer4.Stores;
 using IdentityServer4.Test;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace IdentityServer4.EntityFramework.IntegrationTests.TokenCleanup

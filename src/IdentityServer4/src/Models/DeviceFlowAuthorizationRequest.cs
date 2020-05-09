@@ -3,7 +3,6 @@
 
 
 using IdentityServer4.Validation;
-using System.Collections.Generic;
 
 namespace IdentityServer4.Models
 {

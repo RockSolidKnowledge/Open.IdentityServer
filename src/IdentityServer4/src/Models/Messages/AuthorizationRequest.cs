@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Extensions;
 using IdentityServer4.Validation;
 using System.Collections.Generic;
 using System.Collections.Specialized;

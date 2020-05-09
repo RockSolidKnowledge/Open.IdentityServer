@@ -28,11 +28,11 @@ namespace IdentityServer4.Stores
         Task<PersistedGrant> GetAsync(string key);
 
         /// <summary>
-        /// Gets all grants for a given subject id.
+        /// Gets all grants based on the filter.
         /// </summary>
-        /// <param name="subjectId">The subject identifier.</param>
+        /// <param name="filter">The filter.</param>
         /// <returns></returns>
-        Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId);
+        Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter);
 
         /// <summary>
         /// Removes the grant by key.
@@ -42,20 +42,10 @@ namespace IdentityServer4.Stores
         Task RemoveAsync(string key);
 
         /// <summary>
-        /// Removes all grants for a given subject id and client id combination.
+        /// Removes all grants based on the filter.
         /// </summary>
-        /// <param name="subjectId">The subject identifier.</param>
-        /// <param name="clientId">The client identifier.</param>
+        /// <param name="filter">The filter.</param>
         /// <returns></returns>
-        Task RemoveAllAsync(string subjectId, string clientId);
-
-        /// <summary>
-        /// Removes all grants of a give type for a given subject id and client id combination.
-        /// </summary>
-        /// <param name="subjectId">The subject identifier.</param>
-        /// <param name="clientId">The client identifier.</param>
-        /// <param name="type">The type.</param>
-        /// <returns></returns>
-        Task RemoveAllAsync(string subjectId, string clientId, string type);
+        Task RemoveAllAsync(PersistedGrantFilter filter);
     }
 }

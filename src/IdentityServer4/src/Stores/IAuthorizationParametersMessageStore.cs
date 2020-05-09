@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using IdentityServer4.Models;
-using System.Collections.Specialized;
 using System.Threading.Tasks;
 
 namespace IdentityServer4.Stores

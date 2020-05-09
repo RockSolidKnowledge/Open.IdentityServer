@@ -9,7 +9,6 @@ using IdentityServer4.Configuration;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Extensions

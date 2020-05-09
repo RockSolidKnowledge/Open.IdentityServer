@@ -12,7 +12,6 @@ using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.EntityFramework.Options;
 using IdentityServer4.EntityFramework.Stores;
 using IdentityServer4.Models;
-using IdentityServer4.Stores;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 

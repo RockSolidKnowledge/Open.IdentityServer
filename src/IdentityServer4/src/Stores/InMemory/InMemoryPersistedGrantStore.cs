@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System;
 
 namespace IdentityServer4.Stores
 {
@@ -17,11 +19,7 @@ namespace IdentityServer4.Stores
     {
         private readonly ConcurrentDictionary<string, PersistedGrant> _repository = new ConcurrentDictionary<string, PersistedGrant>();
 
-        /// <summary>
-        /// Stores the grant.
-        /// </summary>
-        /// <param name="grant">The grant.</param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public Task StoreAsync(PersistedGrant grant)
         {
             _repository[grant.Key] = grant;
@@ -29,11 +27,7 @@ namespace IdentityServer4.Stores
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Gets the grant.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public Task<PersistedGrant> GetAsync(string key)
         {
             PersistedGrant token;
@@ -45,27 +39,17 @@ namespace IdentityServer4.Stores
             return Task.FromResult<PersistedGrant>(null);
         }
 
-        /// <summary>
-        /// Gets all grants for a given subject id.
-        /// </summary>
-        /// <param name="subjectId">The subject identifier.</param>
-        /// <returns></returns>
-        public Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId)
+        /// <inheritdoc/>
+        public Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
         {
-            var query =
-                from item in _repository
-                where item.Value.SubjectId == subjectId
-                select item.Value;
-
-            var items = query.ToArray().AsEnumerable();
+            filter.Validate();
+            
+            var items = Filter(filter);
+            
             return Task.FromResult(items);
         }
 
-        /// <summary>
-        /// Removes the grant by key.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public Task RemoveAsync(string key)
         {
             _repository.TryRemove(key, out _);
@@ -73,52 +57,46 @@ namespace IdentityServer4.Stores
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Removes all grants for a given subject id and client id combination.
-        /// </summary>
-        /// <param name="subjectId">The subject identifier.</param>
-        /// <param name="clientId">The client identifier.</param>
-        /// <returns></returns>
-        public Task RemoveAllAsync(string subjectId, string clientId)
+        /// <inheritdoc/>
+        public Task RemoveAllAsync(PersistedGrantFilter filter)
         {
-            var query =
-                from item in _repository
-                where item.Value.ClientId == clientId &&
-                    item.Value.SubjectId == subjectId
-                select item.Key;
+            filter.Validate();
 
-            var keys = query.ToArray();
-            foreach (var key in keys)
+            var items = Filter(filter);
+            
+            foreach (var item in items)
             {
-                _repository.TryRemove(key, out _);
+                _repository.TryRemove(item.Key, out _);
             }
 
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Removes all grants of a give type for a given subject id and client id combination.
-        /// </summary>
-        /// <param name="subjectId">The subject identifier.</param>
-        /// <param name="clientId">The client identifier.</param>
-        /// <param name="type">The type.</param>
-        /// <returns></returns>
-        public Task RemoveAllAsync(string subjectId, string clientId, string type)
+        private IEnumerable<PersistedGrant> Filter(PersistedGrantFilter filter)
         {
             var query =
                 from item in _repository
-                where item.Value.SubjectId == subjectId &&
-                    item.Value.ClientId == clientId &&
-                    item.Value.Type == type
-                select item.Key;
+                select item.Value;
 
-            var keys = query.ToArray();
-            foreach (var key in keys)
+            if (!String.IsNullOrWhiteSpace(filter.ClientId))
             {
-                _repository.TryRemove(key, out _);
+                query = query.Where(x => x.ClientId == filter.ClientId);
+            }
+            if (!String.IsNullOrWhiteSpace(filter.SessionId))
+            {
+                query = query.Where(x => x.SessionId == filter.SessionId);
+            }
+            if (!String.IsNullOrWhiteSpace(filter.SubjectId))
+            {
+                query = query.Where(x => x.SubjectId == filter.SubjectId);
+            }
+            if (!String.IsNullOrWhiteSpace(filter.Type))
+            {
+                query = query.Where(x => x.Type == filter.Type);
             }
 
-            return Task.CompletedTask;
+            var items = query.ToArray().AsEnumerable();
+            return items;
         }
     }
 }
