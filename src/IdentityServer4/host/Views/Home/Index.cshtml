@@ -1,5 +1,8 @@
+@using System.Reflection
+@using System.Diagnostics
+
 @{
-    var version = typeof(IdentityServer4.Hosting.IdentityServerMiddleware).Assembly.GetName().Version.ToString();
+    var version = FileVersionInfo.GetVersionInfo(typeof(IdentityServer4.Hosting.IdentityServerMiddleware).Assembly.Location).ProductVersion.Split('+').First();
 }
 
 <div class="welcome-page">
