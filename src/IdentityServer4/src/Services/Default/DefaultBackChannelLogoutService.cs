@@ -84,23 +84,23 @@ namespace IdentityServer4.Services
         /// <summary>
         /// Sends the logout notifications for the collection of clients.
         /// </summary>
-        /// <param name="clients"></param>
+        /// <param name="requests"></param>
         /// <returns></returns>
-        protected virtual Task SendLogoutNotificationsAsync(IEnumerable<BackChannelLogoutRequest> clients)
+        protected virtual Task SendLogoutNotificationsAsync(IEnumerable<BackChannelLogoutRequest> requests)
         {
-            clients = clients ?? Enumerable.Empty<BackChannelLogoutRequest>();
-            var tasks = clients.Select(SendLogoutNotificationAsync).ToArray();
+            requests = requests ?? Enumerable.Empty<BackChannelLogoutRequest>();
+            var tasks = requests.Select(SendLogoutNotificationAsync).ToArray();
             return Task.WhenAll(tasks);
         }
 
         /// <summary>
         /// Performs the back-channel logout for a single client.
         /// </summary>
-        /// <param name="client"></param>
-        protected virtual async Task SendLogoutNotificationAsync(BackChannelLogoutRequest client)
+        /// <param name="request"></param>
+        protected virtual async Task SendLogoutNotificationAsync(BackChannelLogoutRequest request)
         {
-            var data = await CreateFormPostPayloadAsync(client);
-            await PostLogoutJwt(client, data);
+            var data = await CreateFormPostPayloadAsync(request);
+            await PostLogoutJwt(request, data);
         }
 
         /// <summary>
@@ -117,11 +117,11 @@ namespace IdentityServer4.Services
         /// <summary>
         /// Creates the form-url-encoded payload (as a dictionary) to send to the client.
         /// </summary>
-        /// <param name="client"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
-        protected async Task<Dictionary<string, string>> CreateFormPostPayloadAsync(BackChannelLogoutRequest client)
+        protected async Task<Dictionary<string, string>> CreateFormPostPayloadAsync(BackChannelLogoutRequest request)
         {
-            var token = await CreateTokenAsync(client);
+            var token = await CreateTokenAsync(request);
 
             var data = new Dictionary<string, string>
             {
@@ -133,11 +133,11 @@ namespace IdentityServer4.Services
         /// <summary>
         /// Creates the JWT used for the back-channel logout notification.
         /// </summary>
-        /// <param name="client"></param>
+        /// <param name="request"></param>
         /// <returns>The token.</returns>
-        protected virtual async Task<string> CreateTokenAsync(BackChannelLogoutRequest client)
+        protected virtual async Task<string> CreateTokenAsync(BackChannelLogoutRequest request)
         {
-            var claims = await CreateClaimsForTokenAsync(client);
+            var claims = await CreateClaimsForTokenAsync(request);
             if (claims.Any(x => x.Type == JwtClaimTypes.Nonce))
             {
                 throw new InvalidOperationException("nonce claim is not allowed in the back-channel signout token.");
@@ -149,24 +149,29 @@ namespace IdentityServer4.Services
         /// <summary>
         /// Create the claims to be used in the back-channel logout token.
         /// </summary>
-        /// <param name="client"></param>
+        /// <param name="request"></param>
         /// <returns>The claims to include in the token.</returns>
-        protected Task<IEnumerable<Claim>> CreateClaimsForTokenAsync(BackChannelLogoutRequest client)
+        protected Task<IEnumerable<Claim>> CreateClaimsForTokenAsync(BackChannelLogoutRequest request)
         {
+            if (request.SessionIdRequired && request.SessionId == null)
+            {
+                throw new ArgumentException("Client requires SessionId", nameof(request.SessionId));
+            }
+
             var json = "{\"" + OidcConstants.Events.BackChannelLogout + "\":{} }";
 
             var claims = new List<Claim>
             {
-                new Claim(JwtClaimTypes.Subject, client.SubjectId),
-                new Claim(JwtClaimTypes.Audience, client.ClientId),
+                new Claim(JwtClaimTypes.Subject, request.SubjectId),
+                new Claim(JwtClaimTypes.Audience, request.ClientId),
                 new Claim(JwtClaimTypes.IssuedAt, Clock.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
                 new Claim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)),
                 new Claim(JwtClaimTypes.Events, json, IdentityServerConstants.ClaimValueTypes.Json)
             };
 
-            if (client.SessionIdRequired)
+            if (request.SessionId != null)
             {
-                claims.Add(new Claim(JwtClaimTypes.SessionId, client.SessionId));
+                claims.Add(new Claim(JwtClaimTypes.SessionId, request.SessionId));
             }
 
             return Task.FromResult(claims.AsEnumerable());
