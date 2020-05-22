@@ -197,7 +197,7 @@ namespace IdentityServer4.Validation
                 foreach (var uri in context.Client.PostLogoutRedirectUris)
                 {
                     if (_options.Validation.InvalidRedirectUriPrefixes
-                            .Any(scheme => uri.StartsWith(scheme, StringComparison.OrdinalIgnoreCase)))
+                            .Any(scheme => uri?.StartsWith(scheme, StringComparison.OrdinalIgnoreCase) == true))
                     {
                         context.SetError($"PostLogoutRedirectUri '{uri}' uses invalid scheme. If this scheme should be allowed, then configure it via ValidationOptions.");
                     }

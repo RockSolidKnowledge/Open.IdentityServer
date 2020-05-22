@@ -245,13 +245,60 @@ namespace IdentityServer.UnitTests.Validation
                 ClientSecrets = { new Secret("hash") },
                 AllowedScopes = { "foo" },
                 RedirectUris = null,
-                PostLogoutRedirectUris = null
             };
 
             var context = await ValidateAsync(client);
             context.IsValid.Should().BeTrue();
         }
 
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task null_post_logout_redirect_uris_collection_should_succeed()
+        {
+            var client = new Client
+            {
+                ClientId = "id",
+                AllowedGrantTypes = GrantTypes.ClientCredentials,
+                ClientSecrets = { new Secret("hash") },
+                AllowedScopes = { "foo" },
+                PostLogoutRedirectUris = null
+            };
+
+            var context = await ValidateAsync(client);
+            context.IsValid.Should().BeTrue();
+        }
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task null_redirect_uris_should_succeed()
+        {
+            var client = new Client
+            {
+                ClientId = "id",
+                AllowedGrantTypes = GrantTypes.ClientCredentials,
+                ClientSecrets = { new Secret("hash") },
+                AllowedScopes = { "foo" },
+                RedirectUris = { null }
+            };
+
+            var context = await ValidateAsync(client);
+            context.IsValid.Should().BeTrue();
+        }
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task null_post_logout_redirect_uris_should_succeed()
+        {
+            var client = new Client
+            {
+                ClientId = "id",
+                AllowedGrantTypes = GrantTypes.ClientCredentials,
+                ClientSecrets = { new Secret("hash") },
+                AllowedScopes = { "foo" },
+                PostLogoutRedirectUris = { null }
+            };
+
+            var context = await ValidateAsync(client);
+            context.IsValid.Should().BeTrue();
+        }
         [Fact]
         [Trait("Category", Category)]
         public async Task empty_redirect_uris_collection_should_succeed()
@@ -263,7 +310,22 @@ namespace IdentityServer.UnitTests.Validation
                 ClientSecrets = { new Secret("hash") },
                 AllowedScopes = { "foo" },
                 RedirectUris = { },
-                PostLogoutRedirectUris = { }
+            };
+
+            var context = await ValidateAsync(client);
+            context.IsValid.Should().BeTrue();
+        }
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task empty_post_logout_redirect_uris_collection_should_succeed()
+        {
+            var client = new Client
+            {
+                ClientId = "id",
+                AllowedGrantTypes = GrantTypes.ClientCredentials,
+                ClientSecrets = { new Secret("hash") },
+                AllowedScopes = { "foo" },
+                PostLogoutRedirectUris = { },
             };
 
             var context = await ValidateAsync(client);
