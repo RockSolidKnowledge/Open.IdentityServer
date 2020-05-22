@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Validation;
 using System.Collections.Generic;
+using System;
 
 namespace IdentityServer4.Quickstart.UI
 {
@@ -229,11 +230,16 @@ namespace IdentityServer4.Quickstart.UI
 
         public ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check)
         {
+            var displayName = apiScope.DisplayName ?? apiScope.Name;
+            if (!String.IsNullOrWhiteSpace(parsedScopeValue.ParameterValue))
+            {
+                displayName += ":" + parsedScopeValue.ParameterValue;
+            }
+
             return new ScopeViewModel
             {
                 Value = parsedScopeValue.Value,
-                // todo: use the parsed scope value in the display?
-                DisplayName = apiScope.DisplayName ?? apiScope.Name,
+                DisplayName = displayName,
                 Description = apiScope.Description,
                 Emphasize = apiScope.Emphasize,
                 Required = apiScope.Required,

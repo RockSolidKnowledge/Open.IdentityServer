@@ -38,7 +38,10 @@ namespace Host.Configuration
                 new ApiScope("shared.scope"),
 
                 // used as a dynamic scope
-                new ApiScope("transaction")
+                new ApiScope("transaction", "Transaction")
+                {
+                    Description = "Some Transaction"
+                }
             };
 
         // API resources are more formal representation of a resource with processing rules and their scopes (if any)
