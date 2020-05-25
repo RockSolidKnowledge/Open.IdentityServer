@@ -40,6 +40,12 @@ namespace IdentityServer4.Configuration
         /// Specifies whether scopes in JWTs are emitted as array or string
         /// </summary>
         public bool EmitScopesAsSpaceDelimitedStringInJwt { get; set; } = false;
+        
+        /// <summary>
+        /// Specifies whether the JWT typ and content-type for JWT secured authorization requests is checked according to IETF spec.
+        /// This might break older OIDC conformant request objects.
+        /// </summary>
+        public bool StrictJarValidation { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the endpoint configuration.

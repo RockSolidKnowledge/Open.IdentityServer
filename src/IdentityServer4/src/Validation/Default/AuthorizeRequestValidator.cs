@@ -27,7 +27,7 @@ namespace IdentityServer4.Validation
         private readonly IResourceValidator _resourceValidator;
         private readonly IUserSession _userSession;
         private readonly JwtRequestValidator _jwtRequestValidator;
-        private readonly JwtRequestUriHttpClient _jwtRequestUriHttpClient;
+        private readonly IJwtRequestUriHttpClient _jwtRequestUriHttpClient;
         private readonly ILogger _logger;
 
         private readonly ResponseTypeEqualityComparer
@@ -41,7 +41,7 @@ namespace IdentityServer4.Validation
             IResourceValidator resourceValidator,
             IUserSession userSession,
             JwtRequestValidator jwtRequestValidator,
-            JwtRequestUriHttpClient jwtRequestUriHttpClient,
+            IJwtRequestUriHttpClient jwtRequestUriHttpClient,
             ILogger<AuthorizeRequestValidator> logger)
         {
             _options = options;

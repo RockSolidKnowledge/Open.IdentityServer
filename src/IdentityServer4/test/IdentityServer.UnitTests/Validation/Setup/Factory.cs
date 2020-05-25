@@ -166,7 +166,7 @@ namespace IdentityServer.UnitTests.Validation.Setup
             IRedirectUriValidator uriValidator = null,
             IResourceValidator resourceValidator = null,
             JwtRequestValidator jwtRequestValidator = null,
-            JwtRequestUriHttpClient jwtRequestUriHttpClient = null)
+            IJwtRequestUriHttpClient jwtRequestUriHttpClient = null)
         {
             if (options == null)
             {
@@ -205,7 +205,7 @@ namespace IdentityServer.UnitTests.Validation.Setup
 
             if (jwtRequestUriHttpClient == null)
             {
-                jwtRequestUriHttpClient = new JwtRequestUriHttpClient(new HttpClient(new NetworkHandler(new Exception("no jwt request uri response configured"))), new LoggerFactory());
+                jwtRequestUriHttpClient = new DefaultJwtRequestUriHttpClient(new HttpClient(new NetworkHandler(new Exception("no jwt request uri response configured"))), options, new LoggerFactory());
             }
 
 

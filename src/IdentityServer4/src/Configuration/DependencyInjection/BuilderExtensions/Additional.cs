@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Net.Http;
 using IdentityServer4;
+using IdentityServer4.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -398,14 +399,15 @@ namespace Microsoft.Extensions.DependencyInjection
                         client.Timeout = TimeSpan.FromSeconds(IdentityServerConstants.HttpClients.DefaultTimeoutSeconds);
                     });
             }
-
-            builder.Services.AddTransient<JwtRequestUriHttpClient>(s =>
+            
+            builder.Services.AddTransient<IJwtRequestUriHttpClient, DefaultJwtRequestUriHttpClient>(s =>
             {
                 var httpClientFactory = s.GetRequiredService<IHttpClientFactory>();
                 var httpClient = httpClientFactory.CreateClient(name);
                 var loggerFactory = s.GetRequiredService<ILoggerFactory>();
+                var options = s.GetRequiredService<IdentityServerOptions>();
 
-                return new JwtRequestUriHttpClient(httpClient, loggerFactory);
+                return new DefaultJwtRequestUriHttpClient(httpClient, options, loggerFactory);
             });
 
             return httpBuilder;

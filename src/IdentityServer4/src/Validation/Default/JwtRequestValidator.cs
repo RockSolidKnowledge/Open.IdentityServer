@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4.Configuration;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Http;
@@ -56,13 +57,20 @@ namespace IdentityServer4.Validation
         /// The logger
         /// </summary>
         protected readonly ILogger Logger;
+        
+        /// <summary>
+        /// The optione
+        /// </summary>
+        protected readonly IdentityServerOptions Options;
 
         /// <summary>
         /// Instantiates an instance of private_key_jwt secret validator
         /// </summary>
-        public JwtRequestValidator(IHttpContextAccessor contextAccessor, ILogger<JwtRequestValidator> logger)
+        public JwtRequestValidator(IHttpContextAccessor contextAccessor, IdentityServerOptions options, ILogger<JwtRequestValidator> logger)
         {
             _httpContextAccessor = contextAccessor;
+            
+            Options = options;
             Logger = logger;
         }
 
@@ -169,10 +177,13 @@ namespace IdentityServer4.Validation
                 RequireExpirationTime = true
             };
 
+            if (Options.StrictJarValidation)
+            {
+                tokenValidationParameters.ValidTypes = new[] { JwtClaimTypes.JwtTypes.AuthorizationRequest };
+            }
+
             Handler.ValidateToken(jwtTokenString, tokenValidationParameters, out var token);
             
-            // todo: add validation for "typ" header
-
             return Task.FromResult((JwtSecurityToken)token);
         }
 
