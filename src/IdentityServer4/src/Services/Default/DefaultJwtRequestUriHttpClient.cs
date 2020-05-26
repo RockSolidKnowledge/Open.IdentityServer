@@ -25,6 +25,7 @@ namespace IdentityServer4.Services
         /// ctor
         /// </summary>
         /// <param name="client">An HTTP client</param>
+        /// <param name="options">The options.</param>
         /// <param name="loggerFactory">The logger factory</param>
         public DefaultJwtRequestUriHttpClient(HttpClient client, IdentityServerOptions options, ILoggerFactory loggerFactory)
         {

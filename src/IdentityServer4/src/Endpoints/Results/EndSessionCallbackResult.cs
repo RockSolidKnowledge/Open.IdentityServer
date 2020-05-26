@@ -12,7 +12,6 @@ using System.Net;
 using System;
 using IdentityServer4.Extensions;
 using IdentityServer4.Configuration;
-using System.Collections.Generic;
 
 namespace IdentityServer4.Endpoints.Results
 {

@@ -6,7 +6,6 @@ using System;
 using Host.Configuration;
 using IdentityModel;
 using IdentityServer4;
-using IdentityServer4.Quickstart.UI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +20,7 @@ using System.Threading.Tasks;
 using Host.Extensions;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.HttpOverrides;
+using Host.Quickstart.UI;
 
 namespace Host
 {

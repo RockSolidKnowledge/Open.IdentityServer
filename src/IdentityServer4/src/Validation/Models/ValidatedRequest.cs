@@ -10,7 +10,6 @@ using System.Security.Claims;
 using IdentityModel;
 using System.Linq;
 using System;
-using System.Linq.Expressions;
 
 namespace IdentityServer4.Validation
 {
