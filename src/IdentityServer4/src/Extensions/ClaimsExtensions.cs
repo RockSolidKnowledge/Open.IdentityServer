@@ -34,8 +34,7 @@ namespace IdentityServer4.Extensions
                 {
                     var value = d[claim.Type];
 
-                    var list = value as List<object>;
-                    if (list != null)
+                    if (value is List<object> list)
                     {
                         list.Add(GetValue(claim));
                     }
@@ -55,8 +54,7 @@ namespace IdentityServer4.Extensions
             if (claim.ValueType == ClaimValueTypes.Integer ||
                 claim.ValueType == ClaimValueTypes.Integer32)
             {
-                Int32 value;
-                if (Int32.TryParse(claim.Value, out value))
+                if (Int32.TryParse(claim.Value, out int value))
                 {
                     return value;
                 }
@@ -64,8 +62,7 @@ namespace IdentityServer4.Extensions
 
             if (claim.ValueType == ClaimValueTypes.Integer64)
             {
-                Int64 value;
-                if (Int64.TryParse(claim.Value, out value))
+                if (Int64.TryParse(claim.Value, out long value))
                 {
                     return value;
                 }
@@ -73,8 +70,7 @@ namespace IdentityServer4.Extensions
 
             if (claim.ValueType == ClaimValueTypes.Boolean)
             {
-                bool value;
-                if (bool.TryParse(claim.Value, out value))
+                if (bool.TryParse(claim.Value, out bool value))
                 {
                     return value;
                 }

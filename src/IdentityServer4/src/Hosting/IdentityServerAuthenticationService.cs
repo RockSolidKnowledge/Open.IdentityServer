@@ -62,7 +62,7 @@ namespace IdentityServer4.Hosting
             {
                 AugmentPrincipal(principal);
 
-                if (properties == null) properties = new AuthenticationProperties();
+                properties ??= new AuthenticationProperties();
                 await _session.CreateSessionIdAsync(principal, properties);
             }
 

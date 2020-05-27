@@ -112,7 +112,7 @@ namespace IdentityServer4.ResponseHandling
         /// </summary>
         /// <param name="scopes"></param>
         /// <returns></returns>
-        internal protected virtual async Task<ResourceValidationResult> GetRequestedResourcesAsync(IEnumerable<string> scopes)
+        protected internal virtual async Task<ResourceValidationResult> GetRequestedResourcesAsync(IEnumerable<string> scopes)
         {
             if (scopes == null || !scopes.Any())
             {
@@ -136,7 +136,7 @@ namespace IdentityServer4.ResponseHandling
         /// </summary>
         /// <param name="resourceValidationResult"></param>
         /// <returns></returns>
-        internal protected virtual Task<IEnumerable<string>> GetRequestedClaimTypesAsync(ResourceValidationResult resourceValidationResult)
+        protected internal virtual Task<IEnumerable<string>> GetRequestedClaimTypesAsync(ResourceValidationResult resourceValidationResult)
         {
             IEnumerable<string> result = null;
 

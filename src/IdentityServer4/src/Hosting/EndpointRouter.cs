@@ -49,16 +49,13 @@ namespace IdentityServer4.Hosting
         {
             if (_options.Endpoints.IsEndpointEnabled(endpoint))
             {
-                var handler = context.RequestServices.GetService(endpoint.Handler) as IEndpointHandler;
-                if (handler != null)
+                if (context.RequestServices.GetService(endpoint.Handler) is IEndpointHandler handler)
                 {
                     _logger.LogDebug("Endpoint enabled: {endpoint}, successfully created handler: {endpointHandler}", endpoint.Name, endpoint.Handler.FullName);
                     return handler;
                 }
-                else
-                {
-                    _logger.LogDebug("Endpoint enabled: {endpoint}, failed to create handler: {endpointHandler}", endpoint.Name, endpoint.Handler.FullName);
-                }
+
+                _logger.LogDebug("Endpoint enabled: {endpoint}, failed to create handler: {endpointHandler}", endpoint.Name, endpoint.Handler.FullName);
             }
             else
             {

@@ -30,7 +30,7 @@ namespace IdentityServer4.Validation
         /// <summary>
         /// JWT handler
         /// </summary>
-        protected JwtSecurityTokenHandler Handler = new JwtSecurityTokenHandler()
+        protected JwtSecurityTokenHandler Handler = new JwtSecurityTokenHandler
         {
             MapInboundClaims = false
         };
@@ -46,10 +46,8 @@ namespace IdentityServer4.Validation
                 {
                     return _audienceUri;
                 }
-                else
-                {
-                    return _httpContextAccessor.HttpContext.GetIdentityServerIssuerUri();
-                }
+
+                return _httpContextAccessor.HttpContext.GetIdentityServerIssuerUri();
             }
         }
 
@@ -202,17 +200,17 @@ namespace IdentityServer4.Validation
                 {
                     var value = token.Payload[key];
 
-                    if (value is string s)
+                    switch (value)
                     {
-                        payload.Add(key, s);
-                    }
-                    else if (value is JObject jobj)
-                    {
-                        payload.Add(key, jobj.ToString(Formatting.None));
-                    }
-                    else if (value is JArray jarr)
-                    {
-                        payload.Add(key, jarr.ToString(Formatting.None));
+                        case string s:
+                            payload.Add(key, s);
+                            break;
+                        case JObject jobj:
+                            payload.Add(key, jobj.ToString(Formatting.None));
+                            break;
+                        case JArray jarr:
+                            payload.Add(key, jarr.ToString(Formatting.None));
+                            break;
                     }
                 }
             }

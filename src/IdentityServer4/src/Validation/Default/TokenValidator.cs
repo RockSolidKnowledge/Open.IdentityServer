@@ -224,7 +224,7 @@ namespace IdentityServer4.Validation
                 var scope = result.Claims.FirstOrDefault(c => c.Type == JwtClaimTypes.Scope && c.Value == expectedScope);
                 if (scope == null)
                 {
-                    LogError(string.Format("Checking for expected scope {0} failed", expectedScope));
+                    LogError($"Checking for expected scope {expectedScope} failed");
                     return Invalid(OidcConstants.ProtectedResourceErrors.InsufficientScope);
                 }
             }
@@ -254,7 +254,7 @@ namespace IdentityServer4.Validation
             {
                 ValidIssuer = _context.HttpContext.GetIdentityServerIssuerUri(),
                 IssuerSigningKeys = validationKeys.Select(k => k.Key),
-                ValidateLifetime = validateLifetime,
+                ValidateLifetime = validateLifetime
             };
 
             if (audience.IsPresent())

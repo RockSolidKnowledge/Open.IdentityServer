@@ -42,16 +42,14 @@ namespace IdentityServer4.Services
                 {
                     return await _signingCredentialStores.First().GetSigningCredentialsAsync();
                 }
-                else
-                {
-                    var credential = (await GetAllSigningCredentialsAsync()).FirstOrDefault(c => allowedAlgorithms.Contains(c.Algorithm));
-                    if (credential is null)
-                    {
-                        throw new InvalidOperationException($"No signing credential for algorithms ({allowedAlgorithms}) registered.");
-                    }
 
-                    return credential;
+                var credential = (await GetAllSigningCredentialsAsync()).FirstOrDefault(c => allowedAlgorithms.Contains(c.Algorithm));
+                if (credential is null)
+                {
+                    throw new InvalidOperationException($"No signing credential for algorithms ({allowedAlgorithms}) registered.");
                 }
+
+                return credential;
             }
 
             return null;

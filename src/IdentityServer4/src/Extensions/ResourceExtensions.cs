@@ -127,10 +127,8 @@ namespace IdentityServer4.Models
                 {
                     return allowedAlgorithms.ToHashSet();
                 }
-                else
-                {
-                    throw new InvalidOperationException("Signing algorithms requirements for requested resources are not compatible.");
-                }
+
+                throw new InvalidOperationException("Signing algorithms requirements for requested resources are not compatible.");
             }
 
             return new List<string>();

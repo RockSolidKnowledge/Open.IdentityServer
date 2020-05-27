@@ -436,7 +436,7 @@ namespace IdentityServer4.Validation
             if (resourceOwnerContext.Result.IsError)
             {
                 // protect against bad validator implementations
-                resourceOwnerContext.Result.Error = resourceOwnerContext.Result.Error ?? OidcConstants.TokenErrors.InvalidGrant;
+                resourceOwnerContext.Result.Error ??= OidcConstants.TokenErrors.InvalidGrant;
 
                 if (resourceOwnerContext.Result.Error == OidcConstants.TokenErrors.UnsupportedGrantType)
                 {

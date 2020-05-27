@@ -105,7 +105,7 @@ namespace IdentityServer4.Stores
                 Logger.LogDebug("{grantType} grant with value: {key} not found in store.", GrantType, key);
             }
 
-            return default(T);
+            return default;
         }
 
         /// <summary>

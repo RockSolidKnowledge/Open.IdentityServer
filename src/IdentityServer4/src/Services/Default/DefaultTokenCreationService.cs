@@ -93,9 +93,9 @@ namespace IdentityServer4.Services
             var header = new JwtHeader(credential);
 
             // emit x5t claim for backwards compatibility with v4 of MS JWT library
-            if (credential.Key is X509SecurityKey x509key)
+            if (credential.Key is X509SecurityKey x509Key)
             {
-                var cert = x509key.Certificate;
+                var cert = x509Key.Certificate;
                 if (Clock.UtcNow.UtcDateTime > cert.NotAfter)
                 {
                     Logger.LogWarning("Certificate {subjectName} has expired on {expiration}", cert.Subject, cert.NotAfter.ToString(CultureInfo.InvariantCulture));

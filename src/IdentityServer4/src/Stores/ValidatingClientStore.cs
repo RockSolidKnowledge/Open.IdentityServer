@@ -63,13 +63,11 @@ namespace IdentityServer4.Stores
                     _logger.LogDebug("client configuration validation for client {clientId} succeeded.", client.ClientId);
                     return client;
                 }
-                else
-                {
-                    _logger.LogError("Invalid client configuration for client {clientId}: {errorMessage}", client.ClientId, context.ErrorMessage);
-                    await _events.RaiseAsync(new InvalidClientConfigurationEvent(client, context.ErrorMessage));
+
+                _logger.LogError("Invalid client configuration for client {clientId}: {errorMessage}", client.ClientId, context.ErrorMessage);
+                await _events.RaiseAsync(new InvalidClientConfigurationEvent(client, context.ErrorMessage));
                     
-                    return null;
-                }
+                return null;
             }
 
             return null;

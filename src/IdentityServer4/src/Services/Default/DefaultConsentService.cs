@@ -121,7 +121,7 @@ namespace IdentityServer4.Services
             if (consent.Scopes != null)
             {
                 var intersect = scopes.Intersect(consent.Scopes);
-                var different = !(scopes.Count() == intersect.Count());
+                var different = scopes.Count() != intersect.Count();
 
                 if (different)
                 {

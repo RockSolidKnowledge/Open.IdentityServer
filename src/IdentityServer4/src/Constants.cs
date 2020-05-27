@@ -315,7 +315,7 @@ namespace IdentityServer4
                 JwtClaimTypes.IssuedAt,
                 JwtClaimTypes.Issuer,
                 JwtClaimTypes.NotBefore,
-                JwtClaimTypes.JwtId,
+                JwtClaimTypes.JwtId
             };
         }
 

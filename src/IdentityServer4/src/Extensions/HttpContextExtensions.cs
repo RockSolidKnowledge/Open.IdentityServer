@@ -23,7 +23,7 @@ namespace IdentityServer4.Extensions
         {
             var provider = context.RequestServices.GetRequiredService<IAuthenticationHandlerProvider>();
             var handler = await provider.GetHandlerAsync(context, scheme);
-            return (handler != null && handler is IAuthenticationSignOutHandler);
+            return (handler is IAuthenticationSignOutHandler);
         }
 
         public static void SetIdentityServerOrigin(this HttpContext context, string value)

@@ -73,7 +73,7 @@ namespace IdentityServer4.Validation
         /// <returns></returns>
         public ResourceValidationResult Filter(IEnumerable<string> scopeValues)
         {
-            scopeValues = scopeValues ?? Enumerable.Empty<string>();
+            scopeValues ??= Enumerable.Empty<string>();
 
             var offline = scopeValues.Contains(IdentityServerConstants.StandardScopes.OfflineAccess);
 

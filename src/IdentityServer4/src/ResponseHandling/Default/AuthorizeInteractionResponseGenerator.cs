@@ -75,11 +75,14 @@ namespace IdentityServer4.ResponseHandling
                 // special case when anonymous user has issued an error prior to authenticating
                 Logger.LogInformation("Error: User consent result: {error}", consent.Error);
 
-                var error = consent.Error == AuthorizationError.AccountSelectionRequired ? OidcConstants.AuthorizeErrors.AccountSelectionRequired :
-                    consent.Error == AuthorizationError.ConsentRequired ? OidcConstants.AuthorizeErrors.ConsentRequired :
-                    consent.Error == AuthorizationError.InteractionRequired ? OidcConstants.AuthorizeErrors.InteractionRequired :
-                    consent.Error == AuthorizationError.LoginRequired ? OidcConstants.AuthorizeErrors.LoginRequired : 
-                        OidcConstants.AuthorizeErrors.AccessDenied;
+                var error = consent.Error switch
+                {
+                    AuthorizationError.AccountSelectionRequired => OidcConstants.AuthorizeErrors.AccountSelectionRequired,
+                    AuthorizationError.ConsentRequired => OidcConstants.AuthorizeErrors.ConsentRequired,
+                    AuthorizationError.InteractionRequired => OidcConstants.AuthorizeErrors.InteractionRequired,
+                    AuthorizationError.LoginRequired => OidcConstants.AuthorizeErrors.LoginRequired,
+                    _ => OidcConstants.AuthorizeErrors.AccessDenied
+                };
                 
                 return new InteractionResponse
                 {
@@ -280,12 +283,15 @@ namespace IdentityServer4.ResponseHandling
                         // build error to return to client
                         Logger.LogInformation("Error: User consent result: {error}", consent.Error);
 
-                        var error = consent.Error == AuthorizationError.AccountSelectionRequired ? OidcConstants.AuthorizeErrors.AccountSelectionRequired :
-                            consent.Error == AuthorizationError.ConsentRequired ? OidcConstants.AuthorizeErrors.ConsentRequired :
-                            consent.Error == AuthorizationError.InteractionRequired ? OidcConstants.AuthorizeErrors.InteractionRequired :
-                            consent.Error == AuthorizationError.LoginRequired ? OidcConstants.AuthorizeErrors.LoginRequired :
-                                OidcConstants.AuthorizeErrors.AccessDenied;
-
+                        var error = consent.Error switch
+                        {
+                            AuthorizationError.AccountSelectionRequired => OidcConstants.AuthorizeErrors.AccountSelectionRequired,
+                            AuthorizationError.ConsentRequired => OidcConstants.AuthorizeErrors.ConsentRequired,
+                            AuthorizationError.InteractionRequired => OidcConstants.AuthorizeErrors.InteractionRequired,
+                            AuthorizationError.LoginRequired => OidcConstants.AuthorizeErrors.LoginRequired,
+                            _ => OidcConstants.AuthorizeErrors.AccessDenied
+                        };
+                        
                         response.Error = error;
                         response.ErrorDescription = consent.ErrorDescription;
                     }

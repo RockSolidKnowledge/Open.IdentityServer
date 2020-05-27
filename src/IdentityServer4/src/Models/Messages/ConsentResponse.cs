@@ -83,7 +83,7 @@ namespace IdentityServer4.Models
         /// <summary>
         /// Consent required
         /// </summary>
-        ConsentRequired,
+        ConsentRequired
     }
 
 }

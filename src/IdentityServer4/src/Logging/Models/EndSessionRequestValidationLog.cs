@@ -25,13 +25,11 @@ namespace IdentityServer4.Logging.Models
             Raw = request.Raw.ToScrubbedDictionary(OidcConstants.EndSessionRequest.IdTokenHint);
 
             SubjectId = "unknown";
-            if (request.Subject != null)
+            
+            var subjectClaim = request.Subject?.FindFirst(JwtClaimTypes.Subject);
+            if (subjectClaim != null)
             {
-                var subjectClaim = request.Subject.FindFirst(JwtClaimTypes.Subject);
-                if (subjectClaim != null)
-                {
-                    SubjectId = subjectClaim.Value;
-                }
+                SubjectId = subjectClaim.Value;
             }
 
             if (request.Client != null)

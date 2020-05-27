@@ -178,10 +178,8 @@ namespace IdentityServer4.Endpoints
                 LogTokens(response);
                 return _events.RaiseAsync(new TokenIssuedSuccessEvent(response));
             }
-            else
-            {
-                return RaiseFailureEventAsync(response.Request, response.Error, response.ErrorDescription);
-            }
+
+            return RaiseFailureEventAsync(response.Request, response.Error, response.ErrorDescription);
         }
     }
 }

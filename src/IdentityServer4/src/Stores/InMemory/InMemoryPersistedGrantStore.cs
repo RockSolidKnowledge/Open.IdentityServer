@@ -30,8 +30,7 @@ namespace IdentityServer4.Stores
         /// <inheritdoc/>
         public Task<PersistedGrant> GetAsync(string key)
         {
-            PersistedGrant token;
-            if (_repository.TryGetValue(key, out token))
+            if (_repository.TryGetValue(key, out PersistedGrant token))
             {
                 return Task.FromResult(token);
             }

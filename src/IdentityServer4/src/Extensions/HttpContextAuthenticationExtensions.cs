@@ -56,7 +56,7 @@ namespace Microsoft.AspNetCore.Http
             var scheme = await schemes.GetDefaultAuthenticateSchemeAsync();
             if (scheme == null)
             {
-                throw new InvalidOperationException($"No DefaultAuthenticateScheme found or no CookieAuthenticationScheme configured on IdentityServerOptions.");
+                throw new InvalidOperationException("No DefaultAuthenticateScheme found or no CookieAuthenticationScheme configured on IdentityServerOptions.");
             }
 
             return scheme.Name;

@@ -22,11 +22,11 @@ namespace IdentityServer4.Extensions
         {
             var nvc = new NameValueCollection();
 
-            foreach (var item in source)
+            foreach ((string key, string[] strings) in source)
             {
-                foreach (var value in item.Value)
+                foreach (var value in strings)
                 {
-                    nvc.Add(item.Key, value);
+                    nvc.Add(key, value);
                 }
             }
 

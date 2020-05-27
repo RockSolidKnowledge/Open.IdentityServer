@@ -184,20 +184,17 @@ namespace IdentityServer4.ResponseHandling
                         {
                             return baseUrl + endpoint.Replace(Constants.ProtocolRoutePaths.ConnectPathPrefix, Constants.ProtocolRoutePaths.MtlsPathPrefix);
                         }
+
+                        // domain based
+                        if (Options.MutualTls.DomainName.Contains("."))
+                        {
+                            return $"https://{Options.MutualTls.DomainName}/{endpoint}";
+                        }
+                        // sub-domain based
                         else
                         {
-                            // domain based
-                            if (Options.MutualTls.DomainName.Contains("."))
-                            {
-                                return $"https://{Options.MutualTls.DomainName}/{endpoint}";
-                            }
-                            // sub-domain based
-                            else
-                            {
-
-                                var parts = baseUrl.Split("://");
-                                return $"https://{Options.MutualTls.DomainName}.{parts[1]}{endpoint}";
-                            }
+                            var parts = baseUrl.Split("://");
+                            return $"https://{Options.MutualTls.DomainName}.{parts[1]}{endpoint}";
                         }
                     }
                 }
@@ -339,24 +336,24 @@ namespace IdentityServer4.ResponseHandling
             // custom entries
             if (!Options.Discovery.CustomEntries.IsNullOrEmpty())
             {
-                foreach (var customEntry in Options.Discovery.CustomEntries)
+                foreach ((string key, object value) in Options.Discovery.CustomEntries)
                 {
-                    if (entries.ContainsKey(customEntry.Key))
+                    if (entries.ContainsKey(key))
                     {
-                        Logger.LogError("Discovery custom entry {key} cannot be added, because it already exists.", customEntry.Key);
+                        Logger.LogError("Discovery custom entry {key} cannot be added, because it already exists.", key);
                     }
                     else
                     {
-                        if (customEntry.Value is string customValueString)
+                        if (value is string customValueString)
                         {
                             if (customValueString.StartsWith("~/") && Options.Discovery.ExpandRelativePathsInCustomEntries)
                             {
-                                entries.Add(customEntry.Key, baseUrl + customValueString.Substring(2));
+                                entries.Add(key, baseUrl + customValueString.Substring(2));
                                 continue;
                             }
                         }
 
-                        entries.Add(customEntry.Key, customEntry.Value);
+                        entries.Add(key, value);
                     }
                 }
             }

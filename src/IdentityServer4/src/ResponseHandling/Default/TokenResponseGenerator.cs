@@ -139,13 +139,13 @@ namespace IdentityServer4.ResponseHandling
             //////////////////////////
             // access token
             /////////////////////////
-            (var accessToken, var refreshToken) = await CreateAccessTokenAsync(request.ValidatedRequest);
+            var (accessToken, refreshToken) = await CreateAccessTokenAsync(request.ValidatedRequest);
             var response = new TokenResponse
             {
                 AccessToken = accessToken,
                 AccessTokenLifetime = request.ValidatedRequest.AccessTokenLifetime,
                 Custom = request.CustomResponse,
-                Scope = request.ValidatedRequest.AuthorizationCode.RequestedScopes.ToSpaceSeparatedString(),
+                Scope = request.ValidatedRequest.AuthorizationCode.RequestedScopes.ToSpaceSeparatedString()
             };
 
             //////////////////////////

@@ -132,15 +132,17 @@ namespace IdentityServer4.Validation
 
         private string ConvertTokenErrorEnumToString(TokenRequestErrors error)
         {
-            if (error == TokenRequestErrors.InvalidClient) return OidcConstants.TokenErrors.InvalidClient;
-            if (error == TokenRequestErrors.InvalidGrant) return OidcConstants.TokenErrors.InvalidGrant;
-            if (error == TokenRequestErrors.InvalidRequest) return OidcConstants.TokenErrors.InvalidRequest;
-            if (error == TokenRequestErrors.InvalidScope) return OidcConstants.TokenErrors.InvalidScope;
-            if (error == TokenRequestErrors.UnauthorizedClient) return OidcConstants.TokenErrors.UnauthorizedClient;
-            if (error == TokenRequestErrors.UnsupportedGrantType) return OidcConstants.TokenErrors.UnsupportedGrantType;
-            if (error == TokenRequestErrors.InvalidTarget) return OidcConstants.TokenErrors.InvalidTarget;
-
-            throw new InvalidOperationException("invalid token error");
+            return error switch
+            {
+                TokenRequestErrors.InvalidClient => OidcConstants.TokenErrors.InvalidClient,
+                TokenRequestErrors.InvalidGrant => OidcConstants.TokenErrors.InvalidGrant,
+                TokenRequestErrors.InvalidRequest => OidcConstants.TokenErrors.InvalidRequest,
+                TokenRequestErrors.InvalidScope => OidcConstants.TokenErrors.InvalidScope,
+                TokenRequestErrors.UnauthorizedClient => OidcConstants.TokenErrors.UnauthorizedClient,
+                TokenRequestErrors.UnsupportedGrantType => OidcConstants.TokenErrors.UnsupportedGrantType,
+                TokenRequestErrors.InvalidTarget => OidcConstants.TokenErrors.InvalidTarget,
+                _ => throw new InvalidOperationException("invalid token error")
+            };
         }
     }
 }

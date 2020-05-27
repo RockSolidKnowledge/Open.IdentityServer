@@ -63,11 +63,11 @@ namespace IdentityServer4
         private IEnumerable<string> GetCookieNames()
         {
             var key = CookiePrefix;
-            foreach (var cookie in _context.HttpContext.Request.Cookies)
+            foreach ((string name, var _) in _context.HttpContext.Request.Cookies)
             {
-                if (cookie.Key.StartsWith(key))
+                if (name.StartsWith(key))
                 {
-                    yield return cookie.Key;
+                    yield return name;
                 }
             }
         }
@@ -91,7 +91,7 @@ namespace IdentityServer4
                     HttpOnly = true,
                     Secure = Secure,
                     Path = CookiePath,
-                    IsEssential = true,
+                    IsEssential = true
                     // don't need to set same-site since cookie is expected to be sent
                     // to only another page in this host. 
                 });
@@ -123,7 +123,7 @@ namespace IdentityServer4
             return null;
         }
 
-        internal protected void Clear(string id)
+        protected internal void Clear(string id)
         {
             var name = GetCookieFullName(id);
             ClearByCookieName(name);
@@ -140,7 +140,7 @@ namespace IdentityServer4
                     HttpOnly = true,
                     Secure = Secure,
                     Path = CookiePath,
-                    IsEssential = true,
+                    IsEssential = true
                 });
         }
 

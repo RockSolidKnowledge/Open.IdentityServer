@@ -97,7 +97,7 @@ namespace IdentityServer4.Extensions
                 {
                     if (payload.ContainsKey(group.Key))
                     {
-                        throw new Exception($"Can't add two claims where one is a JSON object and the other is not a JSON object ({@group.Key})");
+                        throw new Exception($"Can't add two claims where one is a JSON object and the other is not a JSON object ({group.Key})");
                     }
 
                     if (group.Skip(1).Any())
@@ -119,7 +119,7 @@ namespace IdentityServer4.Extensions
                     if (payload.ContainsKey(group.Key))
                     {
                         throw new Exception(
-                            $"Can't add two claims where one is a JSON array and the other is not a JSON array ({@group.Key})");
+                            $"Can't add two claims where one is a JSON array and the other is not a JSON array ({group.Key})");
                     }
 
                     var newArr = new List<JToken>();

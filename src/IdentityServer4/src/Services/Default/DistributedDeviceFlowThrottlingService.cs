@@ -21,7 +21,7 @@ namespace IdentityServer4.Services
         private readonly ISystemClock _clock;
         private readonly IdentityServerOptions _options;
 
-        private const string _keyPrefix = "devicecode_";
+        private const string KeyPrefix = "devicecode_";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DistributedDeviceFlowThrottlingService"/> class.
@@ -50,7 +50,7 @@ namespace IdentityServer4.Services
         {
             if (deviceCode == null) throw new ArgumentNullException(nameof(deviceCode));
             
-            var key = _keyPrefix + deviceCode;
+            var key = KeyPrefix + deviceCode;
             var options = new DistributedCacheEntryOptions {AbsoluteExpiration = _clock.UtcNow.AddSeconds(details.Lifetime)};
 
             var lastSeenAsString = await _cache.GetStringAsync(key);

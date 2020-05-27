@@ -12,30 +12,19 @@ namespace IdentityServer4.Extensions
     {
         public static bool IsEndpointEnabled(this EndpointsOptions options, Endpoint endpoint)
         {
-            switch (endpoint?.Name)
+            return endpoint?.Name switch
             {
-                case EndpointNames.Authorize:
-                    return options.EnableAuthorizeEndpoint;
-                case EndpointNames.CheckSession:
-                    return options.EnableCheckSessionEndpoint;
-                case EndpointNames.DeviceAuthorization:
-                    return options.EnableDeviceAuthorizationEndpoint;
-                case EndpointNames.Discovery:
-                    return options.EnableDiscoveryEndpoint;
-                case EndpointNames.EndSession:
-                    return options.EnableEndSessionEndpoint;
-                case EndpointNames.Introspection:
-                    return options.EnableIntrospectionEndpoint;
-                case EndpointNames.Revocation:
-                    return options.EnableTokenRevocationEndpoint;
-                case EndpointNames.Token:
-                    return options.EnableTokenEndpoint;
-                case EndpointNames.UserInfo:
-                    return options.EnableUserInfoEndpoint;
-                default:
-                    // fall thru to true to allow custom endpoints
-                    return true;
-            }
+                EndpointNames.Authorize => options.EnableAuthorizeEndpoint,
+                EndpointNames.CheckSession => options.EnableCheckSessionEndpoint,
+                EndpointNames.DeviceAuthorization => options.EnableDeviceAuthorizationEndpoint,
+                EndpointNames.Discovery => options.EnableDiscoveryEndpoint,
+                EndpointNames.EndSession => options.EnableEndSessionEndpoint,
+                EndpointNames.Introspection => options.EnableIntrospectionEndpoint,
+                EndpointNames.Revocation => options.EnableTokenRevocationEndpoint,
+                EndpointNames.Token => options.EnableTokenEndpoint,
+                EndpointNames.UserInfo => options.EnableUserInfoEndpoint,
+                _ => true
+            };
         }
     }
 }

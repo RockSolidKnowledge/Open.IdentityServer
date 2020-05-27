@@ -114,7 +114,7 @@ namespace IdentityServer4.Services
         {
             Logger.LogDebug("Getting claims for access token for client: {clientId}", request.Client.ClientId);
 
-            var outputClaims = new List<Claim>()
+            var outputClaims = new List<Claim>
             {
                 new Claim(JwtClaimTypes.ClientId, request.ClientId)
             };

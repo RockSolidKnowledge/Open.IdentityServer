@@ -107,7 +107,7 @@ namespace IdentityServer4
 
             SecurityAlgorithms.EcdsaSha256,
             SecurityAlgorithms.EcdsaSha384,
-            SecurityAlgorithms.EcdsaSha512,
+            SecurityAlgorithms.EcdsaSha512
         };
 
         public enum RsaSigningAlgorithm
@@ -119,7 +119,7 @@ namespace IdentityServer4
             PS256,
             PS384,
             PS512
-        };
+        }
 
         public enum ECDsaSigningAlgorithm
         {

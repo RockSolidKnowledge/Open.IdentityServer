@@ -37,8 +37,7 @@ namespace IdentityServer4.Validation
                 return fail;
             }
 
-            var cert = parsedSecret.Credential as X509Certificate2;
-            if (cert == null)
+            if (!(parsedSecret.Credential is X509Certificate2 cert))
             {
                 throw new InvalidOperationException("Credential is not a x509 certificate.");
             }
