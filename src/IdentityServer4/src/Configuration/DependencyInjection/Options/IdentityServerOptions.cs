@@ -125,6 +125,11 @@ namespace IdentityServer4.Configuration
         /// Gets or sets the device flow options.
         /// </summary>
         public DeviceFlowOptions DeviceFlow { get; set; } = new DeviceFlowOptions();
+        
+        /// <summary>
+        /// Gets or sets the logging options
+        /// </summary>
+        public LoggingOptions Logging { get; set; } = new LoggingOptions();
 
         /// <summary>
         /// Gets or sets the mutual TLS options.

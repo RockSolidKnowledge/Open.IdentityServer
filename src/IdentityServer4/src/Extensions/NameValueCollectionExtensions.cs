@@ -117,7 +117,7 @@ namespace IdentityServer4.Extensions
                 var value = collection.Get(name);
                 if (value != null)
                 {
-                    if (nameFilter.Contains(name))
+                    if (nameFilter.Contains(name, StringComparer.OrdinalIgnoreCase))
                     {
                         value = "***REDACTED***";
                     }

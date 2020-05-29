@@ -806,7 +806,7 @@ namespace IdentityServer4.Validation
 
         private void LogWithRequestDetails(LogLevel logLevel, string message = null, object values = null)
         {
-            var details = new TokenRequestValidationLog(_validatedRequest);
+            var details = new TokenRequestValidationLog(_validatedRequest, _options.Logging.TokenRequestSensitiveValuesFilter);
 
             if (message.IsPresent())
             {
