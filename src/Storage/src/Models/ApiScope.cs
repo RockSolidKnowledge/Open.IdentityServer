@@ -43,9 +43,9 @@ namespace IdentityServer4.Models
         /// Initializes a new instance of the <see cref="ApiScope"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <param name="claimTypes">The user-claim types.</param>
-        public ApiScope(string name, IEnumerable<string> claimTypes)
-            : this(name, name, claimTypes)
+        /// <param name="userClaims">List of associated user claims that should be included when this resource is requested.</param>
+        public ApiScope(string name, IEnumerable<string> userClaims)
+            : this(name, name, userClaims)
         {
         }
 
@@ -54,18 +54,18 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="displayName">The display name.</param>
-        /// <param name="claimTypes">The user-claim types.</param>
+        /// <param name="userClaims">List of associated user claims that should be included when this resource is requested.</param>
         /// <exception cref="System.ArgumentNullException">name</exception>
-        public ApiScope(string name, string displayName, IEnumerable<string> claimTypes)
+        public ApiScope(string name, string displayName, IEnumerable<string> userClaims)
         {
             if (name.IsMissing()) throw new ArgumentNullException(nameof(name));
 
             Name = name;
             DisplayName = displayName;
 
-            if (!claimTypes.IsNullOrEmpty())
+            if (!userClaims.IsNullOrEmpty())
             {
-                foreach (var type in claimTypes)
+                foreach (var type in userClaims)
                 {
                     UserClaims.Add(type);
                 }

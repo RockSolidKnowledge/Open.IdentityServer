@@ -24,9 +24,9 @@ namespace IdentityServer4.Models
         /// Initializes a new instance of the <see cref="IdentityResource"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <param name="claimTypes">The claim types.</param>
-        public IdentityResource(string name, IEnumerable<string> claimTypes)
-            : this(name, name, claimTypes)
+        /// <param name="userClaims">List of associated user claims that should be included when this resource is requested.</param>
+        public IdentityResource(string name, IEnumerable<string> userClaims)
+            : this(name, name, userClaims)
         {
         }
 
@@ -35,18 +35,18 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="displayName">The display name.</param>
-        /// <param name="claimTypes">The claim types.</param>
+        /// <param name="userClaims">List of associated user claims that should be included when this resource is requested.</param>
         /// <exception cref="System.ArgumentNullException">name</exception>
         /// <exception cref="System.ArgumentException">Must provide at least one claim type - claimTypes</exception>
-        public IdentityResource(string name, string displayName, IEnumerable<string> claimTypes)
+        public IdentityResource(string name, string displayName, IEnumerable<string> userClaims)
         {
             if (name.IsMissing()) throw new ArgumentNullException(nameof(name));
-            if (claimTypes.IsNullOrEmpty()) throw new ArgumentException("Must provide at least one claim type", nameof(claimTypes));
+            if (userClaims.IsNullOrEmpty()) throw new ArgumentException("Must provide at least one claim type", nameof(userClaims));
 
             Name = name;
             DisplayName = displayName;
 
-            foreach(var type in claimTypes)
+            foreach(var type in userClaims)
             {
                 UserClaims.Add(type);
             }

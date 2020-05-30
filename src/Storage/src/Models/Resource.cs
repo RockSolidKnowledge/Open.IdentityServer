@@ -15,26 +15,6 @@ namespace IdentityServer4.Models
     {
         private string DebuggerDisplay => Name ?? $"{{{typeof(Resource)}}}";
 
-        // todo: brock add this ?
-        ///// <summary>
-        ///// Ctor for Resource.
-        ///// </summary>
-        ///// <param name="name"></param>
-        ///// <param name="displayName"></param>
-        ///// <param name="claimTypes"></param>
-        //protected Resource(string name, string displayName, IEnumerable<string> claimTypes)
-        //{
-        //    if (name.IsMissing()) throw new ArgumentNullException(nameof(name));
-
-        //    Name = name;
-        //    DisplayName = displayName;
-
-        //    foreach (var type in claimTypes)
-        //    {
-        //        UserClaims.Add(type);
-        //    }
-        //}
-
         /// <summary>
         /// Indicates if this resource is enabled. Defaults to true.
         /// </summary>
@@ -61,7 +41,7 @@ namespace IdentityServer4.Models
         public bool ShowInDiscoveryDocument { get; set; } = true;
 
         /// <summary>
-        /// List of accociated user claims that should be included when this resource is requested.
+        /// List of associated user claims that should be included when this resource is requested.
         /// </summary>
         public ICollection<string> UserClaims { get; set; } = new HashSet<string>();
 
