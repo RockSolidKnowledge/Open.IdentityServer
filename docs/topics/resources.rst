@@ -143,7 +143,7 @@ that when a *write* scope gets granted, the *user_level* claim should be added t
     var writeScope = new ApiScope(
         name: "write",
         displayName: "Write your data.",
-        claimTypes: new[] { "user_level" });
+        userClaims: new[] { "user_level" });
 
 This will pass the *user_level* claim as a requested claim type to the profile service, 
 so that the consumer of the access token can use this data as input for authorization decisions or business logic.
@@ -242,3 +242,44 @@ Using the API resource grouping gives you the following additional features
 * support for adding common user claims across all contained scopes
 * support for introspection by assigning a API secret to the resource
 * support for configuring the access token signing algorithm for the resource
+
+Let's have a look at some example access tokens for the above resource configuration.
+
+**Client requests: invoice.read and invoice.pay**::
+
+    {
+        "typ": "at+jwt"
+    }.
+    {
+        "client_id": "client",
+        "sub": "123",
+
+        "aud": "invoice",
+        "scope": "invoice.read invoice.pay"
+    }
+
+**Client requests: invoice.read and customer.read**::
+
+    {
+        "typ": "at+jwt"
+    }.
+    {
+        "client_id": "client",
+        "sub": "123",
+
+        "aud": [ "invoice", "customer" ]
+        "scope": "invoice.read customer.read"
+    }
+
+**Client requests: manage**::
+
+    {
+        "typ": "at+jwt"
+    }.
+    {
+        "client_id": "client",
+        "sub": "123",
+
+        "aud": [ "invoice", "customer" ]
+        "scope": "manage"
+    }
