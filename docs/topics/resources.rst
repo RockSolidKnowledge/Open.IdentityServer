@@ -12,7 +12,7 @@ The two fundamental resource types in IdentityServer are:
 
 Identity Resources
 ------------------
-An identity resource is a named logical grouping of claims.
+An identity resource is a named logical grouping of claims and can be requested using the *scope* parameter.
 
 The OpenID Connect specification `suggests <https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims>`_ a couple of standard 
 scope name to claim type mappings that might be useful to you for inspiration, but you can freely design them yourself.
