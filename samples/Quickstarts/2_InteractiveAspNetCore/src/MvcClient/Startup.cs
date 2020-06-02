@@ -19,18 +19,18 @@ namespace MvcClient
                 options.DefaultScheme = "Cookies";
                 options.DefaultChallengeScheme = "oidc";
             })
-                .AddCookie("Cookies")
-                .AddOpenIdConnect("oidc", options =>
-                {
-                    options.Authority = "http://localhost:5000";
-                    options.RequireHttpsMetadata = false;
+            .AddCookie("Cookies")
+            .AddOpenIdConnect("oidc", options =>
+            {
+                options.Authority = "https://localhost:5001";
+                options.RequireHttpsMetadata = false;
 
-                    options.ClientId = "mvc";
-                    options.ClientSecret = "secret";
-                    options.ResponseType = "code";
+                options.ClientId = "mvc";
+                options.ClientSecret = "secret";
+                options.ResponseType = "code";
 
-                    options.SaveTokens = true;
-                });
+                options.SaveTokens = true;
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
