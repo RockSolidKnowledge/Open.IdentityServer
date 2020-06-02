@@ -35,35 +35,7 @@ In this scenario no interactive user is present - a service (aka client) wants t
         }
     }
 
-Defining browser-based JavaScript client (e.g. SPA) for user authentication and delegated access and API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This client uses the so called implicit flow to request an identity and access token from JavaScript::
-
-    var jsClient = new Client
-    {
-        ClientId = "js",
-        ClientName = "JavaScript Client",
-        ClientUri = "http://identityserver.io",
-
-        AllowedGrantTypes = GrantTypes.Implicit,
-        AllowAccessTokensViaBrowser = true,
-
-        RedirectUris =           { "http://localhost:7017/index.html" },
-        PostLogoutRedirectUris = { "http://localhost:7017/index.html" },
-        AllowedCorsOrigins =     { "http://localhost:7017" },
-
-        AllowedScopes = 
-        {
-            IdentityServerConstants.StandardScopes.OpenId,
-            IdentityServerConstants.StandardScopes.Profile,
-            IdentityServerConstants.StandardScopes.Email,
-            
-            "api1", "api2.read_only"
-        }
-    };
-
 .. _startClientsMVC:
-
 Defining a server-side web application (e.g. MVC) for use authentication and delegated API access
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Interactive server side (or native desktop/mobile) applications use the hybrid flow.
