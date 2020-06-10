@@ -22,7 +22,6 @@ namespace IdentityServer4.AspNetIdentity
         where TUser : class
     {
         private readonly SignInManager<TUser> _signInManager;
-        private IEventService _events;
         private readonly UserManager<TUser> _userManager;
         private readonly ILogger<ResourceOwnerPasswordValidator<TUser>> _logger;
 
@@ -31,17 +30,14 @@ namespace IdentityServer4.AspNetIdentity
         /// </summary>
         /// <param name="userManager">The user manager.</param>
         /// <param name="signInManager">The sign in manager.</param>
-        /// <param name="events">The events.</param>
         /// <param name="logger">The logger.</param>
         public ResourceOwnerPasswordValidator(
             UserManager<TUser> userManager,
             SignInManager<TUser> signInManager,
-            IEventService events,
             ILogger<ResourceOwnerPasswordValidator<TUser>> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _events = events;
             _logger = logger;
         }
 
@@ -52,7 +48,6 @@ namespace IdentityServer4.AspNetIdentity
         /// <returns></returns>
         public virtual async Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
         {
-            var clientId = context.Request?.Client?.ClientId;
             var user = await _userManager.FindByNameAsync(context.UserName);
             if (user != null)
             {
@@ -62,7 +57,6 @@ namespace IdentityServer4.AspNetIdentity
                     var sub = await _userManager.GetUserIdAsync(user);
 
                     _logger.LogInformation("Credentials validated for username: {username}", context.UserName);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(context.UserName, sub, context.UserName, false, clientId));
 
                     context.Result = new GrantValidationResult(sub, AuthenticationMethods.Password);
                     return;
@@ -70,23 +64,19 @@ namespace IdentityServer4.AspNetIdentity
                 else if (result.IsLockedOut)
                 {
                     _logger.LogInformation("Authentication failed for username: {username}, reason: locked out", context.UserName);
-                    await _events.RaiseAsync(new UserLoginFailureEvent(context.UserName, "locked out", false, clientId));
                 }
                 else if (result.IsNotAllowed)
                 {
                     _logger.LogInformation("Authentication failed for username: {username}, reason: not allowed", context.UserName);
-                    await _events.RaiseAsync(new UserLoginFailureEvent(context.UserName, "not allowed", false, clientId));
                 }
                 else
                 {
                     _logger.LogInformation("Authentication failed for username: {username}, reason: invalid credentials", context.UserName);
-                    await _events.RaiseAsync(new UserLoginFailureEvent(context.UserName, "invalid credentials", false, clientId));
                 }
             }
             else
             {
                 _logger.LogInformation("No user found matching username: {username}", context.UserName);
-                await _events.RaiseAsync(new UserLoginFailureEvent(context.UserName, "invalid username", false, clientId));
             }
 
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant);
