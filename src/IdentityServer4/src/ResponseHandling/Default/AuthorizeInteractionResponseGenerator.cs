@@ -92,6 +92,17 @@ namespace IdentityServer4.ResponseHandling
             }
 
             var result = await ProcessLoginAsync(request);
+
+            if (result.IsLogin && request.PromptModes.Contains(OidcConstants.PromptModes.None))
+            {
+                // prompt=none means do not show the UI
+                Logger.LogInformation("Changing response to LoginRequired: prompt=none was requested");
+                result = new InteractionResponse
+                {
+                    Error = OidcConstants.AuthorizeErrors.LoginRequired
+                };
+            }
+
             if (result.IsLogin || result.IsError)
             {
                 return result;
@@ -137,24 +148,6 @@ namespace IdentityServer4.ResponseHandling
 
             if (!isAuthenticated || !isActive)
             {
-                // prompt=none means user must be signed in already
-                if (request.PromptModes.Contains(OidcConstants.PromptModes.None))
-                {
-                    if (!isAuthenticated)
-                    {
-                        Logger.LogInformation("Showing error: prompt=none was requested but user is not authenticated");
-                    }
-                    else if (!isActive)
-                    {
-                        Logger.LogInformation("Showing error: prompt=none was requested but user is not active");
-                    }
-
-                    return new InteractionResponse
-                    {
-                        Error = OidcConstants.AuthorizeErrors.LoginRequired
-                    };
-                }
-
                 if (!isAuthenticated)
                 {
                     Logger.LogInformation("Showing login: User is not authenticated");
