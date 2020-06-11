@@ -433,8 +433,8 @@ namespace IdentityServer4.Validation
                     }
                     else
                     {
-                        LogError("Invalid response_mode for flow", responseMode, request);
-                        return Invalid(request, OidcConstants.AuthorizeErrors.UnsupportedResponseType, description: "Invalid response_mode");
+                        LogError("Invalid response_mode for response_type", responseMode, request);
+                        return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest, description: "Invalid response_mode for response_type");
                     }
                 }
                 else
