@@ -58,6 +58,14 @@ namespace IdentityServer4.Services
         /// The name of the check session cookie.
         /// </value>
         protected string CheckSessionCookieName => Options.Authentication.CheckSessionCookieName;
+        
+        /// <summary>
+        /// Gets the domain of the check session cookie.
+        /// </summary>
+        /// <value>
+        /// The domain of the check session cookie.
+        /// </value>
+        protected string CheckSessionCookieDomain => Options.Authentication.CheckSessionCookieDomain;
 
         /// <summary>
         /// The principal
@@ -229,6 +237,7 @@ namespace IdentityServer4.Services
                 Secure = secure,
                 Path = path,
                 IsEssential = true,
+                Domain = CheckSessionCookieDomain,
                 SameSite = SameSiteMode.None
             };
 

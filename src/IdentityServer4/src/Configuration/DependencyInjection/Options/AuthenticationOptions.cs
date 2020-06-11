@@ -45,6 +45,11 @@ namespace IdentityServer4.Configuration
         /// Gets or sets the name of the cookie used for the check session endpoint.
         /// </summary>
         public string CheckSessionCookieName { get; set; } = IdentityServerConstants.DefaultCheckSessionCookieName;
+        
+        /// <summary>
+        /// Gets or sets the domain of the cookie used for the check session endpoint. Defaults to null.
+        /// </summary>
+        public string CheckSessionCookieDomain { get; set; }
 
         /// <summary>
         /// If set, will require frame-src CSP headers being emitting on the end session callback endpoint which renders iframes to clients for front-channel signout notification.
