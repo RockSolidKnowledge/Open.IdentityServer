@@ -7,7 +7,7 @@ using IdentityServer4.Test;
 using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace Host.Quickstart.UI
+namespace IdentityServerHost.Quickstart.UI
 {
     public class TestUsers
     {

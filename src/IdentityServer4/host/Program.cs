@@ -10,12 +10,13 @@ using Serilog.Sinks.SystemConsole.Themes;
 using System;
 using System.Diagnostics;
 
-namespace Host
+namespace IdentityServerHost
 {
     public class Program
     {
         public static int Main(string[] args)
         {
+            Console.Title = "IdentityServer4";
             Activity.DefaultIdFormat = ActivityIdFormat.W3C;
 
             Log.Logger = new LoggerConfiguration()
@@ -54,7 +55,7 @@ namespace Host
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
+            Host.CreateDefaultBuilder(args)
                 .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

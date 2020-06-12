@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace Host.Extensions
+namespace IdentityServerHost.Extensions
 {
     public class ParameterizedScopeParser : DefaultScopeParser
     {

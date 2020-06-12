@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.Validation;
 
-namespace Host.Extensions
+namespace IdentityServerHost.Extensions
 {
     public class ParameterizedScopeTokenRequestValidator : ICustomTokenRequestValidator
     {

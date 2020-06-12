@@ -5,7 +5,7 @@
 using IdentityServer4.Models;
 using System.Collections.Generic;
 
-namespace Host.Configuration
+namespace IdentityServerHost.Configuration
 {
     public static class Clients
     {

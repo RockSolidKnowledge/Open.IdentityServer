@@ -6,7 +6,7 @@ using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using System.Threading.Tasks;
 
-namespace Host.Extensions
+namespace IdentityServerHost.Extensions
 {
     public class NoSubjectExtensionGrantValidator : IExtensionGrantValidator
     {

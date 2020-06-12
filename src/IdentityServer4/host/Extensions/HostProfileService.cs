@@ -5,7 +5,7 @@ using IdentityServer4.Models;
 using IdentityServer4.Test;
 using Microsoft.Extensions.Logging;
 
-namespace Host.Extensions
+namespace IdentityServerHost.Extensions
 {
     public class HostProfileService : TestUserProfileService
     {

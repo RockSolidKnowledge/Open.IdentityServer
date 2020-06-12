@@ -3,7 +3,7 @@
 
 
 using System;
-using Host.Configuration;
+using IdentityServerHost.Configuration;
 using IdentityModel;
 using IdentityServer4;
 using Microsoft.AspNetCore.Builder;
@@ -17,12 +17,12 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using Host.Extensions;
+using IdentityServerHost.Extensions;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.HttpOverrides;
-using Host.Quickstart.UI;
+using IdentityServerHost.Quickstart.UI;
 
-namespace Host
+namespace IdentityServerHost
 {
     public class Startup
     {

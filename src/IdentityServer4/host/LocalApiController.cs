@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using static IdentityServer4.IdentityServerConstants;
 
-namespace Host
+namespace IdentityServerHost
 {
     [Route("localApi")]
     [Authorize(LocalApi.PolicyName)]

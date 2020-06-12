@@ -1,4 +1,4 @@
-﻿using Host;
+﻿using IdentityServerHost;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 

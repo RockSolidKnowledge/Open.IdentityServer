@@ -18,7 +18,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Host.Quickstart.UI
+namespace IdentityServerHost.Quickstart.UI
 {
     /// <summary>
     /// This sample controller implements a typical login/logout/provision workflow for local and external accounts.

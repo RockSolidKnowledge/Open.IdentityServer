@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using IdentityServer4.EntityFramework;
 using IdentityServer4.EntityFramework.Entities;
 
-namespace Host
+namespace IdentityServerHost
 {
     public class TestOperationalStoreNotification : IOperationalStoreNotification
     {

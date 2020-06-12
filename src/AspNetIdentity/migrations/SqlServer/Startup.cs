@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
-using Host.Data;
+using IdentityServerHost.Data;
 using Microsoft.AspNetCore.Identity;
 using IdentityServer4.Models;
 

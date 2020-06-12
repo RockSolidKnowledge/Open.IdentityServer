@@ -4,12 +4,11 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using IdentityServer4.Quickstart.UI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using IdentityServerHost.Quickstart.UI;
 
-namespace Host
+namespace IdentityServerHost
 {
     public class Startup
     {

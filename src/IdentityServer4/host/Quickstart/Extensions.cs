@@ -2,7 +2,7 @@ using System;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Host.Quickstart.UI
+namespace IdentityServerHost.Quickstart.UI
 {
     public static class Extensions
     {
