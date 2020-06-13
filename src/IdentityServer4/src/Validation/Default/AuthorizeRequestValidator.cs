@@ -262,12 +262,19 @@ namespace IdentityServer4.Validation
                     return Invalid(request, error: OidcConstants.AuthorizeErrors.InvalidRequestObject, description: "Invalid JWT request");
                 }
 
+                var ignoreKeys = new[]
+                {
+                    JwtClaimTypes.Issuer,
+                    JwtClaimTypes.Audience
+                };
+
                 // merge jwt payload values into original request parameters
                 foreach (var key in jwtRequestValidationResult.Payload.Keys)
                 {
+                    if (ignoreKeys.Contains(key)) continue;
+                    
                     var value = jwtRequestValidationResult.Payload[key];
-
-                    // todo: overwrite or error?
+                    
                     var qsValue = request.Raw.Get(key);
                     if (qsValue != null)
                     {
