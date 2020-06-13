@@ -153,27 +153,46 @@ Parameterized Scopes
 Sometimes scopes have a certain structure, e.g. a scope name with an additional parameter: *transaction:id* or *read_patient:patientid*.
 
 In this case you would create a scope without the parameter part and assign that name to a client, but in addition provide some logic to parse the structure
-of the scope at runtime using the ``IResourceValidator`` interface, e.g.::
+of the scope at runtime using the ``IScopeParser`` interface or by deriving from our default implementation, e.g.::
 
-    public class ParameterizedScopeValidator : ResourceValidator
+    public class ParameterizedScopeParser : DefaultScopeParser
     {
-        public ParameterizedScopeValidator(IResourceStore store, ILogger<ResourceValidator> logger) : base(store, logger)
+        public ParameterizedScopeParser(ILogger<DefaultScopeParser> logger) : base(logger)
         {
         }
 
-        public override Task<ParsedScopeValue> ParseScopeValue(string scopeValue)
+        public override void ParseScopeValue(ParseScopeContext scopeContext)
         {
             const string transactionScopeName = "transaction";
             const string separator = ":";
             const string transactionScopePrefix = transactionScopeName + separator;
 
+            var scopeValue = scopeContext.RawValue;
+
             if (scopeValue.StartsWith(transactionScopePrefix))
             {
+                // we get in here with a scope like "transaction:something"
                 var parts = scopeValue.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                return Task.FromResult(new ParsedScopeValue(transactionScopeName, scopeValue, parts[1]));
+                if (parts.Length == 2)
+                {
+                    scopeContext.SetParsedValues(transactionScopeName, parts[1]);
+                }
+                else
+                {
+                    scopeContext.SetError("transaction scope missing transaction parameter value");
+                }
             }
-
-            return base.ParseScopeValue(scopeValue);
+            else if (scopeValue != transactionScopeName)
+            {
+                // we get in here with a scope not like "transaction"
+                base.ParseScopeValue(scopeContext);
+            }
+            else
+            {
+                // we get in here with a scope exactly "transaction", which is to say we're ignoring it 
+                // and not including it in the results
+                scopeContext.SetIgnore();
+            }
         }
     }
 
@@ -183,10 +202,10 @@ You then have access to the parsed value throughout the pipeline, e.g. in the pr
     {
         public override async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
-            var transaction = context.RequestedResources.ParsedScopes.FirstOrDefault(x => x.Name == "transaction");
-            if (transaction?.ParameterValue != null)
+            var transaction = context.RequestedResources.ParsedScopes.FirstOrDefault(x => x.ParsedName == "transaction");
+            if (transaction?.ParsedParameter != null)
             {
-                context.IssuedClaims.Add(new Claim("transaction_id", transaction.ParameterValue));
+                context.IssuedClaims.Add(new Claim("transaction_id", transaction.ParsedParameter));
             }
         }
     }
