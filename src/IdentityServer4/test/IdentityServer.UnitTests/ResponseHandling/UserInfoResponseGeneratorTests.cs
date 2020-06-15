@@ -5,8 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
+using IdentityModel;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4;
 using IdentityServer4.Models;
@@ -113,10 +115,21 @@ namespace IdentityServer.UnitTests.ResponseHandling
         {
             _identityResources.Add(new IdentityResource("id1", new[] { "foo" }));
             _identityResources.Add(new IdentityResource("id2", new[] { "bar" }));
+            
+            var address = new
+            {
+                street_address = "One Hacker Way",
+                locality = "Heidelberg",
+                postal_code = 69118,
+                country = "Germany"
+            };
+            
             _mockProfileService.ProfileClaims = new[]
             {
                 new Claim("email", "fred@gmail.com"),
-                new Claim("name", "fred jones")
+                new Claim("name", "fred jones"),
+                new Claim("address", @"{ 'street_address': 'One Hacker Way', 'locality': 'Heidelberg', 'postal_code': 69118, 'country': 'Germany' }", IdentityServerConstants.ClaimValueTypes.Json),
+                new Claim("address2", JsonSerializer.Serialize(address), IdentityServerConstants.ClaimValueTypes.Json)
             };
 
             var result = new UserInfoRequestValidationResult
@@ -140,6 +153,14 @@ namespace IdentityServer.UnitTests.ResponseHandling
             claims["email"].Should().Be("fred@gmail.com");
             claims.Should().ContainKey("name");
             claims["name"].Should().Be("fred jones");
+            
+            // this will be treated as a string because this is not valid JSON from the System.Text library point of view
+            claims.Should().ContainKey("address");
+            claims["address"].Should().Be("{ 'street_address': 'One Hacker Way', 'locality': 'Heidelberg', 'postal_code': 69118, 'country': 'Germany' }");
+            
+            // this is a JsonElement
+            claims.Should().ContainKey("address2");
+            claims["address2"].ToString().Should().Be("{\"street_address\":\"One Hacker Way\",\"locality\":\"Heidelberg\",\"postal_code\":69118,\"country\":\"Germany\"}");
         }
 
         [Fact]

@@ -21,7 +21,7 @@ namespace IdentityServerHost.Configuration
                 new IdentityResources.Email(),
 
                 // custom identity resource with some consolidated claims
-                new IdentityResource("custom.profile", new[] { JwtClaimTypes.Name, JwtClaimTypes.Email, "location" })
+                new IdentityResource("custom.profile", new[] { JwtClaimTypes.Name, JwtClaimTypes.Email, "location", JwtClaimTypes.Address })
             };
 
         // API scopes represent values that describe scope of access and can be requested by the scope parameter (OAuth)
