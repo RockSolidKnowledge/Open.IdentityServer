@@ -56,7 +56,7 @@ namespace IdentityServer4
                 }
             }
 
-            if (options.EmitLegacyResourceAudienceClaim)
+            if (options.EmitStaticAudienceClaim)
             {
                 claims.Add(new Claim(JwtClaimTypes.Audience, string.Format(IdentityServerConstants.AccessTokenAudience, tools.ContextAccessor.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash())));
             }

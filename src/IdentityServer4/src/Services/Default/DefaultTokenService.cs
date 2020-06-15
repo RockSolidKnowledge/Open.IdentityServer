@@ -225,7 +225,7 @@ namespace IdentityServer4.Services
                 token.Audiences.Add(aud);
             }
 
-            if (Options.EmitLegacyResourceAudienceClaim)
+            if (Options.EmitStaticAudienceClaim)
             {
                 token.Audiences.Add(string.Format(IdentityServerConstants.AccessTokenAudience, issuer.EnsureTrailingSlash()));
             }

@@ -34,7 +34,7 @@ namespace IdentityServer4.Configuration
         /// <summary>
         /// Emits an aud claim with the format issuer/resources. That's needed for some older access token validation plumbing. Defaults to false.
         /// </summary>
-        public bool EmitLegacyResourceAudienceClaim { get; set; } = false;
+        public bool EmitStaticAudienceClaim { get; set; } = false;
 
         /// <summary>
         /// Specifies whether scopes in JWTs are emitted as array or string
