@@ -15,8 +15,8 @@ IdentityServer Options
 * ``EmitScopesAsSpaceDelimitedStringInJwt``
     Specifies whether scopes in JWTs are emitted as array or string
 
-* ``EmitLegacyResourceAudienceClaim``
-    Emits an ``aud`` claim with the format issuer/resources. That's needed for some older access token validation plumbing. Defaults to false.
+* ``EmitStaticAudienceClaim``
+    Emits an ``aud`` claim with the format issuer/resources. Defaults to false.
 
 Endpoints
 ^^^^^^^^^
