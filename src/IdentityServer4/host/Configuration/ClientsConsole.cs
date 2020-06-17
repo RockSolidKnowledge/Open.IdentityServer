@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+
 using System.Collections.Generic;
 using IdentityServer4;
 using IdentityServer4.Models;
@@ -13,11 +14,6 @@ namespace IdentityServerHost.Configuration
         {
             return new List<Client>
             {
-                ///////////////////////////////////////////////////////////////
-                // Console-based Client
-                ///////////////////////////////////////////////////////////////
-
-
                 ///////////////////////////////////////////
                 // Console Client Credentials Flow Sample
                 //////////////////////////////////////////
@@ -117,9 +113,8 @@ namespace IdentityServerHost.Configuration
                         "resource1.scope1",
                         "resource2.scope1"
                     },
-                    
                     RefreshTokenUsage = TokenUsage.ReUse,
-                    AbsoluteRefreshTokenLifetime = 3600*24,
+                    AbsoluteRefreshTokenLifetime = 3600 * 24,
                     SlidingRefreshTokenLifetime = 10,
                     RefreshTokenExpiration = TokenExpiration.Sliding
                 },
