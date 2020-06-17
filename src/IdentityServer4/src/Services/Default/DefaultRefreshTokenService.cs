@@ -256,6 +256,8 @@ namespace IdentityServer4.Services
 
             if (needsCreate)
             {
+                // set it to null so that we save non-consumed token
+                refreshToken.ConsumedTime = null;
                 handle = await RefreshTokenStore.StoreRefreshTokenAsync(refreshToken);
                 Logger.LogDebug("Created refresh token in store");
             }

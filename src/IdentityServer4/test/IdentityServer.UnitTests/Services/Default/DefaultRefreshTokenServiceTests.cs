@@ -302,5 +302,44 @@ namespace IdentityServer.UnitTests.Services.Default
             newRefreshToken.Should().NotBeNull();
             newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
         }
+
+        [Fact]
+        public async Task UpdateRefreshToken_one_time_use_should_consume_token_and_create_new_one_with_correct_dates()
+        {
+            var client = new Client
+            {
+                ClientId = "client1",
+                RefreshTokenUsage = TokenUsage.OneTimeOnly
+            };
+
+            var refreshToken = new RefreshToken
+            {
+                CreationTime = DateTime.UtcNow,
+                Lifetime = 10,
+                AccessToken = new Token
+                {
+                    ClientId = client.ClientId,
+                    Audiences = { "aud" },
+                    CreationTime = DateTime.UtcNow,
+                    Claims = new List<Claim>()
+                    {
+                        new Claim("sub", "123")
+                    }
+                }
+            };
+
+            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+
+            var now = DateTime.UtcNow;
+            _clock.UtcNowFunc = () => now;
+
+            var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
+
+            var oldToken = await _store.GetRefreshTokenAsync(handle);
+            var newToken = await _store.GetRefreshTokenAsync(newHandle);
+
+            oldToken.ConsumedTime.Should().Be(now);
+            newToken.ConsumedTime.Should().BeNull();
+        }
     }
 }
