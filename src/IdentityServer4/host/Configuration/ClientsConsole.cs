@@ -116,7 +116,12 @@ namespace IdentityServerHost.Configuration
                         "custom.profile",
                         "resource1.scope1",
                         "resource2.scope1"
-                    }
+                    },
+                    
+                    RefreshTokenUsage = TokenUsage.ReUse,
+                    AbsoluteRefreshTokenLifetime = 3600*24,
+                    SlidingRefreshTokenLifetime = 10,
+                    RefreshTokenExpiration = TokenExpiration.Sliding
                 },
 
                 ///////////////////////////////////////////
