@@ -10,6 +10,9 @@ IdentityServer requires the request JWTs to be signed. We support X509 certifica
     var client = new Client
     {
         ClientId = "foo",
+        
+        // set this to true to accept signed requests only
+        RequireRequestObject = true,
 
         ClientSecrets = 
         {
