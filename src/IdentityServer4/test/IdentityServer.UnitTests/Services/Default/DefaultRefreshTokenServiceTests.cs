@@ -341,5 +341,200 @@ namespace IdentityServer.UnitTests.Services.Default
             oldToken.ConsumedTime.Should().Be(now);
             newToken.ConsumedTime.Should().BeNull();
         }
+        
+        [Fact]
+        public async Task ValidateRefreshToken_invalid_token_should_fail()
+        {
+            var client = new Client
+            {
+                ClientId = "client1",
+                RefreshTokenUsage = TokenUsage.OneTimeOnly
+            };
+
+            var result = await _subject.ValidateRefreshTokenAsync("invalid", client);
+
+            result.IsError.Should().BeTrue();
+        }
+        
+        [Fact]
+        public async Task ValidateRefreshToken_client_without_allow_offline_access_should_fail()
+        {
+            var client = new Client
+            {
+                ClientId = "client1",
+                RefreshTokenUsage = TokenUsage.OneTimeOnly
+            };
+
+            var refreshToken = new RefreshToken
+            {
+                CreationTime = DateTime.UtcNow,
+                Lifetime = 10,
+                AccessToken = new Token
+                {
+                    ClientId = client.ClientId,
+                    Audiences = { "aud" },
+                    CreationTime = DateTime.UtcNow,
+                    Claims = new List<Claim>()
+                    {
+                        new Claim("sub", "123")
+                    }
+                }
+            };
+
+            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+
+            var now = DateTime.UtcNow;
+            _clock.UtcNowFunc = () => now;
+
+            var result = await _subject.ValidateRefreshTokenAsync(handle, client);
+
+            result.IsError.Should().BeTrue();
+        }
+        
+        [Fact]
+        public async Task ValidateRefreshToken_invalid_client_binding_should_fail()
+        {
+            var client = new Client
+            {
+                ClientId = "client1",
+                AllowOfflineAccess = true,
+                RefreshTokenUsage = TokenUsage.OneTimeOnly
+            };
+
+            var refreshToken = new RefreshToken
+            {
+                CreationTime = DateTime.UtcNow,
+                Lifetime = 10,
+                AccessToken = new Token
+                {
+                    ClientId = "client2",
+                    Audiences = { "aud" },
+                    CreationTime = DateTime.UtcNow,
+                    Claims = new List<Claim>()
+                    {
+                        new Claim("sub", "123")
+                    }
+                }
+            };
+
+            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+
+            var now = DateTime.UtcNow;
+            _clock.UtcNowFunc = () => now;
+
+            var result = await _subject.ValidateRefreshTokenAsync(handle, client);
+
+            result.IsError.Should().BeTrue();
+        }
+        
+        [Fact]
+        public async Task ValidateRefreshToken_expired_token_should_fail()
+        {
+            var client = new Client
+            {
+                ClientId = "client1",
+                AllowOfflineAccess = true,
+                RefreshTokenUsage = TokenUsage.OneTimeOnly
+            };
+
+            var refreshToken = new RefreshToken
+            {
+                CreationTime = DateTime.UtcNow,
+                Lifetime = 10,
+                AccessToken = new Token
+                {
+                    ClientId = client.ClientId,
+                    Audiences = { "aud" },
+                    CreationTime = DateTime.UtcNow,
+                    Claims = new List<Claim>()
+                    {
+                        new Claim("sub", "123")
+                    }
+                }
+            };
+
+            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+
+            var now = DateTime.UtcNow.AddSeconds(20);
+            _clock.UtcNowFunc = () => now;
+
+            var result = await _subject.ValidateRefreshTokenAsync(handle, client);
+
+            result.IsError.Should().BeTrue();
+        }
+        
+        [Fact]
+        public async Task ValidateRefreshToken_consumed_token_should_fail()
+        {
+            var client = new Client
+            {
+                ClientId = "client1",
+                AllowOfflineAccess = true,
+                RefreshTokenUsage = TokenUsage.OneTimeOnly
+            };
+
+            var refreshToken = new RefreshToken
+            {
+                CreationTime = DateTime.UtcNow,
+                Lifetime = 10,
+                ConsumedTime = DateTime.UtcNow,
+                
+                AccessToken = new Token
+                {
+                    ClientId = client.ClientId,
+                    Audiences = { "aud" },
+                    CreationTime = DateTime.UtcNow,
+                    Claims = new List<Claim>()
+                    {
+                        new Claim("sub", "123")
+                    }
+                }
+            };
+
+            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+
+            var now = DateTime.UtcNow;
+            _clock.UtcNowFunc = () => now;
+
+            var result = await _subject.ValidateRefreshTokenAsync(handle, client);
+
+            result.IsError.Should().BeTrue();
+        }
+        
+        [Fact]
+        public async Task ValidateRefreshToken_valid_token_should_succeed()
+        {
+            var client = new Client
+            {
+                ClientId = "client1",
+                AllowOfflineAccess = true,
+                RefreshTokenUsage = TokenUsage.OneTimeOnly
+            };
+
+            var refreshToken = new RefreshToken
+            {
+                CreationTime = DateTime.UtcNow,
+                Lifetime = 10,
+                AccessToken = new Token
+                {
+                    ClientId = client.ClientId,
+                    Audiences = { "aud" },
+                    CreationTime = DateTime.UtcNow,
+                    Claims = new List<Claim>()
+                    {
+                        new Claim("sub", "123")
+                    }
+                }
+            };
+
+            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+
+            var now = DateTime.UtcNow;
+            _clock.UtcNowFunc = () => now;
+
+            var result = await _subject.ValidateRefreshTokenAsync(handle, client);
+
+            result.IsError.Should().BeFalse();
+        }
     }
 }
