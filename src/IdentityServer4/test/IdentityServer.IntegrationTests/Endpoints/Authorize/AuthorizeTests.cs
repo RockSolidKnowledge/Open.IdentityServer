@@ -1138,5 +1138,26 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
             var response = await _mockPipeline.BrowserClient.GetAsync(url);
             _mockPipeline.LoginWasCalled.Should().BeTrue();
         }
+
+
+        [Fact]
+        [Trait("Category", Category)]
+        public async Task prompt_login_should_show_login_page()
+        {
+            await _mockPipeline.LoginAsync("bob");
+
+            var url = _mockPipeline.CreateAuthorizeUrl(
+                clientId: "client3",
+                responseType: "id_token",
+                scope: "openid profile",
+                redirectUri: "https://client3/callback",
+                state: "123_state",
+                nonce: "123_nonce",
+                extra:new { prompt = "login" }
+            );
+            var response = await _mockPipeline.BrowserClient.GetAsync(url);
+
+            _mockPipeline.LoginWasCalled.Should().BeTrue();
+        }
     }
 }

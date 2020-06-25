@@ -18,7 +18,7 @@ namespace IdentityServer4.Validation
     {
         public static void RemovePrompt(this ValidatedAuthorizeRequest request)
         {
-            request.PromptModes = null;
+            request.PromptModes = Enumerable.Empty<string>();
             request.Raw.Remove(OidcConstants.AuthorizeRequest.Prompt);
         }
 
