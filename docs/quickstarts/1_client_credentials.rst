@@ -53,8 +53,8 @@ and let it add your IdentityServer project (keep this command in mind as we will
 
 .. note:: The protocol used in this Template is ``https`` and the port is set to 5001 when running on Kestrel or a random one on IISExpress. You can change that in the ``Properties\launchSettings.json`` file. For production scenarios you should always use ``https``.
 
-Defining an API Resource
-^^^^^^^^^^^^^^^^^^^^^^^^
+Defining an API Scope
+^^^^^^^^^^^^^^^^^^^^^
 An API is a resource in your system that you want to protect. 
 Resource definitions can be loaded in many ways, the template you used to create the project above shows how to use a "code as configuration" approach.
 
@@ -62,10 +62,10 @@ The Config.cs is already created for you. Open it, update the code to look like 
 
     public static class Config
     {
-        public static IEnumerable<ApiResource> Apis =>
-            new List<ApiResource>
+        public static IEnumerable<ApiScope> ApiScopes =>
+            new List<ApiScope>
             {
-                new ApiResource("api1", "My API")
+                new ApiScope("api1", "My API")
             };
     }
 
@@ -102,7 +102,8 @@ For this, add a client definition::
             }
         };
 
-You can think of the ClientId and the ClientSecret as the login and password for your application itself.  It identifies your application to the identity server so that it knows which application is trying to connect to it.	
+You can think of the ClientId and the ClientSecret as the login and password for your application itself.  
+It identifies your application to the identity server so that it knows which application is trying to connect to it.	
 
 	
 Configuring IdentityServer
@@ -112,7 +113,7 @@ Loading the resource and client definitions happens in `Startup.cs <https://gith
     public void ConfigureServices(IServiceCollection services)
     {
         var builder = services.AddIdentityServer()
-            .AddInMemoryApiResources(Config.Apis)
+            .AddInMemoryApiScopes(Config.ApiScopes)
             .AddInMemoryClients(Config.Clients);
 
         // omitted for brevity
@@ -187,9 +188,11 @@ Update `Startup` to look like this::
                 .AddJwtBearer("Bearer", options =>
                 {
                     options.Authority = "https://localhost:5001";
-                    options.RequireHttpsMetadata = false;
 
-                    options.Audience = "api1";
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateAudience = false
+                    };
                 });
         }
 
@@ -213,6 +216,8 @@ Update `Startup` to look like this::
 
 Navigating to the controller ``https://localhost:6001/identity`` on a browser should return a 401 status code. 
 This means your API requires a credential and is now protected by IdentityServer.
+
+.. note:: If you are wondering, why the above code disables audience validation, have a look :ref:`here <refResources>` for a more in-depth discussion.
 
 Creating the client
 ^^^^^^^^^^^^^^^^^^^
@@ -295,6 +300,37 @@ The output should look like this:
 .. image:: images/1_client_screenshot.png
 
 .. note:: By default an access token will contain claims about the scope, lifetime (nbf and exp), the client ID (client_id) and the issuer name (iss).
+
+Authorization at the API
+^^^^^^^^^^^^^^^^^^^^^^^^
+Right now, the API accepts any access token issued by your identity server.
+
+In the following we will add code that allows checking for the presence of the scope in the access token that the client asked for (and got granted).
+For this we will use the ASP.NET Core authorization policy system. Add the following to the ``Configure`` method in ``Startup``::
+
+    services.AddAuthorization(options =>
+    {
+        options.AddPolicy("ApiScope", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.RequireClaim("scope", "api1");
+        });
+    });
+
+You can now enforce this policy at various levels, e.g.
+
+* globally
+* for all API endpoints
+* for specific controllers/actions
+
+Typically you setup the policy for all API endpoints in the routing system::
+
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapControllers()
+            .RequireAuthorization("ApiScope");
+    });
+
 
 Further experiments
 ^^^^^^^^^^^^^^^^^^^

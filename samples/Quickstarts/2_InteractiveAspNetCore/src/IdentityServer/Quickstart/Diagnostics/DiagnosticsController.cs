@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IdentityServer
+namespace IdentityServerHost.Quickstart.UI
 {
     [SecurityHeaders]
     [Authorize]

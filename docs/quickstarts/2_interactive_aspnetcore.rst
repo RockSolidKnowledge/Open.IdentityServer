@@ -71,7 +71,6 @@ To add support for OpenID Connect authentication to the MVC application, you fir
         .AddOpenIdConnect("oidc", options =>
         {
             options.Authority = "https://localhost:5001";
-            options.RequireHttpsMetadata = false;
 
             options.ClientId = "mvc";
             options.ClientSecret = "secret";
@@ -108,7 +107,8 @@ And then to ensure the authentication services execute on each request, add ``Us
             .RequireAuthorization();
     });
 
-.. note:: The ``RequireAuthorization`` method disables anonymous access for the entire application. You can also use the ``[Authorize]`` attribute, if you want to specify that on a per controller or action method basis.
+.. note:: The ``RequireAuthorization`` method disables anonymous access for the entire application. 
+You can also use the ``[Authorize]`` attribute, if you want to specify that on a per controller or action method basis.
 
 Also modify the home view to display the claims of the user as well as the cookie properties::
 
@@ -158,7 +158,7 @@ Register the identity resources with IdentityServer in ``startup.cs``::
 
     var builder = services.AddIdentityServer()
         .AddInMemoryIdentityResources(Config.Ids)
-        .AddInMemoryApiResources(Config.Apis)
+        .AddInMemoryApiScopes(Config.ApiScopes)
         .AddInMemoryClients(Config.Clients);
 
 .. note:: All standard scopes and their corresponding claims can be found in the OpenID Connect `specification <https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims>`_
@@ -205,8 +205,6 @@ The client list should look like this::
                 ClientSecrets = { new Secret("secret".Sha256()) },
 
                 AllowedGrantTypes = GrantTypes.Code,
-                RequireConsent = false,
-                RequirePkce = true,
                 
                 // where to redirect to after login
                 RedirectUris = { "http://localhost:5002/signin-oidc" },

@@ -9,10 +9,10 @@ namespace IdentityServer
 {
     public static class Config
     {
-        public static IEnumerable<ApiResource> Apis =>
-            new List<ApiResource>
+        public static IEnumerable<ApiScope> ApiScopes =>
+            new List<ApiScope>
             {
-                new ApiResource("api1", "My API")
+                new ApiScope("api1", "My API")
             };
 
         public static IEnumerable<Client> Clients =>

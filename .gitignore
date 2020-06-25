@@ -211,5 +211,4 @@ samples/KeyManagement/FileSystem/signingkeys/
 workspace.xml
 
 src/IdentityServer4/host/identityserver.db
-src/IdentityServer4/host/tempkey.jwk
-src/EntityFramework/host/tempkey.jwk
+tempkey.jwk
