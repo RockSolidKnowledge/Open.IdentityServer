@@ -44,7 +44,6 @@ This will help us devote more time to answering questions and doing feature deve
 
 ### Corporate Sponsors
 [Ritter Insurance Marketing](https://www.ritterim.com)  
-[Intuit](https://www.intuit.com)  
 [ExtraNetUserManager](https://www.extranetusermanager.com/)  
 [Knab](https://www.knab.nl/)
 
