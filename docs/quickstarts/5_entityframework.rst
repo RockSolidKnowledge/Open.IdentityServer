@@ -15,7 +15,7 @@ To move this data into a database that is persistent between restarts and across
 
 IdentityServer4.EntityFramework
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``IdentityServer4.EntityFramework`` implements the required stores and services using the following DbContext’s:
+``IdentityServer4.EntityFramework`` implements the required stores and services using the following DbContexts:
 
     * ConfigurationDbContext - used for configuration data such as clients, resources, and scopes
     * PersistedGrantDbContext - used for temporary operational data such as authorization codes, and refresh tokens
@@ -50,12 +50,12 @@ If migrations are not your preference, then you can manage the schema changes in
 Configuring the Stores
 ^^^^^^^^^^^^^^^^^^^^^^
 
-To start using these stores, you’ll need to replace any existing calls to ``AddInMemoryClients``, ``AddInMemoryIdentityResources``, ``AddInMemoryApiResources``, and ``AddInMemoryPersistedGrants`` in your ``ConfigureServices`` method in `Startup.cs` with ``AddConfigurationStore`` and ``AddOperationalStore``.
+To start using these stores, you’ll need to replace any existing calls to ``AddInMemoryClients``, ``AddInMemoryIdentityResources``, ``AddInMemoryApiScopes``, ``AddInMemoryApiResources``, and ``AddInMemoryPersistedGrants`` in your ``ConfigureServices`` method in `Startup.cs` with ``AddConfigurationStore`` and ``AddOperationalStore``.
 
 These methods each require a ``DbContextOptionsBuilder``, meaning your code will look something like this::
 
     var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-    const string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=IdentityServer4.Quickstart.EntityFramework-3.0.0;trusted_connection=yes;";
+    const string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=IdentityServer4.Quickstart.EntityFramework-4.0.0;trusted_connection=yes;";
 
     services.AddIdentityServer()
         .AddTestUsers(TestUsers.Users)
@@ -125,7 +125,7 @@ In `Startup.cs` add this method to help initialize the database::
 
             if (!context.IdentityResources.Any())
             {
-                foreach (var resource in Config.Ids)
+                foreach (var resource in Config.IdentityResources)
                 {
                     context.IdentityResources.Add(resource.ToEntity());
                 }

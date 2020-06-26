@@ -68,93 +68,48 @@ Do that now, and afterwards `Config.cs` should look like this::
 
     public static class Config
     {
-        public static IEnumerable<IdentityResource> GetIdentityResources()
-        {
-            return new List<IdentityResource>
+        public static IEnumerable<IdentityResource> IdentityResources =>
+            new List<IdentityResource>
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(),
             };
-        }
 
-        public static IEnumerable<ApiResource> GetApis()
-        {
-            return new List<ApiResource>
+        public static IEnumerable<ApiScope> ApiScopes =>
+            new List<ApiScope>
             {
-                new ApiResource("api1", "My API")
+                new ApiScope("api1", "My API")
             };
-        }
 
-        public static IEnumerable<Client> GetClients()
-        {
-            return new List<Client>
+        public static IEnumerable<Client> Clients =>
+            new List<Client>
             {
+                // machine to machine client
                 new Client
                 {
                     ClientId = "client",
+                    ClientSecrets = { new Secret("secret".Sha256()) },
 
-                    // no interactive user, use the clientid/secret for authentication
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
-
-                    // secret for authentication
-                    ClientSecrets =
-                    {
-                        new Secret("secret".Sha256())
-                    },
-
                     // scopes that client has access to
                     AllowedScopes = { "api1" }
                 },
-                // resource owner password grant client
-                new Client
-                {
-                    ClientId = "ro.client",
-                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-
-                    ClientSecrets =
-                    {
-                        new Secret("secret".Sha256())
-                    },
-                    AllowedScopes = { "api1" }
-                },
-                // OpenID Connect hybrid flow client (MVC)
+                
+                // interactive ASP.NET Core MVC client
                 new Client
                 {
                     ClientId = "mvc",
-                    ClientName = "MVC Client",
-                    AllowedGrantTypes = GrantTypes.Hybrid,
+                    ClientSecrets = { new Secret("secret".Sha256()) },
 
-                    ClientSecrets =
-                    {
-                        new Secret("secret".Sha256())
-                    },
-
-                    RedirectUris           = { "http://localhost:5002/signin-oidc" },
-                    PostLogoutRedirectUris = { "http://localhost:5002/signout-callback-oidc" },
-
-                    AllowedScopes =
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        "api1"
-                    },
-
-                    AllowOfflineAccess = true
-                },
-                // JavaScript Client
-                new Client
-                {
-                    ClientId = "js",
-                    ClientName = "JavaScript Client",
                     AllowedGrantTypes = GrantTypes.Code,
-                    RequirePkce = true,
-                    RequireClientSecret = false,
+                    
+                    // where to redirect to after login
+                    RedirectUris = { "https://localhost:5002/signin-oidc" },
 
-                    RedirectUris =           { "http://localhost:5003/callback.html" },
-                    PostLogoutRedirectUris = { "http://localhost:5003/index.html" },
-                    AllowedCorsOrigins =     { "http://localhost:5003" },
+                    // where to redirect to after logout
+                    PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
 
-                    AllowedScopes =
+                    AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
@@ -162,8 +117,8 @@ Do that now, and afterwards `Config.cs` should look like this::
                     }
                 }
             };
-        }
     }
+
 
 At this point, you no longer need the old IdentityServer project.
 

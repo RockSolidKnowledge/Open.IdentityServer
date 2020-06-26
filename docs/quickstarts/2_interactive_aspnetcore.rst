@@ -145,9 +145,9 @@ In contrast to OAuth, scopes in OIDC don't represent APIs, but identity data lik
 name or email address.
 
 Add support for the standard ``openid`` (subject id) and ``profile`` (first name, last name etc..) scopes
-by ammending the ``Ids`` property in ``Config.cs``::
+by ammending the ``IdentityResources`` property in ``Config.cs``::
 
-    public static IEnumerable<IdentityResource> Ids =>
+    public static IEnumerable<IdentityResource> IdentityResources =>
         new List<IdentityResource>
         {
             new IdentityResources.OpenId(),
@@ -157,7 +157,7 @@ by ammending the ``Ids`` property in ``Config.cs``::
 Register the identity resources with IdentityServer in ``startup.cs``::
 
     var builder = services.AddIdentityServer()
-        .AddInMemoryIdentityResources(Config.Ids)
+        .AddInMemoryIdentityResources(Config.IdentityResources)
         .AddInMemoryApiScopes(Config.ApiScopes)
         .AddInMemoryClients(Config.Clients);
 
@@ -168,7 +168,7 @@ Adding Test Users
 The sample UI also comes with an in-memory "user database". You can enable this in IdentityServer by adding the ``AddTestUsers`` extension method::
 
     var builder = services.AddIdentityServer()
-        .AddInMemoryIdentityResources(Config.Ids)
+        .AddInMemoryIdentityResources(Config.IdentityResources)
         .AddInMemoryApiResources(Config.Apis)
         .AddInMemoryClients(Config.Clients)
         .AddTestUsers(TestUsers.Users);

@@ -30,7 +30,7 @@ As we have done before, with other client projects, add this project also to you
 Modify hosting
 ^^^^^^^^^^^^^^^
 
-Modify the `JavaScriptClient` project to run on port 5003.
+Modify the `JavaScriptClient` project to run on https://localhost:5003.
 
 Add the static file middleware
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -135,12 +135,12 @@ It requires similar configuration that was necessary in the MVC Client (albeit w
 Add this code to configure and instantiate the ``UserManager``::
 
     var config = {
-        authority: "http://localhost:5000",
+        authority: "https://localhost:5001",
         client_id: "js",
-        redirect_uri: "http://localhost:5003/callback.html",
+        redirect_uri: "https://localhost:5003/callback.html",
         response_type: "code",
         scope:"openid profile api1",
-        post_logout_redirect_uri : "http://localhost:5003/index.html",
+        post_logout_redirect_uri : "https://localhost:5003/index.html",
     };
     var mgr = new Oidc.UserManager(config);
 
@@ -170,7 +170,7 @@ Add this code to implement those three functions in our application::
 
     function api() {
         mgr.getUser().then(function (user) {
-            var url = "http://localhost:5001/identity";
+            var url = "https://localhost:6001/identity";
 
             var xhr = new XMLHttpRequest();
             xhr.open("GET", url);
@@ -228,12 +228,11 @@ It should have the configuration listed below::
         ClientId = "js",
         ClientName = "JavaScript Client",
         AllowedGrantTypes = GrantTypes.Code,
-        RequirePkce = true,
         RequireClientSecret = false,
         
-        RedirectUris =           { "http://localhost:5003/callback.html" },
-        PostLogoutRedirectUris = { "http://localhost:5003/index.html" },
-        AllowedCorsOrigins =     { "http://localhost:5003" },
+        RedirectUris =           { "https://localhost:5003/callback.html" },
+        PostLogoutRedirectUris = { "https://localhost:5003/index.html" },
+        AllowedCorsOrigins =     { "https://localhost:5003" },
 
         AllowedScopes = 
         {
@@ -247,7 +246,7 @@ Allowing Ajax calls to the Web API with CORS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 One last bit of configuration that is necessary is to configure CORS in the web API project. 
-This will allow Ajax calls to be made from `http://localhost:5003` to `http://localhost:5001`.
+This will allow Ajax calls to be made from `https://localhost:5003` to `https://localhost:6001`.
 
 **Configure CORS**
 
@@ -255,30 +254,21 @@ Add the CORS services to the dependency injection system in ``ConfigureServices`
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllers();
-
-        services.AddAuthentication("Bearer")
-            .AddIdentityServerAuthentication(options =>
-            {
-                options.Authority = "http://localhost:5000";
-                options.RequireHttpsMetadata = false;
-
-                options.ApiName = "api1";
-            });
+        // ...
 
         services.AddCors(options =>
         {
             // this defines a CORS policy called "default"
             options.AddPolicy("default", policy =>
             {
-                policy.WithOrigins("http://localhost:5003")
+                policy.WithOrigins("https://localhost:5003")
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             });
         });
     }
 
-Add the CORS middleware to the pipeline in ``Configure``::
+Add the CORS middleware to the pipeline in ``Configure`` (just after routing)::
 
     public void Configure(IApplicationBuilder app)
     {
@@ -286,13 +276,7 @@ Add the CORS middleware to the pipeline in ``Configure``::
 
         app.UseCors("default");
 
-        app.UseAuthentication();
-        app.UseAuthorization();
-
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
+        // ...
     }
 
 Run the JavaScript application

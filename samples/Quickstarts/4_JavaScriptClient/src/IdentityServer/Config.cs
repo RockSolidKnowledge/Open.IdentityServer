@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -10,7 +10,7 @@ namespace IdentityServer
 {
     public static class Config
     {
-        public static IEnumerable<IdentityResource> Ids =>
+        public static IEnumerable<IdentityResource> IdentityResources =>
             new List<IdentityResource>
             {
                 new IdentityResources.OpenId(),
@@ -18,10 +18,10 @@ namespace IdentityServer
             };
 
 
-        public static IEnumerable<ApiResource> Apis =>
-            new List<ApiResource>
+        public static IEnumerable<ApiScope> ApiScopes =>
+            new List<ApiScope>
             {
-                new ApiResource("api1", "My API")
+                new ApiScope("api1", "My API")
             };
 
         public static IEnumerable<Client> Clients =>
@@ -37,6 +37,7 @@ namespace IdentityServer
                     // scopes that client has access to
                     AllowedScopes = { "api1" }
                 },
+                
                 // interactive ASP.NET Core MVC client
                 new Client
                 {
@@ -44,36 +45,32 @@ namespace IdentityServer
                     ClientSecrets = { new Secret("secret".Sha256()) },
 
                     AllowedGrantTypes = GrantTypes.Code,
-                    RequireConsent = false,
-                    RequirePkce = true,
-                
+                    
                     // where to redirect to after login
-                    RedirectUris = { "http://localhost:5002/signin-oidc" },
+                    RedirectUris = { "https://localhost:5002/signin-oidc" },
 
                     // where to redirect to after logout
-                    PostLogoutRedirectUris = { "http://localhost:5002/signout-callback-oidc" },
+                    PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
 
                     AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         "api1"
-                    },
-                    
-                    AllowOfflineAccess = true
+                    }
                 },
+
                 // JavaScript Client
                 new Client
                 {
                     ClientId = "js",
                     ClientName = "JavaScript Client",
                     AllowedGrantTypes = GrantTypes.Code,
-                    RequirePkce = true,
                     RequireClientSecret = false,
 
-                    RedirectUris =           { "http://localhost:5003/callback.html" },
-                    PostLogoutRedirectUris = { "http://localhost:5003/index.html" },
-                    AllowedCorsOrigins =     { "http://localhost:5003" },
+                    RedirectUris =           { "https://localhost:5003/callback.html" },
+                    PostLogoutRedirectUris = { "https://localhost:5003/index.html" },
+                    AllowedCorsOrigins =     { "https://localhost:5003" },
 
                     AllowedScopes =
                     {

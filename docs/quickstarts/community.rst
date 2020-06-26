@@ -8,10 +8,6 @@ Various ASP.NET Core security samples
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 https://github.com/leastprivilege/AspNetCoreSecuritySamples
 
-IdentityServer4 EF and ASP.NET Identity
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-`This <https://github.com/IdentityServer/IdentityServer4/tree/main/samples/Quickstarts/9_Combined_AspId_and_EFStorage>`_ sample combines the EF and ASP.NET Identity quickstarts.
-
 Co-hosting IdentityServer4 and a Web API
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This sample shows how to host an API in the same host as the IdentityServer that is protecting the API.

@@ -1,18 +1,19 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using System.Linq;
-using System.Reflection;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
+using IdentityServerHost.Quickstart.UI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using System.Linq;
+using System.Reflection;
 
 namespace IdentityServer
 {
@@ -22,10 +23,9 @@ namespace IdentityServer
         {
             services.AddControllersWithViews();
 
-            // migration assembly required as DbContext's are in a different assembly
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-            const string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=IdentityServer4.Quickstart.EntityFramework-3.0.0;trusted_connection=yes;";
-
+            const string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=IdentityServer4.Quickstart.EntityFramework-4.0.0;trusted_connection=yes;";
+            
             var builder = services.AddIdentityServer()
                 .AddTestUsers(TestUsers.Users)
                 .AddConfigurationStore(options =>
@@ -40,7 +40,7 @@ namespace IdentityServer
                 });
 
             builder.AddDeveloperSigningCredential();
-            
+
             services.AddAuthentication()
                 .AddGoogle("Google", options =>
                 {
@@ -70,9 +70,11 @@ namespace IdentityServer
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // this will do the initial DB population
+            InitializeDatabase(app);
+
             if (env.IsDevelopment())
             {
-                InitializeDatabase(app);
                 app.UseDeveloperExceptionPage();
             }
 
@@ -107,18 +109,18 @@ namespace IdentityServer
 
                 if (!context.IdentityResources.Any())
                 {
-                    foreach (var resource in Config.Ids)
+                    foreach (var resource in Config.IdentityResources)
                     {
                         context.IdentityResources.Add(resource.ToEntity());
                     }
                     context.SaveChanges();
                 }
 
-                if (!context.ApiResources.Any())
+                if (!context.ApiScopes.Any())
                 {
-                    foreach (var resource in Config.Apis)
+                    foreach (var resource in Config.ApiScopes)
                     {
-                        context.ApiResources.Add(resource.ToEntity());
+                        context.ApiScopes.Add(resource.ToEntity());
                     }
                     context.SaveChanges();
                 }

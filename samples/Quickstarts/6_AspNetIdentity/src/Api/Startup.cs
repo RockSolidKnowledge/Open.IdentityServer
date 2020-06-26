@@ -3,6 +3,7 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Api
 {
@@ -12,23 +13,25 @@ namespace Api
         {
             services.AddControllers();
 
+            // accepts any access token issued by identity server
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
                 {
                     options.Authority = "https://localhost:5001";
-                    options.RequireHttpsMetadata = false;
-
-                    options.Audience = "api1";
+                    
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateAudience = false
+                    };
                 });
-
-            services.AddCors(options =>
+            
+            // adds an authorization policy to make sure the token is for scope 'api1'
+            services.AddAuthorization(options =>
             {
-                // this defines a CORS policy called "default"
-                options.AddPolicy("default", policy =>
+                options.AddPolicy("ApiScope", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5003")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("scope", "api1");
                 });
             });
         }
@@ -37,14 +40,13 @@ namespace Api
         {
             app.UseRouting();
 
-            app.UseCors("default");
-
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapControllers()
+                    .RequireAuthorization("ApiScope");
             });
         }
     }
