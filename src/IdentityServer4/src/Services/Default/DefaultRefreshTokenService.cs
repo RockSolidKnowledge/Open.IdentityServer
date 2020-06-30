@@ -138,7 +138,12 @@ namespace IdentityServer4.Services
                 return invalidGrant;
             }
             
-            return new TokenValidationResult { IsError = false, RefreshToken = refreshToken };
+            return new TokenValidationResult
+            {
+                IsError = false, 
+                RefreshToken = refreshToken, 
+                Client = client
+            };
         }
 
         /// <summary>
