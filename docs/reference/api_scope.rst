@@ -47,4 +47,4 @@ The ``AddInMemoryApiResource`` extensions method also supports adding clients fr
 
 Then pass the configuration section to the ``AddInMemoryApiScopes`` method::
 
-    AddInMemoryApiResources(configuration.GetSection("IdentityServer:ApiScopes"))
+    AddInMemoryApiScopes(configuration.GetSection("IdentityServer:ApiScopes"))
