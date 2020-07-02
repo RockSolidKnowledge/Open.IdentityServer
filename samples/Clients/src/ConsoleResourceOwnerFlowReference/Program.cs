@@ -37,7 +37,7 @@ namespace ConsoleResourceOwnerFlowReference
                 UserName = "bob",
                 Password = "bob",
 
-                Scope = "resource1.scope1"
+                Scope = "resource1.scope1 resource2.scope1 scope3"
             });
 
             if (response.IsError) throw new Exception(response.Error);

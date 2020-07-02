@@ -192,7 +192,7 @@ namespace IdentityServerHost.Configuration
                     ClientId = "roclient.reference",
                     ClientSecrets = { new Secret("secret".Sha256()) },
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                    AllowedScopes = { "resource1.scope1", "resource2.scope1" },
+                    AllowedScopes = { "resource1.scope1", "resource2.scope1", "scope3" },
                     AccessTokenType = AccessTokenType.Reference
                 },
 
