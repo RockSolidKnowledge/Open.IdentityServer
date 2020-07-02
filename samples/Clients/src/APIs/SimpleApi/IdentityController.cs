@@ -6,7 +6,6 @@ using System.Linq;
 namespace SampleApi.Controllers
 {
     [Route("identity")]
-    [Authorize]
     public class IdentityController : ControllerBase
     {
         private readonly ILogger<IdentityController> _logger;
