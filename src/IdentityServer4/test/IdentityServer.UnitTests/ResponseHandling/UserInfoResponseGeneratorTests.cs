@@ -8,7 +8,6 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
-using IdentityModel;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4;
 using IdentityServer4.Models;

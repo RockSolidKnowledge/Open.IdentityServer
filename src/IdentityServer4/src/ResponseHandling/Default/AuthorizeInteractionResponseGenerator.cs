@@ -92,23 +92,23 @@ namespace IdentityServer4.ResponseHandling
             }
 
             var result = await ProcessLoginAsync(request);
+            
+            if (!result.IsLogin && !result.IsError && !result.IsRedirect)
+            {
+                result = await ProcessConsentAsync(request, consent);
+            }
 
-            if (result.IsLogin && request.PromptModes.Contains(OidcConstants.PromptModes.None))
+            if ((result.IsLogin || result.IsConsent || result.IsRedirect) && request.PromptModes.Contains(OidcConstants.PromptModes.None))
             {
                 // prompt=none means do not show the UI
                 Logger.LogInformation("Changing response to LoginRequired: prompt=none was requested");
                 result = new InteractionResponse
                 {
-                    Error = OidcConstants.AuthorizeErrors.LoginRequired
+                    Error = result.IsLogin ? OidcConstants.AuthorizeErrors.LoginRequired :
+                                result.IsConsent ? OidcConstants.AuthorizeErrors.ConsentRequired : 
+                                    OidcConstants.AuthorizeErrors.InteractionRequired
                 };
             }
-
-            if (result.IsLogin || result.IsError)
-            {
-                return result;
-            }
-
-            result = await ProcessConsentAsync(request, consent);
 
             return result;
         }
