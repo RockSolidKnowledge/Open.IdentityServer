@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -52,10 +52,10 @@ namespace IdentityServer4.EntityFramework.Stores
         public virtual async Task<Client> FindClientByIdAsync(string clientId)
         {
             IQueryable<Entities.Client> baseQuery = Context.Clients
-                .Where(x => x.ClientId == clientId)
-                .Take(1);
+                .Where(x => x.ClientId == clientId);
 
-            var client = await baseQuery.FirstOrDefaultAsync();
+            var client = (await baseQuery.ToArrayAsync())
+                .SingleOrDefault(x => x.ClientId == clientId);
             if (client == null) return null;
 
             await baseQuery.Include(x => x.AllowedCorsOrigins).SelectMany(c => c.AllowedCorsOrigins).LoadAsync();
