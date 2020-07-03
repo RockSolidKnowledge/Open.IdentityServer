@@ -24,10 +24,14 @@ namespace ResourceBasedApi
             services.AddAuthentication("token")
 
                 // dispatches to appropriate handler
-                .AddAccessToken("token")
+                .AddDynamicAuthenticationHandler("token", options =>
+                {
+                    options.DefaultScheme = DynamicAuthenticationHandlerDefaults.JwtBearerDefaultScheme;
+                    options.SchemeSelector = JwtAndIntrospectionSelector.Func;
+                })
                 
                 // JWT token
-                .AddJwtBearer("Bearer", options =>
+                .AddJwtBearer(DynamicAuthenticationHandlerDefaults.JwtBearerDefaultScheme, options =>
                 {
                     options.Authority = Constants.Authority;
                     options.Audience = "resource1";
@@ -36,7 +40,7 @@ namespace ResourceBasedApi
                 })
 
                 // reference tokens
-                .AddOAuth2Introspection("Introspection", options =>
+                .AddOAuth2Introspection(DynamicAuthenticationHandlerDefaults.IntrospectionDefaultScheme, options =>
                 {
                     options.Authority = Constants.Authority;
 

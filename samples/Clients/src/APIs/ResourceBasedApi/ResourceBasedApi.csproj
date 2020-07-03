@@ -9,7 +9,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="IdentityModel.AspNetCore.AccessTokenValidation" Version="1.0.0-preview.1" />
+    <PackageReference Include="IdentityModel.AspNetCore.AccessTokenValidation" Version="1.0.0-preview.2.1" />
     <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="4.0.1" />
       
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
