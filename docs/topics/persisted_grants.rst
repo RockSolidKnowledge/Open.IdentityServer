@@ -45,11 +45,11 @@ Persisted Grant Service
 ^^^^^^^^^^^^^^^^^^^^^^^
 Working with the grants store directly might be too low level. 
 As such, a higher level service called ``IPersistedGrantService`` is provided.
-It allows querying and revoking the persisted grants for a user.
+It abstracts and aggregates the different grant types into one concept, and allows querying and revoking the persisted grants for a user.
 
 It contains these APIs:
 
 ``GetAllGrantsAsync``
-    Gets all the grants for a user based upon subject id. This abstracts and aggregates the different grant types into one concept.
+    Gets all the grants for a user based upon subject id. 
 ``RemoveAllGrantsAsync``
     Removes grants from the store based on the subject id and optionally a client id and/or a session id.
