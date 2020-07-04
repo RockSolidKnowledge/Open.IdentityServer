@@ -29,8 +29,11 @@ IIdentityServerInteractionService APIs
 ``GrantConsentAsync``
     Accepts a ``ConsentResponse`` to inform IdentityServer of the user's consent to a particular ``AuthorizationRequest``.
 
-``GetAllUserConsentsAsync``
-    Returns a collection of ``Consent`` for the user.
+``DenyAuthorizationAsync``
+    Accepts a ``AuthorizationError`` to inform IdentityServer of the error to return to the client for a particular ``AuthorizationRequest``.
+
+``GetAllUserGrantsAsync``
+    Returns a collection of ``Grant`` for the user. These represent a user's consent or a clients access to a user's resource.
 
 ``RevokeUserConsentAsync``
     Revokes all of a user's consents and grants for a client.
@@ -100,15 +103,17 @@ ConsentResponse
 ``RememberConsent``
     Flag indicating if the user's consent is to be persisted.
 
-Consent
-^^^^^^^
+Grant
+^^^^^
 ``SubjectId``
-    The subject id that granted the consent.
+    The subject id that allowed the grant.
 ``ClientId``
-    The client identifier for the consent.
+    The client identifier for the grant.
+``Description``
+    The description the user assigned to the client or device being authorized.
 ``Scopes``
-    The collection of scopes consented to.
+    The collection of scopes granted.
 ``CreationTime``
-    The date and time when the consent was granted.
+    The date and time when the grant was granted.
 ``Expiration``
-    The date and time when the consent will expire.
+    The date and time when the grant will expire.
