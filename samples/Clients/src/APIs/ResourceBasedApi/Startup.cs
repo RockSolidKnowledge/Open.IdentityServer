@@ -23,20 +23,26 @@ namespace ResourceBasedApi
 
             services.AddAuthentication("token")
 
-                // dispatches to appropriate handler
-                .AddDynamicAuthenticationHandler("token", options =>
-                {
-                    options.DefaultScheme = DynamicAuthenticationHandlerDefaults.JwtBearerDefaultScheme;
-                    options.SchemeSelector = JwtAndIntrospectionSelector.Func;
-                })
-                
-                // JWT token
-                .AddJwtBearer(DynamicAuthenticationHandlerDefaults.JwtBearerDefaultScheme, options =>
+                // JWT tokens
+                .AddJwtBearer("token", options =>
                 {
                     options.Authority = Constants.Authority;
                     options.Audience = "resource1";
 
                     options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
+
+                    // if token does not contain a dot, it is a reference token
+                    options.ForwardDefaultSelector = context =>
+                    {
+                        var (scheme, token) = DynamicAuthenticationHandler.GetSchemeAndToken(context);
+                        if (scheme.Equals("Bearer", StringComparison.OrdinalIgnoreCase) &&
+                            !token.Contains("."))
+                        {
+                            return "Introspection";
+                        }
+
+                        return null;
+                    };
                 })
 
                 // reference tokens
