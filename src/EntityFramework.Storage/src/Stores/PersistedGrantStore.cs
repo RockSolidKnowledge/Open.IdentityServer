@@ -48,7 +48,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual Task StoreAsync(PersistedGrant token)
         {
-            var existing = Context.PersistedGrants.SingleOrDefault(x => x.Key == token.Key);
+            var existing = Context.PersistedGrants.Where(x => x.Key == token.Key).ToArray()
+                .SingleOrDefault(x => x.Key == token.Key);
             if (existing == null)
             {
                 Logger.LogDebug("{persistedGrantKey} not found in database", token.Key);
@@ -82,7 +83,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual Task<PersistedGrant> GetAsync(string key)
         {
-            var persistedGrant = Context.PersistedGrants.AsNoTracking().FirstOrDefault(x => x.Key == key);
+            var persistedGrant = Context.PersistedGrants.AsNoTracking().Where(x => x.Key == key).ToArray()
+                .SingleOrDefault(x => x.Key == key);
             var model = persistedGrant?.ToModel();
 
             Logger.LogDebug("{persistedGrantKey} found in database: {persistedGrantKeyFound}", key, model != null);
@@ -97,7 +99,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId)
         {
-            var persistedGrants = Context.PersistedGrants.Where(x => x.SubjectId == subjectId).AsNoTracking().ToList();
+            var persistedGrants = Context.PersistedGrants.Where(x => x.SubjectId == subjectId).AsNoTracking().ToArray()
+                .Where(x => x.SubjectId == subjectId).ToList();
             var model = persistedGrants.Select(x => x.ToModel());
 
             Logger.LogDebug("{persistedGrantCount} persisted grants found for {subjectId}", persistedGrants.Count, subjectId);
@@ -112,7 +115,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual Task RemoveAsync(string key)
         {
-            var persistedGrant = Context.PersistedGrants.FirstOrDefault(x => x.Key == key);
+            var persistedGrant = Context.PersistedGrants.Where(x => x.Key == key).ToArray()
+                .SingleOrDefault(x => x.Key == key);
             if (persistedGrant!= null)
             {
                 Logger.LogDebug("removing {persistedGrantKey} persisted grant from database", key);
@@ -144,7 +148,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual Task RemoveAllAsync(string subjectId, string clientId)
         {
-            var persistedGrants = Context.PersistedGrants.Where(x => x.SubjectId == subjectId && x.ClientId == clientId).ToList();
+            var persistedGrants = Context.PersistedGrants.Where(x => x.SubjectId == subjectId && x.ClientId == clientId).ToArray()
+                .Where(x => x.SubjectId == subjectId && x.ClientId == clientId).ToList();
 
             Logger.LogDebug("removing {persistedGrantCount} persisted grants from database for subject {subjectId}, clientId {clientId}", persistedGrants.Count, subjectId, clientId);
 
@@ -172,9 +177,13 @@ namespace IdentityServer4.EntityFramework.Stores
         public virtual Task RemoveAllAsync(string subjectId, string clientId, string type)
         {
             var persistedGrants = Context.PersistedGrants.Where(x =>
-                x.SubjectId == subjectId &&
-                x.ClientId == clientId &&
-                x.Type == type).ToList();
+                    x.SubjectId == subjectId &&
+                    x.ClientId == clientId &&
+                    x.Type == type).ToArray()
+                .Where(x =>
+                    x.SubjectId == subjectId &&
+                    x.ClientId == clientId &&
+                    x.Type == type).ToList();
 
             Logger.LogDebug("removing {persistedGrantCount} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {persistedGrantType}", persistedGrants.Count, subjectId, clientId, type);
 

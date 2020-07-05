@@ -51,7 +51,7 @@ namespace IdentityServer4.EntityFramework.Stores
         /// </returns>
         public virtual Task<Client> FindClientByIdAsync(string clientId)
         {
-            var client = Context.Clients
+            var clients = Context.Clients
                 .Include(x => x.AllowedGrantTypes)
                 .Include(x => x.RedirectUris)
                 .Include(x => x.PostLogoutRedirectUris)
@@ -62,7 +62,9 @@ namespace IdentityServer4.EntityFramework.Stores
                 .Include(x => x.AllowedCorsOrigins)
                 .Include(x => x.Properties)
                 .AsNoTracking()
-                .FirstOrDefault(x => x.ClientId == clientId);
+                .Where(x => x.ClientId == clientId)
+                .ToArray();
+            var client = clients.SingleOrDefault(x => x.ClientId == clientId);
             var model = client?.ToModel();
 
             Logger.LogDebug("{clientId} found in database: {clientIdFound}", clientId, model != null);

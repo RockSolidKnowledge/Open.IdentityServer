@@ -76,7 +76,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual Task<DeviceCode> FindByUserCodeAsync(string userCode)
         {
-            var deviceFlowCodes = Context.DeviceFlowCodes.AsNoTracking().FirstOrDefault(x => x.UserCode == userCode);
+            var deviceFlowCodes = Context.DeviceFlowCodes.AsNoTracking().Where(x => x.UserCode == userCode).ToArray()
+                .SingleOrDefault(x => x.UserCode == userCode);
             var model = ToModel(deviceFlowCodes?.Data);
 
             Logger.LogDebug("{userCode} found in database: {userCodeFound}", userCode, model != null);
@@ -91,7 +92,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual Task<DeviceCode> FindByDeviceCodeAsync(string deviceCode)
         {
-            var deviceFlowCodes = Context.DeviceFlowCodes.AsNoTracking().FirstOrDefault(x => x.DeviceCode == deviceCode);
+            var deviceFlowCodes = Context.DeviceFlowCodes.AsNoTracking().Where(x => x.DeviceCode == deviceCode).ToArray()
+                .SingleOrDefault(x => x.DeviceCode == deviceCode);
             var model = ToModel(deviceFlowCodes?.Data);
 
             Logger.LogDebug("{deviceCode} found in database: {deviceCodeFound}", deviceCode, model != null);
@@ -107,7 +109,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual Task UpdateByUserCodeAsync(string userCode, DeviceCode data)
         {
-            var existing = Context.DeviceFlowCodes.SingleOrDefault(x => x.UserCode == userCode);
+            var existing = Context.DeviceFlowCodes.Where(x => x.UserCode == userCode).ToArray()
+                .SingleOrDefault(x => x.UserCode == userCode);
             if (existing == null)
             {
                 Logger.LogError("{userCode} not found in database", userCode);
@@ -139,7 +142,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual Task RemoveByDeviceCodeAsync(string deviceCode)
         {
-            var deviceFlowCodes = Context.DeviceFlowCodes.FirstOrDefault(x => x.DeviceCode == deviceCode);
+            var deviceFlowCodes = Context.DeviceFlowCodes.Where(x => x.DeviceCode == deviceCode).ToArray()
+                .SingleOrDefault(x => x.DeviceCode == deviceCode);
 
             if(deviceFlowCodes != null)
             {

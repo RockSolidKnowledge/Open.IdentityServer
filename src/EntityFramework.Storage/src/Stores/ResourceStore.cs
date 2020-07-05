@@ -63,7 +63,8 @@ namespace IdentityServer4.EntityFramework.Stores
                 .Include(x => x.Properties)
                 .AsNoTracking();
 
-            var api = apis.FirstOrDefault();
+            var api = apis.ToArray()
+                .SingleOrDefault(x => x.Name == name);
 
             if (api != null)
             {
@@ -88,7 +89,7 @@ namespace IdentityServer4.EntityFramework.Stores
 
             var query =
                 from api in Context.ApiResources
-                where api.Scopes.Where(x=>names.Contains(x.Name)).Any()
+                where api.Scopes.Any(x => names.Contains(x.Name))
                 select api;
 
             var apis = query
@@ -99,7 +100,7 @@ namespace IdentityServer4.EntityFramework.Stores
                 .Include(x => x.Properties)
                 .AsNoTracking();
 
-            var results = apis.ToArray();
+            var results = apis.ToArray().Where(api => api.Scopes.Any(x => names.Contains(x.Name)));
             var models = results.Select(x => x.ToModel()).ToArray();
 
             Logger.LogDebug("Found {scopes} API scopes in database", models.SelectMany(x => x.Scopes).Select(x => x.Name));
@@ -126,7 +127,8 @@ namespace IdentityServer4.EntityFramework.Stores
                 .Include(x => x.Properties)
                 .AsNoTracking();
 
-            var results = resources.ToArray();
+            var results = resources.ToArray()
+                .Where(x=>scopes.Contains(x.Name)).ToArray();
 
             Logger.LogDebug("Found {scopes} identity scopes in database", results.Select(x => x.Name));
 
