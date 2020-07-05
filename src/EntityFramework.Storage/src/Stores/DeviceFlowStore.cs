@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -74,7 +74,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual async Task<DeviceCode> FindByUserCodeAsync(string userCode)
         {
-            var deviceFlowCodes = await Context.DeviceFlowCodes.AsNoTracking().FirstOrDefaultAsync(x => x.UserCode == userCode);
+            var deviceFlowCodes = (await Context.DeviceFlowCodes.AsNoTracking().Where(x => x.UserCode == userCode).ToArrayAsync())
+                .SingleOrDefault(x => x.UserCode == userCode);
             var model = ToModel(deviceFlowCodes?.Data);
 
             Logger.LogDebug("{userCode} found in database: {userCodeFound}", userCode, model != null);
@@ -89,7 +90,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual async Task<DeviceCode> FindByDeviceCodeAsync(string deviceCode)
         {
-            var deviceFlowCodes = await Context.DeviceFlowCodes.AsNoTracking().FirstOrDefaultAsync(x => x.DeviceCode == deviceCode);
+            var deviceFlowCodes = (await Context.DeviceFlowCodes.AsNoTracking().Where(x => x.DeviceCode == deviceCode).ToArrayAsync())
+                .SingleOrDefault(x => x.DeviceCode == deviceCode);
             var model = ToModel(deviceFlowCodes?.Data);
 
             Logger.LogDebug("{deviceCode} found in database: {deviceCodeFound}", deviceCode, model != null);
@@ -105,7 +107,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual async Task UpdateByUserCodeAsync(string userCode, DeviceCode data)
         {
-            var existing = await Context.DeviceFlowCodes.SingleOrDefaultAsync(x => x.UserCode == userCode);
+            var existing = (await Context.DeviceFlowCodes.Where(x => x.UserCode == userCode).ToArrayAsync())
+                .SingleOrDefault(x => x.UserCode == userCode);
             if (existing == null)
             {
                 Logger.LogError("{userCode} not found in database", userCode);
@@ -135,7 +138,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual async Task RemoveByDeviceCodeAsync(string deviceCode)
         {
-            var deviceFlowCodes = await Context.DeviceFlowCodes.FirstOrDefaultAsync(x => x.DeviceCode == deviceCode);
+            var deviceFlowCodes = (await Context.DeviceFlowCodes.Where(x => x.DeviceCode == deviceCode).ToArrayAsync())
+                .SingleOrDefault(x => x.DeviceCode == deviceCode);
 
             if(deviceFlowCodes != null)
             {

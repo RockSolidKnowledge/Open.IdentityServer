@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -48,7 +48,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual async Task StoreAsync(PersistedGrant token)
         {
-            var existing = await Context.PersistedGrants.SingleOrDefaultAsync(x => x.Key == token.Key);
+            var existing = (await Context.PersistedGrants.Where(x => x.Key == token.Key).ToArrayAsync())
+                .SingleOrDefault(x => x.Key == token.Key);
             if (existing == null)
             {
                 Logger.LogDebug("{persistedGrantKey} not found in database", token.Key);
@@ -80,7 +81,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual async Task<PersistedGrant> GetAsync(string key)
         {
-            var persistedGrant = await Context.PersistedGrants.AsNoTracking().FirstOrDefaultAsync(x => x.Key == key);
+            var persistedGrant = (await Context.PersistedGrants.AsNoTracking().Where(x => x.Key == key).ToArrayAsync())
+                .SingleOrDefault(x => x.Key == key);
             var model = persistedGrant?.ToModel();
 
             Logger.LogDebug("{persistedGrantKey} found in database: {persistedGrantKeyFound}", key, model != null);
@@ -95,10 +97,11 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual async Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId)
         {
-            var persistedGrants = await Context.PersistedGrants.Where(x => x.SubjectId == subjectId).AsNoTracking().ToListAsync();
+            var persistedGrants = (await Context.PersistedGrants.Where(x => x.SubjectId == subjectId).AsNoTracking().ToArrayAsync())
+                .Where(x => x.SubjectId == subjectId).ToArray();
             var model = persistedGrants.Select(x => x.ToModel());
 
-            Logger.LogDebug("{persistedGrantCount} persisted grants found for {subjectId}", persistedGrants.Count, subjectId);
+            Logger.LogDebug("{persistedGrantCount} persisted grants found for {subjectId}", persistedGrants.Length, subjectId);
 
             return model;
         }
@@ -110,7 +113,8 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual async Task RemoveAsync(string key)
         {
-            var persistedGrant = await Context.PersistedGrants.FirstOrDefaultAsync(x => x.Key == key);
+            var persistedGrant = (await Context.PersistedGrants.Where(x => x.Key == key).ToArrayAsync())
+                .SingleOrDefault(x => x.Key == key);
             if (persistedGrant!= null)
             {
                 Logger.LogDebug("removing {persistedGrantKey} persisted grant from database", key);
@@ -140,9 +144,10 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual async Task RemoveAllAsync(string subjectId, string clientId)
         {
-            var persistedGrants = await Context.PersistedGrants.Where(x => x.SubjectId == subjectId && x.ClientId == clientId).ToListAsync();
+            var persistedGrants = (await Context.PersistedGrants.Where(x => x.SubjectId == subjectId && x.ClientId == clientId).ToArrayAsync())
+                .Where(x => x.SubjectId == subjectId && x.ClientId == clientId).ToArray();
 
-            Logger.LogDebug("removing {persistedGrantCount} persisted grants from database for subject {subjectId}, clientId {clientId}", persistedGrants.Count, subjectId, clientId);
+            Logger.LogDebug("removing {persistedGrantCount} persisted grants from database for subject {subjectId}, clientId {clientId}", persistedGrants.Length, subjectId, clientId);
 
             Context.PersistedGrants.RemoveRange(persistedGrants);
 
@@ -152,7 +157,7 @@ namespace IdentityServer4.EntityFramework.Stores
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                Logger.LogInformation("removing {persistedGrantCount} persisted grants from database for subject {subjectId}, clientId {clientId}: {error}", persistedGrants.Count, subjectId, clientId, ex.Message);
+                Logger.LogInformation("removing {persistedGrantCount} persisted grants from database for subject {subjectId}, clientId {clientId}: {error}", persistedGrants.Length, subjectId, clientId, ex.Message);
             }
         }
 
@@ -165,12 +170,10 @@ namespace IdentityServer4.EntityFramework.Stores
         /// <returns></returns>
         public virtual async Task RemoveAllAsync(string subjectId, string clientId, string type)
         {
-            var persistedGrants = await Context.PersistedGrants.Where(x =>
-                x.SubjectId == subjectId &&
-                x.ClientId == clientId &&
-                x.Type == type).ToListAsync();
+            var persistedGrants = (await Context.PersistedGrants.Where(x => x.SubjectId == subjectId && x.ClientId == clientId && x.Type == type).ToArrayAsync())
+                .Where(x => x.SubjectId == subjectId && x.ClientId == clientId && x.Type == type).ToArray();
 
-            Logger.LogDebug("removing {persistedGrantCount} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {persistedGrantType}", persistedGrants.Count, subjectId, clientId, type);
+            Logger.LogDebug("removing {persistedGrantCount} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {persistedGrantType}", persistedGrants.Length, subjectId, clientId, type);
 
             Context.PersistedGrants.RemoveRange(persistedGrants);
 
@@ -180,7 +183,7 @@ namespace IdentityServer4.EntityFramework.Stores
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                Logger.LogInformation("exception removing {persistedGrantCount} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {persistedGrantType}: {error}", persistedGrants.Count, subjectId, clientId, type, ex.Message);
+                Logger.LogInformation("exception removing {persistedGrantCount} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {persistedGrantType}: {error}", persistedGrants.Length, subjectId, clientId, type, ex.Message);
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -54,7 +54,7 @@ namespace IdentityServer4.EntityFramework.Stores
                 from apiResource in Context.ApiResources
                 where apiResource.Name == name
                 select apiResource;
-
+            
             var apis = query
                 .Include(x => x.Secrets)
                 .Include(x => x.Scopes)
@@ -63,7 +63,8 @@ namespace IdentityServer4.EntityFramework.Stores
                 .Include(x => x.Properties)
                 .AsNoTracking();
 
-            var api = await apis.FirstOrDefaultAsync();
+            var api = (await apis.ToArrayAsync())
+                .SingleOrDefault(x => x.Name == name);
 
             if (api != null)
             {
@@ -88,7 +89,7 @@ namespace IdentityServer4.EntityFramework.Stores
 
             var query =
                 from api in Context.ApiResources
-                where api.Scopes.Where(x=>names.Contains(x.Name)).Any()
+                where api.Scopes.Any(x => names.Contains(x.Name))
                 select api;
 
             var apis = query
@@ -99,7 +100,8 @@ namespace IdentityServer4.EntityFramework.Stores
                 .Include(x => x.Properties)
                 .AsNoTracking();
 
-            var results = await apis.ToArrayAsync();
+            var results = (await apis.ToArrayAsync())
+                .Where(api => api.Scopes.Any(x => names.Contains(x.Name)));
             var models = results.Select(x => x.ToModel()).ToArray();
 
             Logger.LogDebug("Found {scopes} API scopes in database", models.SelectMany(x => x.Scopes).Select(x => x.Name));
@@ -126,7 +128,8 @@ namespace IdentityServer4.EntityFramework.Stores
                 .Include(x => x.Properties)
                 .AsNoTracking();
 
-            var results = await resources.ToArrayAsync();
+            var results = (await resources.ToArrayAsync())
+                .Where(x => scopes.Contains(x.Name));
 
             Logger.LogDebug("Found {scopes} identity scopes in database", results.Select(x => x.Name));
 
