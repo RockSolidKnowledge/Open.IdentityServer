@@ -245,12 +245,12 @@ With ``ApiResource`` you can now create two logical APIs and their correponding 
     { 
         return new List<ApiResource>
         {
-            new ApiResource("invoices", "Invoice API")
+            new ApiResource("invoice", "Invoice API")
             {
                 Scopes = { "invoice.read", "invoice.pay", "manage" }
             },
             
-            new ApiResource("customers", "Customer API")
+            new ApiResource("customer", "Customer API")
             {
                 Scopes = { "customer.read", "customer.contact", "manage" }
             }
