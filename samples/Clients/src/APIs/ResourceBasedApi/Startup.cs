@@ -32,21 +32,11 @@ namespace ResourceBasedApi
                     options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
 
                     // if token does not contain a dot, it is a reference token
-                    options.ForwardDefaultSelector = context =>
-                    {
-                        var (scheme, token) = DynamicAuthenticationHandler.GetSchemeAndToken(context);
-                        if (scheme.Equals("Bearer", StringComparison.OrdinalIgnoreCase) &&
-                            !token.Contains("."))
-                        {
-                            return "Introspection";
-                        }
-
-                        return null;
-                    };
+                    options.ForwardDefaultSelector = Selector.ForwardReferenceToken("introspection");
                 })
 
                 // reference tokens
-                .AddOAuth2Introspection(DynamicAuthenticationHandlerDefaults.IntrospectionDefaultScheme, options =>
+                .AddOAuth2Introspection("introspection", options =>
                 {
                     options.Authority = Constants.Authority;
 
