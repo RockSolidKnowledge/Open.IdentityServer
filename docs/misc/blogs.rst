@@ -5,6 +5,7 @@ Team posts
 ^^^^^^^^^^
 2020
 ----
+* `Flexible Access Token Validation in ASP.NET Core <https://leastprivilege.com/2020/07/06/flexible-access-token-validation-in-asp-net-core/>`_
 * `Resource Access in IdentityServer4 v4 and going forward <https://leastprivilege.com/2020/06/18/resource-access-in-identityserver4-v4-and-going-forward/>`_
 * `Automatic Token Management for ASP.NET Core and Worker Services 1.0 <https://leastprivilege.com/2020/05/18/automatic-token-management-for-asp-net-core-and-worker-services-1-0/>`_
 * `Mutual TLS and Proof-of-Possession Tokens: Summary <https://leastprivilege.com/2020/02/12/mutual-tls-and-proof-of-possession-tokens-summary/>`_
