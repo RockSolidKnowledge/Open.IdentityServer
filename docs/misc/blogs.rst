@@ -3,6 +3,16 @@ Blog posts
 
 Team posts
 ^^^^^^^^^^
+2020
+----
+* `Resource Access in IdentityServer4 v4 and going forward <https://leastprivilege.com/2020/06/18/resource-access-in-identityserver4-v4-and-going-forward/>`_
+* `Automatic Token Management for ASP.NET Core and Worker Services 1.0 <https://leastprivilege.com/2020/05/18/automatic-token-management-for-asp-net-core-and-worker-services-1-0/>`_
+* `Mutual TLS and Proof-of-Possession Tokens: Summary <https://leastprivilege.com/2020/02/12/mutual-tls-and-proof-of-possession-tokens-summary/>`_
+* `Mutual TLS and Proof-of-Possession Access Tokens – Part 1: Setup <https://leastprivilege.com/2020/02/07/mutual-tls-and-proof-of-possession-access-tokens-part-1-setup/>`_
+* `Hardening OpenID Connect/OAuth Authorize Requests (and Responses) <https://leastprivilege.com/2020/02/04/hardening-openid-connect-oauth-authorize-requests-and-responses/>`_
+* `Hardening Refresh Tokens <https://leastprivilege.com/2020/01/21/hardening-refresh-tokens/>`_
+* `OAuth 2.0: The long Road to Proof-of-Possession Access Tokens <https://leastprivilege.com/2020/01/15/oauth-2-0-the-long-road-to-proof-of-possession-access-tokens/>`_
+
 2019
 ----
 * `Scope and claims design in IdentityServer <https://brockallen.com/2019/02/25/scope-and-claims-design-in-identityserver/>`_
