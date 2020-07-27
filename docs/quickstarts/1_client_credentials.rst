@@ -134,7 +134,7 @@ Next, add an API to your solution.
 You can either use the ASP.NET Core Web API template from Visual Studio or use the .NET CLI to create the API project as we do here.
 Run from within the ``src`` folder the following command::
 
-    dotnet new web -n Api
+    dotnet new webapi -n Api
 
 Then add it to the solution by running the following commands::
 
@@ -306,7 +306,7 @@ Authorization at the API
 Right now, the API accepts any access token issued by your identity server.
 
 In the following we will add code that allows checking for the presence of the scope in the access token that the client asked for (and got granted).
-For this we will use the ASP.NET Core authorization policy system. Add the following to the ``Configure`` method in ``Startup``::
+For this we will use the ASP.NET Core authorization policy system. Add the following to the ``ConfigureServices`` method in ``Startup``::
 
     services.AddAuthorization(options =>
     {
