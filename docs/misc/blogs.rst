@@ -45,6 +45,7 @@ Team posts
 
 Community posts
 ^^^^^^^^^^^^^^^
+* `Blazor WebAssembly authentication and authorization with IdentityServer4 <https://nahidfa.com/posts/blazor-webassembly-authentication-and-authorization-with-identityserver4/>`_
 * `Additional API Endpoints to IdentityServer 4 <https://lurumad.github.io/aditional-api-endpoints-to-identityserver4>`_
 * `Securing Hangfire Dashboard using an OpenID Connect server (IdentityServer 4) <https://lurumad.github.io/securing-hangfire-dashboard-using-an-openid-connect-server-identityserver-4>`_
 * `IdentityServer4: Retrieving an User's email from Twitter external authentication <https://lurumad.github.io/identityserver4-retrieving-an-user-s-email-from-twitter-external-login-account>`_
@@ -67,7 +68,7 @@ Community posts
 * `Securing a Vue.js app using OpenID Connect Code Flow with PKCE and IdentityServer4 <https://damienbod.com/2019/01/29/securing-a-vue-js-app-using-openid-connect-code-flow-with-pkce-and-identityserver4/>`_
 * `Using an OData Client with an ASP.NET Core API <https://damienbod.com/2018/10/18/using-an-odata-client-with-an-asp-net-core-api/>`_
 * `OpenID Connect back-channel logout using Azure Redis Cache and IdentityServer4 <https://damienbod.com/2018/12/18/openid-connect-back-channel-logout-using-azure-redis-cache-and-identityserver4/>`_
-* `Single Sign Out in IdentityServer4 with Back Channel Logout <https://blog.tretainfotech.com/posts/2018/august/single-sign-out-in-identityserver4-with-back-channel-logout/>`_
+* `Single Sign Out in IdentityServer4 with Back Channel Logout <https://blog.tretainfotech.com/posts/2018/august/single-sign-out-in-identityserver4-with-back-channel-logout>`_
 
 
 
