@@ -28,7 +28,6 @@ Justify ([@justify_legal](https://twitter.com/justify_legal))
 Khalid Abuhakmeh ([@buhakmeh](https://twitter.com/buhakmeh))  
 Rasika Weliwita ([@rasikaweliwita](https://twitter.com/rasikaweliwita))  
 Arun David Shelly  
-Reece Williams ([@AnEmptyReece](https://twitter.com/AnEmptyReece))  
 Alexander Zeitler ([@alexzeitler_](https://twitter.com/alexzeitler_))  
 Tobias Höft ([@tobiashoeft](https://twitter.com/tobiashoeft))  
 Gusztav Varga ([@gusztavvargadr](https://twitter.com/gusztavvargadr))  
