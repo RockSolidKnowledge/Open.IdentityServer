@@ -124,7 +124,7 @@ The discovery document is a standard endpoint in identity servers.  The discover
 
 .. image:: images/1_discovery.png
 
-At first startup, IdentityServer will create a developer signing key for you, it's a file called ``tempkey.rsa``.
+At first startup, IdentityServer will create a developer signing key for you, it's a file called ``tempkey.jwk``.
 You don't have to check that file into your source control, it will be re-created if it is not present.
 
 Adding an API
