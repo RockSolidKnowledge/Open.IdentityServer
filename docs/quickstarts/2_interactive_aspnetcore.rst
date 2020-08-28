@@ -44,9 +44,9 @@ Use the ASP.NET Core "Web Application" (i.e. MVC) template for that.
 
 run from the src folder::
 
-    dotnet new mvc -n MVCClient
+    dotnet new mvc -n MvcClient
     cd ..
-    dotnet sln add .\src\MVCClient\MVCClient.csproj
+    dotnet sln add .\src\MvcClient\MvcClient.csproj
 
 Once you've created the project, configure the application to run on port 5002.
 
