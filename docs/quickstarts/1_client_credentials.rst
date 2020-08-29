@@ -9,7 +9,7 @@ To see the full list, please go to `IdentityServer4 Quickstarts Overview <https:
 
 This first quickstart is the most basic scenario for protecting APIs using IdentityServer. 
 In this quickstart you define an API and a Client with which to access it. 
-The client will request an access token from the Identity Server using its client ID and secret will then use the token to gain access to the API.
+The client will request an access token from the Identity Server using its client ID and secret and then use the token to gain access to the API.
 
 Source Code
 ^^^^^^^^^^^
