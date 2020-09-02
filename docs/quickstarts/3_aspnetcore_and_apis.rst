@@ -26,6 +26,8 @@ In addition we enable support for refresh tokens via the ``AllowOfflineAccess`` 
 
         // where to redirect to after logout
         PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
+        
+        AllowOfflineAccess = true,
 
         AllowedScopes = new List<string>
         {
@@ -56,6 +58,7 @@ All that's left to do now in the client is to ask for the additional resources v
             options.SaveTokens = true;
 
             options.Scope.Add("api1");
+            options.Scope.Add("offline_access");
         });
 
 Since ``SaveTokens`` is enabled, ASP.NET Core will automatically store the resulting access and refresh token in the authentication session.
