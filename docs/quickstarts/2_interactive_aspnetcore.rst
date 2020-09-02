@@ -48,7 +48,7 @@ run from the src folder::
     cd ..
     dotnet sln add .\src\MvcClient\MvcClient.csproj
 
-.. note:: We recommend using the self-host option over IIS Express (if you are using Visual Studio/Windows). The rest of the docs assume you are using self-hosting on port 5002.
+.. note:: We recommend using the self-host option over IIS Express. The rest of the docs assume you are using self-hosting on port 5002.
 
 To add support for OpenID Connect authentication to the MVC application, you first need to add the nuget package containing the OpenID Connect handler to your project, e.g.::
 
