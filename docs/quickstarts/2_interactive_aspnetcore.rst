@@ -169,7 +169,7 @@ The sample UI also comes with an in-memory "user database". You can enable this 
 
     var builder = services.AddIdentityServer()
         .AddInMemoryIdentityResources(Config.IdentityResources)
-        .AddInMemoryApiResources(Config.Apis)
+        .AddInMemoryApiScopes(Config.ApiScopes)
         .AddInMemoryClients(Config.Clients)
         .AddTestUsers(TestUsers.Users);
 
