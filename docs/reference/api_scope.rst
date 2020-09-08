@@ -1,7 +1,7 @@
 .. _refApiScope:
 API Scope
 =================
-This class model an OAuth scope.
+This class models an OAuth scope.
 
 ``Enabled``
     Indicates if this resource is enabled and can be requested. Defaults to true.
@@ -17,7 +17,7 @@ This class model an OAuth scope.
 Defining API scope in appsettings.json
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``AddInMemoryApiResource`` extensions method also supports adding clients from the ASP.NET Core configuration file::
+The ``AddInMemoryApiResource`` extension method also supports adding clients from the ASP.NET Core configuration file::
 
     "IdentityServer": {
         "IssuerUri": "urn:sso.company.com",
