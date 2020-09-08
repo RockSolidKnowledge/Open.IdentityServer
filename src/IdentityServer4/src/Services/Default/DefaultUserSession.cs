@@ -273,8 +273,15 @@ namespace IdentityServer4.Services
             if (clientId == null) throw new ArgumentNullException(nameof(clientId));
 
             await AuthenticateAsync();
-            Properties?.AddClientId(clientId);
-            await UpdateSessionCookie();
+            if (Properties != null)
+            {
+                var clientIds = Properties.GetClientList();
+                if (!clientIds.Contains(clientId))
+                {
+                    Properties.AddClientId(clientId);
+                    await UpdateSessionCookie();
+                }
+            }
         }
 
         /// <summary>
