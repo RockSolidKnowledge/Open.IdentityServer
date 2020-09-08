@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -44,7 +44,7 @@ namespace IdentityServer4.Endpoints.Results
 
         private void AddCspHeaders(HttpContext context)
         {
-            context.Response.AddScriptCspHeaders(_options.Csp, "sha256-bBR11t3xOeLLkccl6Pn1hYbkHCL+JE4CLkgBydaPSE0=");
+            context.Response.AddScriptCspHeaders(_options.Csp, "sha256-fa5rxHhZ799izGRP38+h4ud5QXNT0SFaFlh4eqDumBI=");
         }
         private string GetHtml(string cookieName)
         {
@@ -359,6 +359,10 @@ if (typeof define == 'function' && define.amd) define([], function() { return Sh
             window.addEventListener('message', function(e) {
                 if (window === e.source) {
                     // ignore browser extensions that are sending messages.
+                    return;
+                }
+
+                if (typeof e.data !== 'string') {
                     return;
                 }
 
