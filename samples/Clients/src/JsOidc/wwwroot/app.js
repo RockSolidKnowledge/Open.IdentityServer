@@ -132,7 +132,7 @@ function log(data) {
         else if (typeof msg !== 'string') {
             msg = JSON.stringify(msg, null, 2);
         }
-        document.getElementById('response').innerHTML += msg + '\r\n';
+        document.getElementById('response').innerText += msg + '\r\n';
     });
 }
 
