@@ -42,6 +42,7 @@ Example
 ::
 
     POST /connect/token
+    CONTENT-TYPE application/x-www-form-urlencoded
 
         client_id=client1&
         client_secret=secret&

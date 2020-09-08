@@ -128,7 +128,12 @@ On the callback page your typical tasks are:
 **Clean-up and sign-in**::
 
     // issue authentication cookie for user
-    await HttpContext.SignInAsync(user.SubjectId, user.Username, provider, props, additionalClaims.ToArray());
+    await HttpContext.SignInAsync(new IdentityServerUser(user.SubjectId) {
+        DisplayName = user.Username,
+        IdentityProvider = provider,
+        AdditionalClaims = additionalClaims,
+        AuthenticationTime = DateTime.Now
+    });
 
     // delete temporary cookie used during external authentication
     await HttpContext.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);

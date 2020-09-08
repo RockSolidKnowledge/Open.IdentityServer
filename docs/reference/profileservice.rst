@@ -48,7 +48,7 @@ If the scopes requested are an :ref:`API resources <refApiResource>`, then the c
 IsActiveContext
 ^^^^^^^^^^^^^^^
 
-Models the request to determine is the user is currently allowed to obtain tokens. It contains these properties:
+Models the request to determine if the user is currently allowed to obtain tokens. It contains these properties:
 
 ``Subject``
     The ``ClaimsPrincipal`` modeling the user.

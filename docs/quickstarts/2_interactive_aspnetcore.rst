@@ -44,11 +44,11 @@ Use the ASP.NET Core "Web Application" (i.e. MVC) template for that.
 
 run from the src folder::
 
-    dotnet new mvc -n MVCClient
+    dotnet new mvc -n MvcClient
     cd ..
-    dotnet sln add .\src\MVCClient\MVCClient.csproj
+    dotnet sln add .\src\MvcClient\MvcClient.csproj
 
-Once you've created the project, configure the application to run on port 5002.
+.. note:: We recommend using the self-host option over IIS Express. The rest of the docs assume you are using self-hosting on port 5002.
 
 To add support for OpenID Connect authentication to the MVC application, you first need to add the nuget package containing the OpenID Connect handler to your project, e.g.::
 
@@ -86,14 +86,14 @@ and we set the ``DefaultChallengeScheme`` to ``oidc`` because when we need the u
 
 We then use ``AddCookie`` to add the handler that can process cookies.
 
-Finally, ``AddOpenIdConnect`` is used to configure the handler that perform the OpenID Connect protocol.
+Finally, ``AddOpenIdConnect`` is used to configure the handler that performs the OpenID Connect protocol.
 The ``Authority`` indicates where the trusted token service is located.
 We then identify this client via the ``ClientId`` and the ``ClientSecret``. 
 ``SaveTokens`` is used to persist the tokens from IdentityServer in the cookie (as they will be needed later).
 
 .. note:: We use the so called ``authorization code`` flow with PKCE to connect to the OpenID Connect provider. See :ref:`here <refGrantTypes>` for more information on protocol flows.
 
-And then to ensure the authentication services execute on each request, add ``UseAuthentication`` to ``Configure`` in ``Startup``::
+And then to ensure the execution of the authentication services on each request, add ``UseAuthentication`` to ``Configure`` in ``Startup``::
 
     app.UseStaticFiles();
 
@@ -108,7 +108,7 @@ And then to ensure the authentication services execute on each request, add ``Us
     });
 
 .. note:: The ``RequireAuthorization`` method disables anonymous access for the entire application. 
-You can also use the ``[Authorize]`` attribute, if you want to specify that on a per controller or action method basis.
+You can also use the ``[Authorize]`` attribute, if you want to specify authorization on a per controller or action method basis.
 
 Also modify the home view to display the claims of the user as well as the cookie properties::
 
@@ -169,7 +169,7 @@ The sample UI also comes with an in-memory "user database". You can enable this 
 
     var builder = services.AddIdentityServer()
         .AddInMemoryIdentityResources(Config.IdentityResources)
-        .AddInMemoryApiResources(Config.Apis)
+        .AddInMemoryApiScopes(Config.ApiScopes)
         .AddInMemoryClients(Config.Clients)
         .AddTestUsers(TestUsers.Users);
 
@@ -178,7 +178,7 @@ You can use those users to login.
 
 Adding the MVC Client to the IdentityServer Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The last step is to add a new configuration entry for the MVC client to IdentityServer.
+The last step is to add a new configuration entry for the MVC client to the IdentityServer.
 
 OpenID Connect-based clients are very similar to the OAuth 2.0 clients we added so far.
 But since the flows in OIDC are always interactive, we need to add some redirect URLs to our configuration.
@@ -225,16 +225,16 @@ Testing the client
 Now finally everything should be in place for the new MVC client.
 
 Trigger the authentication handshake by navigating to the protected controller action.
-You should see a redirect to the login page at IdentityServer.
+You should see a redirect to the login page of the IdentityServer.
 
 .. image:: images/3_login.png
 
-After that, IdentityServer will redirect back to the MVC client, where the OpenID Connect authentication handler processes the response and signs-in the user locally by setting a cookie.
+After that, the IdentityServer will redirect back to the MVC client, where the OpenID Connect authentication handler processes the response and signs-in the user locally by setting a cookie.
 Finally the MVC view will show the contents of the cookie.
 
 .. image:: images/3_claims.png
 
-As you can see, the cookie has two parts, the claims of the user, and some metadata. This metadata also contains the original token that was issued by IdentityServer.
+As you can see, the cookie has two parts, the claims of the user, and some metadata. This metadata also contains the original token that was issued by the IdentityServer.
 Feel free to copy this token to `jwt.ms <https://jwt.ms>`_ to inspect its content.
 
 Adding sign-out
@@ -242,7 +242,7 @@ Adding sign-out
 The very last step is to add sign-out to the MVC client.
 
 With an authentication service like IdentityServer, it is not enough to clear the local application cookies.
-In addition you also need to make a roundtrip to IdentityServer to clear the central single sign-on session.
+In addition you also need to make a roundtrip to the IdentityServer to clear the central single sign-on session.
 
 The exact protocol steps are implemented inside the OpenID Connect handler, 
 simply add the following code to some controller to trigger the sign-out::
@@ -252,8 +252,8 @@ simply add the following code to some controller to trigger the sign-out::
         return SignOut("Cookies", "oidc");
     }
 
-This will clear the local cookie and then redirect to IdentityServer.
-IdentityServer will clear its cookies and then give the user a link to return back to the MVC application.
+This will clear the local cookie and then redirect to the IdentityServer.
+The IdentityServer will clear its cookies and then give the user a link to return back to the MVC application.
 
 Further Experiments
 ^^^^^^^^^^^^^^^^^^^

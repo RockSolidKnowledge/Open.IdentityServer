@@ -27,7 +27,7 @@ This is how you could define the openid scope in code::
         {
             new IdentityResource(
                 name: "openid",
-                claimTypes: new[] { "sub" },
+                userClaims: new[] { "sub" },
                 displayName: "Your user identifier")
         };
     }
@@ -52,7 +52,7 @@ The following example shows a custom identity resource called *profile* that rep
         {
             new IdentityResource(
                 name: "profile",
-                claimTypes: new[] { "name", "email", "website" },
+                userClaims: new[] { "name", "email", "website" },
                 displayName: "Your profile data")
         };
     }

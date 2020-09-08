@@ -9,7 +9,7 @@ To see the full list, please go to `IdentityServer4 Quickstarts Overview <https:
 
 This first quickstart is the most basic scenario for protecting APIs using IdentityServer. 
 In this quickstart you define an API and a Client with which to access it. 
-The client will request an access token from the Identity Server using its client ID and secret will then use the token to gain access to the API.
+The client will request an access token from the Identity Server using its client ID and secret and then use the token to gain access to the API.
 
 Source Code
 ^^^^^^^^^^^
@@ -124,7 +124,7 @@ The discovery document is a standard endpoint in identity servers.  The discover
 
 .. image:: images/1_discovery.png
 
-At first startup, IdentityServer will create a developer signing key for you, it's a file called ``tempkey.rsa``.
+At first startup, IdentityServer will create a developer signing key for you, it's a file called ``tempkey.jwk``.
 You don't have to check that file into your source control, it will be re-created if it is not present.
 
 Adding an API
@@ -250,6 +250,7 @@ IdentityModel includes a client library to use with the discovery endpoint. This
         Console.WriteLine(disco.Error);
         return;
     }
+.. note:: If you get an error connecting it may be that you are running `https` and the development certificate for ``localhost`` is not trusted. You can run ``dotnet dev-certs https --trust`` in order to trust the development certificate. This only needs to be done once.
 
 Next you can use the information from the discovery document to request a token to IdentityServer to access ``api1``::
 
