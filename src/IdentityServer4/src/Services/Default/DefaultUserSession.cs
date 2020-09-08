@@ -285,16 +285,19 @@ namespace IdentityServer4.Services
         {
             await AuthenticateAsync();
 
-            try
+            if (Properties != null)
             {
-                return Properties?.GetClientList() ?? Enumerable.Empty<string>();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Error decoding client list");
-                // clear so we don't keep failing
-                Properties.RemoveClientList();
-                await UpdateSessionCookie();
+                try
+                {
+                    return Properties.GetClientList();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Error decoding client list");
+                    // clear so we don't keep failing
+                    Properties.RemoveClientList();
+                    await UpdateSessionCookie();
+                }
             }
 
             return Enumerable.Empty<string>();
