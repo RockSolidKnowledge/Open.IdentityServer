@@ -65,10 +65,19 @@ AuthorizationRequest
     The prompt mode requested from the authorization request.
 ``AcrValues``
     The acr values passed from the authorization request.
-``ScopesRequested``
-    The scopes requested from the authorization request.
+``ValidatedResources``
+    The ``ResourceValidationResult`` which represents the validated resources from the authorization request.
 ``Parameters``
     The entire parameter collection passed to the authorization request.
+
+ResourceValidationResult
+^^^^^^^^^^^^^^^^^^^^^^^^
+``Resources``
+    The resources of the result.
+``ParsedScopes``
+    The parsed scopes represented by the result.
+``RawScopeValues``
+    The original (raw) scope values represented by the validated result.
 
 ErrorMessage
 ^^^^^^^^^^^^
