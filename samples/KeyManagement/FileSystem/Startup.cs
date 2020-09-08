@@ -30,8 +30,8 @@ namespace sample
             var cert = X509.LocalMachine.My.SubjectDistinguishedName.Find(name, false).FirstOrDefault();
 
             services.AddDataProtection()
-                .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Environment.ContentRootPath, "dataprotectionkeys")))
-                .ProtectKeysWithCertificate(cert);
+                .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Environment.ContentRootPath, "dataprotectionkeys")));
+                //.ProtectKeysWithCertificate(cert);
 
             var builder = services.AddIdentityServer()
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
@@ -40,13 +40,16 @@ namespace sample
                 .AddSigningKeyManagement(
                     options => // configuring options is optional :)
                     {
+                        options.DeleteRetiredKeys = true;
+                        options.KeyType = IdentityServer4.KeyManagement.KeyType.RSA;
+
                         // all of these values in here are changed for local testing
                         options.InitializationDuration = TimeSpan.FromSeconds(5);
                         options.InitializationSynchronizationDelay = TimeSpan.FromSeconds(1);
 
                         options.KeyActivationDelay = TimeSpan.FromSeconds(10);
-                        options.KeyExpiration = TimeSpan.FromSeconds(20);
-                        options.KeyRetirement = TimeSpan.FromSeconds(40);
+                        options.KeyExpiration = options.KeyActivationDelay * 2;
+                        options.KeyRetirement = options.KeyActivationDelay * 3;
 
                         // You can get your own license from:
                         // https://www.identityserver.com/products/KeyManagement
