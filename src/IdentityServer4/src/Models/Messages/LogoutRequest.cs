@@ -5,8 +5,8 @@
 using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Validation;
-using System.Collections.Specialized;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace IdentityServer4.Models
@@ -33,7 +33,7 @@ namespace IdentityServer4.Models
             {
                 if (request.Raw != null)
                 {
-                    Parameters = request.Raw;
+                    Parameters = request.Raw.ToFullDictionary();
                 }
 
                 // optimize params sent to logout page, since we'd like to send them in URL (not as cookie)
@@ -91,7 +91,7 @@ namespace IdentityServer4.Models
         /// <summary>
         /// Gets the entire parameter collection.
         /// </summary>
-        public NameValueCollection Parameters { get; } = new NameValueCollection();
+        public IDictionary<string, string[]> Parameters { get; set; } = new Dictionary<string, string[]>();
 
         /// <summary>
         ///  Flag to indicate if the payload contains useful information or not to avoid serailization.
@@ -119,7 +119,7 @@ namespace IdentityServer4.Models
                 SubjectId = message.SubjectId;
                 SessionId = message.SessionId;
                 ClientIds = message.ClientIds;
-                Parameters = message.Parameters;
+                Parameters = message.Parameters.FromFullDictionary();
             }
 
             SignOutIFrameUrl = iframeUrl;
@@ -159,7 +159,7 @@ namespace IdentityServer4.Models
         /// Gets the entire parameter collection.
         /// </summary>
         public NameValueCollection Parameters { get; } = new NameValueCollection();
-        
+
         /// <summary>
         /// Gets or sets the sign out iframe URL.
         /// </summary>
