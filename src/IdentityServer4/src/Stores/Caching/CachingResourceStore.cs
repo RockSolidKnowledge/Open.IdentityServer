@@ -76,7 +76,7 @@ namespace IdentityServer4.Stores
 
             var all = await _allCache.GetAsync(key,
                 _options.Caching.ResourceStoreExpiration,
-                () => _inner.GetAllResourcesAsync(),
+                async () => await _inner.GetAllResourcesAsync(),
                 _logger);
 
             return all;
@@ -89,7 +89,7 @@ namespace IdentityServer4.Stores
 
             var apis = await _apiResourceCache.GetAsync(key,
                 _options.Caching.ResourceStoreExpiration,
-                () => _inner.FindApiResourcesByNameAsync(apiResourceNames),
+                async () => await _inner.FindApiResourcesByNameAsync(apiResourceNames),
                 _logger);
 
             return apis;
@@ -102,7 +102,7 @@ namespace IdentityServer4.Stores
 
             var identities = await _identityCache.GetAsync(key,
                 _options.Caching.ResourceStoreExpiration,
-                () => _inner.FindIdentityResourcesByScopeNameAsync(names),
+                async () => await _inner.FindIdentityResourcesByScopeNameAsync(names),
                 _logger);
 
             return identities;
@@ -115,7 +115,7 @@ namespace IdentityServer4.Stores
 
             var apis = await _apiByScopeCache.GetAsync(key,
                 _options.Caching.ResourceStoreExpiration,
-                () => _inner.FindApiResourcesByScopeNameAsync(names),
+                async () => await _inner.FindApiResourcesByScopeNameAsync(names),
                 _logger);
 
             return apis;
@@ -128,7 +128,7 @@ namespace IdentityServer4.Stores
 
             var apis = await _apiScopeCache.GetAsync(key,
                 _options.Caching.ResourceStoreExpiration,
-                () => _inner.FindApiScopesByNameAsync(scopeNames),
+                async () => await _inner.FindApiScopesByNameAsync(scopeNames),
                 _logger);
 
             return apis;
