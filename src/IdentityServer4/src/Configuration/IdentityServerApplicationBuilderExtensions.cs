@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Builder
@@ -54,7 +55,7 @@ namespace Microsoft.AspNetCore.Builder
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
 
             var logger = loggerFactory.CreateLogger("IdentityServer4.Startup");
-            logger.LogInformation("Starting IdentityServer4 version {version}", FileVersionInfo.GetVersionInfo(typeof(IdentityServer4.Hosting.IdentityServerMiddleware).Assembly.Location).ProductVersion);
+            logger.LogInformation("Starting IdentityServer4 version {version}", typeof(IdentityServer4.Hosting.IdentityServerMiddleware).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
 
             var scopeFactory = app.ApplicationServices.GetService<IServiceScopeFactory>();
 
