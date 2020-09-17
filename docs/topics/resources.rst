@@ -233,7 +233,7 @@ In IdentityServer, the ``ApiResource`` class allows some additional organization
 
             // customer API specific scopes
             new ApiScope(name: "customer.read",    displayName: "Reads you customers information."),
-            new ApiScope(name: "customer.contact", displayName: "Allows contacting one of your customers.")
+            new ApiScope(name: "customer.contact", displayName: "Allows contacting one of your customers."),
 
             // shared scope
             new ApiScope(name: "manage", displayName: "Provides administrative access to invoice and customer data.")
