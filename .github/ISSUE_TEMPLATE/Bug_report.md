@@ -4,7 +4,7 @@ about: Create a report to help us improve
 labels: bug report
 ---
 
-**We can only help you if you are on the latest version. Either use the latest 3.x or 4.x**
+**We can only help you if you are on the latest version.**
 
 Please only use the issue tracker for bug reports and/or feature requests. For general security questions, or free or commercial support options do __not__ use the issue tracker and instead see [here](http://docs.identityserver.io/en/latest/intro/support.html) for more details.
 
