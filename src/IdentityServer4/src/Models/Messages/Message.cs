@@ -21,9 +21,10 @@ namespace IdentityServer4.Models
         }
 
         /// <summary>
-        /// for JSON serializer
+        /// For JSON serializer. 
+        /// System.Text.Json.JsonSerializer requires public, parameterless constructor
         /// </summary>
-        internal Message()
+        public Message()
         {
         }
         
