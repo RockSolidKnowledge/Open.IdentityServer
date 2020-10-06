@@ -81,7 +81,7 @@ namespace IdentityServer4.Services
                     IdentityServerConstants.ProfileDataCallers.ClaimsProviderIdentityToken,
                     additionalClaimTypes)
                 {
-                    RequestedResources = request.ValidatedResources,
+                    RequestedResources = resources,
                     ValidatedRequest = request
                 };
 
