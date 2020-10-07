@@ -68,6 +68,14 @@ namespace IdentityServer4.Services
         protected string CheckSessionCookieDomain => Options.Authentication.CheckSessionCookieDomain;
 
         /// <summary>
+        /// Gets the SameSite mode of the check session cookie.
+        /// </summary>
+        /// <value>
+        /// The SameSite mode of the check session cookie.
+        /// </value>
+        protected SameSiteMode CheckSessionCookieSameSiteMode => Options.Authentication.CheckSessionCookieSameSiteMode;
+
+        /// <summary>
         /// The principal
         /// </summary>
         protected ClaimsPrincipal Principal;
@@ -238,7 +246,7 @@ namespace IdentityServer4.Services
                 Path = path,
                 IsEssential = true,
                 Domain = CheckSessionCookieDomain,
-                SameSite = SameSiteMode.None
+                SameSite = CheckSessionCookieSameSiteMode
             };
 
             return options;

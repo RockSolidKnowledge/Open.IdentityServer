@@ -52,6 +52,11 @@ namespace IdentityServer4.Configuration
         public string CheckSessionCookieDomain { get; set; }
 
         /// <summary>
+        /// Gets or sets the SameSite mode of the cookie used for the check session endpoint. Defaults to SameSiteMode.None.
+        /// </summary>
+        public SameSiteMode CheckSessionCookieSameSiteMode { get; set; } = SameSiteMode.None;
+
+        /// <summary>
         /// If set, will require frame-src CSP headers being emitting on the end session callback endpoint which renders iframes to clients for front-channel signout notification.
         /// </summary>
         public bool RequireCspFrameSrcForSignout { get; set; } = true;
