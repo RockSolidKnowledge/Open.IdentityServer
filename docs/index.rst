@@ -8,7 +8,7 @@ IdentityServer4 is an OpenID Connect and OAuth 2.0 framework for ASP.NET Core.
 
 .. warning:: 
    As of Oct, 1st 2020, we started a new `company <https://duendesoftware.com/>`_. 
-   All new feature work will happen in our new `organization <https://github.com/duendesoftware>`_. 
+   All new major feature work will happen in our new `organization <https://github.com/duendesoftware>`_. 
    The new Duende IdentityServer is available under both a FOSS (RPL) and a commercial license. 
    Development and testing is always free. 
    `Contact <https://duendesoftware.com/contact>`_ us for more information. 
