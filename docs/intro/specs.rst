@@ -8,9 +8,10 @@ OpenID Connect
 
 * OpenID Connect Core 1.0 (`spec <http://openid.net/specs/openid-connect-core-1_0.html>`_)
 * OpenID Connect Discovery 1.0 (`spec <http://openid.net/specs/openid-connect-discovery-1_0.html>`_)
-* OpenID Connect Session Management 1.0 - draft 28 (`spec <http://openid.net/specs/openid-connect-session-1_0.html>`_)
-* OpenID Connect Front-Channel Logout 1.0 - draft 02 (`spec <https://openid.net/specs/openid-connect-frontchannel-1_0.html>`_)
-* OpenID Connect Back-Channel Logout 1.0 - draft 04 (`spec <https://openid.net/specs/openid-connect-backchannel-1_0.html>`_)
+* OpenID Connect RP-Initiated Logout 1.0 - draft 01 (`spec <https://openid.net/specs/openid-connect-rpinitiated-1_0.html>`_)
+* OpenID Connect Session Management 1.0 - draft 30 (`spec <http://openid.net/specs/openid-connect-session-1_0.html>`_)
+* OpenID Connect Front-Channel Logout 1.0 - draft 04 (`spec <https://openid.net/specs/openid-connect-frontchannel-1_0.html>`_)
+* OpenID Connect Back-Channel Logout 1.0 - draft 06 (`spec <https://openid.net/specs/openid-connect-backchannel-1_0.html>`_)
 
 OAuth 2.0
 ^^^^^^^^^
