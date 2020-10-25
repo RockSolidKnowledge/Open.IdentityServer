@@ -248,11 +248,13 @@ namespace IdentityServer4.ResponseHandling
                 Description = request.Description,
                 CodeChallenge = request.CodeChallenge.Sha256(),
                 CodeChallengeMethod = request.CodeChallengeMethod,
+
                 IsOpenId = request.IsOpenIdRequest,
                 RequestedScopes = request.ValidatedResources.RawScopeValues,
                 RedirectUri = request.RedirectUri,
                 Nonce = request.Nonce,
                 StateHash = stateHash,
+
                 WasConsentShown = request.WasConsentShown
             };
 
