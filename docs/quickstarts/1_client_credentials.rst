@@ -113,6 +113,7 @@ Loading the resource and client definitions happens in `Startup.cs <https://gith
     public void ConfigureServices(IServiceCollection services)
     {
         var builder = services.AddIdentityServer()
+            .AddDeveloperSigningCredential()        //This is for dev only scenarios when you don’t have a certificate to use.
             .AddInMemoryApiScopes(Config.ApiScopes)
             .AddInMemoryClients(Config.Clients);
 
