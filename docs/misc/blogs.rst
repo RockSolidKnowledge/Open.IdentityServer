@@ -48,7 +48,6 @@ Community posts
 * `Blazor WebAssembly authentication and authorization with IdentityServer4 <https://nahidfa.com/posts/blazor-webassembly-authentication-and-authorization-with-identityserver4/>`_
 * `Additional API Endpoints to IdentityServer 4 <https://lurumad.github.io/aditional-api-endpoints-to-identityserver4>`_
 * `Securing Hangfire Dashboard using an OpenID Connect server (IdentityServer 4) <https://lurumad.github.io/securing-hangfire-dashboard-using-an-openid-connect-server-identityserver-4>`_
-* `IdentityServer4: Retrieving an User's email from Twitter external authentication <https://lurumad.github.io/identityserver4-retrieving-an-user-s-email-from-twitter-external-login-account>`_
 * `OAuth 2.0 - OpenID Connect & IdentityServer <https://wp.me/p3mRWu-1Ag/>`_
 * `Running IdentityServer4 in a Docker Container <https://espressocoder.com/2019/01/29/running-identityserver4-in-a-docker-container/>`_
 * `Connecting Zendesk and IdentityServer 4 SAML 2.0 Identity Provider <https://lurumad.github.io/connecting-zendesk-and-identityserver-4-saml2p-identity-provider>`_
