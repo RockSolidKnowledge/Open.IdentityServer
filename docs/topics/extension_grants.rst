@@ -103,7 +103,7 @@ Don't forget to register the validator with DI.
 
 You need a client registration in IdentityServer that allows a client to use this new extension grant, e.g.::
 
-    var client = new client
+    var client = new Client
     {
         ClientId = "api1.client",
         ClientSecrets = new List<Secret>
