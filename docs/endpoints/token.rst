@@ -8,7 +8,7 @@ Furthermore the token endpoint can be extended to support extension grant types.
 .. Note:: IdentityServer supports a subset of the OpenID Connect and OAuth 2.0 token request parameters. For a full list, see `here <http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest>`_.
 
 ``client_id``
-    client identifier (required)
+    client identifier (required – Either in the body or as part of the authorization header.)
 ``client_secret``
     client secret either in the post body, or as a basic authentication header. Optional.
 ``grant_type``
