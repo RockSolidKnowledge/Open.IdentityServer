@@ -13,7 +13,7 @@ IdentityServer4 is an OpenID Connect and OAuth 2.0 framework for ASP.NET Core.
    Development and testing is always free. 
    `Contact <https://duendesoftware.com/contact>`_ us for more information. 
    
-   IdentityServer4 will be maintained security updates until November 2022. 
+   IdentityServer4 will be maintained with security updates until November 2022. 
 
 
 .. note:: This docs cover the latest version on main branch. This might not be released yet. Use the version picker in the lower left corner to select docs for a specific version.
