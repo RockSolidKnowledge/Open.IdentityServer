@@ -1,6 +1,7 @@
 # Important update
-As of Oct 1st 2020, we started a new [company](https://duendesoftware.com/). All new feature work will happen in our new [organization](https://github.com/duendesoftware).
-The new Duende IdentityServer is available under both a FOSS (RPL) and a commercial license. Development and testing is always free. [Contact](https://duendesoftware.com/contact) us for more information. This repo will be maintained with bug fixes and security updates until November 2022.
+This organization is not maintained anymore besides critical security bugfixes (if feasible). This organization will be archived when .NET Core 3.1 end of support is reached (3rd Dec 2022). All new development is happening in the new [Duende Software](https://github.com/duendesoftware) organization. 
+
+The new [Duende IdentityServer](https://duendesoftware.com/products/identityserver) comes with a commercial license but is [free](https://blog.duendesoftware.com/posts/20220111_fair_trade/) for dev/testing/personal projects and companies or individuals making less than 1M USD gross annnual revenue. Please [get in touch with us](https://duendesoftware.com/contact) if you have any question.
 
 ## About IdentityServer4
 [<img align="right" width="100px" src="https://dotnetfoundation.org/img/logo_big.svg" />](https://dotnetfoundation.org/projects?searchquery=IdentityServer&type=project)
