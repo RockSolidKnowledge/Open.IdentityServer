@@ -1,0 +1,16 @@
+parameters:
+  dotnetVersions: []
+
+steps:
+  - ${{ each dotnetVersion in parameters.dotnetVersions }}:
+    - task: UseDotNet@2
+      displayName: 'Install .NET Core sdk version ${{ dotnetVersion }}'
+      inputs:
+        packageType: sdk
+        version: ${{ dotnetVersion }}
+        installationPath: $(Agent.ToolsDirectory)/dotnet
+        
+  - task: NuGetToolInstaller@0
+    inputs:
+      versionSpec: ${{ parameters.nugetVersion }}
+

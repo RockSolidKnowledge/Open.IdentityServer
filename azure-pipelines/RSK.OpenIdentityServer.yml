@@ -1,0 +1,108 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+
+variables:
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+
+jobs:
+  - job: CI
+    strategy:
+      matrix:
+        linux:
+          imageName: 'ubuntu-latest'
+          shouldPublish: true
+          pushOnPrivateFeed: false
+
+
+    pool:
+      vmImage: $(imageName)
+
+    steps:
+      - checkout: self
+        clean: true
+        fetchDepth: 0
+        fetchFilter: tree:0
+    
+      - template: templates/dotnet-install.yml
+        parameters:
+          dotnetVersions: [10.x]
+          nugetVersion: '5.4.0'
+
+      # Build, test, and pack IdentityServer4.Storage first, as it is a dependency for the other projects
+      - template: templates/dotnet-restore-build-and-test.yml
+        parameters:
+          nuGetConfig: NuGet.config
+          csproj: '**/IdentityServer4.Storage.sln'
+      
+      - template: templates/dotnet-pack-ci.yml
+        parameters:
+          name: 'IdentityServer4.Storage'
+          projects: 
+          - csproj: '**/IdentityServer4.Storage.csproj'
+        
+      # Build, test, and pack the Core package, which is the main package and has the most dependencies
+      - template: templates/dotnet-restore-build-and-test.yml
+        parameters:
+          nuGetConfig: NuGet.config
+          csproj: '**/IdentityServer4.sln'
+          testProjects: 
+          - '**/IdentityServer.UnitTests.csproj'
+          - '**/IdentityServer.IntegrationTests.csproj'
+        
+      - template: templates/dotnet-pack-ci.yml
+        parameters:
+          name: 'IdentityServer4'
+          projects: 
+          - csproj: '**/IdentityServer4.csproj' 
+      
+      # Build, test, and pack the ASP.NET Identity package, which depends on the Core package
+      - template: templates/dotnet-restore-build-and-test.yml
+        parameters:
+          nuGetConfig: NuGet.config
+          csproj: '**/IdentityServer4.AspNetIdentity.sln'
+      
+      - template: templates/dotnet-pack-ci.yml
+        parameters:
+          name: 'IdentityServer4.AspNetIdentity'
+          projects: 
+          - csproj: '**/IdentityServer4.AspNetIdentity.csproj'  
+
+      # Build, test, and pack the EntityFramework.Storage package, which depends on the Core package
+      - template: templates/dotnet-restore-build-and-test.yml
+        parameters:
+          nuGetConfig: NuGet.config
+          csproj: '**/IdentityServer4.EntityFramework.Storage.sln'
+          testProjects: 
+          - '**/EntityFramework.Storage/test/UnitTests/IdentityServer4.EntityFramework.UnitTests.csproj'
+          - '**/EntityFramework.Storage/test/IntegrationTests/IdentityServer4.EntityFramework.IntegrationTests.csproj'
+
+      - template: templates/dotnet-pack-ci.yml
+        parameters:
+          name: 'IdentityServer4.EntityFramework.Storage'
+          projects: 
+          - csproj: '**/IdentityServer4.EntityFramework.Storage.csproj'
+      
+      # Build, test, and pack the EntityFramework package, which depends on the EntityFramework Storage package
+      - template: templates/dotnet-restore-build-and-test.yml
+        parameters:
+          nuGetConfig: NuGet.config
+          csproj: '**/IdentityServer4.EntityFramework.sln'
+          testProjects: 
+          - '**/EntityFramework/test/IdentityServer4.EntityFramework.Tests/IdentityServer4.EntityFramework.Tests.csproj'
+
+      - template: templates/dotnet-pack-ci.yml
+        parameters:
+          name: 'IdentityServer4.EntityFramework'
+          projects: 
+          - csproj: '**/IdentityServer4.EntityFramework.csproj'

@@ -1,0 +1,78 @@
+parameters:
+  - name: documentationOutputDir
+    type: string
+    default: 'component'
+  - name: documentationDir
+    type: string
+    default: 'documentation'
+  - name: dockerImage
+    type: string
+    default: 'rskdockershared.azurecr.io/identityserver_docs_build'
+  - name: containerRegistry
+    type: string
+    default: 'IdentityServerDocsBuilder'
+  - name: supportedFrameworks
+    type: object
+    default:
+      - 'IdentityServer'
+      - 'OpenIddict'
+
+steps:
+- task: Docker@2
+  displayName: Login to ACR
+  inputs:
+    command: login
+    containerRegistry: ${{ parameters.containerRegistry }}
+
+- checkout: self
+  persistCredentials: true
+  submodules: true
+
+- ${{ each supportedFramework in parameters.supportedFrameworks }}:
+  - task: Bash@3
+    displayName: 'Prepare the documentation for ${{ supportedFramework }} into ${{ supportedFramework }}-documentation directory'
+    inputs:
+      arguments: '${{ supportedFramework }}'
+      targetType: 'filePath'
+      filePath: "$(Build.SourcesDirectory)/prepare-documentation.sh"
+      failOnStderr: true
+      workingDirectory: "$(Build.SourcesDirectory)"
+    env:
+      DIR_BUILD: '${{ supportedFramework }}-documentation'
+
+  - task: CmdLine@2
+    displayName: 'Run mkdocs Docker image ${{ parameters.dockerImage }} on the ${{ supportedFramework }}-documentation directory for ${{ supportedFramework }}'
+    inputs:
+      script: 'docker run -v $(Build.SourcesDirectory)/${{ supportedFramework }}-documentation:/docs ${{ parameters.dockerImage }}'
+
+  - task: CopyFiles@2
+    displayName: 'Copy the output files to the staging directory'
+    inputs:
+      SourceFolder: '${{ supportedFramework }}-documentation/site'
+      Contents: |
+        **
+        !**/package*.json
+        !**/gulpfile.js
+        !**/mkdocs_theme.yml
+        !**/config/**/*
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/${{ supportedFramework }}/${{ parameters.documentationOutputDir }}'
+      CleanTargetFolder: false
+
+  - task: CopyFiles@2
+    displayName: 'Copy Identity Server to saml2p directory for current site'
+    inputs:
+      SourceFolder: 'IdentityServer-documentation/site'
+      Contents: |
+        **
+        !**/package*.json
+        !**/gulpfile.js
+        !**/mkdocs_theme.yml
+        !**/config/**/*
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/${{ parameters.documentationOutputDir }}'
+      CleanTargetFolder: false
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish documentation artifacts'
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'mkdocs'

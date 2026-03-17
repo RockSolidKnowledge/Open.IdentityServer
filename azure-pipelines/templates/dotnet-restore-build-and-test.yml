@@ -1,0 +1,100 @@
+parameters:
+- name: nuGetConfig
+  type: string
+  default: ''
+- name: csproj
+  type: string
+  default: ''
+- name: testProjects
+  type: object
+  default: []
+
+steps:
+  - pwsh: |
+      New-Item -ItemType Directory -Force -Path "$(Build.ArtifactStagingDirectory)/Staging"
+    displayName: 'Ensure staging folder exists'
+
+  - pwsh: |
+      $configPath = "$(Build.SourcesDirectory)/NuGet.ci.config"
+
+      Copy-Item "$(System.DefaultWorkingDirectory)/${{ parameters.nuGetConfig }}" $configPath -Force
+
+      dotnet nuget add source "$(Build.ArtifactStagingDirectory)/Staging" `
+        --name local-ci `
+        --configfile $configPath
+
+      [xml]$xml = Get-Content $configPath
+
+      if (-not $xml.configuration.packageSourceMapping) {
+          $psm = $xml.CreateElement("packageSourceMapping")
+          $xml.configuration.AppendChild($psm) | Out-Null
+      } else {
+          $psm = $xml.configuration.packageSourceMapping
+      }
+
+      function Add-Mapping($sourceName, $pattern) {
+          $existing = $psm.packageSource | Where-Object { $_.key -eq $sourceName }
+
+          if (-not $existing) {
+              $node = $xml.CreateElement("packageSource")
+              $node.SetAttribute("key", $sourceName)
+
+              $pkg = $xml.CreateElement("package")
+              $pkg.SetAttribute("pattern", $pattern)
+
+              $node.AppendChild($pkg) | Out-Null
+              $psm.AppendChild($node) | Out-Null
+          }
+      }
+
+      Add-Mapping "local-ci" "IdentityServer4*"
+      Add-Mapping "NuGet" "*"
+
+      $xml.Save($configPath)
+
+      Write-Host "Final NuGet.config:"
+      Get-Content $configPath
+    displayName: 'Add CI source + source mapping'
+
+  - pwsh: |
+      $configPath = "$(Build.SourcesDirectory)/NuGet.ci.config"
+      Write-Host "NuGet config path: $configPath"
+      Get-Content $configPath
+    displayName: 'Show generated NuGet config'
+
+  - pwsh: |
+      Write-Host "Staging folder contents:"
+      Get-ChildItem "$(Build.ArtifactStagingDirectory)/Staging" -File | Select-Object Name, FullName
+    displayName: 'List staging packages'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Dotnet restore ${{ parameters.csproj }}'
+    inputs:
+      command: 'restore'
+      projects: ${{ parameters.csproj }}
+      feedsToUse: 'config'
+      nugetConfigPath: '$(Build.SourcesDirectory)/NuGet.ci.config'
+
+  - ${{ each testProject in parameters.testProjects }}:
+    - task: DotNetCoreCLI@2
+      displayName: 'Dotnet restore ${{ testProject }}'
+      inputs:
+        command: 'restore'
+        projects: ${{ testProject }}
+        feedsToUse: 'config'
+        nugetConfigPath: '$(Build.SourcesDirectory)/NuGet.ci.config'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build ${{ parameters.csproj }}'
+    inputs:
+      command: 'build'
+      projects: ${{ parameters.csproj }}
+      arguments: '-c $(buildConfiguration) --no-restore /p:VersionSuffix=ci-$(Build.BuildId)'
+
+  - ${{ each testProject in parameters.testProjects }}:
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet test ${{ testProject }}'
+      inputs:
+        command: 'test'
+        projects: ${{ testProject }}
+        arguments: '-c $(buildConfiguration) --no-restore /p:VersionSuffix=ci-$(Build.BuildId)'

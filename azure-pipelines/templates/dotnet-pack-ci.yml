@@ -1,0 +1,32 @@
+parameters:
+  name: ''
+  projects: []
+
+steps:
+  - ${{ each project in parameters.projects }}:
+    - task: DotNetCoreCLI@2
+      displayName: 'Package ${{ project.csproj }} (CI prerelease)'
+      inputs:
+        command: 'pack'
+        packagesToPack: ${{ project.csproj }}
+        nobuild: true
+        includesymbols: true
+        verbosityPack: 'Normal'
+        outputDir: LocalNuget/Staging
+
+  - task: CopyFiles@2
+    condition: and(succeeded(), eq(variables['shouldPublish'], true))
+    displayName: 'Copy nupkg to artifact directory'
+    inputs:
+      Contents: 'LocalNuget/Staging/*.nupkg'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Staging'
+      CleanTargetFolder: true
+      flattenFolders: true
+
+  - task: PublishBuildArtifacts@1
+    condition: and(succeeded(), eq(variables['shouldPublish'], true))
+    displayName: 'Publish ${{ parameters.name }} artifact'
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'OpenIdentityServer nupkg'
+      publishLocation: 'Container'

@@ -1,0 +1,15 @@
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish Staging Nuget Files'
+  condition: and(succeeded(), and(eq(variables['pushOnPrivateFeed'], true), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'))))
+  inputs:
+   command: 'push'
+   arguments: '--skip-duplicate'
+   packagesToPush: '$(Build.ArtifactStagingDirectory)/**/Staging/*.symbols.nupkg'
+   nuGetFeedType: 'internal'
+   publishVstsFeed: '75d50f4c-8a7b-4618-b9de-bae4820efa8f'
