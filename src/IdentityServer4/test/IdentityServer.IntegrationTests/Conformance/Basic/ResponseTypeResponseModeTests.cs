@@ -102,11 +102,14 @@ namespace IdentityServer.IntegrationTests.Conformance.Basic
 
             var url = _mockPipeline.CreateAuthorizeUrl(
                 clientId: "code_client",
-                responseType: null, // missing
+                responseType: "fake", // missing
                 scope: "openid",
                 redirectUri: "https://code_client/callback",
                 state: state,
                 nonce: nonce);
+
+            //Remove after creating, CreateAuthorizeUrl throws error if not set now
+            url = url.Replace("response_type=fake&", string.Empty);
 
             _mockPipeline.BrowserClient.AllowAutoRedirect = true;
             var response = await _mockPipeline.BrowserClient.GetAsync(url);

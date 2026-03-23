@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using AutoMapper;
+using AutoMapper.Internal;
 
 namespace IdentityServer4.EntityFramework.Mappers
 {
@@ -13,7 +15,14 @@ namespace IdentityServer4.EntityFramework.Mappers
     {
         static ClientMappers()
         {
-            Mapper = new MapperConfiguration(cfg => cfg.AddProfile<ClientMapperProfile>())
+            Mapper = new MapperConfiguration(cfg =>
+                {
+                    cfg.AddProfile<ClientMapperProfile>();
+                    
+                    // important on .NET 10 prevents scanning LINQ generic extension methods on .NET 10
+                    cfg.Internal().MethodMappingEnabled = false;
+                    cfg.ShouldMapMethod = _ => false; 
+                })
                 .CreateMapper();
         }
 

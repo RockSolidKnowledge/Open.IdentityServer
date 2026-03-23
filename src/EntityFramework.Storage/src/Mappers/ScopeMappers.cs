@@ -3,6 +3,7 @@
 
 
 using AutoMapper;
+using AutoMapper.Internal;
 using IdentityServer4.EntityFramework.Entities;
 
 namespace IdentityServer4.EntityFramework.Mappers
@@ -14,7 +15,12 @@ namespace IdentityServer4.EntityFramework.Mappers
     {
         static ScopeMappers()
         {
-            Mapper = new MapperConfiguration(cfg => cfg.AddProfile<ScopeMapperProfile>())
+            Mapper = new MapperConfiguration(cfg =>
+                {
+                    cfg.AddProfile<ScopeMapperProfile>();
+                    cfg.Internal().MethodMappingEnabled = false; // important on .NET 10
+                    cfg.ShouldMapMethod = _ => false; // prevents scanning LINQ generic extension methods on .NET 10
+                })
                 .CreateMapper();
         }
 

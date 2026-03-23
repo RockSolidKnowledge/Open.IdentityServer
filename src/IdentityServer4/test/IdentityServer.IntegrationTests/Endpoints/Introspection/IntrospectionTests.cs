@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityModel.Client;
@@ -180,15 +181,15 @@ namespace IdentityServer.IntegrationTests.Endpoints.Introspection
                 Token = tokenResponse.AccessToken
             });
 
-            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
-
-            values["aud"].GetType().Name.Should().Be("String");
-            values["iss"].GetType().Name.Should().Be("String");
-            values["nbf"].GetType().Name.Should().Be("Int64");
-            values["exp"].GetType().Name.Should().Be("Int64");
-            values["client_id"].GetType().Name.Should().Be("String");
-            values["active"].GetType().Name.Should().Be("Boolean");
-            values["scope"].GetType().Name.Should().Be("String");
+            var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
+            
+            ((JsonElement)values["aud"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["iss"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["nbf"]).ValueKind.Should().Be(JsonValueKind.Number);
+            ((JsonElement)values["exp"]).ValueKind.Should().Be(JsonValueKind.Number);
+            ((JsonElement)values["client_id"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["active"]).ValueKind.Should().Be(JsonValueKind.True);
+            ((JsonElement)values["scope"]).ValueKind.Should().Be(JsonValueKind.String);
 
             values["scope"].ToString().Should().Be("api1");
         }
@@ -219,17 +220,17 @@ namespace IdentityServer.IntegrationTests.Endpoints.Introspection
                 Token = tokenResponse.AccessToken
             });
 
-            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
-
-            values["aud"].GetType().Name.Should().Be("String");
-            values["iss"].GetType().Name.Should().Be("String");
-            values["nbf"].GetType().Name.Should().Be("Int64");
-            values["exp"].GetType().Name.Should().Be("Int64");
-            values["auth_time"].GetType().Name.Should().Be("Int64");
-            values["client_id"].GetType().Name.Should().Be("String");
-            values["sub"].GetType().Name.Should().Be("String");
-            values["active"].GetType().Name.Should().Be("Boolean");
-            values["scope"].GetType().Name.Should().Be("String");
+            var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
+            
+            ((JsonElement)values["aud"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["iss"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["nbf"]).ValueKind.Should().Be(JsonValueKind.Number);
+            ((JsonElement)values["exp"]).ValueKind.Should().Be(JsonValueKind.Number);
+            ((JsonElement)values["auth_time"]).ValueKind.Should().Be(JsonValueKind.Number);
+            ((JsonElement)values["client_id"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["sub"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["active"]).ValueKind.Should().Be(JsonValueKind.True);
+            ((JsonElement)values["scope"]).ValueKind.Should().Be(JsonValueKind.String);
 
             values["scope"].ToString().Should().Be("api1");
         }
@@ -258,22 +259,22 @@ namespace IdentityServer.IntegrationTests.Endpoints.Introspection
                 Token = tokenResponse.AccessToken
             });
 
-            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
+            var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
 
-            values["aud"].GetType().Name.Should().Be("JArray");
+            values["aud"].GetType().Name.Should().Be("JsonElement");
 
-            var audiences = ((JArray)values["aud"]);
+            var audiences = ((JsonElement)values["aud"]).EnumerateArray();
             foreach (var aud in audiences)
             {
-                aud.Type.Should().Be(JTokenType.String);
+                aud.ValueKind.Should().Be(JsonValueKind.String);
             }
 
-            values["iss"].GetType().Name.Should().Be("String");
-            values["nbf"].GetType().Name.Should().Be("Int64");
-            values["exp"].GetType().Name.Should().Be("Int64");
-            values["client_id"].GetType().Name.Should().Be("String");
-            values["active"].GetType().Name.Should().Be("Boolean");
-            values["scope"].GetType().Name.Should().Be("String");
+            ((JsonElement)values["iss"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["nbf"]).ValueKind.Should().Be(JsonValueKind.Number);
+            ((JsonElement)values["exp"]).ValueKind.Should().Be(JsonValueKind.Number);
+            ((JsonElement)values["client_id"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["active"]).ValueKind.Should().Be(JsonValueKind.True);
+            ((JsonElement)values["scope"]).ValueKind.Should().Be(JsonValueKind.String);
 
             var scopes = values["scope"].ToString();
             scopes.Should().Be("api3-a api3-b");
@@ -303,15 +304,15 @@ namespace IdentityServer.IntegrationTests.Endpoints.Introspection
                 Token = tokenResponse.AccessToken
             });
 
-            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
-
-            values["aud"].GetType().Name.Should().Be("String");
-            values["iss"].GetType().Name.Should().Be("String"); 
-            values["nbf"].GetType().Name.Should().Be("Int64"); 
-            values["exp"].GetType().Name.Should().Be("Int64"); 
-            values["client_id"].GetType().Name.Should().Be("String"); 
-            values["active"].GetType().Name.Should().Be("Boolean"); 
-            values["scope"].GetType().Name.Should().Be("String");
+            var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
+            
+            ((JsonElement)values["aud"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["iss"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["nbf"]).ValueKind.Should().Be(JsonValueKind.Number);
+            ((JsonElement)values["exp"]).ValueKind.Should().Be(JsonValueKind.Number);
+            ((JsonElement)values["client_id"]).ValueKind.Should().Be(JsonValueKind.String);
+            ((JsonElement)values["active"]).ValueKind.Should().Be(JsonValueKind.True);
+            ((JsonElement)values["scope"]).ValueKind.Should().Be(JsonValueKind.String);
 
             var scopes = values["scope"].ToString();
             scopes.Should().Be("api3-a api3-b");

@@ -4,8 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Configuration;
@@ -13,9 +14,8 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace IdentityServer4.Validation
 {
@@ -30,7 +30,7 @@ namespace IdentityServer4.Validation
         /// <summary>
         /// JWT handler
         /// </summary>
-        protected JwtSecurityTokenHandler Handler = new JwtSecurityTokenHandler
+        protected JsonWebTokenHandler Handler = new()
         {
             MapInboundClaims = false
         };
@@ -79,6 +79,7 @@ namespace IdentityServer4.Validation
         {
             _audienceUri = audience;
             Logger = logger;
+            Options = new IdentityServerOptions();
         }
 
         /// <summary>
@@ -111,10 +112,10 @@ namespace IdentityServer4.Validation
                 return fail;
             }
 
-            JwtSecurityToken jwtSecurityToken;
+            JsonWebToken jwt;
             try
             {
-                jwtSecurityToken = await ValidateJwtAsync(jwtTokenString, trustedKeys, client);
+                jwt = await ValidateJwtAsync(jwtTokenString, trustedKeys, client);
             }
             catch (Exception e)
             {
@@ -122,14 +123,14 @@ namespace IdentityServer4.Validation
                 return fail;
             }
 
-            if (jwtSecurityToken.Payload.ContainsKey(OidcConstants.AuthorizeRequest.Request) ||
-                jwtSecurityToken.Payload.ContainsKey(OidcConstants.AuthorizeRequest.RequestUri))
+            if (jwt.TryGetPayloadValue(OidcConstants.AuthorizeRequest.Request, out object _) ||
+                jwt.TryGetPayloadValue(OidcConstants.AuthorizeRequest.RequestUri, out object _))
             {
                 Logger.LogError("JWT payload must not contain request or request_uri");
                 return fail;
             }
 
-            var payload = await ProcessPayloadAsync(jwtSecurityToken);
+            var payload = await ProcessPayloadAsync(jwt);
 
             var result = new JwtRequestValidationResult
             {
@@ -158,7 +159,7 @@ namespace IdentityServer4.Validation
         /// <param name="keys">The keys</param>
         /// <param name="client">The client</param>
         /// <returns></returns>
-        protected virtual Task<JwtSecurityToken> ValidateJwtAsync(string jwtTokenString, IEnumerable<SecurityKey> keys, Client client)
+        protected virtual async Task<JsonWebToken> ValidateJwtAsync(string jwtTokenString, IEnumerable<SecurityKey> keys, Client client)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -180,9 +181,13 @@ namespace IdentityServer4.Validation
                 tokenValidationParameters.ValidTypes = new[] { JwtClaimTypes.JwtTypes.AuthorizationRequest };
             }
 
-            Handler.ValidateToken(jwtTokenString, tokenValidationParameters, out var token);
-            
-            return Task.FromResult((JwtSecurityToken)token);
+            var result = await Handler.ValidateTokenAsync(jwtTokenString, tokenValidationParameters);
+            if (!result.IsValid)
+            {
+                throw result.Exception ?? new SecurityTokenValidationException("JWT token validation failed.");
+            }
+
+            return (JsonWebToken)result.SecurityToken;
         }
 
         /// <summary>
@@ -190,29 +195,26 @@ namespace IdentityServer4.Validation
         /// </summary>
         /// <param name="token">The JWT token</param>
         /// <returns></returns>
-        protected virtual Task<Dictionary<string, string>> ProcessPayloadAsync(JwtSecurityToken token)
+        protected virtual Task<Dictionary<string, string>> ProcessPayloadAsync(JsonWebToken token)
         {
-            // filter JWT validation values
-            var payload = new Dictionary<string, string>();
-            foreach (var key in token.Payload.Keys)
-            {
-                if (!Constants.Filters.JwtRequestClaimTypesFilter.Contains(key))
-                {
-                    var value = token.Payload[key];
+            var payloadJson = Encoding.UTF8.GetString(Base64UrlEncoder.DecodeBytes(token.EncodedPayload));
 
-                    switch (value)
-                    {
-                        case string s:
-                            payload.Add(key, s);
-                            break;
-                        case JObject jobj:
-                            payload.Add(key, jobj.ToString(Formatting.None));
-                            break;
-                        case JArray jarr:
-                            payload.Add(key, jarr.ToString(Formatting.None));
-                            break;
-                    }
+            using var document = JsonDocument.Parse(payloadJson);
+
+            var payload = new Dictionary<string, string>();
+
+            foreach (var property in document.RootElement.EnumerateObject())
+            {
+                if (Constants.Filters.JwtRequestClaimTypesFilter.Contains(property.Name))
+                {
+                    continue;
                 }
+
+                payload[property.Name] = property.Value.ValueKind switch
+                {
+                    JsonValueKind.String => property.Value.GetString()!,
+                    _ => property.Value.GetRawText()
+                };
             }
 
             return Task.FromResult(payload);

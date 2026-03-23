@@ -8,6 +8,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
+using IdentityModel.Client;
 using IdentityServer.IntegrationTests.Common;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
@@ -22,12 +23,12 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
     {
         private const string Category = "Authorize and consent tests";
 
-        private IdentityServerPipeline _mockPipeline = new IdentityServerPipeline();
+        private IdentityServerPipeline _mockPipeline = new();
 
         public ConsentTests()
         {
-            _mockPipeline.Clients.AddRange(new Client[] {
-                new Client
+            _mockPipeline.Clients.AddRange([
+                new Client()
                 {
                     ClientId = "client1",
                     AllowedGrantTypes = GrantTypes.Implicit,
@@ -36,7 +37,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                     RedirectUris = new List<string> { "https://client1/callback" },
                     AllowAccessTokensViaBrowser = true
                 },
-                new Client
+                new Client()
                 {
                     ClientId = "client2",
                     AllowedGrantTypes = GrantTypes.Implicit,
@@ -45,7 +46,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                     RedirectUris = new List<string> { "https://client2/callback" },
                     AllowAccessTokensViaBrowser = true
                 },
-                new Client
+                new Client()
                 {
                     ClientId = "client3",
                     AllowedGrantTypes = GrantTypes.Implicit,
@@ -55,7 +56,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                     AllowAccessTokensViaBrowser = true,
                     IdentityProviderRestrictions = new List<string> { "google" }
                 }
-            });
+            ]);
 
             _mockPipeline.Users.Add(new TestUser
             {
@@ -63,9 +64,9 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                 Username = "bob",
                 Claims = new Claim[]
                 {
-                    new Claim("name", "Bob Loblaw"),
-                    new Claim("email", "bob@loblaw.com"),
-                    new Claim("role", "Attorney")
+                    new("name", "Bob Loblaw"),
+                    new("email", "bob@loblaw.com"),
+                    new("role", "Attorney")
                 }
             });
 
@@ -75,7 +76,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                 new IdentityResources.Email()
             });
             _mockPipeline.ApiResources.AddRange(new ApiResource[] {
-                new ApiResource
+                new()
                 {
                     Name = "api",
                     Scopes = { "api1", "api2" }
@@ -84,11 +85,11 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
 
             _mockPipeline.ApiScopes.AddRange(new ApiScope[]
             {
-                new ApiScope
+                new()
                 {
                     Name = "api1"
                 },
-                new ApiScope
+                new()
                 {
                     Name = "api2"
                 }
@@ -142,11 +143,11 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
                 state: "123_state",
                 nonce: "123_nonce",
                 acrValues: "acr_1 acr_2 tenant:tenant_value",
-                extra: new
+                extra: new Parameters
                 {
-                    display = "popup", // must use a valid value form the spec for display
-                    ui_locales = "ui_locale_value",
-                    custom_foo = "foo_value"
+                    { "display", "popup" }, // must use a valid value form the spec for display
+                    { "ui_locales", "ui_locale_value" },
+                    { "custom_foo", "foo_value" },
                 }
             );
             var response = await _mockPipeline.BrowserClient.GetAsync(url);

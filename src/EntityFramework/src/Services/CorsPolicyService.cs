@@ -1,16 +1,14 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
 using System;
-using System.Threading.Tasks;
-using IdentityServer4.Services;
 using System.Linq;
+using System.Threading.Tasks;
 using IdentityServer4.EntityFramework.Interfaces;
-using Microsoft.Extensions.Logging;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace IdentityServer4.EntityFramework.Services
 {
@@ -47,7 +45,7 @@ namespace IdentityServer4.EntityFramework.Services
             // doing this here and not in the ctor because: https://github.com/aspnet/CORS/issues/105
             var dbContext = _context.HttpContext.RequestServices.GetRequiredService<IConfigurationDbContext>();
 
-            var query = from o in dbContext.ClientCorsOrigins
+            var query = from o in dbContext.ClientCorsOrigins.AsAsyncEnumerable()
                         where o.Origin == origin
                         select o;
             

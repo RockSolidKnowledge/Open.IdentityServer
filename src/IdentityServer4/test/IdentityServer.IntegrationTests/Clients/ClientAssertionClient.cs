@@ -73,6 +73,7 @@ namespace IdentityServer.IntegrationTests.Clients
                     Type = OidcConstants.ClientAssertionTypes.JwtBearer,
                     Value = token
                 },
+                ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
                 Scope = "api1"
             });
@@ -95,6 +96,7 @@ namespace IdentityServer.IntegrationTests.Clients
                     Type = OidcConstants.ClientAssertionTypes.JwtBearer,
                     Value = token
                 },
+                ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
                 Scope = "api1"
             });
@@ -117,6 +119,7 @@ namespace IdentityServer.IntegrationTests.Clients
                     Type = OidcConstants.ClientAssertionTypes.JwtBearer,
                     Value = token
                 },
+                ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
                 Scope = "api1"
             });
@@ -134,6 +137,7 @@ namespace IdentityServer.IntegrationTests.Clients
                     Type = OidcConstants.ClientAssertionTypes.JwtBearer,
                     Value = token
                 },
+                ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
                 Scope = "api1"
             });
@@ -155,6 +159,7 @@ namespace IdentityServer.IntegrationTests.Clients
                     Type = OidcConstants.ClientAssertionTypes.JwtBearer,
                     Value = "invalid"
                 },
+                ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
                 Scope = "api1"
             });
@@ -180,6 +185,7 @@ namespace IdentityServer.IntegrationTests.Clients
                     Type = OidcConstants.ClientAssertionTypes.JwtBearer,
                     Value = token
                 },
+                ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
                 Scope = "api1"
             });
