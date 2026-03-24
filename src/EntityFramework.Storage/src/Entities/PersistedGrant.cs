@@ -10,6 +10,7 @@ namespace IdentityServer4.EntityFramework.Entities
 {
     public class PersistedGrant
     {
+        public long Id { get; set; }
         public string Key { get; set; }
         public string Type { get; set; }
         public string SubjectId { get; set; }
