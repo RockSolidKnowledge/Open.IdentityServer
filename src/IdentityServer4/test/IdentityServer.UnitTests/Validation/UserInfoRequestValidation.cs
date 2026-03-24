@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityModel;
 using IdentityServer.UnitTests.Validation.Setup;
 using IdentityServer4.Stores;

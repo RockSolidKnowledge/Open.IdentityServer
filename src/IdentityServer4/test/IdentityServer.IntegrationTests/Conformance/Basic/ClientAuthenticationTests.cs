@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityModel.Client;
 using IdentityServer.IntegrationTests.Common;
 using IdentityServer4.Models;

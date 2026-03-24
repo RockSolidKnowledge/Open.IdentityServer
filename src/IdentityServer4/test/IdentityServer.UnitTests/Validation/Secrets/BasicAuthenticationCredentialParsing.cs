@@ -5,7 +5,7 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4;
 using IdentityServer4.Configuration;

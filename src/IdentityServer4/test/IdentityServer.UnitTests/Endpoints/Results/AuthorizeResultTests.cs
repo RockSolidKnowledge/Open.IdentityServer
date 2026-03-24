@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityModel;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4.Configuration;

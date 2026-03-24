@@ -10,7 +10,7 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityModel;
 using IdentityModel.Client;
 using IdentityServer.IntegrationTests.Common;

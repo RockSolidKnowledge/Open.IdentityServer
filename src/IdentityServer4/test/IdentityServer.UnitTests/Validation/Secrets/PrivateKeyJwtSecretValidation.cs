@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityModel;
 using IdentityServer.UnitTests.Common;
 using IdentityServer.UnitTests.Services.Default;

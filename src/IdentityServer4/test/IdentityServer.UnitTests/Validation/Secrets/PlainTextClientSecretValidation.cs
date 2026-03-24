@@ -3,7 +3,7 @@
 
 
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer.UnitTests.Validation.Setup;
 using IdentityServer4;
 using IdentityServer4.Models;

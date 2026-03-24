@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityModel;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4;
@@ -20,9 +20,9 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
     public class AuthorizeInteractionResponseGeneratorTests_Login
     {
         private IdentityServerOptions _options = new IdentityServerOptions();
-        private IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator _subject;
-        private MockConsentService _mockConsentService = new MockConsentService();
-        private StubClock _clock = new StubClock();
+        private readonly IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator _subject;
+        private readonly MockConsentService _mockConsentService = new MockConsentService();
+        private readonly StubClock _clock = new StubClock();
 
         public AuthorizeInteractionResponseGeneratorTests_Login()
         {

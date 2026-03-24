@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
 using Newtonsoft.Json.Linq;

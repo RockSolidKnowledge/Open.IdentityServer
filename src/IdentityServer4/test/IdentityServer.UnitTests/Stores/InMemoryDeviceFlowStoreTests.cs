@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Xunit;
