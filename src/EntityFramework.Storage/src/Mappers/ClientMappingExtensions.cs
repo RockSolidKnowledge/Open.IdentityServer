@@ -21,7 +21,7 @@ public static class ClientMappingExtensions
         /// <summary>
         /// Mapper for <see cref="Entities.Client"/> to convert into an instance of <see cref="Models.Client"/>
         /// </summary>
-        /// <returns>instance of <see cref="Models.Client"/></returns>
+        /// <returns>mapped instance of <see cref="Models.Client"/></returns>
         public Models.Client ToModel()
         {
             return new Models.Client
@@ -122,6 +122,10 @@ public static class ClientMappingExtensions
     /// <param name="clientModel"></param>
     extension(Models.Client clientModel)
     {
+        /// <summary>
+        /// Mapper for <see cref="Models.Client"/> to convert into an instance of <see cref="Entities.Client"/>
+        /// </summary>
+        /// <returns>mapped instance of <see cref="Entities.Client"/></returns>
         public Entities.Client ToEntity()
         {
             return new Entities.Client

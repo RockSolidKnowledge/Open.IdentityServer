@@ -14,9 +14,9 @@ public static class UserClaimMappingExtensions
     /// Mapping extension methods for List of Type
     /// </summary>
     /// <param name="userClaims">list of Type src</param>
-    /// <typeparam name="Type">class that implements <see cref="Entities.UserClaim"/></typeparam>
-    extension<Type>(List<Type>? userClaims)
-        where Type: Entities.UserClaim
+    /// <typeparam name="TClaim">class that implements <see cref="Entities.UserClaim"/></typeparam>
+    extension<TClaim>(List<TClaim>? userClaims)
+        where TClaim: Entities.UserClaim
     {
         /// <summary>
         /// Maps to collection of strings using the <see cref="Entities.UserClaim.Type"/> value
@@ -35,11 +35,11 @@ public static class UserClaimMappingExtensions
         /// <summary>
         /// Maps to list of Type using the assigning string value to <see cref="Entities.UserClaim.Type"/> property
         /// </summary>
-        /// <typeparam name="Type">class that implements <see cref="Entities.UserClaim"/></typeparam>
+        /// <typeparam name="TClaim">class that implements <see cref="Entities.UserClaim"/></typeparam>
         /// <returns>a list of Type</returns>
-        public List<Type> ToEntity<Type>()
-            where Type: Entities.UserClaim, new() => userClaims?
-            .Select(claim => new Type
+        public List<TClaim> ToEntity<TClaim>()
+            where TClaim: Entities.UserClaim, new() => userClaims?
+            .Select(claim => new TClaim
             {
                 Type = claim,
             }).ToList() ?? [];

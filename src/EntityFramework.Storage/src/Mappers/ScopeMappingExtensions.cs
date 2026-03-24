@@ -14,9 +14,9 @@ public static class ScopeMappingExtensions
     extension(Entities.ApiScope apiScopeEntity)
     {
         /// <summary>
-        /// Maps an entity to a model.
+        /// Mapper for <see cref="Entities.ApiScope"/> to convert into an instance of <see cref="Models.ApiScope"/>
         /// </summary>
-        /// <returns></returns>
+        /// <returns>mapped instance of <see cref="Models.ApiScope"/></returns>
         public Models.ApiScope ToModel()
         {
             return new Models.ApiScope
@@ -41,9 +41,9 @@ public static class ScopeMappingExtensions
     extension(Models.ApiScope apiScopeModel)
     {
         /// <summary>
-        /// Maps a model to an entity. 
+        /// Mapper for <see cref="Models.ApiScope"/> to convert into an instance of <see cref="Entities.ApiScope"/>
         /// </summary>
-        /// <returns></returns>
+        /// <returns>mapped instance of <see cref="Entities.ApiScope"/></returns>
         public Entities.ApiScope ToEntity()
         {
             return new Entities.ApiScope

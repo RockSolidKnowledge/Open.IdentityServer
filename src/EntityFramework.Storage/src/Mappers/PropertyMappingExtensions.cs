@@ -14,9 +14,9 @@ public static class PropertyMappingExtensions
     /// Extensions on Lists of Type where Type is <see cref="Entities.Property"/>
     /// </summary>
     /// <param name="propertyList"></param>
-    /// <typeparam name="Type"></typeparam>
-    extension<Type>(List<Type>? propertyList)
-        where Type: Entities.Property
+    /// <typeparam name="TProperty"></typeparam>
+    extension<TProperty>(List<TProperty>? propertyList)
+        where TProperty: Entities.Property
     {
         /// <summary>
         /// Extension methods mapping a List of Type to an IDictionary with string key and string value
@@ -37,12 +37,12 @@ public static class PropertyMappingExtensions
         /// <summary>
         /// Extension converting dictionary into a List of <see cref="Entities.Property"/>
         /// </summary>
-        /// <typeparam name="Type"></typeparam>
+        /// <typeparam name="TProperty"></typeparam>
         /// <returns></returns>
-        public List<Type> ToEntityList<Type>()
-            where Type: Entities.Property, new()
+        public List<TProperty> ToEntityList<TProperty>()
+            where TProperty: Entities.Property, new()
         {
-            return propertyDictionary?.Select(prop => new Type
+            return propertyDictionary?.Select(prop => new TProperty
             {
                 Key = prop.Key,
                 Value = prop.Value,

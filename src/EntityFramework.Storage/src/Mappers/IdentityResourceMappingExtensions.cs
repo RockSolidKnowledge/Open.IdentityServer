@@ -13,6 +13,10 @@ public static class IdentityResourceMappingExtensions
     /// <param name="identityResourceEntity"></param>
     extension(Entities.IdentityResource identityResourceEntity)
     {
+        /// <summary>
+        /// Mapper for <see cref="Entities.IdentityResource"/> to convert into an instance of <see cref="Models.IdentityResource"/>
+        /// </summary>
+        /// <returns>mapped instance of <see cref="Models.IdentityResource"/></returns>
         public Models.IdentityResource ToModel()
         {
             return new Models.IdentityResource
@@ -36,6 +40,10 @@ public static class IdentityResourceMappingExtensions
     /// <param name="identityResourceModel"></param>
     extension(Models.IdentityResource identityResourceModel)
     {
+        /// <summary>
+        /// Mapper for <see cref="Models.IdentityResource"/> to convert into an instance of <see cref="Entities.IdentityResource"/>
+        /// </summary>
+        /// <returns>mapped instance of <see cref="Entities.IdentityResource"/></returns>
         public Entities.IdentityResource ToEntity()
         {
             return new Entities.IdentityResource

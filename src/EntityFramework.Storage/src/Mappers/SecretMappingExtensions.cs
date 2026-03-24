@@ -14,9 +14,9 @@ public static class SecretMappingExtensions
     /// Mapping extension methods for <see cref="Entities.ApiResource"/>
     /// </summary>
     /// <param name="secretList"></param>
-    /// <typeparam name="Type"></typeparam>
-    extension<Type>(List<Type>? secretList)
-        where Type: Entities.Secret
+    /// <typeparam name="TSecret"></typeparam>
+    extension<TSecret>(List<TSecret>? secretList)
+        where TSecret: Entities.Secret
     {
         /// <summary>
         /// Maps List of Type to a collection of <see cref="Models.Secret"/>
@@ -46,10 +46,10 @@ public static class SecretMappingExtensions
         /// <summary>
         /// Maps collection to a list of Type
         /// </summary>
-        /// <typeparam name="Type">class that implements <see cref="Entities.Secret"/> and has an empty ctor</typeparam>
+        /// <typeparam name="TSecret">class that implements <see cref="Entities.Secret"/> and has an empty ctor</typeparam>
         /// <returns></returns>
-        public List<Type> ToEntity<Type>()
-            where Type: Entities.Secret, new() => secretsModels?.Select(secret => new Type
+        public List<TSecret> ToEntity<TSecret>()
+            where TSecret: Entities.Secret, new() => secretsModels?.Select(secret => new TSecret
         {
             Description = secret.Description,
             Value = secret.Value,

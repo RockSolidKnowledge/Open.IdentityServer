@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 
 namespace IdentityServer4.EntityFramework.Mappers;
@@ -14,6 +13,10 @@ public static class ApiResourceMappingExtensions
     /// <param name="apiResourceEntity"></param>
     extension(Entities.ApiResource apiResourceEntity)
     {
+        /// <summary>
+        /// Mapper for <see cref="Entities.ApiResource"/> to convert into an instance of <see cref="Models.ApiResource"/>
+        /// </summary>
+        /// <returns>mapped instance of <see cref="Models.ApiResource"/></returns>
         public Models.ApiResource ToModel()
         {
             return new Models.ApiResource
@@ -38,6 +41,10 @@ public static class ApiResourceMappingExtensions
     /// <param name="apiResourceModel"></param>
     extension(Models.ApiResource apiResourceModel)
     {
+        /// <summary>
+        /// Mapper for <see cref="Models.ApiResource"/> to convert into an instance of <see cref="Entities.ApiResource"/>
+        /// </summary>
+        /// <returns>mapped instance of <see cref="Entities.ApiResource"/></returns>
         public Entities.ApiResource ToEntity()
         {
             return new Entities.ApiResource

@@ -12,9 +12,9 @@ public static class PersistedGrantMappingExtensions
     extension(Entities.PersistedGrant persistedGrantEntity)
     {
         /// <summary>
-        /// Maps an entity to a model.
+        /// Mapper for <see cref="Entities.PersistedGrant"/> to convert into an instance of <see cref="Models.PersistedGrant"/>
         /// </summary>
-        /// <returns></returns>
+        /// <returns>mapped instance of <see cref="Models.PersistedGrant"/></returns>
         public Models.PersistedGrant ToModel()
         {
             return new Models.PersistedGrant
@@ -40,8 +40,9 @@ public static class PersistedGrantMappingExtensions
     extension(Models.PersistedGrant persistedGrantModel)
     {
         /// <summary>
-        /// Maps a model to an entity.
+        /// Mapper for <see cref="Models.PersistedGrant"/> to convert into an instance of <see cref="Entities.PersistedGrant"/>
         /// </summary>
+        /// <returns>mapped instance of <see cref="Entities.PersistedGrant"/></returns>
         public Entities.PersistedGrant ToEntity()
         {
             return new Entities.PersistedGrant
@@ -60,7 +61,7 @@ public static class PersistedGrantMappingExtensions
         }
 
         /// <summary>
-        /// Updates an entity from a model.
+        /// Updates <see cref="Entities.PersistedGrant"/> with instance of <see cref="Models.PersistedGrant"/>
         /// </summary>
         /// <param name="existingEntity">The entity.</param>
         public void UpdateEntity(Entities.PersistedGrant existingEntity)
