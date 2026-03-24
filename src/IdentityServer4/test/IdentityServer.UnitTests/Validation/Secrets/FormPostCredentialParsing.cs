@@ -4,7 +4,8 @@
 
 using System.IO;
 using System.Text;
-using FluentAssertions;
+using System.Threading.Tasks;
+using AwesomeAssertions;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4;
 using IdentityServer4.Configuration;
@@ -13,132 +14,131 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.Secrets
+namespace IdentityServer.UnitTests.Validation.Secrets;
+
+public class FormPostCredentialExtraction
 {
-    public class FormPostCredentialExtraction
+    private const string Category = "Secrets - Form Post Secret Parsing";
+
+    private readonly IdentityServerOptions _options;
+    private readonly PostBodySecretParser _parser;
+
+    public FormPostCredentialExtraction()
     {
-        private const string Category = "Secrets - Form Post Secret Parsing";
+        _options = new IdentityServerOptions();
+        _parser = new PostBodySecretParser(_options, new LoggerFactory().CreateLogger<PostBodySecretParser>());
+    }
 
-        private IdentityServerOptions _options;
-        private PostBodySecretParser _parser;
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task EmptyContext()
+    {
+        var context = new DefaultHttpContext();
+        context.Request.Body = new MemoryStream();
 
-        public FormPostCredentialExtraction()
-        {
-            _options = new IdentityServerOptions();
-            _parser = new PostBodySecretParser(_options, new LoggerFactory().CreateLogger<PostBodySecretParser>());
-        }
+        var secret = await _parser.ParseAsync(context);
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async void EmptyContext()
-        {
-            var context = new DefaultHttpContext();
-            context.Request.Body = new MemoryStream();
+        secret.Should().BeNull();
+    }
 
-            var secret = await _parser.ParseAsync(context);
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_PostBody()
+    {
+        var context = new DefaultHttpContext();
 
-            secret.Should().BeNull();
-        }
+        var body = "client_id=client&client_secret=secret";
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async void Valid_PostBody()
-        {
-            var context = new DefaultHttpContext();
+        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        context.Request.ContentType = "application/x-www-form-urlencoded";
 
-            var body = "client_id=client&client_secret=secret";
+        var secret = await _parser.ParseAsync(context);
 
-            context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
-            context.Request.ContentType = "application/x-www-form-urlencoded";
+        secret.Type.Should().Be(IdentityServerConstants.ParsedSecretTypes.SharedSecret);
+        secret.Id.Should().Be("client");
+        secret.Credential.Should().Be("secret");
+    }
 
-            var secret = await _parser.ParseAsync(context);
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task ClientId_Too_Long()
+    {
+        var context = new DefaultHttpContext();
 
-            secret.Type.Should().Be(IdentityServerConstants.ParsedSecretTypes.SharedSecret);
-            secret.Id.Should().Be("client");
-            secret.Credential.Should().Be("secret");
-        }
+        var longClientId = "x".Repeat(_options.InputLengthRestrictions.ClientId + 1);
+        var body = string.Format("client_id={0}&client_secret=secret", longClientId);
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async void ClientId_Too_Long()
-        {
-            var context = new DefaultHttpContext();
+        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        context.Request.ContentType = "application/x-www-form-urlencoded";
 
-            var longClientId = "x".Repeat(_options.InputLengthRestrictions.ClientId + 1);
-            var body = string.Format("client_id={0}&client_secret=secret", longClientId);
+        var secret = await _parser.ParseAsync(context);
 
-            context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
-            context.Request.ContentType = "application/x-www-form-urlencoded";
+        secret.Should().BeNull();
+    }
 
-            var secret = await _parser.ParseAsync(context);
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task ClientSecret_Too_Long()
+    {
+        var context = new DefaultHttpContext();
 
-            secret.Should().BeNull();
-        }
+        var longClientSecret = "x".Repeat(_options.InputLengthRestrictions.ClientSecret + 1);
+        var body = string.Format("client_id=client&client_secret={0}", longClientSecret);
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async void ClientSecret_Too_Long()
-        {
-            var context = new DefaultHttpContext();
+        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        context.Request.ContentType = "application/x-www-form-urlencoded";
 
-            var longClientSecret = "x".Repeat(_options.InputLengthRestrictions.ClientSecret + 1);
-            var body = string.Format("client_id=client&client_secret={0}", longClientSecret);
+        var secret = await _parser.ParseAsync(context);
 
-            context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
-            context.Request.ContentType = "application/x-www-form-urlencoded";
+        secret.Should().BeNull();
+    }
 
-            var secret = await _parser.ParseAsync(context);
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Missing_ClientId()
+    {
+        var context = new DefaultHttpContext();
 
-            secret.Should().BeNull();
-        }
+        var body = "client_secret=secret";
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async void Missing_ClientId()
-        {
-            var context = new DefaultHttpContext();
+        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        context.Request.ContentType = "application/x-www-form-urlencoded";
 
-            var body = "client_secret=secret";
+        var secret = await _parser.ParseAsync(context);
 
-            context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
-            context.Request.ContentType = "application/x-www-form-urlencoded";
+        secret.Should().BeNull();
+    }
 
-            var secret = await _parser.ParseAsync(context);
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Missing_ClientSecret()
+    {
+        var context = new DefaultHttpContext();
 
-            secret.Should().BeNull();
-        }
+        var body = "client_id=client";
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async void Missing_ClientSecret()
-        {
-            var context = new DefaultHttpContext();
+        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        context.Request.ContentType = "application/x-www-form-urlencoded";
 
-            var body = "client_id=client";
+        var secret = await _parser.ParseAsync(context);
 
-            context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
-            context.Request.ContentType = "application/x-www-form-urlencoded";
+        secret.Should().NotBeNull();
+        secret.Type.Should().Be(IdentityServerConstants.ParsedSecretTypes.NoSecret);
+    }
 
-            var secret = await _parser.ParseAsync(context);
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Malformed_PostBody()
+    {
+        var context = new DefaultHttpContext();
 
-            secret.Should().NotBeNull();
-            secret.Type.Should().Be(IdentityServerConstants.ParsedSecretTypes.NoSecret);
-        }
+        var body = "malformed";
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async void Malformed_PostBody()
-        {
-            var context = new DefaultHttpContext();
+        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        context.Request.ContentType = "application/x-www-form-urlencoded";
 
-            var body = "malformed";
+        var secret = await _parser.ParseAsync(context);
 
-            context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
-            context.Request.ContentType = "application/x-www-form-urlencoded";
-
-            var secret = await _parser.ParseAsync(context);
-
-            secret.Should().BeNull();
-        }
+        secret.Should().BeNull();
     }
 }

@@ -3,7 +3,7 @@
 
 
 using System.Collections.Generic;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4.Models;
 using IdentityServer4.Services;

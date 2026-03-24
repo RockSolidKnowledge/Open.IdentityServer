@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityModel;
 using IdentityServer.IntegrationTests.Common;
 using IdentityServer4.Models;

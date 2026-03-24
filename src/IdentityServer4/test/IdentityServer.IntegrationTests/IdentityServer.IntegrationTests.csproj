@@ -19,9 +19,9 @@
         <PackageReference Include="Microsoft.AspNetCore.TestHost"/>
         <PackageReference Include="System.IdentityModel.Tokens.Jwt"/>
 
-        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.v3"/>
         <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="All"/>
-        <PackageReference Include="FluentAssertions"/>
+        <PackageReference Include="AwesomeAssertions"/>
     </ItemGroup>
 
     <ItemGroup>

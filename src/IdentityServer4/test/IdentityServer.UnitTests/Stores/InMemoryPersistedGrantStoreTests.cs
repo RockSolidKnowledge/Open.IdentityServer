@@ -1,7 +1,7 @@
 ﻿using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Xunit;
-using FluentAssertions;
+using AwesomeAssertions;
 using System.Threading.Tasks;
 using System.Linq;
 

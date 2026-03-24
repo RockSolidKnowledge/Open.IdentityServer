@@ -5,7 +5,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.EntityFramework.Options;
@@ -21,24 +21,20 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
     {
         public ClientStoreTests(DatabaseProviderFixture<ConfigurationDbContext> fixture) : base(fixture)
         {
-            foreach (var options in TestDatabaseProviders.SelectMany(x => x.Select(y => (DbContextOptions<ConfigurationDbContext>) y)).ToList())
+            foreach (var row in TestDatabaseProviders)
             {
-                using (var context = new ConfigurationDbContext(options, StoreOptions))
-                {
-                    context.Database.EnsureCreated();
-                }
+                using var context = new ConfigurationDbContext(row.Data, StoreOptions);
+                context.Database.EnsureCreated();
             }
         }
 
         [Theory, MemberData(nameof(TestDatabaseProviders))]
         public async Task FindClientByIdAsync_WhenClientDoesNotExist_ExpectNull(DbContextOptions<ConfigurationDbContext> options)
         {
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
-            {
-                var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
-                var client = await store.FindClientByIdAsync(Guid.NewGuid().ToString());
-                client.Should().BeNull();
-            }
+            await using var context = new ConfigurationDbContext(options, StoreOptions);
+            var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
+            var client = await store.FindClientByIdAsync(Guid.NewGuid().ToString());
+            client.Should().BeNull();
         }
 
         [Theory, MemberData(nameof(TestDatabaseProviders))]
@@ -50,14 +46,14 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 ClientName = "Test Client"
             };
 
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            await using (var context = new ConfigurationDbContext(options, StoreOptions))
             {
                 context.Clients.Add(testClient.ToEntity());
                 context.SaveChanges();
             }
 
             Client client;
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            await using (var context = new ConfigurationDbContext(options, StoreOptions))
             {
                 var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
                 client = await store.FindClientByIdAsync(testClient.ClientId);
@@ -84,14 +80,14 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 RedirectUris = {"https://locahost/signin"}
             };
 
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            await using (var context = new ConfigurationDbContext(options, StoreOptions))
             {
                 context.Clients.Add(testClient.ToEntity());
                 context.SaveChanges();
             }
 
             Client client;
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            await using (var context = new ConfigurationDbContext(options, StoreOptions))
             {
                 var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
                 client = await store.FindClientByIdAsync(testClient.ClientId);
@@ -118,7 +114,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 testClient.AllowedCorsOrigins.Add($"https://localhost:{i}");
             }
 
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            await using (var context = new ConfigurationDbContext(options, StoreOptions))
             {
                 context.Clients.Add(testClient.ToEntity());
 
@@ -138,8 +134,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
 
                 context.SaveChanges();
             }
-            
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
+
+            await using (var context = new ConfigurationDbContext(options, StoreOptions))
             {
                 var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
 
@@ -153,7 +149,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 }
                 else
                 {
-                    throw new TestTimeoutException(timeout);
+                    throw TestTimeoutException.ForTimedOutTest(timeout);
                 }
             }
         }

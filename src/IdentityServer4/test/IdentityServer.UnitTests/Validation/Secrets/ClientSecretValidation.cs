@@ -5,7 +5,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer.UnitTests.Validation.Setup;
 using Microsoft.AspNetCore.Http;
 using Xunit;

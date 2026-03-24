@@ -16,87 +16,86 @@ using Microsoft.Extensions.DependencyInjection;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Services;
 
-namespace IdentityServer4.EntityFramework.IntegrationTests.Services
+namespace IdentityServer4.EntityFramework.IntegrationTests.Services;
+
+public class CorsPolicyServiceTests : IntegrationTest<CorsPolicyServiceTests, ConfigurationDbContext, ConfigurationStoreOptions>
 {
-    public class CorsPolicyServiceTests : IntegrationTest<CorsPolicyServiceTests, ConfigurationDbContext, ConfigurationStoreOptions>
+    public CorsPolicyServiceTests(DatabaseProviderFixture<ConfigurationDbContext> fixture) : base(fixture)
     {
-        public CorsPolicyServiceTests(DatabaseProviderFixture<ConfigurationDbContext> fixture) : base(fixture)
+        foreach (var row in TestDatabaseProviders)
         {
-            foreach (var options in TestDatabaseProviders.SelectMany(x => x.Select(y => (DbContextOptions<ConfigurationDbContext>)y)).ToList())
+            using var context = new ConfigurationDbContext(row.Data, StoreOptions);
+            context.Database.EnsureCreated();
+        }
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public void IsOriginAllowedAsync_WhenOriginIsAllowed_ExpectTrue(DbContextOptions<ConfigurationDbContext> options)
+    {
+        const string testCorsOrigin = "https://identityserver.io/";
+
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            context.Clients.Add(new Client
             {
-                using (var context = new ConfigurationDbContext(options, StoreOptions))
-                    context.Database.EnsureCreated();
-            }
+                ClientId = Guid.NewGuid().ToString(),
+                ClientName = Guid.NewGuid().ToString(),
+                AllowedCorsOrigins = new List<string> { "https://www.identityserver.com" }
+            }.ToEntity());
+            context.Clients.Add(new Client
+            {
+                ClientId = "2",
+                ClientName = "2",
+                AllowedCorsOrigins = new List<string> { "https://www.identityserver.com", testCorsOrigin }
+            }.ToEntity());
+            context.SaveChanges();
         }
 
-        [Theory, MemberData(nameof(TestDatabaseProviders))]
-        public void IsOriginAllowedAsync_WhenOriginIsAllowed_ExpectTrue(DbContextOptions<ConfigurationDbContext> options)
+        bool result;
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            const string testCorsOrigin = "https://identityserver.io/";
+            var ctx = new DefaultHttpContext();
+            var svcs = new ServiceCollection();
+            svcs.AddSingleton<IConfigurationDbContext>(context);
+            ctx.RequestServices = svcs.BuildServiceProvider();
+            var ctxAccessor = new HttpContextAccessor();
+            ctxAccessor.HttpContext = ctx;
 
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
-            {
-                context.Clients.Add(new Client
-                {
-                    ClientId = Guid.NewGuid().ToString(),
-                    ClientName = Guid.NewGuid().ToString(),
-                    AllowedCorsOrigins = new List<string> { "https://www.identityserver.com" }
-                }.ToEntity());
-                context.Clients.Add(new Client
-                {
-                    ClientId = "2",
-                    ClientName = "2",
-                    AllowedCorsOrigins = new List<string> { "https://www.identityserver.com", testCorsOrigin }
-                }.ToEntity());
-                context.SaveChanges();
-            }
-
-            bool result;
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
-            {
-                var ctx = new DefaultHttpContext();
-                var svcs = new ServiceCollection();
-                svcs.AddSingleton<IConfigurationDbContext>(context);
-                ctx.RequestServices = svcs.BuildServiceProvider();
-                var ctxAccessor = new HttpContextAccessor();
-                ctxAccessor.HttpContext = ctx;
-
-                var service = new CorsPolicyService(ctxAccessor, FakeLogger<CorsPolicyService>.Create());
-                result = service.IsOriginAllowedAsync(testCorsOrigin).Result;
-            }
-
-            Assert.True(result);
+            var service = new CorsPolicyService(ctxAccessor, FakeLogger<CorsPolicyService>.Create());
+            result = service.IsOriginAllowedAsync(testCorsOrigin).Result;
         }
 
-        [Theory, MemberData(nameof(TestDatabaseProviders))]
-        public void IsOriginAllowedAsync_WhenOriginIsNotAllowed_ExpectFalse(DbContextOptions<ConfigurationDbContext> options)
+        Assert.True(result);
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public void IsOriginAllowedAsync_WhenOriginIsNotAllowed_ExpectFalse(DbContextOptions<ConfigurationDbContext> options)
+    {
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            context.Clients.Add(new Client
             {
-                context.Clients.Add(new Client
-                {
-                    ClientId = Guid.NewGuid().ToString(),
-                    ClientName = Guid.NewGuid().ToString(),
-                    AllowedCorsOrigins = new List<string> { "https://www.identityserver.com" }
-                }.ToEntity());
-                context.SaveChanges();
-            }
-
-            bool result;
-            using (var context = new ConfigurationDbContext(options, StoreOptions))
-            {
-                var ctx = new DefaultHttpContext();
-                var svcs = new ServiceCollection();
-                svcs.AddSingleton<IConfigurationDbContext>(context);
-                ctx.RequestServices = svcs.BuildServiceProvider();
-                var ctxAccessor = new HttpContextAccessor();
-                ctxAccessor.HttpContext = ctx;
-
-                var service = new CorsPolicyService(ctxAccessor, FakeLogger<CorsPolicyService>.Create());
-                result = service.IsOriginAllowedAsync("InvalidOrigin").Result;
-            }
-
-            Assert.False(result);
+                ClientId = Guid.NewGuid().ToString(),
+                ClientName = Guid.NewGuid().ToString(),
+                AllowedCorsOrigins = new List<string> { "https://www.identityserver.com" }
+            }.ToEntity());
+            context.SaveChanges();
         }
+
+        bool result;
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            var ctx = new DefaultHttpContext();
+            var svcs = new ServiceCollection();
+            svcs.AddSingleton<IConfigurationDbContext>(context);
+            ctx.RequestServices = svcs.BuildServiceProvider();
+            var ctxAccessor = new HttpContextAccessor();
+            ctxAccessor.HttpContext = ctx;
+
+            var service = new CorsPolicyService(ctxAccessor, FakeLogger<CorsPolicyService>.Create());
+            result = service.IsOriginAllowedAsync("InvalidOrigin").Result;
+        }
+
+        Assert.False(result);
     }
 }

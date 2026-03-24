@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.EntityFramework.Options;
@@ -14,7 +14,6 @@ using IdentityServer4.EntityFramework.Stores;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
 using Xunit;
 
 namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
@@ -23,10 +22,10 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
     {
         public PersistedGrantStoreTests(DatabaseProviderFixture<PersistedGrantDbContext> fixture) : base(fixture)
         {
-            foreach (var options in TestDatabaseProviders.SelectMany(x => x.Select(y => (DbContextOptions<PersistedGrantDbContext>)y)).ToList())
+            foreach (var row in TestDatabaseProviders)
             {
-                using (var context = new PersistedGrantDbContext(options, StoreOptions))
-                    context.Database.EnsureCreated();
+                using var context = new PersistedGrantDbContext(row.Data, StoreOptions);
+                context.Database.EnsureCreated();
             }
         }
 
@@ -50,13 +49,13 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         {
             var persistedGrant = CreateTestObject();
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
                 await store.StoreAsync(persistedGrant);
             }
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var foundGrant = context.PersistedGrants.FirstOrDefault(x => x.Key == persistedGrant.Key);
                 Assert.NotNull(foundGrant);
@@ -68,14 +67,14 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         {
             var persistedGrant = CreateTestObject();
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 context.PersistedGrants.Add(persistedGrant.ToEntity());
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
             PersistedGrant foundPersistedGrant;
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
                 foundPersistedGrant = await store.GetAsync(persistedGrant.Key);
@@ -89,14 +88,14 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         {
             var persistedGrant = CreateTestObject();
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 context.PersistedGrants.Add(persistedGrant.ToEntity());
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
             IList<PersistedGrant> foundPersistedGrants;
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
                 foundPersistedGrants = (await store.GetAllAsync(new PersistedGrantFilter { SubjectId = persistedGrant.SubjectId })).ToList();
@@ -109,8 +108,9 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         [Theory, MemberData(nameof(TestDatabaseProviders))]
         public async Task GetAllAsync_Should_Filter(DbContextOptions<PersistedGrantDbContext> options)
         {
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
+                context.PersistedGrants.RemoveRange(context.PersistedGrants);
                 context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t1").ToEntity());
                 context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t2").ToEntity());
                 context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t1").ToEntity());
@@ -121,10 +121,10 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t2").ToEntity());
                 context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c3", sid: "s3", type: "t3").ToEntity());
                 context.PersistedGrants.Add(CreateTestObject().ToEntity());
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -190,19 +190,19 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         {
             var persistedGrant = CreateTestObject();
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 context.PersistedGrants.Add(persistedGrant.ToEntity());
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
-            
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
                 await store.RemoveAsync(persistedGrant.Key);
             }
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var foundGrant = context.PersistedGrants.FirstOrDefault(x => x.Key == persistedGrant.Key);
                 Assert.Null(foundGrant);
@@ -214,13 +214,13 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         {
             var persistedGrant = CreateTestObject();
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 context.PersistedGrants.Add(persistedGrant.ToEntity());
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
                 await store.RemoveAllAsync(new PersistedGrantFilter { 
@@ -229,7 +229,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 });
             }
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var foundGrant = context.PersistedGrants.FirstOrDefault(x => x.Key == persistedGrant.Key);
                 Assert.Null(foundGrant);
@@ -241,13 +241,13 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         {
             var persistedGrant = CreateTestObject();
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 context.PersistedGrants.Add(persistedGrant.ToEntity());
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
                 await store.RemoveAllAsync(new PersistedGrantFilter { 
@@ -256,7 +256,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                     Type = persistedGrant.Type });
             }
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var foundGrant = context.PersistedGrants.FirstOrDefault(x => x.Key == persistedGrant.Key);
                 Assert.Null(foundGrant);
@@ -267,27 +267,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         [Theory, MemberData(nameof(TestDatabaseProviders))]
         public async Task RemoveAllAsync_Should_Filter(DbContextOptions<PersistedGrantDbContext> options)
         {
-            void PopulateDb()
-            {
-                using (var context = new PersistedGrantDbContext(options, StoreOptions))
-                {
-                    context.PersistedGrants.RemoveRange(context.PersistedGrants.ToArray());
-                    context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t1").ToEntity());
-                    context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t2").ToEntity());
-                    context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t1").ToEntity());
-                    context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t2").ToEntity());
-                    context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t1").ToEntity());
-                    context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t2").ToEntity());
-                    context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t1").ToEntity());
-                    context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t2").ToEntity());
-                    context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c3", sid: "s3", type: "t3").ToEntity());
-                    context.PersistedGrants.Add(CreateTestObject().ToEntity());
-                    context.SaveChanges();
-                }
-            }
-
-            PopulateDb();
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await PopulateDb();
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -298,8 +279,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 context.PersistedGrants.Count().Should().Be(1);
             }
 
-            PopulateDb();
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await PopulateDb();
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -310,8 +291,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 context.PersistedGrants.Count().Should().Be(10);
             }
 
-            PopulateDb();
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await PopulateDb();
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -322,8 +303,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 context.PersistedGrants.Count().Should().Be(6);
             }
 
-            PopulateDb();
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await PopulateDb();
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -335,8 +316,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 context.PersistedGrants.Count().Should().Be(6);
             }
 
-            PopulateDb();
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await PopulateDb();
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -349,8 +330,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
             }
 
 
-            PopulateDb();
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await PopulateDb();
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -362,8 +343,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 context.PersistedGrants.Count().Should().Be(10);
             }
 
-            PopulateDb();
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await PopulateDb();
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -376,8 +357,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 context.PersistedGrants.Count().Should().Be(8);
             }
 
-            PopulateDb();
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await PopulateDb();
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -390,8 +371,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 context.PersistedGrants.Count().Should().Be(10);
             }
 
-            PopulateDb();
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await PopulateDb();
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -405,8 +386,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 context.PersistedGrants.Count().Should().Be(9);
             }
 
-            PopulateDb();
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await PopulateDb();
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
 
@@ -419,6 +400,25 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
                 });
                 context.PersistedGrants.Count().Should().Be(10);
             }
+
+            return;
+
+            async Task PopulateDb()
+            {
+                await using var context = new PersistedGrantDbContext(options, StoreOptions);
+                context.PersistedGrants.RemoveRange(context.PersistedGrants.ToArray());
+                context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t1").ToEntity());
+                context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t2").ToEntity());
+                context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t1").ToEntity());
+                context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t2").ToEntity());
+                context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t1").ToEntity());
+                context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t2").ToEntity());
+                context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t1").ToEntity());
+                context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t2").ToEntity());
+                context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c3", sid: "s3", type: "t3").ToEntity());
+                context.PersistedGrants.Add(CreateTestObject().ToEntity());
+                await context.SaveChangesAsync();
+            }
         }
 
         [Theory, MemberData(nameof(TestDatabaseProviders))]
@@ -426,19 +426,19 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         {
             var persistedGrant = CreateTestObject();
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var foundGrant = context.PersistedGrants.FirstOrDefault(x => x.Key == persistedGrant.Key);
                 Assert.Null(foundGrant);
             }
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
                 await store.StoreAsync(persistedGrant);
             }
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var foundGrant = context.PersistedGrants.FirstOrDefault(x => x.Key == persistedGrant.Key);
                 Assert.NotNull(foundGrant);
@@ -450,21 +450,21 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.Stores
         {
             var persistedGrant = CreateTestObject();
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 context.PersistedGrants.Add(persistedGrant.ToEntity());
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
             var newDate = persistedGrant.Expiration.Value.AddHours(1);
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, FakeLogger<PersistedGrantStore>.Create());
                 persistedGrant.Expiration = newDate;
                 await store.StoreAsync(persistedGrant);
             }
 
-            using (var context = new PersistedGrantDbContext(options, StoreOptions))
+            await using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var foundGrant = context.PersistedGrants.FirstOrDefault(x => x.Key == persistedGrant.Key);
                 Assert.NotNull(foundGrant);

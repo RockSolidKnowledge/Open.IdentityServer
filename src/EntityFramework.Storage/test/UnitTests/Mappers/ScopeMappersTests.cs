@@ -3,7 +3,7 @@
 
 
 using System.Linq;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
 using Xunit;

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer.UnitTests.Common;
 using IdentityServer4;
 using IdentityServer4.Models;

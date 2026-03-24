@@ -3,7 +3,7 @@
 
 
 using System.Linq;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer4.EntityFramework.Mappers;
 using Xunit;
 using ApiResource = IdentityServer4.Models.ApiResource;

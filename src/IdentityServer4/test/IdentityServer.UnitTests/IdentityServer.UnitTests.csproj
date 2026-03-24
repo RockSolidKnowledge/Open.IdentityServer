@@ -17,9 +17,9 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
 
-        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.v3"/>
         <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="All"/>
-        <PackageReference Include="FluentAssertions"/>
+        <PackageReference Include="AwesomeAssertions"/>
     </ItemGroup>
 
     <ItemGroup>

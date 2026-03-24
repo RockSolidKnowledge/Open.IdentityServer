@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using FluentAssertions;
+using AwesomeAssertions;
 using IdentityServer4.Models;
 using Xunit;
 
