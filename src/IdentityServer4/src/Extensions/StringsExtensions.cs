@@ -144,6 +144,7 @@ namespace IdentityServer4.Extensions
         }
 
         [DebuggerStepThrough]
+        // Clone of UrlHelperBase.CheckIsLocalUrl from https://github.com/dotnet/aspnetcore/blob/3f1acb59718cadf111a0a796681e3d3509bb3381/src/Mvc/Mvc.Core/src/Routing/UrlHelperBase.cs
         public static bool IsLocalUrl(this string url)
         {
             if (string.IsNullOrEmpty(url))
@@ -163,7 +164,7 @@ namespace IdentityServer4.Extensions
                 // url doesn't start with "//" or "/\"
                 if (url[1] != '/' && url[1] != '\\')
                 {
-                    return true;
+                    return !HasControlCharacter(url.AsSpan(1));
                 }
 
                 return false;
@@ -181,13 +182,27 @@ namespace IdentityServer4.Extensions
                 // url doesn't start with "~//" or "~/\"
                 if (url[2] != '/' && url[2] != '\\')
                 {
-                    return true;
+                    return !HasControlCharacter(url.AsSpan(2));
                 }
 
                 return false;
             }
 
             return false;
+
+            static bool HasControlCharacter(ReadOnlySpan<char> readOnlySpan)
+            {
+                // URLs may not contain ASCII control characters.
+                foreach (var t in readOnlySpan)
+                {
+                    if (char.IsControl(t))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
 
         [DebuggerStepThrough]

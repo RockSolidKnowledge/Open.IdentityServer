@@ -1,4 +1,5 @@
-﻿using IdentityServer4.Extensions;
+﻿using AwesomeAssertions;
+using IdentityServer4.Extensions;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Extensions
@@ -86,6 +87,39 @@ namespace IdentityServer.UnitTests.Extensions
             CheckOrigin("test://localhost:8080/", null);
             CheckOrigin("test://localhost:8080/test", null);
             CheckOrigin("test://localhost:8080/test/resource", null);
+        }
+
+        [Theory]
+        [InlineData("/", true)]
+        [InlineData("~/", true)]
+        [InlineData("/local/url", true)]
+        [InlineData("~/local/url", true)]
+        [InlineData("~/local/url?param=value%20with%20space", true)]
+        [InlineData("//",false)]
+        [InlineData("/\\", false)]
+        [InlineData("~//",false)]
+        [InlineData("~/\\", false)]
+        [InlineData("//local/url",false)]
+        [InlineData("/\\local/url", false)]
+        [InlineData("~//local/url",false)]
+        [InlineData("~/\\local/url", false)]
+        // CVE-2024-39694 tests
+        [InlineData("/\t  non-local.site", false)]
+        [InlineData("/\t\nnon-local.site", false)]
+        [InlineData("/\r\nnon-local.site", false)]
+        [InlineData("/\n   non-local.site", false)]
+        [InlineData("/\tnon-local.site", false)]
+        [InlineData("/\nnon-local.site", false)]
+        [InlineData("~/\t  non-local.site", false)]
+        [InlineData("~/\t\nnon-local.site", false)]
+        [InlineData("~/\r\nnon-local.site", false)]
+        [InlineData("~/\n   non-local.site", false)]
+        [InlineData("~/\tnon-local.site", false)]
+        [InlineData("~/\nnon-local.site", false)]
+
+        public void TestIsLocalUrl(string testValue, bool expected)
+        {
+            testValue.IsLocalUrl().Should().Be(expected);
         }
     }
 }
