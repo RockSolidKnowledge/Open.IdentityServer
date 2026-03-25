@@ -263,7 +263,7 @@ public class ExtensionGrantClient : IDisposable
             {
                 { "custom_credential", "custom credential"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -307,7 +307,7 @@ public class ExtensionGrantClient : IDisposable
             {
                 { "scope", "api1" }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -331,7 +331,7 @@ public class ExtensionGrantClient : IDisposable
                 { "custom_credential", "custom credential"},
                 { "scope", "api1" }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -355,7 +355,7 @@ public class ExtensionGrantClient : IDisposable
                 { "custom_credential", "custom credential"},
                 { "scope", "api1" }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -381,7 +381,7 @@ public class ExtensionGrantClient : IDisposable
                 { "lifetime", "5000"},
                 { "sub",  "818727"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -431,7 +431,7 @@ public class ExtensionGrantClient : IDisposable
                 { "type", "jwt"},
                 { "sub",  "818727"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -462,7 +462,7 @@ public class ExtensionGrantClient : IDisposable
                 { "impersonated_client", "impersonated_client_id"},
                 { "sub",  "818727"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -495,7 +495,7 @@ public class ExtensionGrantClient : IDisposable
                 { "type", "reference"},
                 { "sub",  "818727"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -525,7 +525,7 @@ public class ExtensionGrantClient : IDisposable
                 { "claim", "extra_claim"},
                 { "sub",  "818727"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -569,7 +569,7 @@ public class ExtensionGrantClient : IDisposable
 
                 { "claim", "extra_claim"},
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);

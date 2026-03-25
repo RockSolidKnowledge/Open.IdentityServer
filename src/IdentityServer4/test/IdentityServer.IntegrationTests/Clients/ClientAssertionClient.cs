@@ -29,31 +29,31 @@ public class ClientAssertionClient : IDisposable
     private const string TokenEndpoint = "https://idsvr4/connect/token";
     private const string ClientId = "certificate_base64_valid";
 
-        private readonly HttpClient _client;
-        private readonly IHost _host;
+    private readonly HttpClient _client;
+    private readonly IHost _host;
 
     public ClientAssertionClient()
     {
-            _host = new HostBuilder()
-                .ConfigureWebHost(builder =>
-                {
-                    builder.UseTestServer();
-                    builder.UseStartup<Startup>();
-                })
-                .Build();
+        _host = new HostBuilder()
+            .ConfigureWebHost(builder =>
+            {
+                builder.UseTestServer();
+                builder.UseStartup<Startup>();
+            })
+            .Build();
 
-            _host.Start();
-        _client = server.CreateClient();
+        _host.Start();
+        _client = _host.GetTestClient();
     }
 
-        public void Dispose()
-        {
-            _client?.Dispose();
-            _host?.Dispose();
-        }
+    public void Dispose()
+    {
+        _client?.Dispose();
+        _host?.Dispose();
+    }
 
-        [Fact]
-        public async Task Valid_client_with_manual_payload_should_succeed()
+    [Fact]
+    public async Task Valid_client_with_manual_payload_should_succeed()
     {
         var token = CreateToken(ClientId);
         var requestBody = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -87,9 +87,9 @@ public class ClientAssertionClient : IDisposable
             },
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
-                Scope = "api1"
-            }, TestContext.Current.CancellationToken);
-            
+            Scope = "api1"
+        }, TestContext.Current.CancellationToken);
+
         AssertValidToken(response);
     }
 
@@ -110,12 +110,12 @@ public class ClientAssertionClient : IDisposable
             },
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
-                Scope = "api1"
-            }, TestContext.Current.CancellationToken);
+            Scope = "api1"
+        }, TestContext.Current.CancellationToken);
 
-            AssertValidToken(response);
-        }
-        
+        AssertValidToken(response);
+    }
+
     [Fact]
     public async Task Valid_client_with_token_replay_should_fail()
     {
@@ -133,11 +133,11 @@ public class ClientAssertionClient : IDisposable
             },
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
-                Scope = "api1"
-            }, TestContext.Current.CancellationToken);
+            Scope = "api1"
+        }, TestContext.Current.CancellationToken);
 
-            AssertValidToken(response);
-            
+        AssertValidToken(response);
+
         // replay
         response = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
         {
@@ -151,9 +151,9 @@ public class ClientAssertionClient : IDisposable
             },
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
-                Scope = "api1"
-            }, TestContext.Current.CancellationToken);
-            
+            Scope = "api1"
+        }, TestContext.Current.CancellationToken);
+
         response.IsError.Should().BeTrue();
         response.Error.Should().Be("invalid_client");
     }
@@ -172,9 +172,9 @@ public class ClientAssertionClient : IDisposable
                 Value = "invalid"
             },
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
-                Scope = "api1"
-            }, TestContext.Current.CancellationToken);
-            
+            Scope = "api1"
+        }, TestContext.Current.CancellationToken);
+
         response.IsError.Should().Be(true);
         response.Error.Should().Be(OidcConstants.TokenErrors.InvalidClient);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -197,9 +197,9 @@ public class ClientAssertionClient : IDisposable
                 Value = token
             },
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
-                Scope = "api1"
-            }, TestContext.Current.CancellationToken);
-            
+            Scope = "api1"
+        }, TestContext.Current.CancellationToken);
+
         response.IsError.Should().Be(true);
         response.Error.Should().Be(OidcConstants.TokenErrors.InvalidClient);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -220,16 +220,16 @@ public class ClientAssertionClient : IDisposable
         response.RefreshToken.Should().BeNull();
 
         var payload = GetPayload(response);
-            
+
         payload.Count.Should().Be(8);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo(ClientId);
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo(ClientId);
         payload.Keys.Should().Contain("iat");
-            
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray();
+
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray();
         scopes.First().ToString().Should().Be("api1");
 
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
     }
 
     private Dictionary<string, object> GetPayload(TokenResponse response)
@@ -253,7 +253,8 @@ public class ClientAssertionClient : IDisposable
             {
                 new Claim("jti", Guid.NewGuid().ToString()),
                 new Claim(JwtClaimTypes.Subject, clientId),
-                new Claim(JwtClaimTypes.IssuedAt, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
+                new Claim(JwtClaimTypes.IssuedAt, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(),
+                    ClaimValueTypes.Integer64)
             },
             now,
             now.AddMinutes(1),

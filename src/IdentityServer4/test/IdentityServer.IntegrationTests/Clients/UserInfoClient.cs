@@ -21,7 +21,7 @@ using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients;
 
-public class UserInfoEndpointClient
+public class UserInfoEndpointClient : IDisposable
 {
     private const string TokenEndpoint = "https://server/connect/token";
     private const string UserInfoEndpoint = "https://server/connect/userinfo";
@@ -39,8 +39,8 @@ public class UserInfoEndpointClient
             })
             .Build();
 
-            _host.Start();
-            _host?.Dispose();
+        _host.Start();
+        _client = _host.GetTestClient();
     }
 
     public void Dispose()
@@ -61,7 +61,7 @@ public class UserInfoEndpointClient
             Scope = "openid email api1",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
 
@@ -69,7 +69,7 @@ public class UserInfoEndpointClient
         {
             Address = UserInfoEndpoint,
             Token = response.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         userInfo.IsError.Should().BeFalse();
         userInfo.Claims.Count().Should().Be(3);
@@ -91,7 +91,7 @@ public class UserInfoEndpointClient
             Scope = "openid address",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
 
@@ -99,10 +99,12 @@ public class UserInfoEndpointClient
         {
             Address = UserInfoEndpoint,
             Token = response.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         userInfo.IsError.Should().BeFalse();
-        userInfo.Claims.First().Value.Should().Be("{ 'street_address': 'One Hacker Way', 'locality': 'Heidelberg', 'postal_code': 69118, 'country': 'Germany' }");
+        userInfo.Claims.First().Value.Should()
+            .Be(
+                "{ 'street_address': 'One Hacker Way', 'locality': 'Heidelberg', 'postal_code': 69118, 'country': 'Germany' }");
     }
 
     [Fact]
@@ -117,7 +119,7 @@ public class UserInfoEndpointClient
             Scope = "api1",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
 
@@ -125,7 +127,7 @@ public class UserInfoEndpointClient
         {
             Address = UserInfoEndpoint,
             Token = response.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         userInfo.IsError.Should().BeTrue();
         userInfo.HttpStatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -143,7 +145,7 @@ public class UserInfoEndpointClient
             Scope = "email api1",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
 
@@ -151,7 +153,7 @@ public class UserInfoEndpointClient
         {
             Address = UserInfoEndpoint,
             Token = response.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         userInfo.IsError.Should().BeTrue();
         userInfo.HttpStatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -164,7 +166,7 @@ public class UserInfoEndpointClient
         {
             Address = UserInfoEndpoint,
             Token = "invalid"
-        });
+        }, TestContext.Current.CancellationToken);
 
         userInfo.IsError.Should().BeTrue();
         userInfo.HttpStatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -182,13 +184,13 @@ public class UserInfoEndpointClient
             Scope = "openid email api1 api4.with.roles roles",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
-            
+
         var payload = GetPayload(response);
 
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray().Select(x => x.ToString()).ToArray();
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray().Select(x => x.ToString()).ToArray();
         scopes.Length.Should().Be(5);
         scopes.Should().Contain("openid");
         scopes.Should().Contain("email");
@@ -196,7 +198,7 @@ public class UserInfoEndpointClient
         scopes.Should().Contain("api4.with.roles");
         scopes.Should().Contain("roles");
 
-        var roles = ((JsonElement) payload["role"]).EnumerateArray().Select(x => x.ToString()).ToArray();
+        var roles = ((JsonElement)payload["role"]).EnumerateArray().Select(x => x.ToString()).ToArray();
         roles.Length.Should().Be(2);
         roles.Should().Contain("Geek");
         roles.Should().Contain("Developer");
@@ -205,7 +207,7 @@ public class UserInfoEndpointClient
         {
             Address = UserInfoEndpoint,
             Token = response.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         roles = userInfo.Json?.GetProperty("role")
             .EnumerateArray()
@@ -221,7 +223,7 @@ public class UserInfoEndpointClient
     private Dictionary<string, object> GetPayload(TokenResponse response)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(response.AccessToken);
-            
+
         var token = response.AccessToken.Split('.').Skip(1).Take(1).First();
         var dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(
             Encoding.UTF8.GetString(Base64Url.Decode(token)));

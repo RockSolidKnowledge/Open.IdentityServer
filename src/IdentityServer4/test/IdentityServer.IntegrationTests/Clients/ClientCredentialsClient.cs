@@ -26,27 +26,27 @@ public class ClientCredentialsClient : IDisposable
     private const string TokenEndpoint = "https://server/connect/token";
 
     private readonly HttpClient _client;
-        private readonly IHost _host;
+    private readonly IHost _host;
 
     public ClientCredentialsClient()
     {
-            _host = new HostBuilder()
-                .ConfigureWebHost(webBuilder =>
-                {
-                    webBuilder.UseTestServer();
-                    webBuilder.UseStartup<Startup>();
-                })
-                .Build();
+        _host = new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
+            {
+                webBuilder.UseTestServer();
+                webBuilder.UseStartup<Startup>();
+            })
+            .Build();
 
-            _host.Start();
-        _client = server.CreateClient();
+        _host.Start();
+        _client = _host.GetTestClient();
     }
 
-        public void Dispose()
-        {
-            _client?.Dispose();
-            _host?.Dispose();
-        }
+    public void Dispose()
+    {
+        _client?.Dispose();
+        _host?.Dispose();
+    }
 
     [Fact]
     public async Task Invalid_endpoint_should_return_404()
@@ -85,13 +85,13 @@ public class ClientCredentialsClient : IDisposable
         var payload = GetPayload(response);
 
         payload.Count.Should().Be(8);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client");
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
         payload.Keys.Should().Contain("jti");
         payload.Keys.Should().Contain("iat");
 
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray();
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray();
         scopes.First().ToString().Should().Be("api1");
     }
 
@@ -115,8 +115,8 @@ public class ClientCredentialsClient : IDisposable
         var payload = GetPayload(response);
 
         payload.Count.Should().Be(8);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client");
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client");
         payload.Keys.Should().Contain("jti");
         payload.Keys.Should().Contain("iat");
 
@@ -125,7 +125,7 @@ public class ClientCredentialsClient : IDisposable
         audiences.Should().Contain("api");
         audiences.Should().Contain("other_api");
 
-        var scopes = (JsonElement) payload["scope"];
+        var scopes = (JsonElement)payload["scope"];
         scopes.EnumerateArray().First().ToString().Should().Be("api1");
     }
 
@@ -149,16 +149,16 @@ public class ClientCredentialsClient : IDisposable
         var payload = GetPayload(response);
 
         payload.Count.Should().Be(9);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client.cnf");
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client.cnf");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
         payload.Keys.Should().Contain("jti");
         payload.Keys.Should().Contain("iat");
-        
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray();
+
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray();
         scopes.First().ToString().Should().Be("api1");
 
-        var cnf = ((JsonElement) payload["cnf"]).Deserialize<Dictionary<string, string>>();
+        var cnf = ((JsonElement)payload["cnf"]).Deserialize<Dictionary<string, string>>();
         cnf["x5t#S256"].Should().Be("foo");
     }
 
@@ -182,9 +182,9 @@ public class ClientCredentialsClient : IDisposable
         var payload = GetPayload(response);
 
         payload.Count.Should().Be(8);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client");
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
         payload.Keys.Should().Contain("jti");
         payload.Keys.Should().Contain("iat");
 
@@ -211,19 +211,19 @@ public class ClientCredentialsClient : IDisposable
         response.RefreshToken.Should().BeNull();
 
         var payload = GetPayload(response);
-        
+
         payload.Count.Should().Be(8);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client");
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client");
         payload.Keys.Should().Contain("jti");
         payload.Keys.Should().Contain("iat");
 
-        var audiences = ((JsonElement) payload["aud"]).EnumerateArray().Select(x => x.ToString()).ToList();
+        var audiences = ((JsonElement)payload["aud"]).EnumerateArray().Select(x => x.ToString()).ToList();
         audiences.Count.Should().Be(2);
         audiences.Should().Contain("api");
         audiences.Should().Contain("other_api");
 
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray().Select(x => x.ToString()).ToList();
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray().Select(x => x.ToString()).ToList();
         scopes.Count.Should().Be(3);
         scopes.Should().Contain("api1");
         scopes.Should().Contain("api2");
@@ -268,12 +268,12 @@ public class ClientCredentialsClient : IDisposable
         response.RefreshToken.Should().BeNull();
 
         var payload = GetPayload(response);
-        
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client");
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
 
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray();
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
+
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray();
         scopes.First().ToString().Should().Be("api1");
     }
 
@@ -295,12 +295,12 @@ public class ClientCredentialsClient : IDisposable
         response.RefreshToken.Should().BeNull();
 
         var payload = GetPayload(response);
-            
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client.no_secret");
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
 
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray();
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client.no_secret");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
+
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray();
         scopes.First().ToString().Should().Be("api1");
     }
 
@@ -458,7 +458,7 @@ public class ClientCredentialsClient : IDisposable
     private Dictionary<string, object> GetPayload(TokenResponse response)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(response.AccessToken);
-            
+
         var token = response.AccessToken.Split('.').Skip(1).Take(1).First();
         var dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(
             Encoding.UTF8.GetString(Base64Url.Decode(token)));

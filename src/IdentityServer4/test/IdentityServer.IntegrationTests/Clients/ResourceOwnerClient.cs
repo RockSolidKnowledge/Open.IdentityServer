@@ -60,7 +60,7 @@ public class ResourceOwnerClient : IDisposable
             Scope = "api1",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -99,7 +99,7 @@ public class ResourceOwnerClient : IDisposable
 
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -143,7 +143,7 @@ public class ResourceOwnerClient : IDisposable
             Scope = "openid email api1",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -185,7 +185,7 @@ public class ResourceOwnerClient : IDisposable
             Scope = "openid email api1 offline_access",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -228,7 +228,7 @@ public class ResourceOwnerClient : IDisposable
             Scope = "api1",
             UserName = "unknown",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -247,7 +247,7 @@ public class ResourceOwnerClient : IDisposable
 
             Scope = "api1",
             UserName = "bob_no_password"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
     }
@@ -266,7 +266,7 @@ public class ResourceOwnerClient : IDisposable
             Scope = "api1",
             UserName = "bob",
             Password = password
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
