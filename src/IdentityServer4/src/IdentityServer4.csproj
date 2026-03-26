@@ -42,8 +42,7 @@
     <ItemGroup>
         <PackageReference Include="IdentityServer4.Storage"/>
         <PackageReference Include="IdentityModel"/>
-
-        <PackageReference Include="System.Text.Json"/>
+        
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect"/>
 
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect"/>

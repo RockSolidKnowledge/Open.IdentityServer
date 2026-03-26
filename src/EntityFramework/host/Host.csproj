@@ -15,7 +15,6 @@
         <ProjectReference Include="..\src\IdentityServer4.EntityFramework.csproj"/>
 
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
-        <PackageReference Include="System.Security.Principal.Windows"/>
     </ItemGroup>
 
 </Project>
