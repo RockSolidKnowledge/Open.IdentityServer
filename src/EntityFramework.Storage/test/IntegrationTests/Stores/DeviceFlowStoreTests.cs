@@ -7,6 +7,7 @@ using IdentityServer4.Stores.Serialization;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -90,6 +91,7 @@ public class DeviceFlowStoreTests : IntegrationTest<DeviceFlowStoreTests, Persis
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
+    [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.")]
     public async Task StoreDeviceAuthorizationAsync_WhenUserCodeAlreadyExists_ExpectException(DbContextOptions<PersistedGrantDbContext> options)
     {
         var existingUserCode = $"user_{Guid.NewGuid().ToString()}";
@@ -133,6 +135,7 @@ public class DeviceFlowStoreTests : IntegrationTest<DeviceFlowStoreTests, Persis
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
+    [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.")]
     public async Task StoreDeviceAuthorizationAsync_WhenDeviceCodeAlreadyExists_ExpectException(DbContextOptions<PersistedGrantDbContext> options)
     {
         var existingDeviceCode = $"device_{Guid.NewGuid().ToString()}";
