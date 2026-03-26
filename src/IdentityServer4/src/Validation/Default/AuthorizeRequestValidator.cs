@@ -660,15 +660,10 @@ namespace IdentityServer4.Validation
             }
             else
             {
-                if (request.GrantType == GrantType.Implicit ||
-                    request.GrantType == GrantType.Hybrid)
+                if (request.ResponseType.Contains(OidcConstants.ResponseTypes.IdToken, StringComparison.OrdinalIgnoreCase))
                 {
-                    // only openid requests require nonce
-                    if (request.IsOpenIdRequest)
-                    {
-                        LogError("Nonce required for implicit and hybrid flow with openid scope", request);
-                        return Invalid(request, description: "Invalid nonce");
-                    }
+                    LogError("Nonce required for implicit and hybrid flow when response_type contains id_token", request);
+                    return Invalid(request, description: "Invalid nonce");
                 }
             }
 

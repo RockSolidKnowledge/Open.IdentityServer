@@ -153,6 +153,24 @@ namespace IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation
 
         [Fact]
         [Trait("Category", Category)]
+        public async Task Valid_Mixed_CodeToken_AndNoNonce_Request()
+        {
+            var parameters = new NameValueCollection
+            {
+                { OidcConstants.AuthorizeRequest.ClientId, "hybridclient" },
+                { OidcConstants.AuthorizeRequest.Scope, "openid resource" },
+                { OidcConstants.AuthorizeRequest.RedirectUri, "https://server/cb" },
+                { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.CodeToken }
+            };
+
+            var validator = Factory.CreateAuthorizeRequestValidator();
+            var result = await validator.ValidateAsync(parameters);
+
+            result.IsError.Should().BeFalse();
+        }
+
+        [Fact]
+        [Trait("Category", Category)]
         public async Task Valid_OpenId_IdTokenToken_Request()
         {
             var parameters = new NameValueCollection();
