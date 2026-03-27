@@ -135,5 +135,10 @@ namespace Open.IdentityServer.Configuration
         /// Gets or sets the mutual TLS options.
         /// </summary>
         public MutualTlsOptions MutualTls { get; set; } = new MutualTlsOptions();
+
+        /// <summary>
+        /// Get or sets the persisted grant options.
+        /// </summary>
+        public PersistentGrantsOptions PersistentGrants { get; set; } = new PersistentGrantsOptions();
     }
 }
