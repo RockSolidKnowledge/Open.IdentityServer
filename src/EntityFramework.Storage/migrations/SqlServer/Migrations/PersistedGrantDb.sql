@@ -23,7 +23,8 @@ CREATE TABLE [DeviceCodes] (
 );
 
 CREATE TABLE [PersistedGrants] (
-    [Key] nvarchar(200) NOT NULL,
+    [Id] bigint NOT NULL IDENTITY,
+    [Key] nvarchar(200) NULL,
     [Type] nvarchar(50) NOT NULL,
     [SubjectId] nvarchar(200) NULL,
     [SessionId] nvarchar(100) NULL,
@@ -33,7 +34,7 @@ CREATE TABLE [PersistedGrants] (
     [Expiration] datetime2 NULL,
     [ConsumedTime] datetime2 NULL,
     [Data] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_PersistedGrants] PRIMARY KEY ([Key])
+    CONSTRAINT [PK_PersistedGrants] PRIMARY KEY ([Id])
 );
 
 CREATE UNIQUE INDEX [IX_DeviceCodes_DeviceCode] ON [DeviceCodes] ([DeviceCode]);
@@ -42,35 +43,14 @@ CREATE INDEX [IX_DeviceCodes_Expiration] ON [DeviceCodes] ([Expiration]);
 
 CREATE INDEX [IX_PersistedGrants_Expiration] ON [PersistedGrants] ([Expiration]);
 
+CREATE UNIQUE INDEX [IX_PersistedGrants_Key] ON [PersistedGrants] ([Key]) WHERE [Key] IS NOT NULL;
+
 CREATE INDEX [IX_PersistedGrants_SubjectId_ClientId_Type] ON [PersistedGrants] ([SubjectId], [ClientId], [Type]);
 
 CREATE INDEX [IX_PersistedGrants_SubjectId_SessionId_Type] ON [PersistedGrants] ([SubjectId], [SessionId], [Type]);
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20200522172538_Grants', N'10.0.5');
-
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
-ALTER TABLE [PersistedGrants] DROP CONSTRAINT [PK_PersistedGrants];
-
-DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[PersistedGrants]') AND [c].[name] = N'Key');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [PersistedGrants] DROP CONSTRAINT ' + @var + ';');
-ALTER TABLE [PersistedGrants] ALTER COLUMN [Key] nvarchar(200) NULL;
-
-ALTER TABLE [PersistedGrants] ADD [Id] bigint NOT NULL IDENTITY;
-
-ALTER TABLE [PersistedGrants] ADD CONSTRAINT [PK_PersistedGrants] PRIMARY KEY ([Id]);
-
-CREATE UNIQUE INDEX [IX_PersistedGrants_Key] ON [PersistedGrants] ([Key]) WHERE [Key] IS NOT NULL;
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260325140642_Grants_OpenIdS', N'10.0.5');
+VALUES (N'20260327102647_Grants', N'10.0.5');
 
 COMMIT;
 GO
