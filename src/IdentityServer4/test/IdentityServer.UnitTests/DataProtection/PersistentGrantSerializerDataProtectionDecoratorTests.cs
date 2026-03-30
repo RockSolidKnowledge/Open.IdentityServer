@@ -1,9 +1,9 @@
 using System;
+using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
 using IdentityServer4.Configuration;
 using IdentityServer4.DataProtection;
-using IdentityServer4.Storage.Stores.DataProtection;
 using IdentityServer4.Stores.Serialization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
@@ -11,6 +11,11 @@ using Moq;
 using Xunit;
 
 namespace IdentityServer.UnitTests.DataProtection;
+
+public class FakeData
+{
+    public string Value1 { get; set; }
+}
 
 public class PersistentGrantSerializerDataProtectionDecoratorTests
 {
@@ -25,7 +30,7 @@ public class PersistentGrantSerializerDataProtectionDecoratorTests
             .Setup(x => x.CreateProtector(It.IsAny<string>()))
             .Returns(dataProtector);
     }
-    
+
     private PersistentGrantSerializerDataProtectionDecorator CreateSut(bool enabled)
     {
         Mock.Get(options)
@@ -37,18 +42,27 @@ public class PersistentGrantSerializerDataProtectionDecoratorTests
                     DataProtectData = enabled,
                 },
             });
-        
+
         return new PersistentGrantSerializerDataProtectionDecorator(decoratedSerializer, dataProtectionProvider, options);
     }
 
     [Fact]
     public void Serialize_WhenProtectionEnabled_ShouldProtectDataAndWrapInDataProtectedDataObject()
     {
-        var input = new { value1 = "someVal" };
+        var input = new FakeData { Value1 = "someVal" };
         var inputSerialised = "{ \"value1\" = \"someVal\" }";
-        var inputProtected = "PROTECTED_INPUT";
-        
-        SetupSerialise(input, inputSerialised, inputProtected);
+
+        var protectedBytes = Encoding.UTF8.GetBytes("PROTECTED_INPUT");
+        var expectedPayload = Convert.ToBase64String(protectedBytes);
+
+        Mock.Get(decoratedSerializer)
+            .Setup(x => x.Serialize(input))
+            .Returns(inputSerialised);
+
+        Mock.Get(dataProtector)
+            .Setup(x => x.Protect(It.Is<byte[]>(
+                b => Encoding.UTF8.GetString(b) == inputSerialised)))
+            .Returns(protectedBytes);
 
         var sut = CreateSut(true);
         var actual = sut.Serialize(input);
@@ -58,16 +72,18 @@ public class PersistentGrantSerializerDataProtectionDecoratorTests
 
         element.GetProperty("PersistentGrantDataContainerVersion").GetInt32().Should().Be(1);
         element.GetProperty("DataProtected").GetBoolean().Should().BeTrue();
-        element.GetProperty("Payload").GetString().Should().BeEquivalentTo(inputProtected);
+        element.GetProperty("Payload").GetString().Should().BeEquivalentTo(expectedPayload);
     }
 
     [Fact]
     public void Serialize_WhenProtectionDisabled_ShouldWrapInDataProtectedDataObjectUnprotected()
     {
-        var input = new { value1 = "someVal" };
+        var input = new FakeData { Value1 = "someVal" };
         var inputSerialised = "{ \"value1\" = \"someVal\" }";
-        
-        SetupSerialise(input, inputSerialised, string.Empty);
+
+        Mock.Get(decoratedSerializer)
+            .Setup(x => x.Serialize(input))
+            .Returns(inputSerialised);
 
         var sut = CreateSut(false);
         var actual = sut.Serialize(input);
@@ -83,22 +99,31 @@ public class PersistentGrantSerializerDataProtectionDecoratorTests
     [Fact]
     public void Deserialize_WhenProtectedDataProvided_ShouldUnprotectAndReturn()
     {
-        object payload = new { value1 = "someVal" };
+        FakeData payload = new() { Value1 = "someVal" };
         var serialisedPayload = "{ \"value1\" = \"someVal\" }";
-        var protectedPayload = "PROTECTED_INPUT";
+
+        var protectedPayloadBytes = Encoding.UTF8.GetBytes("PROTECTED_INPUT");
+        var protectedPayloadBase64 = Convert.ToBase64String(protectedPayloadBytes);
 
         var input = $$"""
                     {
                         "PersistentGrantDataContainerVersion": 1,
                         "DataProtected": true,
-                        "Payload": {{protectedPayload}},
+                        "Payload": "{{protectedPayloadBase64}}"
                     }
                     """;
-        
-        SetupDeserialise(payload, serialisedPayload, protectedPayload);
+
+        Mock.Get(decoratedSerializer)
+            .Setup(x => x.Deserialize<FakeData>(serialisedPayload))
+            .Returns(payload);
+
+        Mock.Get(dataProtector)
+            .Setup(x => x.Unprotect(It.Is<byte[]>(
+                b => Convert.ToBase64String(b) == protectedPayloadBase64)))
+            .Returns(Encoding.UTF8.GetBytes(serialisedPayload));
 
         var sut = CreateSut(true);
-        var actual = sut.Deserialize<object>(input);
+        var actual = sut.Deserialize<FakeData>(input);
 
         actual.Should().BeEquivalentTo(payload);
     }
@@ -106,46 +131,24 @@ public class PersistentGrantSerializerDataProtectionDecoratorTests
     [Fact]
     public void Deserialize_WhenUnProtectedDataProvided_ShouldReturnData()
     {
-        object payload = new { value1 = "someVal" };
+        FakeData payload = new() { Value1 = "someVal" };
         var serialisedPayload = "{ \"value1\" = \"someVal\" }";
 
-        var input = $$"""
-                      {
-                          "PersistentGrantDataContainerVersion": 1,
-                          "DataProtected": false,
-                          "Payload": {{serialisedPayload}},
-                      }
-                      """;
-        
-        SetupDeserialise(payload, serialisedPayload, string.Empty);
+        var input = """
+                    {
+                        "PersistentGrantDataContainerVersion": 1,
+                        "DataProtected": false,
+                        "Payload": "{ \u0022value1\u0022 = \u0022someVal\u0022 }"
+                    }
+                    """;
+
+        Mock.Get(decoratedSerializer)
+            .Setup(x => x.Deserialize<FakeData>(serialisedPayload))
+            .Returns(payload);
 
         var sut = CreateSut(true);
-        var actual = sut.Deserialize<object>(input);
+        var actual = sut.Deserialize<FakeData>(input);
 
         actual.Should().BeEquivalentTo(payload);
-    }
-    
-    private void SetupSerialise(object input, string inputSerialised, string inputProtected)
-    {
-        Mock.Get(decoratedSerializer)
-            .Setup(x => x.Serialize(input))
-            .Returns<object>(_ => inputSerialised);
-
-        Mock.Get(dataProtector)
-            .Setup(x => x.Protect(It.Is<byte[]>(
-                b => System.Text.Encoding.UTF8.GetString(b) == inputSerialised)))
-            .Returns<byte[]>(_ => Convert.FromBase64String(inputProtected));
-    }
-    
-    private void SetupDeserialise(object input, string inputSerialised, string inputProtected)
-    {
-        Mock.Get(decoratedSerializer)
-            .Setup(x => x.Deserialize<object>(inputSerialised))
-            .Returns<object>(_ => input);
-
-        Mock.Get(dataProtector)
-            .Setup(x => x.Unprotect(It.Is<byte[]>(
-                b => Convert.ToBase64String(b) == inputProtected)))
-            .Returns<byte[]>(_ => System.Text.Encoding.UTF8.GetBytes(inputSerialised));
     }
 }

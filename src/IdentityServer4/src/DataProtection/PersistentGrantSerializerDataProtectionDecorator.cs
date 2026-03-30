@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
 using IdentityServer4.Configuration;
+using IdentityServer4.Storage.Stores.DataProtection;
 using IdentityServer4.Stores.Serialization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
@@ -16,7 +17,11 @@ public class PersistentGrantSerializerDataProtectionDecorator(
     IDataProtectionProvider dataProtectionProvider,
     IOptions<IdentityServerOptions> options): IPersistentGrantSerializer
 {
-    private static readonly JsonSerializerOptions _settings;
+    private const string ProtectorPurpose = "PersistedGrant-DataProtection";
+    private IDataProtector dataProtector = dataProtectionProvider.CreateProtector(ProtectorPurpose);
+    private IdentityServerOptions options = options.Value;
+
+    private JsonSerializerOptions serializerOptions = new();
 
     /// <summary>
     /// Serializes the specified value. And protects the data using Data Protection
@@ -26,9 +31,15 @@ public class PersistentGrantSerializerDataProtectionDecorator(
     /// <returns></returns>
     public string Serialize<T>(T value)
     {
-        var serialisedData = decoratedSerializer.Serialize(value);
+        string data = decoratedSerializer.Serialize(value);
         
-        throw new NotImplementedException();
+        var wrappedData = new DataProtectedGrantData
+        {
+            DataProtected = options.PersistentGrants.DataProtectData,
+            Payload = options.PersistentGrants.DataProtectData ? dataProtector.Protect(data) : data,
+        };
+
+        return JsonSerializer.Serialize(wrappedData, serializerOptions);
     }
 
     /// <summary>
@@ -39,8 +50,10 @@ public class PersistentGrantSerializerDataProtectionDecorator(
     /// <returns></returns>
     public T Deserialize<T>(string json)
     {
-        var deserialisedData = decoratedSerializer.Deserialize<T>(json);
+        var wrappedData = JsonSerializer.Deserialize<DataProtectedGrantData>(json, serializerOptions);
 
-        throw new NotImplementedException();
+        var data = wrappedData.DataProtected ? dataProtector.Unprotect(wrappedData.Payload) : wrappedData.Payload;
+
+        return decoratedSerializer.Deserialize<T>(data);
     }
 }
