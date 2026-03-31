@@ -5,7 +5,7 @@
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 
-namespace IdentityServer4.Validation
+namespace OpenIdentityServer.Validation
 {
     /// <summary>
     ///  Device authorization endpoint request validator.

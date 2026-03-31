@@ -3,11 +3,11 @@
 
 
 using IdentityModel;
-using IdentityServer4.Events;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
+using OpenIdentityServer.Events;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Services;
+using OpenIdentityServer.Stores;
 using IdentityServerAspNetIdentity.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;

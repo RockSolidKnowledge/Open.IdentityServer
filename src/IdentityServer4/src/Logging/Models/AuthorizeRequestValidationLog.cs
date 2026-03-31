@@ -5,10 +5,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using IdentityModel;
-using IdentityServer4.Extensions;
-using IdentityServer4.Validation;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Validation;
 
-namespace IdentityServer4.Logging.Models
+namespace OpenIdentityServer.Logging.Models
 {
     internal class AuthorizeRequestValidationLog
     {

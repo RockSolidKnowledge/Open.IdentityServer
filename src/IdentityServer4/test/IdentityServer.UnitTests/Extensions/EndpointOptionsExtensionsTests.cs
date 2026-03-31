@@ -1,6 +1,6 @@
-﻿using IdentityServer4.Configuration;
-using IdentityServer4.Extensions;
-using IdentityServer4.Hosting;
+﻿using OpenIdentityServer.Configuration;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Hosting;
 using Xunit;
 using static IdentityServer4.Constants;
 

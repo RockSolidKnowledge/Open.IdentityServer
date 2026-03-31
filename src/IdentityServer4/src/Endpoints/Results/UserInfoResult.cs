@@ -4,11 +4,11 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IdentityServer4.Extensions;
-using IdentityServer4.Hosting;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Hosting;
 using Microsoft.AspNetCore.Http;
 
-namespace IdentityServer4.Endpoints.Results
+namespace OpenIdentityServer.Endpoints.Results
 {
     internal class UserInfoResult : IEndpointResult
     {

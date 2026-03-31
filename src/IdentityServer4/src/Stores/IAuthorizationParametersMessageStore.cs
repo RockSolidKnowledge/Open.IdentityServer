@@ -3,10 +3,10 @@
 
 
 using System.Collections.Generic;
-using IdentityServer4.Models;
+using OpenIdentityServer.Models;
 using System.Threading.Tasks;
 
-namespace IdentityServer4.Stores
+namespace OpenIdentityServer.Stores
 {
     /// <summary>
     /// Interface for authorization request messages that are sent from the authorization endpoint to the login and consent UI.

@@ -6,9 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using IdentityServerHost.Data;
 using IdentityServerHost.Configuration;
-using IdentityServer4.Models;
+using OpenIdentityServer.Models;
 using Microsoft.Extensions.Hosting;
-using IdentityServer4;
+using OpenIdentityServer;
 
 namespace IdentityServerHost
 {

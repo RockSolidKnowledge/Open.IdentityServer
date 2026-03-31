@@ -146,8 +146,8 @@ In `Startup.cs` add this method to help initialize the database::
 The above code may require you to add the following namespaces to your file::
 
     using System.Linq;
-    using IdentityServer4.EntityFramework.DbContexts;
-    using IdentityServer4.EntityFramework.Mappers;
+    using OpenIdentityServer.EntityFramework.DbContexts;
+    using OpenIdentityServer.EntityFramework.Mappers;
 
 And then we can invoke this from the ``Configure`` method::
 

@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using AwesomeAssertions;
-using IdentityServer4.Models;
+using OpenIdentityServer.Models;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Validation

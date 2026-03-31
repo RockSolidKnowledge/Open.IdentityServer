@@ -5,7 +5,7 @@
 using IdentityModel;
 using System.Threading.Tasks;
 
-namespace IdentityServer4.Services
+namespace OpenIdentityServer.Services
 {
     /// <summary>
     /// Default handle generation service

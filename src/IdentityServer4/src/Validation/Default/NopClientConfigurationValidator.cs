@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace IdentityServer4.Validation
+namespace OpenIdentityServer.Validation
 {
     /// <summary>
     /// No-op client configuration validator (for backwards-compatibility).

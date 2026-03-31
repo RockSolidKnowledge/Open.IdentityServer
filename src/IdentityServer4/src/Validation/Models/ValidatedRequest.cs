@@ -3,15 +3,15 @@
 
 
 using System.Collections.Generic;
-using IdentityServer4.Configuration;
-using IdentityServer4.Models;
+using OpenIdentityServer.Configuration;
+using OpenIdentityServer.Models;
 using System.Collections.Specialized;
 using System.Security.Claims;
 using IdentityModel;
 using System.Linq;
 using System;
 
-namespace IdentityServer4.Validation
+namespace OpenIdentityServer.Validation
 {
     /// <summary>
     /// Base class for a validate authorize or token request

@@ -1,6 +1,6 @@
 ﻿using AwesomeAssertions;
-using IdentityServer4.Models;
-using IdentityServer4.Test;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Test;
 using System.Text.Json;
 using System.Collections.Generic;
 using System.Net;

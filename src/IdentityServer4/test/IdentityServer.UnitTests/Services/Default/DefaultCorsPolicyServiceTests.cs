@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.UnitTests.Common;
-using IdentityServer4.Services;
+using OpenIdentityServer.Services;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Services.Default

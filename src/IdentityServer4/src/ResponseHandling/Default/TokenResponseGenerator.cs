@@ -3,18 +3,18 @@
 
 
 using IdentityModel;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using IdentityServer4.Validation;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Services;
+using OpenIdentityServer.Stores;
+using OpenIdentityServer.Validation;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 
-namespace IdentityServer4.ResponseHandling
+namespace OpenIdentityServer.ResponseHandling
 {
     /// <summary>
     /// The default token response generator

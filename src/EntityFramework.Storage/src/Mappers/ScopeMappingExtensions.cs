@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace IdentityServer4.EntityFramework.Mappers;
+namespace OpenIdentityServer.EntityFramework.Mappers;
 
 /// <summary>
 /// Mapping extension methods for Scope objects

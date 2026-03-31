@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Configuration;
-using IdentityServer4.Hosting;
+using OpenIdentityServer.Configuration;
+using OpenIdentityServer.Hosting;
 using static IdentityServer4.Constants;
 
-namespace IdentityServer4.Extensions
+namespace OpenIdentityServer.Extensions
 {
     internal static class EndpointOptionsExtensions
     {

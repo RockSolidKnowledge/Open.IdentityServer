@@ -2,15 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Models;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
 
-namespace IdentityServer4.Stores
+namespace OpenIdentityServer.Stores
 {
     /// <summary>
     /// In-memory persisted grant store

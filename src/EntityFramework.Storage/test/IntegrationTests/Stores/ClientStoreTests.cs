@@ -5,16 +5,16 @@
 using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer4.EntityFramework.DbContexts;
-using IdentityServer4.EntityFramework.Mappers;
-using IdentityServer4.EntityFramework.Options;
-using IdentityServer4.EntityFramework.Stores;
-using IdentityServer4.Models;
+using OpenIdentityServer.EntityFramework.DbContexts;
+using OpenIdentityServer.EntityFramework.Mappers;
+using OpenIdentityServer.EntityFramework.Options;
+using OpenIdentityServer.EntityFramework.Stores;
+using OpenIdentityServer.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Xunit.Sdk;
 
-namespace IdentityServer4.EntityFramework.IntegrationTests.Stores;
+namespace OpenIdentityServer.EntityFramework.IntegrationTests.Stores;
 
 public class ClientStoreTests : IntegrationTest<ClientStoreTests, ConfigurationDbContext, ConfigurationStoreOptions>
 {

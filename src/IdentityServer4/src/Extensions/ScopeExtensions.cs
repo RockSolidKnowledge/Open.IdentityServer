@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace IdentityServer4.Models
+namespace OpenIdentityServer.Models
 {
     internal static class ScopeExtensions
     {

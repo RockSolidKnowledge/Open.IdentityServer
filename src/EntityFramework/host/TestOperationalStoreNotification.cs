@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IdentityServer4.EntityFramework;
-using IdentityServer4.EntityFramework.Entities;
+using OpenIdentityServer.EntityFramework;
+using OpenIdentityServer.EntityFramework.Entities;
 
 namespace IdentityServerHost
 {

@@ -3,12 +3,12 @@
 
 
 using System.Threading.Tasks;
-using IdentityServer4.Models;
-using IdentityServer4.Stores.Serialization;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Stores.Serialization;
 using Microsoft.Extensions.Logging;
-using IdentityServer4.Services;
+using OpenIdentityServer.Services;
 
-namespace IdentityServer4.Stores
+namespace OpenIdentityServer.Stores
 {
     /// <summary>
     /// Default refresh token store.

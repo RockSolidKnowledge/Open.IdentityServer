@@ -3,11 +3,11 @@
 
 
 using System.Collections.Generic;
-using IdentityServer4.Models;
+using OpenIdentityServer.Models;
 using System.Threading.Tasks;
-using IdentityServer4.Extensions;
+using OpenIdentityServer.Extensions;
 
-namespace IdentityServer4.Stores
+namespace OpenIdentityServer.Stores
 {
     // internal just for testing
     internal class QueryStringAuthorizationParametersMessageStore : IAuthorizationParametersMessageStore

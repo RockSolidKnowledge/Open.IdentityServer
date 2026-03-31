@@ -1,5 +1,5 @@
-﻿using IdentityServer4.Services;
-using IdentityServer4.Validation;
+﻿using OpenIdentityServer.Services;
+using OpenIdentityServer.Validation;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;

@@ -4,7 +4,7 @@
 
 using System;
 
-namespace IdentityServer4.Events
+namespace OpenIdentityServer.Events
 {
     /// <summary>
     /// Event for unhandled exceptions

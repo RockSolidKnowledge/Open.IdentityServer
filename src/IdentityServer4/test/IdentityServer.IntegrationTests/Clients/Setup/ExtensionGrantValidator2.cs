@@ -3,7 +3,7 @@
 
 
 using System.Threading.Tasks;
-using IdentityServer4.Validation;
+using OpenIdentityServer.Validation;
 
 namespace IdentityServer.IntegrationTests.Clients.Setup
 {

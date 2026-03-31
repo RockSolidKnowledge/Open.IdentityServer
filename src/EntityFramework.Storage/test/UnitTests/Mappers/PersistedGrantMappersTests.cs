@@ -3,11 +3,11 @@
 
 
 using AwesomeAssertions;
-using IdentityServer4.EntityFramework.Mappers;
-using IdentityServer4.Models;
+using OpenIdentityServer.EntityFramework.Mappers;
+using OpenIdentityServer.Models;
 using Xunit;
 
-namespace IdentityServer4.EntityFramework.UnitTests.Mappers;
+namespace OpenIdentityServer.EntityFramework.UnitTests.Mappers;
 
 public class PersistedGrantMappersTests
 {

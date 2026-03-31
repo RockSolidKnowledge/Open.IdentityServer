@@ -1,5 +1,5 @@
-﻿using AwesomeAssertions;
-using IdentityServer4.Extensions;
+using AwesomeAssertions;
+using OpenIdentityServer.Extensions;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Extensions

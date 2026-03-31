@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace IdentityServer4.Services
+namespace OpenIdentityServer.Services
 {
     /// <summary>
     /// Interface for replay cache implementations

@@ -3,16 +3,16 @@
 
 
 using IdentityModel;
-using IdentityServer4.Events;
-using IdentityServer4.Extensions;
-using IdentityServer4.Services;
-using IdentityServer4.Validation;
+using OpenIdentityServer.Events;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Services;
+using OpenIdentityServer.Validation;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IdentityServer4.ResponseHandling
+namespace OpenIdentityServer.ResponseHandling
 {
     /// <summary>
     /// The introspection response generator

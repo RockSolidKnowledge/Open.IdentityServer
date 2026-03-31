@@ -5,7 +5,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace IdentityServer4.Logging
+namespace OpenIdentityServer.Logging
 {
     /// <summary>
     /// Helper to JSON serialize object data for logging.

@@ -6,7 +6,7 @@ using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
-namespace IdentityServer4.Services
+namespace OpenIdentityServer.Services
 {
     /// <summary>
     /// User code generator using 9 digit number

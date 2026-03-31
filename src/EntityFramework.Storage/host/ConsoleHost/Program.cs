@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using IdentityServer4.EntityFramework.Storage;
+using OpenIdentityServer.EntityFramework.Storage;
 using Microsoft.EntityFrameworkCore;
-using IdentityServer4.EntityFramework;
+using OpenIdentityServer.EntityFramework;
 
 namespace ConsoleHost
 {

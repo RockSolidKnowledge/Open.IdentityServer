@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 using System.Security.Principal;
 
-namespace IdentityServer4.Extensions
+namespace OpenIdentityServer.Extensions
 {
     /// <summary>
     /// Extension methods for <see cref="System.Security.Principal.IPrincipal"/> and <see cref="System.Security.Principal.IIdentity"/> .

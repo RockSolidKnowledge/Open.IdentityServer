@@ -5,14 +5,14 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using IdentityServer4.EntityFramework.Interfaces;
-using IdentityServer4.EntityFramework.Mappers;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
+using OpenIdentityServer.EntityFramework.Interfaces;
+using OpenIdentityServer.EntityFramework.Mappers;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Stores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace IdentityServer4.EntityFramework.Stores
+namespace OpenIdentityServer.EntityFramework.Stores
 {
     /// <summary>
     /// Implementation of IClientStore thats uses EF.

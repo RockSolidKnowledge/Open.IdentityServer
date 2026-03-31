@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityServer4.Validation;
+using OpenIdentityServer.Validation;
 
 namespace IdentityServerHost.Extensions
 {

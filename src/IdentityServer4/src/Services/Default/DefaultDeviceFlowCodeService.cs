@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Stores;
 
-namespace IdentityServer4.Services.Default
+namespace OpenIdentityServer.Services.Default
 {
     /// <summary>
     /// Default wrapper service for IDeviceFlowStore, handling key hashing

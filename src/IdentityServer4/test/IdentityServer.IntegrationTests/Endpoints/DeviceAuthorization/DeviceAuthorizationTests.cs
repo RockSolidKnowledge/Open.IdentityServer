@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityModel;
 using IdentityServer.IntegrationTests.Common;
-using IdentityServer4.Models;
+using OpenIdentityServer.Models;
 using System.Text.Json;
 using Xunit;
 

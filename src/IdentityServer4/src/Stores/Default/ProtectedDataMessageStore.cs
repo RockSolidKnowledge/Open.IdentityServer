@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Models;
+using OpenIdentityServer.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using IdentityModel;
@@ -10,7 +10,7 @@ using System.Text;
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace IdentityServer4.Stores
+namespace OpenIdentityServer.Stores
 {
     /// <summary>
     /// IMessageStore implementation that uses data protection to protect message.

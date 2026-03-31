@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Stores;
+using OpenIdentityServer.Stores;
 using System;
 
-namespace IdentityServer4.Extensions
+namespace OpenIdentityServer.Extensions
 {
     /// <summary>
     /// Extensions for PersistedGrantFilter.

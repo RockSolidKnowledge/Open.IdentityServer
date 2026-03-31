@@ -7,9 +7,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.UnitTests.Validation.Setup;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Stores;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Validation

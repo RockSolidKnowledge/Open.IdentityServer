@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace IdentityServer4.EntityFramework.Mappers;
+namespace OpenIdentityServer.EntityFramework.Mappers;
 
 /// <summary>
 /// Class containing mapping extensions for Secret classes.

@@ -4,12 +4,12 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IdentityServer4.Hosting;
+using OpenIdentityServer.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
-using IdentityServer4.Extensions;
+using OpenIdentityServer.Extensions;
 
-namespace IdentityServer4.Endpoints.Results
+namespace OpenIdentityServer.Endpoints.Results
 {
     /// <summary>
     /// Result for introspection

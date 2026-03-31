@@ -8,7 +8,7 @@ using AwesomeAssertions;
 using IdentityModel;
 using IdentityServer.UnitTests.Common;
 using IdentityServer.UnitTests.Validation.Setup;
-using IdentityServer4.Configuration;
+using OpenIdentityServer.Configuration;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation

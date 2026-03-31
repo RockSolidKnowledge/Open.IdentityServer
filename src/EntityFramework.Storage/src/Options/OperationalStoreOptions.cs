@@ -5,7 +5,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 
-namespace IdentityServer4.EntityFramework.Options
+namespace OpenIdentityServer.EntityFramework.Options
 {
     /// <summary>
     /// Options for configuring the operational context.

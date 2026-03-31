@@ -3,7 +3,7 @@
 
 
 using IdentityModel;
-using IdentityServer4.Models;
+using OpenIdentityServer.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,9 +12,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
-using IdentityServer4.Configuration;
+using OpenIdentityServer.Configuration;
 
-namespace IdentityServer4.Extensions;
+namespace OpenIdentityServer.Extensions;
 
 /// <summary>
 /// Extensions for Token

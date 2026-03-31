@@ -4,9 +4,9 @@
 
 using System.Collections.Specialized;
 using System.Threading.Tasks;
-using IdentityServer4.Models;
+using OpenIdentityServer.Models;
 
-namespace IdentityServer4.Validation
+namespace OpenIdentityServer.Validation
 {
     /// <summary>
     /// Interface for the token revocation request validator

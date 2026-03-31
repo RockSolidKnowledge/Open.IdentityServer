@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace IdentityServer4.Configuration
+namespace OpenIdentityServer.Configuration
 {
     /// <summary>
     /// Options class to configure discovery endpoint

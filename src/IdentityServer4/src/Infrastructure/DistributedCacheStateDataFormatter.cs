@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace IdentityServer4.Infrastructure
+namespace OpenIdentityServer.Infrastructure
 {
     /// <summary>
     /// State formatter using IDistributedCache

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace IdentityServer4.Extensions
+namespace OpenIdentityServer.Extensions
 {
     internal static class ClaimsExtensions
     {

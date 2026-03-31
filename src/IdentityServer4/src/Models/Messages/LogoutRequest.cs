@@ -3,13 +3,13 @@
 
 
 using IdentityModel;
-using IdentityServer4.Extensions;
-using IdentityServer4.Validation;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Validation;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace IdentityServer4.Models
+namespace OpenIdentityServer.Models
 {
     /// <summary>
     /// Models the validated singout context.

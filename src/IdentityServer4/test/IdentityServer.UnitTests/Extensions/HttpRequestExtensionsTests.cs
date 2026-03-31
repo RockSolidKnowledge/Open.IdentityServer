@@ -4,7 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using AwesomeAssertions;
-using IdentityServer4.Extensions;
+using OpenIdentityServer.Extensions;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 

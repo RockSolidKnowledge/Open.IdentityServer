@@ -4,14 +4,14 @@
 
 using System;
 using System.Threading.Tasks;
-using IdentityServer4.Models;
-using IdentityServer4.Extensions;
-using IdentityServer4.Validation;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Validation;
 using Microsoft.Extensions.Logging;
-using IdentityServer4.Stores;
+using OpenIdentityServer.Stores;
 using System.Collections.Specialized;
 
-namespace IdentityServer4.Services
+namespace OpenIdentityServer.Services
 {
     internal class OidcReturnUrlParser : IReturnUrlParser
     {

@@ -5,13 +5,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
-using IdentityServer4.Stores;
-using IdentityServer4.Models;
+using OpenIdentityServer.Stores;
+using OpenIdentityServer.Models;
 using System.Linq;
 using System;
-using IdentityServer4.Extensions;
+using OpenIdentityServer.Extensions;
 
-namespace IdentityServer4.Services
+namespace OpenIdentityServer.Services
 {
     /// <summary>
     /// The default key material service

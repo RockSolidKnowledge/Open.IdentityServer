@@ -3,14 +3,14 @@
 
 
 using System;
-using IdentityServer4.Models;
+using OpenIdentityServer.Models;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Threading.Tasks;
 using IdentityModel;
-using IdentityServer4.Configuration;
+using OpenIdentityServer.Configuration;
 
-namespace IdentityServer4.Services
+namespace OpenIdentityServer.Services
 {
     /// <summary>
     /// Default JwtRequest client

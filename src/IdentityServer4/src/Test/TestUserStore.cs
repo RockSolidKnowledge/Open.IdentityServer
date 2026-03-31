@@ -9,7 +9,7 @@ using System.Linq;
 using System.Security.Claims;
 using System;
 
-namespace IdentityServer4.Test
+namespace OpenIdentityServer.Test
 {
     /// <summary>
     /// Store for test users

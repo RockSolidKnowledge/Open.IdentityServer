@@ -4,7 +4,7 @@
 
 using static IdentityServer4.Constants;
 
-namespace IdentityServer4.Events
+namespace OpenIdentityServer.Events
 {
     /// <summary>
     /// Event for failed user authentication

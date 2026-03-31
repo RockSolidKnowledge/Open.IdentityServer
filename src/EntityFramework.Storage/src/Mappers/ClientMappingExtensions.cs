@@ -3,9 +3,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using IdentityServer4.EntityFramework.Entities;
+using OpenIdentityServer.EntityFramework.Entities;
 
-namespace IdentityServer4.EntityFramework.Mappers;
+namespace OpenIdentityServer.EntityFramework.Mappers;
 
 /// <summary>
 /// Class containing mapping extensions for Client classes.

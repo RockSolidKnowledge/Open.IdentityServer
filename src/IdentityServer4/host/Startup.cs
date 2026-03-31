@@ -5,7 +5,7 @@
 using System;
 using IdentityServerHost.Configuration;
 using IdentityModel;
-using IdentityServer4;
+using OpenIdentityServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

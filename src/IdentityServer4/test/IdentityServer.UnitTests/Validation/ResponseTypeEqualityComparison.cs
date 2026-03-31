@@ -3,7 +3,7 @@
 
 
 using AwesomeAssertions;
-using IdentityServer4.Validation;
+using OpenIdentityServer.Validation;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Validation

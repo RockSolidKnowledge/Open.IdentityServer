@@ -3,9 +3,9 @@
 
 
 using AwesomeAssertions;
-using IdentityServer4.Configuration;
-using IdentityServer4.Models;
-using IdentityServer4.Validation;
+using OpenIdentityServer.Configuration;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Validation;
 using System;
 using System.Threading.Tasks;
 using IdentityServer.UnitTests.Validation.Setup;

@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Endpoints;
+using OpenIdentityServer.Endpoints;
 using Microsoft.Extensions.Logging;
 
 namespace IdentityServer.UnitTests.Endpoints.EndSession

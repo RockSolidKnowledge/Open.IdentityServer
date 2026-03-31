@@ -2,14 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Extensions;
+using OpenIdentityServer.Extensions;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
-using IdentityServer4.Configuration;
+using OpenIdentityServer.Configuration;
 
 #pragma warning disable 1591
 
-namespace IdentityServer4.Hosting
+namespace OpenIdentityServer.Hosting
 {
     public class BaseUrlMiddleware
     {

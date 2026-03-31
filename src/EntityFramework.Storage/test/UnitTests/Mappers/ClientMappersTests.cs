@@ -5,11 +5,11 @@
 using System;
 using System.Linq;
 using AwesomeAssertions;
-using IdentityServer4.EntityFramework.Mappers;
+using OpenIdentityServer.EntityFramework.Mappers;
 using Xunit;
 using Client = IdentityServer4.Models.Client;
 
-namespace IdentityServer4.EntityFramework.UnitTests.Mappers;
+namespace OpenIdentityServer.EntityFramework.UnitTests.Mappers;
 
 public class ClientMappersTests
 {

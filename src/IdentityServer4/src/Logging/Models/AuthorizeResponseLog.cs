@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Extensions;
-using IdentityServer4.ResponseHandling;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.ResponseHandling;
 
-namespace IdentityServer4.Logging.Models
+namespace OpenIdentityServer.Logging.Models
 {
     internal class AuthorizeResponseLog
     {

@@ -3,15 +3,15 @@
 
 
 using System;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 
-namespace IdentityServer4.Validation
+namespace OpenIdentityServer.Validation
 {
     /// <summary>
     /// Validates secrets using the registered validators

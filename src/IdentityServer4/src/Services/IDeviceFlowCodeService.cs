@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using IdentityServer4.Models;
+using OpenIdentityServer.Models;
 
-namespace IdentityServer4.Services
+namespace OpenIdentityServer.Services
 {
     /// <summary>
     /// Wrapper service for IDeviceFlowStore.

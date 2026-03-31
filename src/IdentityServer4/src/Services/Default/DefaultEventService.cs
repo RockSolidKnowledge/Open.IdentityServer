@@ -5,12 +5,12 @@
 using System;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using IdentityServer4.Configuration;
+using OpenIdentityServer.Configuration;
 using System.Threading.Tasks;
-using IdentityServer4.Services;
+using OpenIdentityServer.Services;
 using Microsoft.AspNetCore.Authentication;
 
-namespace IdentityServer4.Events
+namespace OpenIdentityServer.Events
 {
     /// <summary>
     /// The default event service

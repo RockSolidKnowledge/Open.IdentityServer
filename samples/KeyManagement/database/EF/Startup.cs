@@ -5,7 +5,7 @@
 using System;
 using System.Linq;
 using IdentityModel;
-using IdentityServer4.KeyManagement.EntityFramework;
+using OpenIdentityServer.KeyManagement.EntityFramework;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;

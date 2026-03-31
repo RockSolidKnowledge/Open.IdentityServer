@@ -1,5 +1,5 @@
-﻿using IdentityServer4.Models;
-using IdentityServer4.Services;
+﻿using OpenIdentityServer.Models;
+using OpenIdentityServer.Services;
 using System.Threading.Tasks;
 
 namespace IdentityServer.UnitTests.Common

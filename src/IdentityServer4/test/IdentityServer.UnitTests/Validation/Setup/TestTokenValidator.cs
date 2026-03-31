@@ -1,5 +1,5 @@
-﻿using IdentityServer4.Models;
-using IdentityServer4.Validation;
+﻿using OpenIdentityServer.Models;
+using OpenIdentityServer.Validation;
 using System.Threading.Tasks;
 
 namespace IdentityServer.UnitTests.Validation.Setup

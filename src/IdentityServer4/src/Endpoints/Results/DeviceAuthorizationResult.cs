@@ -4,12 +4,12 @@
 
 using System;
 using System.Threading.Tasks;
-using IdentityServer4.Extensions;
-using IdentityServer4.Hosting;
-using IdentityServer4.ResponseHandling;
+using OpenIdentityServer.Extensions;
+using OpenIdentityServer.Hosting;
+using OpenIdentityServer.ResponseHandling;
 using Microsoft.AspNetCore.Http;
 
-namespace IdentityServer4.Endpoints.Results
+namespace OpenIdentityServer.Endpoints.Results
 {
     internal class DeviceAuthorizationResult : IEndpointResult
     {

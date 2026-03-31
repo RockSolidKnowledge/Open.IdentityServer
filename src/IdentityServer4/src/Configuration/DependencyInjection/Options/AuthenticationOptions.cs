@@ -5,7 +5,7 @@
 using System;
 using Microsoft.AspNetCore.Http;
 
-namespace IdentityServer4.Configuration
+namespace OpenIdentityServer.Configuration
 {
     /// <summary>
     /// Configures the login and logout views and behavior.

@@ -9,7 +9,7 @@ using Microsoft.Net.Http.Headers;
 
 #pragma warning disable 1591
 
-namespace IdentityServer4.Extensions
+namespace OpenIdentityServer.Extensions
 {
     public static class HttpRequestExtensions
     {

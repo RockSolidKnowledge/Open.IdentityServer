@@ -2,20 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Configuration;
-using IdentityServer4.Services;
+using OpenIdentityServer.Configuration;
+using OpenIdentityServer.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
-using IdentityServer4.Models;
-using IdentityServer4.Stores;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Stores;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 
 #pragma warning disable 1591
 
-namespace IdentityServer4.Extensions
+namespace OpenIdentityServer.Extensions
 {
     public static class HttpContextExtensions
     {

@@ -3,11 +3,11 @@
 
 
 using System.Threading.Tasks;
-using IdentityServer4.Validation;
-using IdentityServer4.Stores;
+using OpenIdentityServer.Validation;
+using OpenIdentityServer.Stores;
 using Microsoft.Extensions.Logging;
 
-namespace IdentityServer4.ResponseHandling
+namespace OpenIdentityServer.ResponseHandling
 {
     /// <summary>
     /// Default revocation response generator

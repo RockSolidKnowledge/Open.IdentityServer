@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer4.Events;
-using IdentityServer4.Services;
+using OpenIdentityServer.Events;
+using OpenIdentityServer.Services;
 
 namespace IdentityServer.UnitTests.Common
 {

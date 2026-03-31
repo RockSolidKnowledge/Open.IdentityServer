@@ -1,5 +1,5 @@
-﻿using IdentityServer4.Models;
-using IdentityServer4.Stores;
+﻿using OpenIdentityServer.Models;
+using OpenIdentityServer.Stores;
 using Xunit;
 using AwesomeAssertions;
 using System.Threading.Tasks;

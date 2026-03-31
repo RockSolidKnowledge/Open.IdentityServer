@@ -5,7 +5,7 @@
 using System;
 using System.Text.Json;
 
-namespace IdentityServer4.Stores.Serialization
+namespace OpenIdentityServer.Stores.Serialization
 {
     /// <summary>
     /// JSON-based persisted grant serializer

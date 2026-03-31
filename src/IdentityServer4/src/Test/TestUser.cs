@@ -6,7 +6,7 @@ using IdentityModel;
 using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace IdentityServer4.Test
+namespace OpenIdentityServer.Test
 {
     /// <summary>
     /// In-memory user object for testing. Not intended for modeling users in production.

@@ -5,8 +5,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
+using OpenIdentityServer.Models;
+using OpenIdentityServer.Services;
 
 namespace IdentityServer.UnitTests.Common
 {

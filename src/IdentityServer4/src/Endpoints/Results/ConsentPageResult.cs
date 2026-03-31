@@ -5,16 +5,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IdentityServer4.Configuration;
-using IdentityServer4.Hosting;
+using OpenIdentityServer.Configuration;
+using OpenIdentityServer.Hosting;
 using Microsoft.AspNetCore.Http;
-using IdentityServer4.Validation;
-using IdentityServer4.Extensions;
+using OpenIdentityServer.Validation;
+using OpenIdentityServer.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using IdentityServer4.Stores;
-using IdentityServer4.Models;
+using OpenIdentityServer.Stores;
+using OpenIdentityServer.Models;
 
-namespace IdentityServer4.Endpoints.Results
+namespace OpenIdentityServer.Endpoints.Results
 {
     /// <summary>
     /// Result for consent page

@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Test;
+using OpenIdentityServer.Test;
 using System.Collections.Generic;
 
 namespace Microsoft.Extensions.DependencyInjection
