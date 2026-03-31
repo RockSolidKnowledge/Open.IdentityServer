@@ -11,7 +11,7 @@ namespace ConsoleHost
     {
         static void Main(string[] args)
         {
-            var connectionString = "server=(localdb)\\mssqllocaldb;database=IdentityServer4.EntityFramework-4.0.0;trusted_connection=yes;";
+            var connectionString = "server=(localdb)\\mssqllocaldb;database=OpenIdentityServer.EntityFramework-4.0.0;trusted_connection=yes;";
 
             var services = new ServiceCollection();
             services.AddLogging(b => b.AddConsole().SetMinimumLevel(LogLevel.Trace));

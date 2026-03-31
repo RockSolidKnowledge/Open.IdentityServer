@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
     
-    <ProjectReference Include="..\src\IdentityServer4.AspNetIdentity.csproj" />
+    <ProjectReference Include="..\src\OpenIdentityServer.AspNetIdentity.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,18 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <PackageId>IdentityServer4.EntityFramework</PackageId>
+        <PackageId>OpenIdentityServer.AspNetIdentity</PackageId>
         <TargetFramework>net10.0</TargetFramework>
 
-        <Description>EntityFramework persistence layer for IdentityServer4</Description>
-        <Authors>Brock Allen;Dominick Baier;Scott Brady</Authors>
-        <AssemblyName>IdentityServer4.EntityFramework</AssemblyName>
-        <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer;EntityFramework</PackageTags>
+        <Description>ASP.NET Core Identity Integration for OpenIdentityServer</Description>
+        <Authors>Brock Allen;Dominick Baier</Authors>
+        <AssemblyName>OpenIdentityServer.AspNetIdentity</AssemblyName>
+        <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer;ASP.NET Identity</PackageTags>
         <PackageIcon>icon.jpg</PackageIcon>
-        <PackageProjectUrl>https://github.com/IdentityServer/IdentityServer4</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/IdentityServer/OpenIdentityServer</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <PackageReleaseNotes>https://github.com/IdentityServer/IdentityServer4/releases</PackageReleaseNotes>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <PackageReleaseNotes>https://github.com/IdentityServer/OpenIdentityServer/releases</PackageReleaseNotes>
 
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -21,6 +20,10 @@
         <AssemblyOriginatorKeyFile>../../../key.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
         <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <RootNamespace>IdentityServer4.AspNetIdentity</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -28,14 +31,19 @@
         <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
     </PropertyGroup>
 
+
     <ItemGroup>
         <None Include="../../../icon.jpg" Pack="true" Visible="false" PackagePath=""/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IdentityServer4"/>
-        <PackageReference Include="IdentityServer4.EntityFramework.Storage"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="OpenIdentityServer"/>
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
+
 </Project>

@@ -10,7 +10,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\host\Host.csproj"/>
-        <ProjectReference Include="..\..\src\IdentityServer4.AspNetIdentity.csproj"/>
+        <ProjectReference Include="..\..\src\OpenIdentityServer.AspNetIdentity.csproj"/>
     </ItemGroup>
 
 </Project>

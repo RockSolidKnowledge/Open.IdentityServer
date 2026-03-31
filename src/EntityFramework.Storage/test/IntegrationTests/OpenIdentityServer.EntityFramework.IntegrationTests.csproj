@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -6,6 +6,7 @@
         <AssemblyOriginatorKeyFile>../../../../key.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
         <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+        <RootNamespace>IdentityServer4.EntityFramework.IntegrationTests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,12 +14,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\IdentityServer4.EntityFramework.Storage.csproj"/>
+        <ProjectReference Include="..\..\src\OpenIdentityServer.EntityFramework.Storage.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IdentityServer4"/>
-        <PackageReference Include="IdentityServer4.Storage"/>
+        <PackageReference Include="OpenIdentityServer"/>
+        <PackageReference Include="OpenIdentityServer.Storage"/>
 
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="xunit.v3"/>

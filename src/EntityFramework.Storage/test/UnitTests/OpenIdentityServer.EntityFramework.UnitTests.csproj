@@ -6,10 +6,11 @@
         <AssemblyOriginatorKeyFile>../../../../key.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
         <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+        <RootNamespace>IdentityServer4.EntityFramework.UnitTests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\IdentityServer4.EntityFramework.Storage.csproj"/>
+        <ProjectReference Include="..\..\src\OpenIdentityServer.EntityFramework.Storage.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
