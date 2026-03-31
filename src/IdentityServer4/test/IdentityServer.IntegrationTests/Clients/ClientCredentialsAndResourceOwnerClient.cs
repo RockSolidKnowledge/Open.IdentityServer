@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -9,23 +10,36 @@ using IdentityModel.Client;
 using IdentityServer.IntegrationTests.Clients.Setup;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients
 {
-    public class ClientCredentialsandResourceOwnerClient
+    public class ClientCredentialsAndResourceOwnerClient : IDisposable
     {
         private const string TokenEndpoint = "https://server/connect/token";
 
         private readonly HttpClient _client;
+        private readonly IHost _host;
 
-        public ClientCredentialsandResourceOwnerClient()
+        public ClientCredentialsAndResourceOwnerClient()
         {
-            var builder = new WebHostBuilder()
-                .UseStartup<Startup>();
-            var server = new TestServer(builder);
+            _host = new HostBuilder()
+                .ConfigureWebHost(webBuilder =>
+                {
+                    webBuilder.UseTestServer();
+                    webBuilder.UseStartup<Startup>();
+                })
+                .Build();
 
-            _client = server.CreateClient();
+            _host.Start();
+            _client = _host.GetTestClient();
+        }
+        
+        public void Dispose()
+        {
+            _client.Dispose();
+            _host.Dispose();
         }
 
         [Fact]
@@ -37,7 +51,7 @@ namespace IdentityServer.IntegrationTests.Clients
                 ClientId = "client.and.ro",
                 ClientSecret = "secret",
                 Scope = "api1"
-            });
+            }, TestContext.Current.CancellationToken);
 
             response.IsError.Should().Be(false);
         }
@@ -51,7 +65,7 @@ namespace IdentityServer.IntegrationTests.Clients
                 ClientId = "client.and.ro",
                 ClientSecret = "secret",
                 Scope = "openid api1"
-            });
+            }, TestContext.Current.CancellationToken);
 
             response.IsError.Should().Be(true);
         }
@@ -68,7 +82,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
                 UserName = "bob",
                 Password = "bob"
-            });
+            }, TestContext.Current.CancellationToken);
 
             response.IsError.Should().Be(false);
         }
@@ -85,7 +99,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
                 UserName = "bob",
                 Password = "bob"
-            });
+            }, TestContext.Current.CancellationToken);
 
             response.IsError.Should().Be(false);
         }

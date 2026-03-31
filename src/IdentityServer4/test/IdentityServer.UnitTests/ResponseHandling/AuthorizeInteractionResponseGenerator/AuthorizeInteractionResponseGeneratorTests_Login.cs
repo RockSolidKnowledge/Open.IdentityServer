@@ -168,7 +168,7 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
                 Subject = new IdentityServerUser("123")
                 {
                     IdentityProvider = "local",
-                    AuthenticationTime = _clock.UtcNow.UtcDateTime.Subtract(TimeSpan.FromSeconds(10))
+                    AuthenticationTime = _clock.GetUtcNow().UtcDateTime.Subtract(TimeSpan.FromSeconds(10))
                 }.CreatePrincipal()
             };
 
@@ -190,7 +190,7 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
                 Subject = new IdentityServerUser("123")
                 {
                     IdentityProvider = "local",
-                    AuthenticationTime = _clock.UtcNow.UtcDateTime.Subtract(TimeSpan.FromSeconds(3700))
+                    AuthenticationTime = _clock.GetUtcNow().UtcDateTime.Subtract(TimeSpan.FromSeconds(3700))
                 }.CreatePrincipal()
             };
 

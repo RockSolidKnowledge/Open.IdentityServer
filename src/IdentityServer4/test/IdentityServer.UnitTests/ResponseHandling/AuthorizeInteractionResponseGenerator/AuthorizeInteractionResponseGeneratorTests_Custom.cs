@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.UnitTests.Common;
@@ -20,7 +21,10 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
 {
     public class CustomAuthorizeInteractionResponseGenerator : IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator
     {
-        public CustomAuthorizeInteractionResponseGenerator(ISystemClock clock, ILogger<IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator> logger, IConsentService consent, IProfileService profile) : base(clock, logger, consent, profile)
+        public CustomAuthorizeInteractionResponseGenerator(
+            TimeProvider clock, 
+            ILogger<IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator> logger, 
+            IConsentService consent, IProfileService profile) : base(clock, logger, consent, profile)
         {
         }
 

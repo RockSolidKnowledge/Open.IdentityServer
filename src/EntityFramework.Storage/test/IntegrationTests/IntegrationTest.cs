@@ -17,7 +17,14 @@ namespace IdentityServer4.EntityFramework.IntegrationTests
     public class IntegrationTest<TClass, TDbContext, TStoreOption> : IClassFixture<DatabaseProviderFixture<TDbContext>>
         where TDbContext : DbContext
     {
-        public static readonly TheoryData<DbContextOptions<TDbContext>> TestDatabaseProviders;
+        public static readonly TheoryData<DbContextOptions<TDbContext>> TestDatabaseProviders
+            = new()
+            {
+                // Default all-platform config
+                DatabaseProviderBuilder.BuildInMemory<TDbContext>(typeof(TClass).Name),
+                DatabaseProviderBuilder.BuildSqlite<TDbContext>(typeof(TClass).Name)
+            };
+             
         protected readonly TStoreOption StoreOptions = Activator.CreateInstance<TStoreOption>();
 
         static IntegrationTest()
@@ -39,11 +46,6 @@ namespace IdentityServer4.EntityFramework.IntegrationTests
             }
             else
             {
-                TestDatabaseProviders = new TheoryData<DbContextOptions<TDbContext>>
-                {
-                    DatabaseProviderBuilder.BuildInMemory<TDbContext>(typeof(TClass).Name),
-                    DatabaseProviderBuilder.BuildSqlite<TDbContext>(typeof(TClass).Name)
-                };
                 Console.WriteLine("Skipping DB integration tests on non-Windows");
             }
         }

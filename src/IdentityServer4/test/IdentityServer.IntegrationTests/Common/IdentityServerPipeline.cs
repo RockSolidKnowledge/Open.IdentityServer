@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace IdentityServer.IntegrationTests.Common
@@ -52,18 +53,18 @@ namespace IdentityServer.IntegrationTests.Common
         public const string FederatedSignOutPath = "/signout-oidc";
         public const string FederatedSignOutUrl = BaseUrl + FederatedSignOutPath;
 
-        public IdentityServerOptions Options { get; set; }
+        public IdentityServerOptions? Options { get; set; }
         public List<Client> Clients { get; set; } = new List<Client>();
         public List<IdentityResource> IdentityScopes { get; set; } = new List<IdentityResource>();
         public List<ApiResource> ApiResources { get; set; } = new List<ApiResource>();
         public List<ApiScope> ApiScopes { get; set; } = new List<ApiScope>();
         public List<TestUser> Users { get; set; } = new List<TestUser>();
 
-        public TestServer Server { get; set; }
-        public HttpMessageHandler Handler { get; set; }
+        public TestServer? Server { get; set; }
+        public HttpMessageHandler? Handler { get; set; }
 
-        public BrowserClient BrowserClient { get; set; }
-        public HttpClient BackChannelClient { get; set; }
+        public BrowserClient? BrowserClient { get; set; }
+        public HttpClient? BackChannelClient { get; set; }
 
         public MockMessageHandler BackChannelMessageHandler { get; set; } = new MockMessageHandler();
         public MockMessageHandler JwtRequestMessageHandler { get; set; } = new MockMessageHandler();
@@ -73,35 +74,40 @@ namespace IdentityServer.IntegrationTests.Common
         public event Action<IApplicationBuilder> OnPreConfigure = app => { };
         public event Action<IApplicationBuilder> OnPostConfigure = app => { };
 
-        public Func<HttpContext, Task<bool>> OnFederatedSignout;
+        public Func<HttpContext, Task<bool>>? OnFederatedSignout;
 
-        public void Initialize(string basePath = null, bool enableLogging = false)
+        public void Initialize(string? basePath = null, bool enableLogging = false)
         {
-            var builder = new WebHostBuilder();
-            builder.ConfigureServices(ConfigureServices);
-            builder.Configure(app=>
-            {
-                if (basePath != null)
+            var hostBuilder = new HostBuilder()
+                .ConfigureWebHost(webBuilder =>
                 {
-                    app.Map(basePath, map =>
+                    webBuilder.UseTestServer();
+
+                    webBuilder.ConfigureServices(ConfigureServices);
+                    webBuilder.Configure(app =>
                     {
-                        ConfigureApp(map);
+                        if (basePath != null)
+                        {
+                            app.Map(basePath, map => { ConfigureApp(map); });
+                        }
+                        else
+                        {
+                            ConfigureApp(app);
+                        }
                     });
-                }
-                else
-                {
-                    ConfigureApp(app);
-                }
-            });
 
-            if (enableLogging)
-            {
-                builder.ConfigureLogging((ctx, b) => b.AddConsole());
-            }
+                    if (enableLogging)
+                    {
+                        webBuilder.ConfigureLogging((ctx, b) => b.AddConsole());
+                    }
+                });
 
-            Server = new TestServer(builder);
+            var host = hostBuilder.Build();
+            host.Start();
+
+            Server = host.GetTestServer();
             Handler = Server.CreateHandler();
-            
+
             BrowserClient = new BrowserClient(new BrowserHandler(Handler));
             BackChannelClient = new HttpClient(Handler);
         }
@@ -181,8 +187,8 @@ namespace IdentityServer.IntegrationTests.Common
         }
 
         public bool LoginWasCalled { get; set; }
-        public AuthorizationRequest LoginRequest { get; set; }
-        public ClaimsPrincipal Subject { get; set; }
+        public AuthorizationRequest? LoginRequest { get; set; }
+        public ClaimsPrincipal? Subject { get; set; }
         public bool FollowLoginReturnUrl { get; set; }
 
         private async Task OnLogin(HttpContext ctx)
@@ -205,7 +211,7 @@ namespace IdentityServer.IntegrationTests.Common
                 var props = new AuthenticationProperties();
                 await ctx.SignInAsync(Subject, props);
                 Subject = null;
-                var url = ctx.Request.Query[Options.UserInteraction.LoginReturnUrlParameter].FirstOrDefault();
+                var url = ctx.Request.Query[Options!.UserInteraction.LoginReturnUrlParameter].FirstOrDefault();
                 if (url != null)
                 {
                     ctx.Response.Redirect(url);
@@ -214,7 +220,7 @@ namespace IdentityServer.IntegrationTests.Common
         }
 
         public bool LogoutWasCalled { get; set; }
-        public LogoutRequest LogoutRequest { get; set; }
+        public LogoutRequest? LogoutRequest { get; set; }
 
         private async Task OnLogout(HttpContext ctx)
         {
@@ -230,8 +236,8 @@ namespace IdentityServer.IntegrationTests.Common
         }
 
         public bool ConsentWasCalled { get; set; }
-        public AuthorizationRequest ConsentRequest { get; set; }
-        public ConsentResponse ConsentResponse { get; set; }
+        public AuthorizationRequest? ConsentRequest { get; set; }
+        public ConsentResponse? ConsentResponse { get; set; }
 
         private async Task OnConsent(HttpContext ctx)
         {
@@ -254,7 +260,7 @@ namespace IdentityServer.IntegrationTests.Common
                 await interaction.GrantConsentAsync(ConsentRequest, ConsentResponse);
                 ConsentResponse = null;
 
-                var url = ctx.Request.Query[Options.UserInteraction.ConsentReturnUrlParameter].FirstOrDefault();
+                var url = ctx.Request.Query[Options!.UserInteraction.ConsentReturnUrlParameter].FirstOrDefault();
                 if (url != null)
                 {
                     ctx.Response.Redirect(url);
@@ -263,7 +269,7 @@ namespace IdentityServer.IntegrationTests.Common
         }
 
         public bool ErrorWasCalled { get; set; }
-        public ErrorMessage ErrorMessage { get; set; }
+        public ErrorMessage? ErrorMessage { get; set; }
 
         private async Task OnError(HttpContext ctx)
         {
@@ -280,7 +286,7 @@ namespace IdentityServer.IntegrationTests.Common
         /* helpers */
         public async Task LoginAsync(ClaimsPrincipal subject)
         {
-            var old = BrowserClient.AllowAutoRedirect;
+            var old = BrowserClient!.AllowAutoRedirect;
             BrowserClient.AllowAutoRedirect = false;
 
             Subject = subject;
@@ -296,19 +302,19 @@ namespace IdentityServer.IntegrationTests.Common
 
         public void RemoveLoginCookie()
         {
-            BrowserClient.RemoveCookie(BaseUrl, IdentityServerConstants.DefaultCookieAuthenticationScheme);
+            BrowserClient!.RemoveCookie(BaseUrl, IdentityServerConstants.DefaultCookieAuthenticationScheme);
         }
         public void RemoveSessionCookie()
         {
-            BrowserClient.RemoveCookie(BaseUrl, IdentityServerConstants.DefaultCheckSessionCookieName);
+            BrowserClient!.RemoveCookie(BaseUrl, IdentityServerConstants.DefaultCheckSessionCookieName);
         }
         public Cookie GetSessionCookie()
         {
-            return BrowserClient.GetCookie(BaseUrl, IdentityServerConstants.DefaultCheckSessionCookieName);
+            return BrowserClient!.GetCookie(BaseUrl, IdentityServerConstants.DefaultCheckSessionCookieName);
         }
 
         public string CreateAuthorizeUrl(
-            string? clientId = null,
+            string clientId = null!,
             string? responseType = null,
             string? scope = null,
             string? redirectUri = null,
@@ -345,18 +351,18 @@ namespace IdentityServer.IntegrationTests.Common
         public async Task<AuthorizeResponse> RequestAuthorizationEndpointAsync(
             string clientId,
             string responseType,
-            string scope = null,
-            string redirectUri = null,
-            string state = null,
-            string nonce = null,
-            string loginHint = null,
-            string acrValues = null,
-            string responseMode = null,
-            string codeChallenge = null,
-            string codeChallengeMethod = null,
+            string? scope = null,
+            string? redirectUri = null,
+            string? state = null,
+            string? nonce = null,
+            string? loginHint = null,
+            string? acrValues = null,
+            string? responseMode = null,
+            string? codeChallenge = null,
+            string? codeChallengeMethod = null,
             Parameters? extra = null)
         {
-            var old = BrowserClient.AllowAutoRedirect;
+            var old = BrowserClient!.AllowAutoRedirect;
             BrowserClient.AllowAutoRedirect = false;
 
             var url = CreateAuthorizeUrl(clientId, responseType, scope, redirectUri, state, nonce, loginHint, acrValues, responseMode, codeChallenge, codeChallengeMethod, extra);
@@ -365,14 +371,14 @@ namespace IdentityServer.IntegrationTests.Common
 
             BrowserClient.AllowAutoRedirect = old;
 
-            var redirect = result.Headers.Location.ToString();
+            var redirect = result.Headers.Location?.ToString() ?? string.Empty;
             if (redirect.StartsWith(IdentityServerPipeline.ErrorPage))
             {
                 // request error page in pipeline so we can get error info
                 await BrowserClient.GetAsync(redirect);
 
                 // no redirect to client
-                return null;
+                return null!;
             }
 
             return new AuthorizeResponse(redirect);
@@ -382,7 +388,7 @@ namespace IdentityServer.IntegrationTests.Common
     public class MockMessageHandler : DelegatingHandler
     {
         public bool InvokeWasCalled { get; set; }
-        public Func<HttpRequestMessage, Task> OnInvoke { get; set; }
+        public Func<HttpRequestMessage, Task>? OnInvoke { get; set; }
         public HttpResponseMessage Response { get; set; } = new HttpResponseMessage(HttpStatusCode.OK);
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -403,7 +409,7 @@ namespace IdentityServer.IntegrationTests.Common
         IAuthenticationRequestHandler
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private HttpContext HttpContext => _httpContextAccessor.HttpContext;
+        private HttpContext? HttpContext => _httpContextAccessor.HttpContext;
 
         public Func<HttpContext, Task<bool>> OnFederatedSignout = 
             async context =>
@@ -419,7 +425,7 @@ namespace IdentityServer.IntegrationTests.Common
 
         public async Task<bool> HandleRequestAsync()
         {
-            if (HttpContext.Request.Path == IdentityServerPipeline.FederatedSignOutPath)
+            if (HttpContext?.Request.Path == IdentityServerPipeline.FederatedSignOutPath)
             {
                 return await OnFederatedSignout(HttpContext);
             }
@@ -432,12 +438,12 @@ namespace IdentityServer.IntegrationTests.Common
             return Task.FromResult(AuthenticateResult.NoResult());
         }
 
-        public Task ChallengeAsync(AuthenticationProperties properties)
+        public Task ChallengeAsync(AuthenticationProperties? properties)
         {
             return Task.CompletedTask;
         }
 
-        public Task ForbidAsync(AuthenticationProperties properties)
+        public Task ForbidAsync(AuthenticationProperties? properties)
         {
             return Task.CompletedTask;
         }
@@ -447,12 +453,12 @@ namespace IdentityServer.IntegrationTests.Common
             return Task.CompletedTask;
         }
 
-        public Task SignInAsync(ClaimsPrincipal user, AuthenticationProperties properties)
+        public Task SignInAsync(ClaimsPrincipal user, AuthenticationProperties? properties)
         {
             return Task.CompletedTask;
         }
 
-        public Task SignOutAsync(AuthenticationProperties properties)
+        public Task SignOutAsync(AuthenticationProperties? properties)
         {
             return Task.CompletedTask;
         }

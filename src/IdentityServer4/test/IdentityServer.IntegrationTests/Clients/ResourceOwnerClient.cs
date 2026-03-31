@@ -16,23 +16,36 @@ using IdentityServer.IntegrationTests.Clients.Setup;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using System.Text.Json;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients;
 
-public class ResourceOwnerClient
+public class ResourceOwnerClient : IDisposable
 {
     private const string TokenEndpoint = "https://server/connect/token";
 
     private readonly HttpClient _client;
+    private readonly IHost _host;
 
     public ResourceOwnerClient()
     {
-        var builder = new WebHostBuilder()
-            .UseStartup<Startup>();
-        var server = new TestServer(builder);
+        _host = new HostBuilder()
+            .ConfigureWebHost(webBuilder => 
+            {
+                webBuilder.UseTestServer();
+                webBuilder.UseStartup<Startup>();
+            })
+            .Build();
 
-        _client = server.CreateClient();
+            _host.Start();
+            _client = _host.GetTestClient();
+    }
+
+    public void Dispose()
+    {
+        _client?.Dispose();
+        _host?.Dispose();
     }
 
     [Fact]
@@ -47,7 +60,7 @@ public class ResourceOwnerClient
             Scope = "api1",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -86,7 +99,7 @@ public class ResourceOwnerClient
 
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -130,7 +143,7 @@ public class ResourceOwnerClient
             Scope = "openid email api1",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -172,7 +185,7 @@ public class ResourceOwnerClient
             Scope = "openid email api1 offline_access",
             UserName = "bob",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -215,7 +228,7 @@ public class ResourceOwnerClient
             Scope = "api1",
             UserName = "unknown",
             Password = "bob"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -234,7 +247,7 @@ public class ResourceOwnerClient
 
             Scope = "api1",
             UserName = "bob_no_password"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
     }
@@ -253,7 +266,7 @@ public class ResourceOwnerClient
             Scope = "api1",
             UserName = "bob",
             Password = password
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);

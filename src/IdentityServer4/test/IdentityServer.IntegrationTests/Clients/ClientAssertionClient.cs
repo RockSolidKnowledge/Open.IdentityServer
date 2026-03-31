@@ -17,26 +17,39 @@ using IdentityServer.IntegrationTests.Clients.Setup;
 using IdentityServer.IntegrationTests.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients;
 
-public class ClientAssertionClient
+public class ClientAssertionClient : IDisposable
 {
     private const string TokenEndpoint = "https://idsvr4/connect/token";
     private const string ClientId = "certificate_base64_valid";
 
     private readonly HttpClient _client;
+    private readonly IHost _host;
 
     public ClientAssertionClient()
     {
-        var builder = new WebHostBuilder()
-            .UseStartup<Startup>();
-        var server = new TestServer(builder);
+        _host = new HostBuilder()
+            .ConfigureWebHost(builder =>
+            {
+                builder.UseTestServer();
+                builder.UseStartup<Startup>();
+            })
+            .Build();
 
-        _client = server.CreateClient();
+        _host.Start();
+        _client = _host.GetTestClient();
+    }
+
+    public void Dispose()
+    {
+        _client?.Dispose();
+        _host?.Dispose();
     }
 
     [Fact]
@@ -75,7 +88,7 @@ public class ClientAssertionClient
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         AssertValidToken(response);
     }
@@ -98,11 +111,11 @@ public class ClientAssertionClient
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         AssertValidToken(response);
     }
-        
+
     [Fact]
     public async Task Valid_client_with_token_replay_should_fail()
     {
@@ -121,10 +134,10 @@ public class ClientAssertionClient
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         AssertValidToken(response);
-            
+
         // replay
         response = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
         {
@@ -139,7 +152,7 @@ public class ClientAssertionClient
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
 
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeTrue();
         response.Error.Should().Be("invalid_client");
@@ -159,9 +172,8 @@ public class ClientAssertionClient
                 Value = "invalid"
             },
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
-
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.Error.Should().Be(OidcConstants.TokenErrors.InvalidClient);
@@ -185,9 +197,8 @@ public class ClientAssertionClient
                 Value = token
             },
             ClientCredentialStyle = ClientCredentialStyle.PostBody,
-
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.Error.Should().Be(OidcConstants.TokenErrors.InvalidClient);
@@ -209,16 +220,16 @@ public class ClientAssertionClient
         response.RefreshToken.Should().BeNull();
 
         var payload = GetPayload(response);
-            
+
         payload.Count.Should().Be(8);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo(ClientId);
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo(ClientId);
         payload.Keys.Should().Contain("iat");
-            
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray();
+
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray();
         scopes.First().ToString().Should().Be("api1");
 
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
     }
 
     private Dictionary<string, object> GetPayload(TokenResponse response)
@@ -242,7 +253,8 @@ public class ClientAssertionClient
             {
                 new Claim("jti", Guid.NewGuid().ToString()),
                 new Claim(JwtClaimTypes.Subject, clientId),
-                new Claim(JwtClaimTypes.IssuedAt, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
+                new Claim(JwtClaimTypes.IssuedAt, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(),
+                    ClaimValueTypes.Integer64)
             },
             now,
             now.AddMinutes(1),

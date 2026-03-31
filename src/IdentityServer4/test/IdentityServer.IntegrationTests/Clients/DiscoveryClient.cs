@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using AwesomeAssertions;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Hosting;
@@ -10,23 +11,36 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using IdentityServer.IntegrationTests.Clients.Setup;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients
 {
-    public class DiscoveryClientTests
+    public class DiscoveryClientTests : IDisposable
     {
         private const string DiscoveryEndpoint = "https://server/.well-known/openid-configuration";
 
         private readonly HttpClient _client;
+        private readonly IHost _host;
 
         public DiscoveryClientTests()
         {
-            var builder = new WebHostBuilder()
-                .UseStartup<Startup>();
-            var server = new TestServer(builder);
+            _host = new HostBuilder()
+                .ConfigureWebHost(webBuilder =>
+                {
+                    webBuilder.UseTestServer();
+                    webBuilder.UseStartup<Startup>();
+                })
+                .Build();
 
-            _client = server.CreateClient();
+            _host.Start();
+            _client = _host.GetTestClient();
+        }
+
+        public void Dispose()
+        {
+            _client?.Dispose();
+            _host?.Dispose();
         }
 
         [Fact]
@@ -39,7 +53,7 @@ namespace IdentityServer.IntegrationTests.Clients
                 {
                     ValidateIssuerName = false
                 }
-            });
+            }, TestContext.Current.CancellationToken);
 
             // endpoints
             doc.TokenEndpoint.Should().Be("https://server/connect/token");

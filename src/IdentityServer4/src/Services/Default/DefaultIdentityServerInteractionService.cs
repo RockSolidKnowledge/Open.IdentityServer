@@ -17,7 +17,7 @@ namespace IdentityServer4.Services
 {
     internal class DefaultIdentityServerInteractionService : IIdentityServerInteractionService
     {
-        private readonly ISystemClock _clock;
+        private readonly TimeProvider _clock;
         private readonly IHttpContextAccessor _context;
         private readonly IMessageStore<LogoutMessage> _logoutMessageStore;
         private readonly IMessageStore<ErrorMessage> _errorMessageStore;
@@ -28,7 +28,7 @@ namespace IdentityServer4.Services
         private readonly ReturnUrlParser _returnUrlParser;
 
         public DefaultIdentityServerInteractionService(
-            ISystemClock clock,
+            TimeProvider clock,
             IHttpContextAccessor context,
             IMessageStore<LogoutMessage> logoutMessageStore,
             IMessageStore<ErrorMessage> errorMessageStore,
@@ -86,7 +86,7 @@ namespace IdentityServer4.Services
                         SubjectId = user?.GetSubjectId(),
                         SessionId = sid,
                         ClientIds = clientIds
-                    }, _clock.UtcNow.UtcDateTime);
+                    }, _clock.GetUtcNow().UtcDateTime);
                     var id = await _logoutMessageStore.WriteAsync(msg);
                     return id;
                 }
@@ -131,7 +131,7 @@ namespace IdentityServer4.Services
             }
 
             var consentRequest = new ConsentRequest(request, subject);
-            await _consentMessageStore.WriteAsync(consentRequest.Id, new Message<ConsentResponse>(consent, _clock.UtcNow.UtcDateTime));
+            await _consentMessageStore.WriteAsync(consentRequest.Id, new Message<ConsentResponse>(consent, _clock.GetUtcNow().UtcDateTime));
         }
 
         public Task DenyAuthorizationAsync(AuthorizationRequest request, AuthorizationError error, string errorDescription = null)

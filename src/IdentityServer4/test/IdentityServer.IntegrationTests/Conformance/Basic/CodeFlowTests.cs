@@ -79,7 +79,7 @@ namespace IdentityServer.IntegrationTests.Conformance.Basic
                            scope: "openid",
                            redirectUri: "https://code_pipeline.Client/callback?foo=bar&baz=quux",
                            nonce: nonce);
-            var response = await _pipeline.BrowserClient.GetAsync(url);
+            var response = await _pipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
             var authorization = _pipeline.ParseAuthorizationResponseUrl(response.Headers.Location.ToString());
             authorization.Code.Should().NotBeNull();
@@ -97,7 +97,7 @@ namespace IdentityServer.IntegrationTests.Conformance.Basic
 
                 Code = code,
                 RedirectUri = "https://code_pipeline.Client/callback?foo=bar&baz=quux"
-            });
+            }, TestContext.Current.CancellationToken);
 
             tokenResult.IsError.Should().BeFalse();
             tokenResult.HttpErrorReason.Should().Be("OK");
@@ -128,7 +128,7 @@ namespace IdentityServer.IntegrationTests.Conformance.Basic
                            redirectUri: "https://code_pipeline.Client/callback?foo=bar&baz=quux",
                            state: "state",
                            nonce: nonce);
-            var response = await _pipeline.BrowserClient.GetAsync(url);
+            var response = await _pipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
             var authorization = _pipeline.ParseAuthorizationResponseUrl(response.Headers.Location.ToString());
             authorization.Code.Should().NotBeNull();
@@ -146,7 +146,7 @@ namespace IdentityServer.IntegrationTests.Conformance.Basic
 
                 Code = code,
                 RedirectUri = "https://code_pipeline.Client/callback?foo=bar&baz=quux"
-            });
+            }, TestContext.Current.CancellationToken);
 
             tokenResult.IsError.Should().BeFalse();
             tokenResult.HttpErrorReason.Should().Be("OK");

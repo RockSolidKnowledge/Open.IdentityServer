@@ -36,7 +36,7 @@ namespace IdentityServer4.Services
         /// <summary>
         /// The clock
         /// </summary>
-        protected readonly ISystemClock Clock;
+        protected readonly TimeProvider Clock;
 
         /// <summary>
         /// The logger
@@ -97,7 +97,7 @@ namespace IdentityServer4.Services
             IHttpContextAccessor httpContextAccessor,
             IAuthenticationHandlerProvider handlers,
             IdentityServerOptions options,
-            ISystemClock clock,
+            TimeProvider clock,
             ILogger<IUserSession> logger)
         {
             HttpContextAccessor = httpContextAccessor;
@@ -223,7 +223,7 @@ namespace IdentityServer4.Services
             {
                 // only remove it if we have it in the request
                 var options = CreateSessionIdCookieOptions();
-                options.Expires = Clock.UtcNow.UtcDateTime.AddYears(-1);
+                options.Expires = Clock.GetUtcNow().UtcDateTime.AddYears(-1);
 
                 HttpContext.Response.Cookies.Append(CheckSessionCookieName, ".", options);
             }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -14,27 +15,41 @@ using IdentityModel.Client;
 using IdentityServer.IntegrationTests.Endpoints.Introspection.Setup;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Endpoints.Introspection;
 
-public class IntrospectionTests
+public class IntrospectionTests : IDisposable
 {
     private const string Category = "Introspection endpoint";
     private const string IntrospectionEndpoint = "https://server/connect/introspect";
     private const string TokenEndpoint = "https://server/connect/token";
 
     private readonly HttpClient _client;
+    private readonly IHost _host;
     private readonly HttpMessageHandler _handler;
 
     public IntrospectionTests()
     {
-        var builder = new WebHostBuilder()
-            .UseStartup<Startup>();
-        var server = new TestServer(builder);
+        _host = new HostBuilder()
+            .ConfigureWebHost(webBuilder => {
+                webBuilder.UseTestServer();
+                webBuilder.UseStartup<Startup>();
+            })
+            .Build();
 
+        _host.Start();
+
+        var server = _host.GetTestServer();
         _handler = server.CreateHandler();
-        _client = server.CreateClient();
+        _client = _host.GetTestClient();
+    }
+
+    public void Dispose()
+    {
+        _host?.Dispose();
+        _client?.Dispose();
     }
 
     [Fact]
@@ -43,7 +58,10 @@ public class IntrospectionTests
     {
         var form = new Dictionary<string, string>();
 
-        var response = await _client.PostAsync(IntrospectionEndpoint, new FormUrlEncodedContent(form));
+        var response = await _client.PostAsync(
+            IntrospectionEndpoint, 
+            new FormUrlEncodedContent(form), 
+            TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -55,7 +73,10 @@ public class IntrospectionTests
         var form = new Dictionary<string, string>();
 
         _client.SetBasicAuthentication("unknown", "invalid");
-        var response = await _client.PostAsync(IntrospectionEndpoint, new FormUrlEncodedContent(form));
+        var response = await _client.PostAsync(
+            IntrospectionEndpoint, 
+            new FormUrlEncodedContent(form), 
+            TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -67,7 +88,10 @@ public class IntrospectionTests
         var form = new Dictionary<string, string>();
 
         _client.SetBasicAuthentication("api1", "invalid");
-        var response = await _client.PostAsync(IntrospectionEndpoint, new FormUrlEncodedContent(form));
+        var response = await _client.PostAsync(
+            IntrospectionEndpoint, 
+            new FormUrlEncodedContent(form), 
+            TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -79,7 +103,10 @@ public class IntrospectionTests
         var form = new Dictionary<string, string>();
 
         _client.SetBasicAuthentication("api1", "secret");
-        var response = await _client.PostAsync(IntrospectionEndpoint, new FormUrlEncodedContent(form));
+        var response = await _client.PostAsync(
+            IntrospectionEndpoint, 
+            new FormUrlEncodedContent(form), 
+            TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -95,7 +122,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Token = "invalid"
-        });
+        }, TestContext.Current.CancellationToken);
 
         introspectionResponse.IsActive.Should().Be(false);
         introspectionResponse.IsError.Should().Be(false);
@@ -111,7 +138,7 @@ public class IntrospectionTests
             ClientId = "client1",
             ClientSecret = "secret",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         var data = new
         {
@@ -122,7 +149,10 @@ public class IntrospectionTests
         var json = JsonSerializer.Serialize(data);
 
         var client = new HttpClient(_handler);
-        var response = await client.PostAsync(IntrospectionEndpoint, new StringContent(json, Encoding.UTF8, "application/json"));
+        var response = await client.PostAsync(
+            IntrospectionEndpoint, 
+            new StringContent(json, Encoding.UTF8, "application/json"), 
+            TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.UnsupportedMediaType);
     }
 
@@ -136,7 +166,7 @@ public class IntrospectionTests
             ClientId = "client1",
             ClientSecret = "secret",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
         {
@@ -145,7 +175,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Token = tokenResponse.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         introspectionResponse.IsActive.Should().Be(true);
         introspectionResponse.IsError.Should().Be(false);
@@ -168,7 +198,7 @@ public class IntrospectionTests
             ClientId = "client1",
             ClientSecret = "secret",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
         {
@@ -177,7 +207,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Token = tokenResponse.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
             
@@ -205,7 +235,7 @@ public class IntrospectionTests
             Password = "bob",
 
             Scope = "api1",
-        });
+        }, TestContext.Current.CancellationToken);
 
         tokenResponse.IsError.Should().BeFalse();
 
@@ -216,7 +246,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Token = tokenResponse.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
             
@@ -244,7 +274,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Scope = "api2 api3-a api3-b",
-        });
+        }, TestContext.Current.CancellationToken);
 
         tokenResponse.IsError.Should().BeFalse();
 
@@ -255,7 +285,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Token = tokenResponse.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
 
@@ -289,7 +319,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Scope = "api3-a api3-b",
-        });
+        }, TestContext.Current.CancellationToken);
 
         tokenResponse.IsError.Should().BeFalse();
 
@@ -300,7 +330,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Token = tokenResponse.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
             
@@ -327,7 +357,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Scope = "api1 api2 api3-a",
-        });
+        }, TestContext.Current.CancellationToken);
 
         tokenResponse.IsError.Should().BeFalse();
 
@@ -338,7 +368,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Token = tokenResponse.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         introspectionResponse.IsActive.Should().BeTrue();
         introspectionResponse.IsError.Should().BeFalse();
@@ -362,7 +392,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Scope = "api1 api2",
-        });
+        }, TestContext.Current.CancellationToken);
 
         var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
         {
@@ -371,7 +401,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Token = tokenResponse.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         introspectionResponse.IsActive.Should().Be(true);
         introspectionResponse.IsError.Should().Be(false);
@@ -395,7 +425,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Scope = "api1",
-        });
+        }, TestContext.Current.CancellationToken);
 
         var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
         {
@@ -404,7 +434,7 @@ public class IntrospectionTests
             ClientSecret = "secret",
 
             Token = tokenResponse.AccessToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         introspectionResponse.IsActive.Should().Be(false);
         introspectionResponse.IsError.Should().Be(false);

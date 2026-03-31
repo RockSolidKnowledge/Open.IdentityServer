@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -18,6 +19,10 @@ using Xunit;
 
 namespace IdentityServer.UnitTests.Services.Default
 {
+    [SuppressMessage(
+        "Usage", 
+        "ASP0019:Suggest using IHeaderDictionary.Append or the indexer", 
+        Justification = "Maintain throwing ArgumentException if the header is already set.")]
     public class DefaultUserSessionTests
     {
         private DefaultUserSession _subject;

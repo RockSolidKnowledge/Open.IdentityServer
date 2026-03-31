@@ -39,9 +39,9 @@ namespace Microsoft.AspNetCore.Http
             await context.SignInAsync(await context.GetCookieAuthenticationSchemeAsync(), user.CreatePrincipal(), properties);
         }
 
-        internal static ISystemClock GetClock(this HttpContext context)
+        internal static TimeProvider GetClock(this HttpContext context)
         {
-            return context.RequestServices.GetRequiredService<ISystemClock>();
+            return context.RequestServices.GetRequiredService<TimeProvider>();
         }
 
         internal static async Task<string> GetCookieAuthenticationSchemeAsync(this HttpContext context)

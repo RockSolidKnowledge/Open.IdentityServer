@@ -147,7 +147,7 @@ public class ClientStoreTests : IntegrationTest<ClientStoreTests, ConfigurationD
 
             if (await Task.WhenAny(task, Task.Delay(timeout, TestContext.Current.CancellationToken)) == task)
             {
-                var client = task.Result;
+                var client = await task;
                 client.Should().BeEquivalentTo(testClient);
             }
             else

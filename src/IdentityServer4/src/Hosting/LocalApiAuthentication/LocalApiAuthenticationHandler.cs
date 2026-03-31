@@ -23,8 +23,8 @@ namespace IdentityServer4.Hosting.LocalApiAuthentication
         private readonly ILogger _logger;
 
         /// <inheritdoc />
-        public LocalApiAuthenticationHandler(IOptionsMonitor<LocalApiAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, ITokenValidator tokenValidator)
-            : base(options, logger, encoder, clock)
+        public LocalApiAuthenticationHandler(IOptionsMonitor<LocalApiAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ITokenValidator tokenValidator)
+            : base(options, logger, encoder)
         {
             _tokenValidator = tokenValidator;
             _logger = logger.CreateLogger<LocalApiAuthenticationHandler>();

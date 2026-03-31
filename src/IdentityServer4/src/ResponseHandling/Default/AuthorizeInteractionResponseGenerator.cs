@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
 
 namespace IdentityServer4.ResponseHandling
 {
@@ -39,7 +38,7 @@ namespace IdentityServer4.ResponseHandling
         /// <summary>
         /// The clock
         /// </summary>
-        protected readonly ISystemClock Clock;
+        protected readonly TimeProvider Clock;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizeInteractionResponseGenerator"/> class.
@@ -49,7 +48,7 @@ namespace IdentityServer4.ResponseHandling
         /// <param name="consent">The consent.</param>
         /// <param name="profile">The profile.</param>
         public AuthorizeInteractionResponseGenerator(
-            ISystemClock clock,
+            TimeProvider clock,
             ILogger<AuthorizeInteractionResponseGenerator> logger,
             IConsentService consent, 
             IProfileService profile)
@@ -178,7 +177,7 @@ namespace IdentityServer4.ResponseHandling
             if (request.MaxAge.HasValue)
             {
                 var authTime = request.Subject.GetAuthenticationTime();
-                if (Clock.UtcNow > authTime.AddSeconds(request.MaxAge.Value))
+                if (Clock.GetUtcNow() > authTime.AddSeconds(request.MaxAge.Value))
                 {
                     Logger.LogInformation("Showing login: Requested MaxAge exceeded.");
 
@@ -208,7 +207,7 @@ namespace IdentityServer4.ResponseHandling
             if (request.Client.UserSsoLifetime.HasValue)
             {
                 var authTimeEpoch = request.Subject.GetAuthenticationTimeEpoch();
-                var nowEpoch = Clock.UtcNow.ToUnixTimeSeconds();
+                var nowEpoch = Clock.GetUtcNow().ToUnixTimeSeconds();
 
                 var diff = nowEpoch - authTimeEpoch;
                 if (diff > request.Client.UserSsoLifetime.Value)

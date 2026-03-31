@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using Microsoft.Extensions.Primitives;
@@ -12,6 +13,10 @@ using IdentityModel;
 
 namespace IdentityServer4.Endpoints.Results
 {
+    [SuppressMessage(
+        "Usage", 
+        "ASP0019:Suggest using IHeaderDictionary.Append or the indexer", 
+        Justification = "Maintain throwing ArgumentException if the header is already set.")]
     internal class ProtectedResourceErrorResult : IEndpointResult
     {
         public string Error;

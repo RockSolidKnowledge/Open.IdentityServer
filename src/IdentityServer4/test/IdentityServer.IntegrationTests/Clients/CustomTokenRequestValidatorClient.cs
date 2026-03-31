@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
@@ -11,26 +12,39 @@ using IdentityModel.Client;
 using IdentityServer.IntegrationTests.Clients.Setup;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients
 {
-    public class CustomTokenRequestValidatorClient
+    public class CustomTokenRequestValidatorClient : IDisposable
     {
         private const string TokenEndpoint = "https://server/connect/token";
 
         private readonly HttpClient _client;
+        private readonly IHost _host;
 
         public CustomTokenRequestValidatorClient()
         {
             var val = new TestCustomTokenRequestValidator();
             Startup.CustomTokenRequestValidator = val;
 
-            var builder = new WebHostBuilder()
-                .UseStartup<Startup>();
-            var server = new TestServer(builder);
+            _host = new HostBuilder()
+                .ConfigureWebHost(webBuilder =>
+                {
+                    webBuilder.UseTestServer();
+                    webBuilder.UseStartup<Startup>();
+                })
+                .Build();
 
-            _client = server.CreateClient();
+            _host.Start();
+            _client = _host.GetTestClient();
+        }
+        
+        public void Dispose()
+        {
+            _client?.Dispose();
+            _host?.Dispose();
         }
 
         [Fact]
@@ -43,7 +57,7 @@ namespace IdentityServer.IntegrationTests.Clients
                 ClientId = "client",
                 ClientSecret = "secret",
                 Scope = "api1"
-            });
+            }, TestContext.Current.CancellationToken);
 
             var fields = GetFields(response);
             (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
@@ -62,7 +76,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
                 UserName = "bob",
                 Password = "bob"
-            });
+            }, TestContext.Current.CancellationToken);
 
             var fields = GetFields(response);
             (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
@@ -81,7 +95,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
                 UserName = "bob",
                 Password = "bob"
-            });
+            }, TestContext.Current.CancellationToken);
 
             response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
             {
@@ -90,7 +104,7 @@ namespace IdentityServer.IntegrationTests.Clients
                 ClientSecret = "secret",
 
                 RefreshToken = response.RefreshToken
-            });
+            }, TestContext.Current.CancellationToken);
 
             var fields = GetFields(response);
             (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
@@ -112,7 +126,7 @@ namespace IdentityServer.IntegrationTests.Clients
                     { "scope", "api1" },
                     { "custom_credential", "custom credential"}
                 }
-            });
+            }, TestContext.Current.CancellationToken);
 
             var fields = GetFields(response);
             (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");

@@ -3,6 +3,7 @@
 
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.UnitTests.Common;
@@ -17,6 +18,10 @@ using Xunit;
 
 namespace IdentityServer.UnitTests.Cors
 {
+    [SuppressMessage(
+        "Usage", 
+        "ASP0019:Suggest using IHeaderDictionary.Append or the indexer", 
+        Justification = "Maintain throwing ArgumentException if the header is already set.")]
     public class PolicyProviderTests
     {
         private const string Category = "PolicyProvider";

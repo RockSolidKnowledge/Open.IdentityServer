@@ -10,6 +10,7 @@ using IdentityServer4.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using System.Linq;
+using System.Threading.Tasks;
 using IdentityServer4.EntityFramework.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +31,7 @@ public class CorsPolicyServiceTests : IntegrationTest<CorsPolicyServiceTests, Co
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public void IsOriginAllowedAsync_WhenOriginIsAllowed_ExpectTrue(DbContextOptions<ConfigurationDbContext> options)
+    public async Task IsOriginAllowedAsync_WhenOriginIsAllowed_ExpectTrue(DbContextOptions<ConfigurationDbContext> options)
     {
         const string testCorsOrigin = "https://identityserver.io/";
 
@@ -62,14 +63,14 @@ public class CorsPolicyServiceTests : IntegrationTest<CorsPolicyServiceTests, Co
             ctxAccessor.HttpContext = ctx;
 
             var service = new CorsPolicyService(ctxAccessor, FakeLogger<CorsPolicyService>.Create());
-            result = service.IsOriginAllowedAsync(testCorsOrigin).Result;
+            result = await service.IsOriginAllowedAsync(testCorsOrigin);
         }
 
         Assert.True(result);
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public void IsOriginAllowedAsync_WhenOriginIsNotAllowed_ExpectFalse(DbContextOptions<ConfigurationDbContext> options)
+    public async Task IsOriginAllowedAsync_WhenOriginIsNotAllowed_ExpectFalse(DbContextOptions<ConfigurationDbContext> options)
     {
         using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
@@ -93,7 +94,7 @@ public class CorsPolicyServiceTests : IntegrationTest<CorsPolicyServiceTests, Co
             ctxAccessor.HttpContext = ctx;
 
             var service = new CorsPolicyService(ctxAccessor, FakeLogger<CorsPolicyService>.Create());
-            result = service.IsOriginAllowedAsync("InvalidOrigin").Result;
+            result = await service.IsOriginAllowedAsync("InvalidOrigin");
         }
 
         Assert.False(result);

@@ -66,7 +66,8 @@ namespace IdentityServer.IntegrationTests.Conformance.Basic
         {
             await _mockPipeline.LoginAsync("bob");
 
-            var metadata = await _mockPipeline.BackChannelClient.GetAsync(IdentityServerPipeline.DiscoveryEndpoint);
+            var metadata = await _mockPipeline.BackChannelClient.GetAsync(
+                IdentityServerPipeline.DiscoveryEndpoint, TestContext.Current.CancellationToken);
             metadata.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var state = Guid.NewGuid().ToString();
@@ -79,7 +80,7 @@ namespace IdentityServer.IntegrationTests.Conformance.Basic
                            redirectUri: "https://code_client/callback",
                            state: state,
                            nonce: nonce);
-            var response = await _mockPipeline.BrowserClient.GetAsync(url);
+            var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
             response.StatusCode.Should().Be(HttpStatusCode.Found);
 
             var authorization = new IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
@@ -112,7 +113,7 @@ namespace IdentityServer.IntegrationTests.Conformance.Basic
             url = url.Replace("response_type=fake&", string.Empty);
 
             _mockPipeline.BrowserClient.AllowAutoRedirect = true;
-            var response = await _mockPipeline.BrowserClient.GetAsync(url);
+            var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
             _mockPipeline.ErrorMessage.Error.Should().Be("unsupported_response_type");
         }

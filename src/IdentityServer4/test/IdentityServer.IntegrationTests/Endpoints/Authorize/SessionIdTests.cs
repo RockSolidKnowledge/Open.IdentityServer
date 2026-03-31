@@ -88,7 +88,8 @@ namespace IdentityServer.IntegrationTests.Endpoints.Authorize
 
             _mockPipeline.RemoveSessionCookie();
 
-            await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.DiscoveryEndpoint);
+            await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.DiscoveryEndpoint
+                , TestContext.Current.CancellationToken);
 
             var sid2 = _mockPipeline.GetSessionCookie().Value;
             sid2.Should().Be(sid1);

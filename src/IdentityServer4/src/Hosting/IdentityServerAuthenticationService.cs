@@ -28,7 +28,7 @@ namespace IdentityServer4.Hosting
     {
         private readonly IAuthenticationService _inner;
         private readonly IAuthenticationSchemeProvider _schemes;
-        private readonly ISystemClock _clock;
+        private readonly TimeProvider _clock;
         private readonly IUserSession _session;
         private readonly IBackChannelLogoutService _backChannelLogoutService;
         private readonly IdentityServerOptions _options;
@@ -37,7 +37,7 @@ namespace IdentityServer4.Hosting
         public IdentityServerAuthenticationService(
             Decorator<IAuthenticationService> decorator,
             IAuthenticationSchemeProvider schemes,
-            ISystemClock clock,
+            TimeProvider clock,
             IUserSession session,
             IBackChannelLogoutService backChannelLogoutService,
             IdentityServerOptions options,
@@ -74,7 +74,7 @@ namespace IdentityServer4.Hosting
             _logger.LogDebug("Augmenting SignInContext");
 
             AssertRequiredClaims(principal);
-            AugmentMissingClaims(principal, _clock.UtcNow.UtcDateTime);
+            AugmentMissingClaims(principal, _clock.GetUtcNow().UtcDateTime);
         }
 
         public async Task SignOutAsync(HttpContext context, string scheme, AuthenticationProperties properties)

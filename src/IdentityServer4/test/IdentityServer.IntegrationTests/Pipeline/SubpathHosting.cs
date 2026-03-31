@@ -68,7 +68,7 @@ namespace IdentityServer.IntegrationTests.Pipeline
                 redirectUri: "https://client1/callback",
                 state: "123_state",
                 nonce: "123_nonce");
-            var response = await _mockPipeline.BrowserClient.GetAsync(url);
+            var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
             _mockPipeline.LoginWasCalled.Should().BeTrue();
         }

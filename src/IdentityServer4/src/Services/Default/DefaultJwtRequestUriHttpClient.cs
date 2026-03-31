@@ -34,12 +34,12 @@ namespace IdentityServer4.Services
             _logger = loggerFactory.CreateLogger<DefaultJwtRequestUriHttpClient>();
         }
 
-
         /// <inheritdoc />
         public async Task<string> GetJwtAsync(string url, Client client)
         {
             var req = new HttpRequestMessage(HttpMethod.Get, url);
-            req.Properties.Add(IdentityServerConstants.JwtRequestClientKey, client);
+            
+            req.Options.Set(new HttpRequestOptionsKey<Client>(IdentityServerConstants.JwtRequestClientKey), client);
 
             var response = await _client.SendAsync(req);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)

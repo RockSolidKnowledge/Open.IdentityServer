@@ -37,7 +37,7 @@ namespace IdentityServer4.Endpoints.Results
         internal EndSessionResult(
             EndSessionValidationResult result,
             IdentityServerOptions options,
-            ISystemClock clock,
+            TimeProvider clock,
             IMessageStore<LogoutMessage> logoutMessageStore)
             : this(result)
         {
@@ -47,13 +47,13 @@ namespace IdentityServer4.Endpoints.Results
         }
 
         private IdentityServerOptions _options;
-        private ISystemClock _clock;
+        private TimeProvider _clock;
         private IMessageStore<LogoutMessage> _logoutMessageStore;
 
         private void Init(HttpContext context)
         {
             _options = _options ?? context.RequestServices.GetRequiredService<IdentityServerOptions>();
-            _clock = _clock ?? context.RequestServices.GetRequiredService<ISystemClock>();
+            _clock = _clock ?? context.RequestServices.GetRequiredService<TimeProvider>();
             _logoutMessageStore = _logoutMessageStore ?? context.RequestServices.GetRequiredService<IMessageStore<LogoutMessage>>();
         }
 
@@ -75,7 +75,7 @@ namespace IdentityServer4.Endpoints.Results
                 var logoutMessage = new LogoutMessage(validatedRequest);
                 if (logoutMessage.ContainsPayload)
                 {
-                    var msg = new Message<LogoutMessage>(logoutMessage, _clock.UtcNow.UtcDateTime);
+                    var msg = new Message<LogoutMessage>(logoutMessage, _clock.GetUtcNow().UtcDateTime);
                     id = await _logoutMessageStore.WriteAsync(msg);
                 }
             }

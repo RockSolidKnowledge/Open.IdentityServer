@@ -16,23 +16,36 @@ using IdentityModel.Client;
 using IdentityServer.IntegrationTests.Clients.Setup;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients
 {
-    public class CustomTokenResponseClients
+    public class CustomTokenResponseClients : IDisposable
     {
         private const string TokenEndpoint = "https://server/connect/token";
 
         private readonly HttpClient _client;
+        private readonly IHost _host;
 
         public CustomTokenResponseClients()
         {
-            var builder = new WebHostBuilder()
-                .UseStartup<StartupWithCustomTokenResponses>();
-            var server = new TestServer(builder);
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseTestServer();
+                    webBuilder.UseStartup<StartupWithCustomTokenResponses>();
+                })
+                .Build();
 
-            _client = server.CreateClient();
+            _host.Start();
+            _client = _host.GetTestClient();
+        }
+
+        public void Dispose()
+        {
+            _client?.Dispose();
+            _host?.Dispose();
         }
 
         [Fact]
@@ -47,7 +60,7 @@ namespace IdentityServer.IntegrationTests.Clients
                 UserName = "bob",
                 Password = "bob",
                 Scope = "api1"
-            });
+            }, TestContext.Current.CancellationToken);
 
             // raw fields
             var fields = GetFields(response);
@@ -113,7 +126,7 @@ namespace IdentityServer.IntegrationTests.Clients
                 UserName = "bob",
                 Password = "invalid",
                 Scope = "api1"
-            });
+            }, TestContext.Current.CancellationToken);
 
             // raw fields
             var fields = GetFields(response);
@@ -166,7 +179,7 @@ namespace IdentityServer.IntegrationTests.Clients
                     { "scope", "api1" },
                     { "outcome", "succeed"}
                 }
-            });
+            }, TestContext.Current.CancellationToken);
 
 
             // raw fields
@@ -219,7 +232,6 @@ namespace IdentityServer.IntegrationTests.Clients
             amr.Should().NotBeNull();
             amr?.Count().Should().Be(1);
             amr?.First().ToString().Should().Be("custom");
-
         }
 
         [Fact]
@@ -238,9 +250,8 @@ namespace IdentityServer.IntegrationTests.Clients
                     { "scope", "api1" },
                     { "outcome", "fail"}
                 }
-            });
-
-
+            }, TestContext.Current.CancellationToken);
+            
             // raw fields
             var fields = GetFields(response);
             
@@ -266,7 +277,6 @@ namespace IdentityServer.IntegrationTests.Clients
             responseDto.nested.string_value.Should().Be(dto.nested.string_value);
             responseDto.nested.int_value.Should().Be(dto.nested.int_value);
 
-
             // token client response
             response.IsError.Should().Be(true);
             response.Error.Should().Be("invalid_grant");
@@ -277,7 +287,7 @@ namespace IdentityServer.IntegrationTests.Clients
             response.RefreshToken.Should().BeNull();
         }
 
-        private CustomResponseDto? GetDto(JsonElement? responseObject)
+        private CustomResponseDto GetDto(JsonElement? responseObject)
         {
             return responseObject?.Deserialize<CustomResponseDto>();;
         }
@@ -296,7 +306,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
         private Dictionary<string, object> GetPayload(TokenResponse response)
         {
-            var token = response.AccessToken.Split('.').Skip(1).Take(1).First();
+            var token = response.AccessToken!.Split('.').Skip(1).Take(1).First();
             var dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(
                 Encoding.UTF8.GetString(Base64Url.Decode(token)));
 

@@ -1,7 +1,8 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System.Diagnostics.CodeAnalysis;
 using AwesomeAssertions;
 using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,10 @@ using Xunit;
 
 namespace IdentityServer.UnitTests.Extensions
 {
+    [SuppressMessage(
+        "Usage", 
+        "ASP0019:Suggest using IHeaderDictionary.Append or the indexer", 
+        Justification = "Maintain throwing ArgumentException if the header is already set.")]
     public class HttpRequestExtensionsTests
     {
         [Fact]

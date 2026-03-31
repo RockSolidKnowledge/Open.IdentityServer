@@ -7,9 +7,13 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace IdentityServer.UnitTests.Common
 {
-    internal class StubClock : ISystemClock
+    internal class StubClock : TimeProvider
     {
         public Func<DateTime> UtcNowFunc = () => DateTime.UtcNow;
-        public DateTimeOffset UtcNow => new DateTimeOffset(UtcNowFunc());
+
+        public override DateTimeOffset GetUtcNow()
+        {
+            return new DateTimeOffset(UtcNowFunc());
+        }
     }
 }

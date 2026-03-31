@@ -112,7 +112,7 @@ namespace IdentityServer4.Validation
             }
             catch (Exception e)
             {
-                _logger.LogWarning("Could not parse client assertion", e);
+                _logger.LogWarning("Could not parse client assertion. {0}", e);
                 return null;
             }
         }

@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -16,6 +17,10 @@ using Xunit;
 
 namespace IdentityServer.UnitTests.Validation.Secrets
 {
+    [SuppressMessage(
+        "Usage", 
+        "ASP0019:Suggest using IHeaderDictionary.Append or the indexer", 
+        Justification = "Maintain throwing ArgumentException if the header is already set.")]
     public class BasicAuthenticationSecretParsing
     {
         private const string Category = "Secrets - Basic Authentication Secret Parsing";

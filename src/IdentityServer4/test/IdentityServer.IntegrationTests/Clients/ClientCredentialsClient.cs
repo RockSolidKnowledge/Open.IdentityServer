@@ -15,24 +15,37 @@ using IdentityModel.Client;
 using IdentityServer.IntegrationTests.Clients.Setup;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients;
 
-public class ClientCredentialsClient
+public class ClientCredentialsClient : IDisposable
 {
     private const string TokenEndpoint = "https://server/connect/token";
 
     private readonly HttpClient _client;
+    private readonly IHost _host;
 
     public ClientCredentialsClient()
     {
-        var builder = new WebHostBuilder()
-            .UseStartup<Startup>();
-        var server = new TestServer(builder);
+        _host = new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
+            {
+                webBuilder.UseTestServer();
+                webBuilder.UseStartup<Startup>();
+            })
+            .Build();
 
-        _client = server.CreateClient();
+        _host.Start();
+        _client = _host.GetTestClient();
+    }
+
+    public void Dispose()
+    {
+        _client?.Dispose();
+        _host?.Dispose();
     }
 
     [Fact]
@@ -44,7 +57,7 @@ public class ClientCredentialsClient
             ClientId = "client",
             ClientSecret = "secret",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Http);
@@ -61,7 +74,7 @@ public class ClientCredentialsClient
             ClientId = "client",
             ClientSecret = "secret",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -72,13 +85,13 @@ public class ClientCredentialsClient
         var payload = GetPayload(response);
 
         payload.Count.Should().Be(8);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client");
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
         payload.Keys.Should().Contain("jti");
         payload.Keys.Should().Contain("iat");
 
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray();
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray();
         scopes.First().ToString().Should().Be("api1");
     }
 
@@ -91,7 +104,7 @@ public class ClientCredentialsClient
             ClientId = "client",
             ClientSecret = "secret",
             Scope = "api1 other_api"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -102,8 +115,8 @@ public class ClientCredentialsClient
         var payload = GetPayload(response);
 
         payload.Count.Should().Be(8);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client");
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client");
         payload.Keys.Should().Contain("jti");
         payload.Keys.Should().Contain("iat");
 
@@ -112,7 +125,7 @@ public class ClientCredentialsClient
         audiences.Should().Contain("api");
         audiences.Should().Contain("other_api");
 
-        var scopes = (JsonElement) payload["scope"];
+        var scopes = (JsonElement)payload["scope"];
         scopes.EnumerateArray().First().ToString().Should().Be("api1");
     }
 
@@ -125,7 +138,7 @@ public class ClientCredentialsClient
             ClientId = "client.cnf",
             ClientSecret = "foo",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -136,16 +149,16 @@ public class ClientCredentialsClient
         var payload = GetPayload(response);
 
         payload.Count.Should().Be(9);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client.cnf");
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client.cnf");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
         payload.Keys.Should().Contain("jti");
         payload.Keys.Should().Contain("iat");
-        
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray();
+
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray();
         scopes.First().ToString().Should().Be("api1");
 
-        var cnf = ((JsonElement) payload["cnf"]).Deserialize<Dictionary<string, string>>();
+        var cnf = ((JsonElement)payload["cnf"]).Deserialize<Dictionary<string, string>>();
         cnf["x5t#S256"].Should().Be("foo");
     }
 
@@ -158,7 +171,7 @@ public class ClientCredentialsClient
             ClientId = "client",
             ClientSecret = "secret",
             Scope = "api1 api2"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -169,9 +182,9 @@ public class ClientCredentialsClient
         var payload = GetPayload(response);
 
         payload.Count.Should().Be(8);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client");
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
         payload.Keys.Should().Contain("jti");
         payload.Keys.Should().Contain("iat");
 
@@ -189,7 +202,7 @@ public class ClientCredentialsClient
             Address = TokenEndpoint,
             ClientId = "client",
             ClientSecret = "secret"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -198,19 +211,19 @@ public class ClientCredentialsClient
         response.RefreshToken.Should().BeNull();
 
         var payload = GetPayload(response);
-        
+
         payload.Count.Should().Be(8);
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client");
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client");
         payload.Keys.Should().Contain("jti");
         payload.Keys.Should().Contain("iat");
 
-        var audiences = ((JsonElement) payload["aud"]).EnumerateArray().Select(x => x.ToString()).ToList();
+        var audiences = ((JsonElement)payload["aud"]).EnumerateArray().Select(x => x.ToString()).ToList();
         audiences.Count.Should().Be(2);
         audiences.Should().Contain("api");
         audiences.Should().Contain("other_api");
 
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray().Select(x => x.ToString()).ToList();
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray().Select(x => x.ToString()).ToList();
         scopes.Count.Should().Be(3);
         scopes.Should().Contain("api1");
         scopes.Should().Contain("api2");
@@ -225,7 +238,7 @@ public class ClientCredentialsClient
             Address = TokenEndpoint,
             ClientId = "client.no_default_scopes",
             ClientSecret = "secret"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ExpiresIn.Should().Be(0);
@@ -246,7 +259,7 @@ public class ClientCredentialsClient
             Scope = "api1",
 
             ClientCredentialStyle = ClientCredentialStyle.PostBody
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -255,12 +268,12 @@ public class ClientCredentialsClient
         response.RefreshToken.Should().BeNull();
 
         var payload = GetPayload(response);
-        
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client");
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
 
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray();
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
+
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray();
         scopes.First().ToString().Should().Be("api1");
     }
 
@@ -273,7 +286,7 @@ public class ClientCredentialsClient
             Address = TokenEndpoint,
             ClientId = "client.no_secret",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(false);
         response.ExpiresIn.Should().Be(3600);
@@ -282,12 +295,12 @@ public class ClientCredentialsClient
         response.RefreshToken.Should().BeNull();
 
         var payload = GetPayload(response);
-            
-        ((JsonElement) payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
-        ((JsonElement) payload["client_id"]).GetString().Should().BeEquivalentTo("client.no_secret");
-        ((JsonElement) payload["aud"]).GetString().Should().BeEquivalentTo("api");
 
-        var scopes = ((JsonElement) payload["scope"]).EnumerateArray();
+        ((JsonElement)payload["iss"]).GetString().Should().BeEquivalentTo("https://idsvr4");
+        ((JsonElement)payload["client_id"]).GetString().Should().BeEquivalentTo("client.no_secret");
+        ((JsonElement)payload["aud"]).GetString().Should().BeEquivalentTo("api");
+
+        var scopes = ((JsonElement)payload["scope"]).EnumerateArray();
         scopes.First().ToString().Should().Be("api1");
     }
 
@@ -300,7 +313,7 @@ public class ClientCredentialsClient
             ClientId = "client",
             ClientSecret = "invalid",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.Error.Should().Be("invalid_client");
@@ -315,7 +328,7 @@ public class ClientCredentialsClient
             ClientId = "invalid",
             ClientSecret = "secret",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -331,7 +344,7 @@ public class ClientCredentialsClient
             Address = TokenEndpoint,
             ClientId = "implicit",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -348,7 +361,7 @@ public class ClientCredentialsClient
             ClientId = "implicit_and_client_creds",
             ClientSecret = "invalid",
             Scope = "api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -366,7 +379,7 @@ public class ClientCredentialsClient
             ClientId = "client",
             ClientSecret = "secret",
             Scope = "unknown"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -383,7 +396,7 @@ public class ClientCredentialsClient
             ClientId = "client.identityscopes",
             ClientSecret = "secret",
             Scope = "openid api1"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -400,7 +413,7 @@ public class ClientCredentialsClient
             ClientId = "client",
             ClientSecret = "secret",
             Scope = "api1 offline_access"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -417,7 +430,7 @@ public class ClientCredentialsClient
             ClientId = "client",
             ClientSecret = "secret",
             Scope = "api3"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -434,7 +447,7 @@ public class ClientCredentialsClient
             ClientId = "client",
             ClientSecret = "secret",
             Scope = "api1 api3"
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -445,7 +458,7 @@ public class ClientCredentialsClient
     private Dictionary<string, object> GetPayload(TokenResponse response)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(response.AccessToken);
-            
+
         var token = response.AccessToken.Split('.').Skip(1).Take(1).First();
         var dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(
             Encoding.UTF8.GetString(Base64Url.Decode(token)));

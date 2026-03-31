@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System.Diagnostics.CodeAnalysis;
 using IdentityServer4.Configuration;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +14,10 @@ using System.Threading.Tasks;
 
 namespace IdentityServer4.Extensions
 {
+    [SuppressMessage(
+        "Usage", 
+        "ASP0019:Suggest using IHeaderDictionary.Append or the indexer", 
+        Justification = "Maintain throwing ArgumentException if the header is already set.")]
     public static class HttpResponseExtensions
     {
         public static async Task WriteJsonAsync(this HttpResponse response, object o, string contentType = null)

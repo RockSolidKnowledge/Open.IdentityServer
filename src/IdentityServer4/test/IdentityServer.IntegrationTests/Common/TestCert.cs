@@ -12,7 +12,7 @@ namespace IdentityServer.IntegrationTests.Common
         public static X509Certificate2 Load()
         {
             var cert = Path.Combine(System.AppContext.BaseDirectory, "identityserver_testing.pfx");
-            return new X509Certificate2(cert, "password");
+            return X509CertificateLoader.LoadPkcs12FromFile(cert, "password");
         }
     }
 }

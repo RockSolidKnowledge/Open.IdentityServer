@@ -16,25 +16,39 @@ using IdentityModel.Client;
 using IdentityServer.IntegrationTests.Clients.Setup;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients;
 
-public class ExtensionGrantClient
+public class ExtensionGrantClient : IDisposable
 {
     private const string TokenEndpoint = "https://server/connect/token";
 
     private readonly HttpClient _client;
+        private readonly IHost _host;
 
     public ExtensionGrantClient()
     {
-        var builder = new WebHostBuilder()
-            .UseStartup<Startup>();
-        var server = new TestServer(builder);
+        _host = new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
+            {
+                webBuilder.UseTestServer();
+                webBuilder.UseStartup<Startup>();
+            })
+            .Build();
 
-        _client = server.CreateClient();
+            _host.Start();
+            _client = _host.GetTestClient();
     }
+
+    public void Dispose()
+    {
+        _client?.Dispose();
+        _host?.Dispose();
+    }
+
 
     [Fact]
     public async Task Valid_client_should_succeed()
@@ -52,7 +66,7 @@ public class ExtensionGrantClient
                 { "custom_credential", "custom credential"},
                 { "scope", "api1" }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -100,7 +114,7 @@ public class ExtensionGrantClient
                 { "extra_claim", "extra_value" },
                 { "scope", "api1" }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -149,7 +163,7 @@ public class ExtensionGrantClient
                 { "extra_claim", "extra_value" },
                 { "scope", "api1 offline_access" }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -166,7 +180,7 @@ public class ExtensionGrantClient
             ClientSecret = "secret",
 
             RefreshToken = response.RefreshToken
-        });
+        }, TestContext.Current.CancellationToken);
 
         refreshResponse.IsError.Should().BeFalse();
         refreshResponse.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -214,7 +228,7 @@ public class ExtensionGrantClient
                 { "custom_credential", "custom credential"},
                 { "scope", "api1" }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -249,7 +263,7 @@ public class ExtensionGrantClient
             {
                 { "custom_credential", "custom credential"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -293,7 +307,7 @@ public class ExtensionGrantClient
             {
                 { "scope", "api1" }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -317,7 +331,7 @@ public class ExtensionGrantClient
                 { "custom_credential", "custom credential"},
                 { "scope", "api1" }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -341,7 +355,7 @@ public class ExtensionGrantClient
                 { "custom_credential", "custom credential"},
                 { "scope", "api1" }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().Be(true);
         response.ErrorType.Should().Be(ResponseErrorType.Protocol);
@@ -367,7 +381,7 @@ public class ExtensionGrantClient
                 { "lifetime", "5000"},
                 { "sub",  "818727"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -417,7 +431,7 @@ public class ExtensionGrantClient
                 { "type", "jwt"},
                 { "sub",  "818727"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -448,7 +462,7 @@ public class ExtensionGrantClient
                 { "impersonated_client", "impersonated_client_id"},
                 { "sub",  "818727"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -481,7 +495,7 @@ public class ExtensionGrantClient
                 { "type", "reference"},
                 { "sub",  "818727"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -511,7 +525,7 @@ public class ExtensionGrantClient
                 { "claim", "extra_claim"},
                 { "sub",  "818727"}
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
@@ -555,7 +569,7 @@ public class ExtensionGrantClient
 
                 { "claim", "extra_claim"},
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         response.IsError.Should().BeFalse();
         response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
