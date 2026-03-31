@@ -20,15 +20,15 @@ namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponse
     public class AuthorizeInteractionResponseGeneratorTests_Login
     {
         private IdentityServerOptions _options = new IdentityServerOptions();
-        private readonly IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator _subject;
+        private readonly OpenIdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator _subject;
         private readonly MockConsentService _mockConsentService = new MockConsentService();
         private readonly StubClock _clock = new StubClock();
 
         public AuthorizeInteractionResponseGeneratorTests_Login()
         {
-            _subject = new IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator(
+            _subject = new OpenIdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator(
                 _clock,
-                TestLogger.Create<IdentityServer4.ResponseHandling.AuthorizeInteractionResponseGenerator>(),
+                TestLogger.Create<OpenIdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator>(),
                 _mockConsentService,
                 new MockProfileService());
         }

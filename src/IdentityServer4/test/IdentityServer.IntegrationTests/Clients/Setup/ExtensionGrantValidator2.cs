@@ -21,7 +21,7 @@ namespace IdentityServer.IntegrationTests.Clients.Setup
             else
             {
                 // custom error message
-                context.Result = new GrantValidationResult(IdentityServer4.Models.TokenRequestErrors.InvalidGrant, "invalid custom credential");
+                context.Result = new GrantValidationResult(OpenIdentityServer.Models.TokenRequestErrors.InvalidGrant, "invalid custom credential");
             }
 
             return Task.CompletedTask;

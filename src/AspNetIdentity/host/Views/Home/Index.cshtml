@@ -1,13 +1,13 @@
 @using System.Diagnostics
 
 @{
-    var version = FileVersionInfo.GetVersionInfo(typeof(IdentityServer4.Hosting.IdentityServerMiddleware).Assembly.Location).ProductVersion.Split('+').First();
+    var version = FileVersionInfo.GetVersionInfo(typeof(OpenIdentityServer.Hosting.IdentityServerMiddleware).Assembly.Location).ProductVersion.Split('+').First();
 }
 
 <div class="welcome-page">
     <h1>
         <img src="~/icon.jpg">
-        Welcome to IdentityServer4
+        Welcome to OpenIdentityServer
         <small class="text-muted">(version @version)</small>
     </h1>
 
@@ -25,6 +25,7 @@
         </li>
         <li>
             Here are links to the
+            // TODO - update to new repo when we have it
             <a href="https://github.com/identityserver/IdentityServer4">source code repository</a>,
             and <a href="https://github.com/IdentityServer/IdentityServer4/tree/main/samples">ready to use samples</a>.
         </li>
