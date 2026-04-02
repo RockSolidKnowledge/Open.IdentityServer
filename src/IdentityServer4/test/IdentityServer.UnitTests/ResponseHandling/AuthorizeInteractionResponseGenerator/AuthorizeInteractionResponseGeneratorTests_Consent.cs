@@ -6,10 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityModel;
 using IdentityServer.UnitTests.Common;
+using IdentityServer4;
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Xunit;
@@ -408,5 +411,182 @@ public class AuthorizeInteractionResponseGeneratorTests_Consent
         };
         await _subject.ProcessConsentAsync(request, consent);
         AssertUpdateConsentCalled(client, user);
+    }
+    
+    [Fact]
+    public async Task ProcessInteractionAsync_AuthenticatedUserWithDeniedConsentAndNoConsentRequirement_ShouldReturnAccessDenied()
+    {
+        RequiresConsent(false);
+        var request = new ValidatedAuthorizeRequest
+        {
+            ResponseMode = OidcConstants.ResponseModes.Fragment,
+            State = "12345",
+            RedirectUri = "https://client.com/callback",
+            RequestedScopes = ["openid", "read", "write"],
+            ValidatedResources = GetValidatedResources("openid", "read", "write"),
+            Subject = new IdentityServerUser("123")
+            {
+                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+            }.CreatePrincipal()
+        };
+        var consent = new ConsentResponse
+        {
+            Error = AuthorizationError.AccessDenied
+        };
+        var result = await _subject.ProcessInteractionAsync(request, consent);
+        
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.AccessDenied);
+        
+        AssertUpdateConsentNotCalled();
+    }
+
+    [Fact]
+    public async Task ProcessInteractionAsync_AuthenticatedUserWithDeniedConsentAndErrorDescription_ShouldPropagateErrorDescription()
+    {
+        RequiresConsent(false);
+        var request = new ValidatedAuthorizeRequest
+        {
+            ResponseMode = OidcConstants.ResponseModes.Fragment,
+            State = "12345",
+            RedirectUri = "https://client.com/callback",
+            RequestedScopes = ["openid", "read", "write"],
+            ValidatedResources = GetValidatedResources("openid", "read", "write"),
+            Subject = new IdentityServerUser("123")
+            {
+                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+            }.CreatePrincipal()
+        };
+        var consent = new ConsentResponse
+        {
+            Error = AuthorizationError.AccessDenied,
+            ErrorDescription = "user declined the terms of service"
+        };
+        var result = await _subject.ProcessInteractionAsync(request, consent);
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.AccessDenied);
+        result.ErrorDescription.Should().Be("user declined the terms of service");
+
+        AssertUpdateConsentNotCalled();
+    }
+
+    [Theory]
+    [InlineData(AuthorizationError.LoginRequired, OidcConstants.AuthorizeErrors.LoginRequired)]
+    [InlineData(AuthorizationError.InteractionRequired, OidcConstants.AuthorizeErrors.InteractionRequired)]
+    [InlineData(AuthorizationError.AccountSelectionRequired, OidcConstants.AuthorizeErrors.AccountSelectionRequired)]
+    [InlineData(AuthorizationError.ConsentRequired, OidcConstants.AuthorizeErrors.ConsentRequired)]
+    public async Task ProcessInteractionAsync_AuthenticatedUserWithDeniedConsentAndNoConsentRequirement_ShouldReturnCorrectError(
+        AuthorizationError consentError, string expectedOidcError)
+    {
+        RequiresConsent(false);
+        var request = new ValidatedAuthorizeRequest
+        {
+            ResponseMode = OidcConstants.ResponseModes.Fragment,
+            State = "12345",
+            RedirectUri = "https://client.com/callback",
+            RequestedScopes = ["openid", "read", "write"],
+            ValidatedResources = GetValidatedResources("openid", "read", "write"),
+            Subject = new IdentityServerUser("123")
+            {
+                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+            }.CreatePrincipal()
+        };
+        var consent = new ConsentResponse
+        {
+            Error = consentError
+        };
+        var result = await _subject.ProcessInteractionAsync(request, consent);
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(expectedOidcError);
+
+        AssertUpdateConsentNotCalled();
+    }
+
+    [Fact]
+    public async Task ProcessInteractionAsync_AnonymousUserWithDeniedConsent_ShouldReturnError()
+    {
+        var request = new ValidatedAuthorizeRequest
+        {
+            Subject = Principal.Anonymous
+        };
+
+        var consent = new ConsentResponse
+        {
+            Error = AuthorizationError.AccessDenied
+        };
+
+        var result = await _subject.ProcessInteractionAsync(request, consent);
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.AccessDenied);
+
+        AssertUpdateConsentNotCalled();
+    }
+
+    [Fact]
+    public async Task ProcessInteractionAsync_AuthenticatedUserWithGrantedConsentAndNoConsentRequirement_ShouldNotError()
+    {
+        RequiresConsent(false);
+
+        var request = new ValidatedAuthorizeRequest
+        {
+            ResponseMode = OidcConstants.ResponseModes.Fragment,
+            State = "12345",
+            RedirectUri = "https://client.com/callback",
+            Client = new Client
+            {
+                EnableLocalLogin = true
+            },
+            Subject = new IdentityServerUser("123")
+            {
+                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+            }.CreatePrincipal(),
+            RequestedScopes = ["openid", "read", "write"],
+            ValidatedResources = GetValidatedResources("openid", "read", "write"),
+        };
+
+        var consent = new ConsentResponse
+        {
+            ScopesValuesConsented = ["openid", "read", "write"]
+        };
+
+        var result = await _subject.ProcessInteractionAsync(request, consent);
+
+        result.IsError.Should().BeFalse();
+        result.IsLogin.Should().BeFalse();
+        result.IsConsent.Should().BeFalse();
+        AssertUpdateConsentNotCalled();
+    }
+
+    [Fact]
+    public async Task ProcessInteractionAsync_AuthenticatedUserWithNullConsentAndNoConsentRequirement_ShouldNotError()
+    {
+        RequiresConsent(false);
+
+        var request = new ValidatedAuthorizeRequest
+        {
+            ResponseMode = OidcConstants.ResponseModes.Fragment,
+            State = "12345",
+            RedirectUri = "https://client.com/callback",
+            Client = new Client
+            {
+                EnableLocalLogin = true
+            },
+            Subject = new IdentityServerUser("123")
+            {
+                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+            }.CreatePrincipal(),
+            RequestedScopes = ["openid", "read", "write"],
+            ValidatedResources = GetValidatedResources("openid", "read", "write"),
+        };
+
+        var result = await _subject.ProcessInteractionAsync(request, consent: null);
+
+        result.IsError.Should().BeFalse();
+        result.IsLogin.Should().BeFalse();
+        result.IsConsent.Should().BeFalse();
+        AssertUpdateConsentNotCalled();
     }
 }

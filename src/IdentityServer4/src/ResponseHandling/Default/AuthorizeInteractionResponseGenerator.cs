@@ -69,7 +69,9 @@ namespace IdentityServer4.ResponseHandling
         {
             Logger.LogTrace("ProcessInteractionAsync");
 
-            if (consent != null && consent.Granted == false && consent.Error.HasValue && request.Subject.IsAuthenticated() == false)
+            if (consent != null && 
+                consent.Granted == false && 
+                consent.Error.HasValue)
             {
                 // special case when anonymous user has issued an error prior to authenticating
                 Logger.LogInformation("Error: User consent result: {error}", consent.Error);
