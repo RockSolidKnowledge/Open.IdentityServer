@@ -28,5 +28,5 @@ steps:
     displayName: 'Publish ${{ parameters.name }} artifact'
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'OpenIdentityServer nupkg'
+      ArtifactName: 'Open.IdentityServer nupkg'
       publishLocation: 'Container'

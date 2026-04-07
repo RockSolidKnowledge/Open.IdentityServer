@@ -39,70 +39,70 @@ jobs:
           dotnetVersions: [10.x]
           nugetVersion: '5.4.0'
 
-      # Build, test, and pack IdentityServer4.Storage first, as it is a dependency for the other projects
+      # Build, test, and pack Open.IdentityServer.Storage first, as it is a dependency for the other projects
       - template: templates/dotnet-restore-build-and-test.yml
         parameters:
           nuGetConfig: NuGet.config
-          csproj: '**/IdentityServer4.Storage.sln'
+          csproj: '**/Open.IdentityServer.Storage.sln'
       
       - template: templates/dotnet-pack-ci.yml
         parameters:
-          name: 'IdentityServer4.Storage'
+          name: 'Open.IdentityServer.Storage'
           projects: 
-          - csproj: '**/IdentityServer4.Storage.csproj'
+          - csproj: '**/Open.IdentityServer.Storage.csproj'
         
       # Build, test, and pack the Core package, which is the main package and has the most dependencies
       - template: templates/dotnet-restore-build-and-test.yml
         parameters:
           nuGetConfig: NuGet.config
-          csproj: '**/IdentityServer4.sln'
+          csproj: '**/Open.IdentityServer.sln'
           testProjects: 
-          - '**/IdentityServer.UnitTests.csproj'
-          - '**/IdentityServer.IntegrationTests.csproj'
+          - '**/Open.IdentityServer.UnitTests.csproj'
+          - '**/Open.IdentityServer.IntegrationTests.csproj'
         
       - template: templates/dotnet-pack-ci.yml
         parameters:
-          name: 'IdentityServer4'
+          name: 'Open.IdentityServer'
           projects: 
-          - csproj: '**/IdentityServer4.csproj' 
+          - csproj: '**/Open.IdentityServer.csproj' 
       
       # Build, test, and pack the ASP.NET Identity package, which depends on the Core package
       - template: templates/dotnet-restore-build-and-test.yml
         parameters:
           nuGetConfig: NuGet.config
-          csproj: '**/IdentityServer4.AspNetIdentity.sln'
+          csproj: '**/Open.IdentityServer.AspNetIdentity.sln'
       
       - template: templates/dotnet-pack-ci.yml
         parameters:
-          name: 'IdentityServer4.AspNetIdentity'
+          name: 'Open.IdentityServer.AspNetIdentity'
           projects: 
-          - csproj: '**/IdentityServer4.AspNetIdentity.csproj'  
+          - csproj: '**/Open.IdentityServer.AspNetIdentity.csproj'  
 
       # Build, test, and pack the EntityFramework.Storage package, which depends on the Core package
       - template: templates/dotnet-restore-build-and-test.yml
         parameters:
           nuGetConfig: NuGet.config
-          csproj: '**/IdentityServer4.EntityFramework.Storage.sln'
+          csproj: '**/Open.IdentityServer.EntityFramework.Storage.sln'
           testProjects: 
-          - '**/EntityFramework.Storage/test/UnitTests/IdentityServer4.EntityFramework.UnitTests.csproj'
-          - '**/EntityFramework.Storage/test/IntegrationTests/IdentityServer4.EntityFramework.IntegrationTests.csproj'
+          - '**/EntityFramework.Storage/test/UnitTests/Open.IdentityServer.EntityFramework.UnitTests.csproj'
+          - '**/EntityFramework.Storage/test/IntegrationTests/Open.IdentityServer.EntityFramework.IntegrationTests.csproj'
 
       - template: templates/dotnet-pack-ci.yml
         parameters:
-          name: 'IdentityServer4.EntityFramework.Storage'
+          name: 'Open.IdentityServer.EntityFramework.Storage'
           projects: 
-          - csproj: '**/IdentityServer4.EntityFramework.Storage.csproj'
+          - csproj: '**/Open.IdentityServer.EntityFramework.Storage.csproj'
       
       # Build, test, and pack the EntityFramework package, which depends on the EntityFramework Storage package
       - template: templates/dotnet-restore-build-and-test.yml
         parameters:
           nuGetConfig: NuGet.config
-          csproj: '**/IdentityServer4.EntityFramework.sln'
+          csproj: '**/Open.IdentityServer.EntityFramework.sln'
           testProjects: 
-          - '**/EntityFramework/test/IdentityServer4.EntityFramework.Tests/IdentityServer4.EntityFramework.Tests.csproj'
+          - '**/EntityFramework/test/Open.IdentityServer.EntityFramework.Tests/Open.IdentityServer.EntityFramework.Tests.csproj'
 
       - template: templates/dotnet-pack-ci.yml
         parameters:
-          name: 'IdentityServer4.EntityFramework'
+          name: 'Open.IdentityServer.EntityFramework'
           projects: 
-          - csproj: '**/IdentityServer4.EntityFramework.csproj'
+          - csproj: '**/Open.IdentityServer.EntityFramework.csproj'
