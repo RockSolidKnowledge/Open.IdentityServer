@@ -15,7 +15,7 @@ namespace Open.IdentityServer.Endpoints.Results
     /// <summary>
     /// Result for the jwks document
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Hosting.IEndpointResult" />
+    /// <seealso cref="Open.IdentityServer.Hosting.IEndpointResult" />
     public class JsonWebKeysResult : IEndpointResult
     {
         /// <summary>

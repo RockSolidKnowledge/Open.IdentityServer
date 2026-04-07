@@ -19,7 +19,7 @@ namespace Open.IdentityServer.Endpoints.Results
     /// <summary>
     /// Result for consent page
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Hosting.IEndpointResult" />
+    /// <seealso cref="Open.IdentityServer.Hosting.IEndpointResult" />
     public class ConsentPageResult : IEndpointResult
     {
         private readonly ValidatedAuthorizeRequest _request;

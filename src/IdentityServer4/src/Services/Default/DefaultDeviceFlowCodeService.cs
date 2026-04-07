@@ -7,7 +7,7 @@ namespace Open.IdentityServer.Services.Default
     /// <summary>
     /// Default wrapper service for IDeviceFlowStore, handling key hashing
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Services.IDeviceFlowCodeService" />
+    /// <seealso cref="Open.IdentityServer.Services.IDeviceFlowCodeService" />
     public class DefaultDeviceFlowCodeService : IDeviceFlowCodeService
     {
         private readonly IDeviceFlowStore _store;

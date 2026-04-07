@@ -15,7 +15,7 @@ namespace Open.IdentityServer.Services
     /// <summary>
     /// Cookie-based session implementation
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Services.IUserSession" />
+    /// <seealso cref="Open.IdentityServer.Services.IUserSession" />
     public class DefaultUserSession : IUserSession
     {
         /// <summary>

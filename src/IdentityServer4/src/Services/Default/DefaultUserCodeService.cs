@@ -12,7 +12,7 @@ namespace Open.IdentityServer.Services
     /// <summary>
     /// Default user code service implementation.
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Services.IUserCodeService" />
+    /// <seealso cref="Open.IdentityServer.Services.IUserCodeService" />
     public class DefaultUserCodeService : IUserCodeService
     {
         private readonly IEnumerable<IUserCodeGenerator> _generators;

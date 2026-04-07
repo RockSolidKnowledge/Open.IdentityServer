@@ -19,7 +19,7 @@ namespace Open.IdentityServer.ResponseHandling
     /// <summary>
     /// The default token response generator
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.ResponseHandling.ITokenResponseGenerator" />
+    /// <seealso cref="Open.IdentityServer.ResponseHandling.ITokenResponseGenerator" />
     public class TokenResponseGenerator : ITokenResponseGenerator
     {
         /// <summary>

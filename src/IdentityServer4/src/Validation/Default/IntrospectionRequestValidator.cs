@@ -12,7 +12,7 @@ namespace Open.IdentityServer.Validation
     /// <summary>
     /// The introspection request validator
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Validation.IIntrospectionRequestValidator" />
+    /// <seealso cref="Open.IdentityServer.Validation.IIntrospectionRequestValidator" />
     internal class IntrospectionRequestValidator : IIntrospectionRequestValidator
     {
         private readonly ILogger _logger;

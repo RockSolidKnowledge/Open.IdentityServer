@@ -9,7 +9,7 @@ namespace Open.IdentityServer.Validation
     /// <summary>
     /// Validation result for end session callback requests.
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Validation.ValidationResult" />
+    /// <seealso cref="Open.IdentityServer.Validation.ValidationResult" />
     public class EndSessionCallbackValidationResult : ValidationResult
     {
         /// <summary>

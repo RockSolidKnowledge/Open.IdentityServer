@@ -14,7 +14,7 @@ namespace Open.IdentityServer.Endpoints.Results
     /// <summary>
     /// Result for introspection
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Hosting.IEndpointResult" />
+    /// <seealso cref="Open.IdentityServer.Hosting.IEndpointResult" />
     public class IntrospectionResult : IEndpointResult
     {
         /// <summary>

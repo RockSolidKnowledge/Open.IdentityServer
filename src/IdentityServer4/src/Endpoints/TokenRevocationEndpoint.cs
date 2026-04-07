@@ -20,7 +20,7 @@ namespace Open.IdentityServer.Endpoints
     /// <summary>
     /// The revocation endpoint
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Hosting.IEndpointHandler" />
+    /// <seealso cref="Open.IdentityServer.Hosting.IEndpointHandler" />
     internal class TokenRevocationEndpoint : IEndpointHandler
     {
         private readonly ILogger _logger;

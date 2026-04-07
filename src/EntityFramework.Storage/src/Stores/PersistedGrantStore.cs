@@ -19,7 +19,7 @@ namespace Open.IdentityServer.EntityFramework.Stores
     /// <summary>
     /// Implementation of IPersistedGrantStore thats uses EF.
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Stores.IPersistedGrantStore" />
+    /// <seealso cref="Open.IdentityServer.Stores.IPersistedGrantStore" />
     public class PersistedGrantStore : IPersistedGrantStore
     {
         /// <summary>

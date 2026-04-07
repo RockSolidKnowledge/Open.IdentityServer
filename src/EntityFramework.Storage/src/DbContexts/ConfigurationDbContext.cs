@@ -15,7 +15,7 @@ namespace Open.IdentityServer.EntityFramework.DbContexts
     /// DbContext for the IdentityServer configuration data.
     /// </summary>
     /// <seealso cref="Microsoft.EntityFrameworkCore.DbContext" />
-    /// <seealso cref="OpenIdentityServer.EntityFramework.Interfaces.IConfigurationDbContext" />
+    /// <seealso cref="Open.IdentityServer.EntityFramework.Interfaces.IConfigurationDbContext" />
     public class ConfigurationDbContext : ConfigurationDbContext<ConfigurationDbContext>
     {
         /// <summary>
@@ -34,7 +34,7 @@ namespace Open.IdentityServer.EntityFramework.DbContexts
     /// DbContext for the IdentityServer configuration data.
     /// </summary>
     /// <seealso cref="Microsoft.EntityFrameworkCore.DbContext" />
-    /// <seealso cref="OpenIdentityServer.EntityFramework.Interfaces.IConfigurationDbContext" />
+    /// <seealso cref="Open.IdentityServer.EntityFramework.Interfaces.IConfigurationDbContext" />
     public class ConfigurationDbContext<TContext> : DbContext, IConfigurationDbContext
         where TContext : DbContext, IConfigurationDbContext
     {

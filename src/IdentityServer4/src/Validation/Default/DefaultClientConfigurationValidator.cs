@@ -9,7 +9,7 @@ namespace Open.IdentityServer.Validation
     /// <summary>
     /// Default client configuration validator
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Validation.IClientConfigurationValidator" />
+    /// <seealso cref="Open.IdentityServer.Validation.IClientConfigurationValidator" />
     public class DefaultClientConfigurationValidator : IClientConfigurationValidator
     {
         private readonly IdentityServerOptions _options;

@@ -20,7 +20,7 @@ namespace Open.IdentityServer.ResponseHandling
     /// <summary>
     /// The userinfo response generator
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.ResponseHandling.IUserInfoResponseGenerator" />
+    /// <seealso cref="Open.IdentityServer.ResponseHandling.IUserInfoResponseGenerator" />
     public class UserInfoResponseGenerator : IUserInfoResponseGenerator
     {
         /// <summary>

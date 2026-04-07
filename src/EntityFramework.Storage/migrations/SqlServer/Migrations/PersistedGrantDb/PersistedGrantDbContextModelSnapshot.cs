@@ -22,7 +22,7 @@ namespace SqlServer.Migrations.PersistedGrantDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.DeviceFlowCodes", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.DeviceFlowCodes", b =>
                 {
                     b.Property<string>("UserCode")
                         .HasMaxLength(200)
@@ -71,7 +71,7 @@ namespace SqlServer.Migrations.PersistedGrantDb
                     b.ToTable("DeviceCodes", (string)null);
                 });
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.PersistedGrant", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.PersistedGrant", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()

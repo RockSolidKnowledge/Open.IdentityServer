@@ -12,7 +12,7 @@ namespace Open.IdentityServer.Services
     /// Default profile service implementation.
     /// This implementation sources all claims from the current subject (e.g. the cookie).
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Services.IProfileService" />
+    /// <seealso cref="Open.IdentityServer.Services.IProfileService" />
     public class DefaultProfileService : IProfileService
     {
         /// <summary>

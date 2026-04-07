@@ -2,13 +2,13 @@
 @using System.Reflection
 
 @{
-    var version = typeof(OpenIdentityServer.Hosting.IdentityServerMiddleware).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+').First();
+    var version = typeof(Open.IdentityServer.Hosting.IdentityServerMiddleware).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+').First();
 }
 
 <div class="welcome-page">
     <h1>
         <img src="~/icon.jpg">
-        Welcome to OpenIdentityServer
+        Welcome to Open.IdentityServer
         <small class="text-muted">(version @version)</small>
     </h1>
 

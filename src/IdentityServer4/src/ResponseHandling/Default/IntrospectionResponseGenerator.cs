@@ -17,7 +17,7 @@ namespace Open.IdentityServer.ResponseHandling
     /// <summary>
     /// The introspection response generator
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.ResponseHandling.IIntrospectionResponseGenerator" />
+    /// <seealso cref="Open.IdentityServer.ResponseHandling.IIntrospectionResponseGenerator" />
     public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
     {
         /// <summary>

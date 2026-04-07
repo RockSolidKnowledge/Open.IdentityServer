@@ -25,7 +25,7 @@ namespace SqlServer.Migrations.ConfigurationDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.ApiResource", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.ApiResource", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -76,7 +76,7 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.ToTable("ApiResources", (string)null);
                 });
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.ApiResourceClaim", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.ApiResourceClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,7 +99,7 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.ToTable("ApiResourceClaims", (string)null);
                 });
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.ApiResourceProperty", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.ApiResourceProperty", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -127,7 +127,7 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.ToTable("ApiResourceProperties", (string)null);
                 });
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.ApiResourceScope", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.ApiResourceScope", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -150,7 +150,7 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.ToTable("ApiResourceScopes", (string)null);
                 });
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.ApiResourceSecret", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.ApiResourceSecret", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -188,7 +188,7 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.ToTable("ApiResourceSecrets", (string)null);
                 });
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.ApiScope", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.ApiScope", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -229,7 +229,7 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.ToTable("ApiScopes", (string)null);
                 });
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.ApiScopeClaim", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.ApiScopeClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -252,7 +252,7 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.ToTable("ApiScopeClaims", (string)null);
                 });
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.ApiScopeProperty", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.ApiScopeProperty", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -280,7 +280,7 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.ToTable("ApiScopeProperties", (string)null);
                 });
 
-            modelBuilder.Entity("OpenIdentityServer.EntityFramework.Entities.Client", b =>
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.Client", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

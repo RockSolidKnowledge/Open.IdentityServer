@@ -11,7 +11,7 @@ namespace Open.IdentityServer.Validation
     /// <summary>
     /// Default resource owner password validator (no implementation == not supported)
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Validation.IResourceOwnerPasswordValidator" />
+    /// <seealso cref="Open.IdentityServer.Validation.IResourceOwnerPasswordValidator" />
     public class NotSupportedResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
     {
         private readonly ILogger _logger;

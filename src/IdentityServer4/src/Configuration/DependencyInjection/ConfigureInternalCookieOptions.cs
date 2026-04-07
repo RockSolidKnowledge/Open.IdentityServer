@@ -83,7 +83,7 @@ namespace Open.IdentityServer.Configuration
         {
             _idsrv = idsrv;
             _authOptions = authOptions;
-            _logger = loggerFactory.CreateLogger("OpenIdentityServer.Startup");
+            _logger = loggerFactory.CreateLogger("Open.IdentityServer.Startup");
         }
 
         public void PostConfigure(string name, CookieAuthenticationOptions options)

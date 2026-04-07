@@ -5,7 +5,7 @@ namespace Open.IdentityServer.Validation
     /// <summary>
     /// No-op client configuration validator (for backwards-compatibility).
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Validation.IClientConfigurationValidator" />
+    /// <seealso cref="Open.IdentityServer.Validation.IClientConfigurationValidator" />
     public class NopClientConfigurationValidator : IClientConfigurationValidator
     {
         /// <summary>

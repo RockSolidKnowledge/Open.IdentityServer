@@ -12,7 +12,7 @@ namespace Open.IdentityServer.Stores
     /// <summary>
     /// In-memory device flow store
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Stores.IDeviceFlowStore" />
+    /// <seealso cref="Open.IdentityServer.Stores.IDeviceFlowStore" />
     public class InMemoryDeviceFlowStore : IDeviceFlowStore
     {
         private readonly List<InMemoryDeviceAuthorization> _repository = new List<InMemoryDeviceAuthorization>();

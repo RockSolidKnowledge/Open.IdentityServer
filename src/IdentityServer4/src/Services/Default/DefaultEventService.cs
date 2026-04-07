@@ -15,7 +15,7 @@ namespace Open.IdentityServer.Events
     /// <summary>
     /// The default event service
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Services.IEventService" />
+    /// <seealso cref="Open.IdentityServer.Services.IEventService" />
     public class DefaultEventService : IEventService
     {
         /// <summary>

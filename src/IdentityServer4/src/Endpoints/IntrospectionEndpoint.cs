@@ -19,7 +19,7 @@ namespace Open.IdentityServer.Endpoints
     /// <summary>
     /// Introspection endpoint
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Hosting.IEndpointHandler" />
+    /// <seealso cref="Open.IdentityServer.Hosting.IEndpointHandler" />
     internal class IntrospectionEndpoint : IEndpointHandler
     {
         private readonly IIntrospectionResponseGenerator _responseGenerator;

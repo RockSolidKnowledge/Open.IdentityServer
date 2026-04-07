@@ -12,7 +12,7 @@ namespace Open.IdentityServer.Validation
     /// <summary>
     /// Validation result for introspection request
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Validation.ValidationResult" />
+    /// <seealso cref="Open.IdentityServer.Validation.ValidationResult" />
     public class IntrospectionRequestValidationResult : ValidationResult
     {
         /// <summary>

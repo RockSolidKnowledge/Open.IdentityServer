@@ -19,7 +19,7 @@ namespace Open.IdentityServer.Endpoints.Results
     /// <summary>
     /// Result for endsession
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Hosting.IEndpointResult" />
+    /// <seealso cref="Open.IdentityServer.Hosting.IEndpointResult" />
     public class EndSessionResult : IEndpointResult
     {
         private readonly EndSessionValidationResult _result;

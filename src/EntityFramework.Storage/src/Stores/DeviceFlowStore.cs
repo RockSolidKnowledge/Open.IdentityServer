@@ -19,7 +19,7 @@ namespace Open.IdentityServer.EntityFramework.Stores
     /// <summary>
     /// Implementation of IDeviceFlowStore thats uses EF.
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Stores.IDeviceFlowStore" />
+    /// <seealso cref="Open.IdentityServer.Stores.IDeviceFlowStore" />
     public class DeviceFlowStore : IDeviceFlowStore
     {
         /// <summary>

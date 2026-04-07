@@ -18,7 +18,7 @@ namespace Open.IdentityServer.Stores
     /// <typeparam name="TModel"></typeparam>
     public class ProtectedDataMessageStore<TModel> : IMessageStore<TModel>
     {
-        private const string Purpose = "OpenIdentityServer.Stores.ProtectedDataMessageStore";
+        private const string Purpose = "Open.IdentityServer.Stores.ProtectedDataMessageStore";
 
         /// <summary>
         /// The data protector.

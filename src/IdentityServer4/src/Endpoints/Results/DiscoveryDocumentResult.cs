@@ -14,7 +14,7 @@ namespace Open.IdentityServer.Endpoints.Results
     /// <summary>
     /// Result for a discovery document
     /// </summary>
-    /// <seealso cref="OpenIdentityServer.Hosting.IEndpointResult" />
+    /// <seealso cref="Open.IdentityServer.Hosting.IEndpointResult" />
     public class DiscoveryDocumentResult : IEndpointResult
     {
         /// <summary>

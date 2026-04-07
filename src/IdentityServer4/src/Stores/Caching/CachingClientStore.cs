@@ -15,7 +15,7 @@ namespace Open.IdentityServer.Stores
     /// Cache decorator for IClientStore
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <seealso cref="OpenIdentityServer.Stores.IClientStore" />
+    /// <seealso cref="Open.IdentityServer.Stores.IClientStore" />
     public class CachingClientStore<T> : IClientStore
         where T : IClientStore
     {

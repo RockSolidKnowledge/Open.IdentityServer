@@ -28,7 +28,7 @@ namespace IdentityServer.UnitTests.Endpoints.Results
         private AuthorizeResponse _response = new AuthorizeResponse();
         private IdentityServerOptions _options = new IdentityServerOptions();
         private MockUserSession _mockUserSession = new MockUserSession();
-        private MockMessageStore<OpenIdentityServer.Models.ErrorMessage> _mockErrorMessageStore = new MockMessageStore<OpenIdentityServer.Models.ErrorMessage>();
+        private MockMessageStore<Open.IdentityServer.Models.ErrorMessage> _mockErrorMessageStore = new MockMessageStore<Open.IdentityServer.Models.ErrorMessage>();
 
         private DefaultHttpContext _context = new DefaultHttpContext();
 

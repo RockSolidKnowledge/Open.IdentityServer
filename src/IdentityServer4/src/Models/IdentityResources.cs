@@ -15,7 +15,7 @@ namespace Open.IdentityServer.Models
         /// <summary>
         /// Models the standard openid scope
         /// </summary>
-        /// <seealso cref="OpenIdentityServer.Models.IdentityResource" />
+        /// <seealso cref="Open.IdentityServer.Models.IdentityResource" />
         public class OpenId : IdentityResource
         {
             /// <summary>
@@ -33,7 +33,7 @@ namespace Open.IdentityServer.Models
         /// <summary>
         /// Models the standard profile scope
         /// </summary>
-        /// <seealso cref="OpenIdentityServer.Models.IdentityResource" />
+        /// <seealso cref="Open.IdentityServer.Models.IdentityResource" />
         public class Profile : IdentityResource
         {
             /// <summary>
@@ -52,7 +52,7 @@ namespace Open.IdentityServer.Models
         /// <summary>
         /// Models the standard email scope
         /// </summary>
-        /// <seealso cref="OpenIdentityServer.Models.IdentityResource" />
+        /// <seealso cref="Open.IdentityServer.Models.IdentityResource" />
         public class Email : IdentityResource
         {
             /// <summary>
@@ -70,7 +70,7 @@ namespace Open.IdentityServer.Models
         /// <summary>
         /// Models the standard phone scope
         /// </summary>
-        /// <seealso cref="OpenIdentityServer.Models.IdentityResource" />
+        /// <seealso cref="Open.IdentityServer.Models.IdentityResource" />
         public class Phone : IdentityResource
         {
             /// <summary>
@@ -88,7 +88,7 @@ namespace Open.IdentityServer.Models
         /// <summary>
         /// Models the standard address scope
         /// </summary>
-        /// <seealso cref="OpenIdentityServer.Models.IdentityResource" />
+        /// <seealso cref="Open.IdentityServer.Models.IdentityResource" />
         public class Address : IdentityResource
         {
             /// <summary>
