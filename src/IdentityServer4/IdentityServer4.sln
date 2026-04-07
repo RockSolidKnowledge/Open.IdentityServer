@@ -7,13 +7,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5461C61B-B06
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{45C22EDD-91B1-4AEF-8620-77F4E3E7C544}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer4", "src\IdentityServer4.csproj", "{407C030E-60E6-41F7-AF43-0AC48EDCC17D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenIdentityServer", "src\OpenIdentityServer.csproj", "{407C030E-60E6-41F7-AF43-0AC48EDCC17D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Host", "host\Host.csproj", "{784B3C88-30FA-415D-B99E-584063064508}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer.UnitTests", "test\IdentityServer.UnitTests\IdentityServer.UnitTests.csproj", "{4291820C-735F-4776-8BC4-6527433BC683}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenIdentityServer.UnitTests", "test\OpenIdentityServer.UnitTests\OpenIdentityServer.UnitTests.csproj", "{4291820C-735F-4776-8BC4-6527433BC683}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer.IntegrationTests", "test\IdentityServer.IntegrationTests\IdentityServer.IntegrationTests.csproj", "{94501373-478A-478D-8C17-6AC52E3438CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenIdentityServer.IntegrationTests", "test\OpenIdentityServer.IntegrationTests\OpenIdentityServer.IntegrationTests.csproj", "{94501373-478A-478D-8C17-6AC52E3438CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
