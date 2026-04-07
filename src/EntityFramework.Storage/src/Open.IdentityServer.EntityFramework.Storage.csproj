@@ -1,12 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <PackageId>OpenIdentityServer.EntityFramework</PackageId>
+        <PackageId>Open.IdentityServer.EntityFramework.Storage</PackageId>
         <TargetFramework>net10.0</TargetFramework>
-
-        <Description>EntityFramework persistence layer for OpenIdentityServer</Description>
+        
+        <Description>EntityFramework persistence layer for Open.IdentityServer</Description>
         <Authors>Brock Allen;Dominick Baier;Scott Brady</Authors>
-        <AssemblyName>OpenIdentityServer.EntityFramework</AssemblyName>
         <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer;EntityFramework</PackageTags>
         <PackageIcon>icon.jpg</PackageIcon>
         <PackageProjectUrl>https://github.com/IdentityServer/OpenIdentityServer</PackageProjectUrl>
@@ -21,7 +20,7 @@
         <AssemblyOriginatorKeyFile>../../../key.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
         <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
-        <RootNamespace>IdentityServer4.EntityFramework</RootNamespace>
+        <RootNamespace>Open.IdentityServer.EntityFramework.Storage</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -34,9 +33,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="OpenIdentityServer"/>
-        <PackageReference Include="OpenIdentityServer.EntityFramework.Storage"/>
+        <PackageReference Include="Open.IdentityServer.Storage"/>
 
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
+
 </Project>

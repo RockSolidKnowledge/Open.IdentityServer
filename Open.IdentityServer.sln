@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspNetIdentity", "AspNetIdentity", "{91BE8E9A-3D4C-496A-8244-490BE78005FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIdentityServer.AspNetIdentity", "src\AspNetIdentity\src\OpenIdentityServer.AspNetIdentity.csproj", "{A2D626B8-1532-4E35-B9F2-4246C838D192}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.AspNetIdentity", "src\AspNetIdentity\src\Open.IdentityServer.AspNetIdentity.csproj", "{A2D626B8-1532-4E35-B9F2-4246C838D192}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "src\AspNetIdentity\host\Host.csproj", "{B365596B-8518-4296-AA9E-5B455C74AAF6}"
 EndProject
@@ -12,13 +12,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityFramework.Storage", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storage", "Storage", "{7C740022-8283-4021-8E72-3F2847949309}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OpenIdentityServer", "OpenIdentityServer", "{4B2A5DEF-3F1A-4D76-94E7-BA369E97B582}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Open.IdentityServer", "Open.IdentityServer", "{4B2A5DEF-3F1A-4D76-94E7-BA369E97B582}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "src\EntityFramework\host\Host.csproj", "{7F5B4E94-ADAC-47A7-9D2F-13C8418D14DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIdentityServer.EntityFramework", "src\EntityFramework\src\OpenIdentityServer.EntityFramework.csproj", "{71E9790E-DFDE-4F5E-B16E-7DA963990DC9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.EntityFramework", "src\EntityFramework\src\Open.IdentityServer.EntityFramework.csproj", "{71E9790E-DFDE-4F5E-B16E-7DA963990DC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIdentityServer.EntityFramework.Storage", "src\EntityFramework.Storage\src\OpenIdentityServer.EntityFramework.Storage.csproj", "{E30E604A-9CC6-430A-BF88-FA909DAA1E69}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.EntityFramework.Storage", "src\EntityFramework.Storage\src\Open.IdentityServer.EntityFramework.Storage.csproj", "{E30E604A-9CC6-430A-BF88-FA909DAA1E69}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7B1173B0-F41B-4350-979D-748DC4A831FA}"
 EndProject
@@ -34,7 +34,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{41FAD0A5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServer", "src\EntityFramework\migrations\SqlServer\SqlServer.csproj", "{47811447-A858-496F-8792-DCB572355F2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIdentityServer.EntityFramework.Tests", "src\EntityFramework\test\OpenIdentityServer.EntityFramework.Tests\OpenIdentityServer.EntityFramework.Tests.csproj", "{354FA653-96DE-4CC4-8B6C-5883BF034C16}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.EntityFramework.Tests", "src\EntityFramework\test\Open.IdentityServer.EntityFramework.Tests\Open.IdentityServer.EntityFramework.Tests.csproj", "{354FA653-96DE-4CC4-8B6C-5883BF034C16}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{803FB76C-B522-4162-9A8C-D0F0CC3D27CB}"
 EndProject
@@ -44,9 +44,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleHost", "src\EntityFr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1249C775-D32D-46E2-91F0-F9F43E4213BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIdentityServer.EntityFramework.IntegrationTests", "src\EntityFramework.Storage\test\IntegrationTests\OpenIdentityServer.EntityFramework.IntegrationTests.csproj", "{03B6565E-BAA4-4B27-AE35-D0A95DD74219}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.EntityFramework.IntegrationTests", "src\EntityFramework.Storage\test\IntegrationTests\Open.IdentityServer.EntityFramework.IntegrationTests.csproj", "{03B6565E-BAA4-4B27-AE35-D0A95DD74219}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIdentityServer.EntityFramework.UnitTests", "src\EntityFramework.Storage\test\UnitTests\OpenIdentityServer.EntityFramework.UnitTests.csproj", "{07933CD8-6FB9-47DF-8CD2-46CBC2C5F55F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.EntityFramework.UnitTests", "src\EntityFramework.Storage\test\UnitTests\Open.IdentityServer.EntityFramework.UnitTests.csproj", "{07933CD8-6FB9-47DF-8CD2-46CBC2C5F55F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "migrations", "migrations", "{0C2CD5F0-DD45-4B19-AA3C-692906F09F8C}"
 EndProject
@@ -58,15 +58,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A2017A75
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{78510D3C-6BE1-4017-8AD4-CC905D58D788}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIdentityServer", "src\IdentityServer4\src\OpenIdentityServer.csproj", "{94C23776-EE92-4E46-9849-D2E6CBD65295}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer", "src\IdentityServer4\src\Open.IdentityServer.csproj", "{94C23776-EE92-4E46-9849-D2E6CBD65295}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "src\IdentityServer4\host\Host.csproj", "{65853CF3-EDB0-44A2-97F4-20E494E1F1EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIdentityServer.IntegrationTests", "src\IdentityServer4\test\OpenIdentityServer.IntegrationTests\OpenIdentityServer.IntegrationTests.csproj", "{08F6ACCA-179D-466A-8003-B8B4B2A26768}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.IntegrationTests", "src\IdentityServer4\test\Open.IdentityServer.IntegrationTests\Open.IdentityServer.IntegrationTests.csproj", "{08F6ACCA-179D-466A-8003-B8B4B2A26768}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIdentityServer.UnitTests", "src\IdentityServer4\test\OpenIdentityServer.UnitTests\OpenIdentityServer.UnitTests.csproj", "{0A76F194-9723-46E6-843A-55ABBC58C5AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.UnitTests", "src\IdentityServer4\test\Open.IdentityServer.UnitTests\Open.IdentityServer.UnitTests.csproj", "{0A76F194-9723-46E6-843A-55ABBC58C5AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIdentityServer.Storage", "src\Storage\src\OpenIdentityServer.Storage.csproj", "{C459AC33-FD11-402E-8058-F76DD940190D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.Storage", "src\Storage\src\Open.IdentityServer.Storage.csproj", "{C459AC33-FD11-402E-8058-F76DD940190D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

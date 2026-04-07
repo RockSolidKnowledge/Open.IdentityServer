@@ -1,26 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <PackageId>OpenIdentityServer.EntityFramework.Storage</PackageId>
+        <PackageId>Open.IdentityServer</PackageId>
         <TargetFramework>net10.0</TargetFramework>
-        
-        <Description>EntityFramework persistence layer for OpenIdentityServer</Description>
-        <Authors>Brock Allen;Dominick Baier;Scott Brady</Authors>
-        <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer;EntityFramework</PackageTags>
+        <Description>OpenID Connect and OAuth 2.0 Framework for ASP.NET Core</Description>
+        <Authors>Brock Allen;Dominick Baier</Authors>
+        <AssemblyName>Open.IdentityServer</AssemblyName>
+        <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
         <PackageIcon>icon.jpg</PackageIcon>
         <PackageProjectUrl>https://github.com/IdentityServer/OpenIdentityServer</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageReleaseNotes>https://github.com/IdentityServer/OpenIdentityServer/releases</PackageReleaseNotes>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
+        <!-- Declare that the Repository URL can be published to NuSpec -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <!-- Embed source files that are not tracked by the source control manager to the PDB -->
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <!-- Include PDB in the built .nupkg -->
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 
+        <!-- strong naming fml -->
         <AssemblyOriginatorKeyFile>../../../key.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
         <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
-        <RootNamespace>IdentityServer4.EntityFramework.Storage</RootNamespace>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <RootNamespace>Open.IdentityServer</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -33,10 +37,16 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="OpenIdentityServer.Storage"/>
-
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Open.IdentityServer.Storage"/>
+        <PackageReference Include="IdentityModel"/>
+        
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect"/>
+
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+    </ItemGroup>
 </Project>

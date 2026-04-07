@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
 
-    <PackageId>OpenIdentityServer.Storage</PackageId>
-    <Description>Storage interfaces and models for OpenIdentityServer</Description>
+    <PackageId>Open.IdentityServer.Storage</PackageId>
+    <Description>Storage interfaces and models for Open.IdentityServer</Description>
     <Authors>Brock Allen;Dominick Baier</Authors>
 
     <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
@@ -23,7 +23,7 @@
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <RootNamespace>IdentityServer4.Storage</RootNamespace>
+    <RootNamespace>Open.IdentityServer.Storage</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>

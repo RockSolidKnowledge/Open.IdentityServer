@@ -5,7 +5,7 @@
 
         <IsPackable>false</IsPackable>
 
-        <RootNamespace>IdentityServer4.EntityFramework.Tests</RootNamespace>
+        <RootNamespace>Open.IdentityServer.EntityFramework.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\OpenIdentityServer.EntityFramework.csproj"/>
+        <ProjectReference Include="..\..\src\Open.IdentityServer.EntityFramework.csproj"/>
     </ItemGroup>
 
 

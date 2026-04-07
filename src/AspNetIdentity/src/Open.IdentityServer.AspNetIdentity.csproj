@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <PackageId>OpenIdentityServer.AspNetIdentity</PackageId>
+        <PackageId>Open.IdentityServer.AspNetIdentity</PackageId>
         <TargetFramework>net10.0</TargetFramework>
 
-        <Description>ASP.NET Core Identity Integration for OpenIdentityServer</Description>
+        <Description>ASP.NET Core Identity Integration for Open.IdentityServer</Description>
         <Authors>Brock Allen;Dominick Baier</Authors>
-        <AssemblyName>OpenIdentityServer.AspNetIdentity</AssemblyName>
+        <AssemblyName>Open.IdentityServer.AspNetIdentity</AssemblyName>
         <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer;ASP.NET Identity</PackageTags>
         <PackageIcon>icon.jpg</PackageIcon>
         <PackageProjectUrl>https://github.com/IdentityServer/OpenIdentityServer</PackageProjectUrl>
@@ -23,7 +23,7 @@
 
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-        <RootNamespace>IdentityServer4.AspNetIdentity</RootNamespace>
+        <RootNamespace>Open.IdentityServer.AspNetIdentity</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -41,7 +41,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="OpenIdentityServer"/>
+        <PackageReference Include="Open.IdentityServer"/>
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>

@@ -6,7 +6,7 @@
         <AssemblyOriginatorKeyFile>../../../../key.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
         <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
-        <RootNamespace>IdentityServer4.EntityFramework.IntegrationTests</RootNamespace>
+        <RootNamespace>Open.IdentityServer.EntityFramework.IntegrationTests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -14,12 +14,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\OpenIdentityServer.EntityFramework.Storage.csproj"/>
+        <ProjectReference Include="..\..\src\Open.IdentityServer.EntityFramework.Storage.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="OpenIdentityServer"/>
-        <PackageReference Include="OpenIdentityServer.Storage"/>
+        <PackageReference Include="Open.IdentityServer"/>
+        <PackageReference Include="Open.IdentityServer.Storage"/>
 
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="xunit.v3"/>
