@@ -4,7 +4,7 @@
 
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Hosting;
-using static OpenIdentityServer.Constants;
+using static Open.IdentityServer.Constants;
 
 namespace Open.IdentityServer.Extensions
 {

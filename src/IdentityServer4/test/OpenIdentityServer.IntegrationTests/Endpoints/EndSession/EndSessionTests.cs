@@ -19,7 +19,7 @@ using Open.IdentityServer.Test;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text.Json;
 using Xunit;
-using static OpenIdentityServer.IdentityServerConstants;
+using static Open.IdentityServer.IdentityServerConstants;
 
 namespace IdentityServer.IntegrationTests.Endpoints.EndSession;
 

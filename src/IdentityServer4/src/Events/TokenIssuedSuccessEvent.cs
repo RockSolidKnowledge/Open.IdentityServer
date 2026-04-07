@@ -7,7 +7,7 @@ using Open.IdentityServer.Extensions;
 using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Validation;
 using System.Collections.Generic;
-using static OpenIdentityServer.Constants;
+using static Open.IdentityServer.Constants;
 
 namespace Open.IdentityServer.Events
 {

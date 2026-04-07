@@ -5,7 +5,7 @@
 using IdentityModel;
 using Open.IdentityServer.Models;
 using System.Collections.Generic;
-using static OpenIdentityServer.IdentityServerConstants;
+using static Open.IdentityServer.IdentityServerConstants;
 
 namespace IdentityServerHost.Configuration
 {

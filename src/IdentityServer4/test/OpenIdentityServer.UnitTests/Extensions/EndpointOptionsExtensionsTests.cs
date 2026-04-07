@@ -2,7 +2,7 @@
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Hosting;
 using Xunit;
-using static OpenIdentityServer.Constants;
+using static Open.IdentityServer.Constants;
 
 namespace IdentityServer.UnitTests.Extensions
 {

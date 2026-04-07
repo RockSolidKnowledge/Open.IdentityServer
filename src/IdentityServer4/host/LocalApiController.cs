@@ -5,7 +5,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
-using static OpenIdentityServer.IdentityServerConstants;
+using static Open.IdentityServer.IdentityServerConstants;
 
 namespace IdentityServerHost
 {
