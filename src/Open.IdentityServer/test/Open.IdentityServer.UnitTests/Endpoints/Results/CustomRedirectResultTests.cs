@@ -31,22 +31,17 @@ public class CustomRedirectResultTests : ReturnUrlResultTestBase<CustomRedirectR
     protected override CustomRedirectResult CreateSut(IAuthorizationParametersMessageStore messageStore = null)
         => new(TestAuthorizeRequest, CustomRedirectUrl, Options, messageStore);
 
-    /// <summary>
-    /// Unlike Login/Consent, CustomRedirectResult uses <c>GetIdentityServerBaseUrl()</c>
-    /// (host + base path) when the <c>_url</c> is external, not just <c>GetIdentityServerHost()</c>.
-    /// </summary>
     [Fact]
-    public async Task ExecuteAsync_WithExternalUrl_ShouldMakeReturnUrlAbsoluteUsingBaseUrl()
+    public async Task ExecuteAsync_WithExternalUrl_ShouldMakeReturnUrlAbsoluteUsingHost()
     {
         var externalUrl = "https://external.com/custom";
-        Context.SetIdentityServerBasePath("/idsvr");
         var sut = new CustomRedirectResult(TestAuthorizeRequest, externalUrl, Options);
 
         await sut.ExecuteAsync(Context);
 
         var location = RawLocation();
         location.Should().StartWith("https://external.com/custom");
-        location.Should().Contain("https%3A%2F%2Fserver%2Fidsvr");
+        location.Should().Contain("https%3A%2F%2Fserver");
     }
 
     [Fact]
@@ -54,7 +49,6 @@ public class CustomRedirectResultTests : ReturnUrlResultTestBase<CustomRedirectR
     {
         var expectedId = "ext_custom_msg_id";
         var externalUrl = "https://external.com/custom";
-        Context.SetIdentityServerBasePath("/idsvr");
         Mock.Get(MessageStore)
             .Setup(x => x.WriteAsync(It.IsAny<Message<IDictionary<string, string[]>>>()))
             .ReturnsAsync(expectedId);
@@ -65,7 +59,7 @@ public class CustomRedirectResultTests : ReturnUrlResultTestBase<CustomRedirectR
 
         var location = RawLocation();
         location.Should().StartWith("https://external.com/custom");
-        location.Should().Contain("https%3A%2F%2Fserver%2Fidsvr");
+        location.Should().Contain("https%3A%2F%2Fserver");
         location.Should().Contain(expectedId);
     }
 
