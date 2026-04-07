@@ -22,6 +22,7 @@
         <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="All"/>
         <PackageReference Include="AwesomeAssertions"/>
         <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+        <PackageReference Include="Moq"/>
     </ItemGroup>
 
     <ItemGroup>

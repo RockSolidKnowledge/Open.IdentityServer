@@ -11,55 +11,55 @@ using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Endpoints.Results;
 
-public class LoginPageResultTests : ReturnUrlResultTestBase<LoginPageResult>
+public class ConsentPageResultTests : ReturnUrlResultTestBase<ConsentPageResult>
 {
     protected override string ExpectedCallbackPath => Constants.ProtocolRoutePaths.AuthorizeCallback;
-    protected override string ExpectedReturnUrlParameterName => Constants.UIConstants.DefaultRoutePathParams.Login;
-    protected override string ExpectedRedirectUrlPath => "/sign-in";
+    protected override string ExpectedReturnUrlParameterName => Constants.UIConstants.DefaultRoutePathParams.Consent;
+    protected override string ExpectedRedirectUrlPath => "/consent";
 
     protected override IdentityServerOptions CreateOptions() => new()
     {
         UserInteraction = new UserInteractionOptions
         {
-            LoginUrl = "/sign-in",
-            LoginReturnUrlParameter = Constants.UIConstants.DefaultRoutePathParams.Login,
+            ConsentUrl = "/consent",
+            ConsentReturnUrlParameter = Constants.UIConstants.DefaultRoutePathParams.Consent,
         }
     };
 
-    protected override LoginPageResult CreateSut(IAuthorizationParametersMessageStore messageStore = null)
+    protected override ConsentPageResult CreateSut(IAuthorizationParametersMessageStore messageStore = null)
         => new(TestAuthorizeRequest, Options, messageStore);
 
     [Fact]
-    public async Task ExecuteAsync_WithLocalLoginUrl_ShouldUseRelativeReturnUrl()
+    public async Task ExecuteAsync_WithLocalConsentUrl_ShouldUseRelativeReturnUrl()
     {
-        Options.UserInteraction.LoginUrl = "/account/login";
+        Options.UserInteraction.ConsentUrl = "/account/consent";
         var sut = CreateSut(messageStore: null);
 
         await sut.ExecuteAsync(Context);
 
         var urlDecoded = DecodeLocation();
-        urlDecoded.Should().StartWith("https://server/account/login");
+        urlDecoded.Should().StartWith("https://server/account/consent");
         urlDecoded.Should().NotContain($"{ExpectedReturnUrlParameterName}=https://server");
     }
 
     [Fact]
-    public async Task ExecuteAsync_WithExternalLoginUrl_ShouldUseAbsoluteReturnUrl()
+    public async Task ExecuteAsync_WithExternalConsentUrl_ShouldUseAbsoluteReturnUrl()
     {
-        Options.UserInteraction.LoginUrl = "https://external-login.com/account/login";
+        Options.UserInteraction.ConsentUrl = "https://external-consent.com/consent";
         var sut = CreateSut(messageStore: null);
 
         await sut.ExecuteAsync(Context);
 
         var location = RawLocation();
-        location.Should().StartWith("https://external-login.com/account/login");
+        location.Should().StartWith("https://external-consent.com/consent");
         location.Should().Contain("https%3A%2F%2Fserver");
     }
 
     [Fact]
-    public async Task ExecuteAsync_WithExternalLoginUrlAndMessageStore_ShouldUseAbsoluteReturnUrlWithMessageId()
+    public async Task ExecuteAsync_WithExternalConsentUrlAndMessageStore_ShouldUseAbsoluteReturnUrlWithMessageId()
     {
-        var expectedId = "ext_msg_id";
-        Options.UserInteraction.LoginUrl = "https://external-login.com/account/login";
+        var expectedId = "ext_consent_msg_id";
+        Options.UserInteraction.ConsentUrl = "https://external-consent.com/consent";
         Mock.Get(MessageStore)
             .Setup(x => x.WriteAsync(It.IsAny<Message<IDictionary<string, string[]>>>()))
             .ReturnsAsync(expectedId);
@@ -69,28 +69,28 @@ public class LoginPageResultTests : ReturnUrlResultTestBase<LoginPageResult>
         await sut.ExecuteAsync(Context);
 
         var location = RawLocation();
-        location.Should().StartWith("https://external-login.com/account/login");
+        location.Should().StartWith("https://external-consent.com/consent");
         location.Should().Contain("https%3A%2F%2Fserver");
         location.Should().Contain(expectedId);
     }
 
     [Fact]
-    public async Task ExecuteAsync_ShouldUseConfiguredLoginReturnUrlParameter()
+    public async Task ExecuteAsync_ShouldUseConfiguredConsentReturnUrlParameter()
     {
-        Options.UserInteraction.LoginReturnUrlParameter = "customReturnUrl";
+        Options.UserInteraction.ConsentReturnUrlParameter = "customConsentReturn";
         var sut = CreateSut(messageStore: null);
 
         await sut.ExecuteAsync(Context);
 
         var urlDecoded = DecodeLocation();
-        urlDecoded.Should().Contain("customReturnUrl=");
-        urlDecoded.Should().NotContain($"{Constants.UIConstants.DefaultRoutePathParams.Login}=");
+        urlDecoded.Should().Contain("customConsentReturn=");
+        urlDecoded.Should().NotContain($"{Constants.UIConstants.DefaultRoutePathParams.Consent}=");
     }
 
     [Fact]
     public void Constructor_WithNullRequest_ShouldThrowArgumentNullException()
     {
-        var act = () => new LoginPageResult(null);
+        var act = () => new ConsentPageResult(null);
 
         act.Should().Throw<ArgumentNullException>()
             .And.ParamName.Should().Be("request");

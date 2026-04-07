@@ -21,6 +21,7 @@
         <PackageReference Update="xunit.v3" Version="3.2.2"/>
         <PackageReference Update="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="All"/>
         <PackageReference Update="Microsoft.Extensions.TimeProvider.Testing" Version="10.4.0" />
+        <PackageReference Update="Moq" Version="4.20.72"/>
 
         <!--our stuff -->
         <PackageReference Update="IdentityModel" Version="7.0.0"/>
