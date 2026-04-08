@@ -58,13 +58,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A2017A75
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{78510D3C-6BE1-4017-8AD4-CC905D58D788}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer", "src\IdentityServer4\src\Open.IdentityServer.csproj", "{94C23776-EE92-4E46-9849-D2E6CBD65295}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer", "src\Open.IdentityServer\src\Open.IdentityServer.csproj", "{94C23776-EE92-4E46-9849-D2E6CBD65295}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "src\IdentityServer4\host\Host.csproj", "{65853CF3-EDB0-44A2-97F4-20E494E1F1EF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "src\Open.IdentityServer\host\Host.csproj", "{65853CF3-EDB0-44A2-97F4-20E494E1F1EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.IntegrationTests", "src\IdentityServer4\test\Open.IdentityServer.IntegrationTests\Open.IdentityServer.IntegrationTests.csproj", "{08F6ACCA-179D-466A-8003-B8B4B2A26768}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.IntegrationTests", "src\Open.IdentityServer\test\Open.IdentityServer.IntegrationTests\Open.IdentityServer.IntegrationTests.csproj", "{08F6ACCA-179D-466A-8003-B8B4B2A26768}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.UnitTests", "src\IdentityServer4\test\Open.IdentityServer.UnitTests\Open.IdentityServer.UnitTests.csproj", "{0A76F194-9723-46E6-843A-55ABBC58C5AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.UnitTests", "src\Open.IdentityServer\test\Open.IdentityServer.UnitTests\Open.IdentityServer.UnitTests.csproj", "{0A76F194-9723-46E6-843A-55ABBC58C5AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.Storage", "src\Storage\src\Open.IdentityServer.Storage.csproj", "{C459AC33-FD11-402E-8058-F76DD940190D}"
 EndProject

@@ -55,7 +55,7 @@ jobs:
       - template: templates/dotnet-restore-build-and-test.yml
         parameters:
           nuGetConfig: NuGet.config
-          csproj: '**/Open.IdentityServer.sln'
+          csproj: '**/Open.IdentityServer/Open.IdentityServer.sln'
           testProjects: 
           - '**/Open.IdentityServer.UnitTests.csproj'
           - '**/Open.IdentityServer.IntegrationTests.csproj'
