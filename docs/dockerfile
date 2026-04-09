@@ -1,0 +1,7 @@
+# in your Dockerfile
+FROM sphinxdoc/sphinx
+
+WORKDIR /docs
+ADD . /docs
+RUN pip install -r requirements.txt
+RUN make html

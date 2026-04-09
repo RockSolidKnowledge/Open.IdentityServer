@@ -22,7 +22,9 @@ The first step is to add a new project for ASP.NET Core Identity to your solutio
 We provide a template that contains the minimal UI assets needed to ASP.NET Core Identity with IdentityServer.
 You will eventually delete the old project for IdentityServer, but there are some items that you will need to migrate over.
 
-Start by creating a new IdentityServer project that will use ASP.NET Core Identity::
+Start by creating a new IdentityServer project that will use ASP.NET Core Identity
+
+.. code-block:: console
     
     cd quickstart/src
     dotnet new is4aspid -n IdentityServerAspNetIdentity
@@ -64,7 +66,9 @@ Config.cs
 
 `Config.cs` contains the hard-coded in-memory clients and resource definitions.
 To keep the same clients and API working as the prior quickstarts, we need to copy over the configuration data from the old IdentityServer project into this one.
-Do that now, and afterwards `Config.cs` should look like this::
+Do that now, and afterwards `Config.cs` should look like this
+
+.. code-block:: csharp
 
     public static class Config
     {

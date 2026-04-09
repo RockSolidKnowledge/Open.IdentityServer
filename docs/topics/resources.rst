@@ -19,7 +19,9 @@ scope name to claim type mappings that might be useful to you for inspiration, b
 
 One of them is actually mandatory, the *openid* scope, which tells the provider to return the *sub* (subject id) claim in the identity token.
 
-This is how you could define the openid scope in code::
+This is how you could define the openid scope in code
+
+.. code-block:: csharp
 
     public static IEnumerable<IdentityResource> GetIdentityResources()
     {
@@ -32,7 +34,9 @@ This is how you could define the openid scope in code::
         };
     }
 
-But since this is one of the standard scopes from the spec you can shorten that to::
+But since this is one of the standard scopes from the spec you can shorten that to
+
+.. code-block:: csharp
 
     public static IEnumerable<IdentityResource> GetIdentityResources()
     {
@@ -44,7 +48,9 @@ But since this is one of the standard scopes from the spec you can shorten that 
 
 .. note:: see the reference section for more information on ``IdentityResource``.
 
-The following example shows a custom identity resource called *profile* that represents the display name, email address and website claim::
+The following example shows a custom identity resource called *profile* that represents the display name, email address and website claim
+
+.. code-block:: csharp
 
     public static IEnumerable<IdentityResource> GetIdentityResources()
     {
@@ -57,7 +63,9 @@ The following example shows a custom identity resource called *profile* that rep
         };
     }
 
-Once the resource is defined, you can give access to it to a client via the ``AllowedScopes`` option (other properties omitted)::
+Once the resource is defined, you can give access to it to a client via the ``AllowedScopes`` option (other properties omitted)
+
+.. code-block:: csharp
 
     var client = new Client
     {
@@ -91,7 +99,9 @@ Scopes
 ^^^^^^
 Let's model something very simple - a system that has three logical operations *read*, *write*, and *delete*.
 
-You can define them using the ``ApiScope`` class::
+You can define them using the ``ApiScope`` class
+
+.. code-block:: csharp
 
     public static IEnumerable<ApiScope> GetApiScopes()
     {
@@ -103,7 +113,9 @@ You can define them using the ``ApiScope`` class::
         };
     }
 
-You can then assign the scopes to various clients, e.g.::
+You can then assign the scopes to various clients, e.g.
+
+.. code-block:: csharp
 
     var webViewer = new Client
     {
@@ -122,7 +134,9 @@ You can then assign the scopes to various clients, e.g.::
 Authorization based on Scopes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 When a client asks for a scope (and that scope is allowed via configuration and not denied via consent), 
-the value of that scope will be included in the resulting access token as a claim of type *scope* (for both JWTs and introspection), e.g.::
+the value of that scope will be included in the resulting access token as a claim of type *scope* (for both JWTs and introspection), e.g.
+
+.. code-block:: json
 
     {
         "typ": "at+jwt"
@@ -139,7 +153,9 @@ The consumer of the access token can use that data to make sure that the client 
 .. note:: Be aware, that scopes are purely for authorizing clients - not users. IOW - the *write* scope allows the client to invoke the functionality associated with that. Still that client can most probably only write the data the belongs to the current user. This additional user centric authorization is application logic and not covered by OAuth.
 
 You can add more identity information about the user by deriving additional claims from the scope request. The following scope definition tells the configuration system,
-that when a *write* scope gets granted, the *user_level* claim should be added to the access token::
+that when a *write* scope gets granted, the *user_level* claim should be added to the access token
+
+.. code-block:: csharp
 
     var writeScope = new ApiScope(
         name: "write",
@@ -156,7 +172,9 @@ Parameterized Scopes
 Sometimes scopes have a certain structure, e.g. a scope name with an additional parameter: *transaction:id* or *read_patient:patientid*.
 
 In this case you would create a scope without the parameter part and assign that name to a client, but in addition provide some logic to parse the structure
-of the scope at runtime using the ``IScopeParser`` interface or by deriving from our default implementation, e.g.::
+of the scope at runtime using the ``IScopeParser`` interface or by deriving from our default implementation, e.g.
+
+.. code-block:: csharp
 
     public class ParameterizedScopeParser : DefaultScopeParser
     {
@@ -199,7 +217,9 @@ of the scope at runtime using the ``IScopeParser`` interface or by deriving from
         }
     }
 
-You then have access to the parsed value throughout the pipeline, e.g. in the profile service::
+You then have access to the parsed value throughout the pipeline, e.g. in the profile service
+
+.. code-block:: csharp
 
     public class HostProfileService : IProfileService
     {
@@ -221,7 +241,9 @@ You typically need to introduce some sort of namespacing to organize the scope n
 get some higher-level constructs like an *audience* claim in access tokens.
 You might also have scenarios, where multiple resources should support the same scope names, whereas sometime you explicitly want to isolate a scope to a certain resource.
 
-In IdentityServer, the ``ApiResource`` class allows some additional organization. Let's use the following scope definition::
+In IdentityServer, the ``ApiResource`` class allows some additional organization. Let's use the following scope definition
+
+.. code-block:: csharp
 
     public static IEnumerable<ApiScope> GetApiScopes()
     {
@@ -240,7 +262,9 @@ In IdentityServer, the ``ApiResource`` class allows some additional organization
         };
     }
 
-With ``ApiResource`` you can now create two logical APIs and their corresponding scopes::
+With ``ApiResource`` you can now create two logical APIs and their corresponding scopes
+
+.. code-block:: csharp
 
     public static readonly IEnumerable<ApiResource> GetApiResources()
     { 
@@ -267,7 +291,9 @@ Using the API resource grouping gives you the following additional features
 
 Let's have a look at some example access tokens for the above resource configuration.
 
-**Client requests** invoice.read and invoice.pay::
+**Client requests** invoice.read and invoice.pay
+
+.. code-block:: json
 
     {
         "typ": "at+jwt"
@@ -280,7 +306,9 @@ Let's have a look at some example access tokens for the above resource configura
         "scope": "invoice.read invoice.pay"
     }
 
-**Client requests** invoice.read and customer.read::
+**Client requests** invoice.read and customer.read
+
+.. code-block:: json
 
     {
         "typ": "at+jwt"
@@ -293,7 +321,9 @@ Let's have a look at some example access tokens for the above resource configura
         "scope": "invoice.read customer.read"
     }
 
-**Client requests** manage::
+**Client requests** manage
+
+.. code-block:: json
 
     {
         "typ": "at+jwt"

@@ -9,7 +9,9 @@ Popular libraries are e.g.:
 * `JWT bearer authentication handler <https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.JwtBearer/>`_ for ASP.NET Core
 * `JWT bearer authentication middleware <https://www.nuget.org/packages/Microsoft.Owin.Security.Jwt>`_ for Katana
 
-Protecting an ASP.NET Core-based API is only a matter of adding the JWT bearer authentication handler::
+Protecting an ASP.NET Core-based API is only a matter of adding the JWT bearer authentication handler
+
+.. code-block:: csharp
 
     public class Startup
     {
@@ -35,7 +37,9 @@ Protecting an ASP.NET Core-based API is only a matter of adding the JWT bearer a
 Validating reference tokens
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you are using reference tokens, you need an authentication handler that implements `OAuth 2.0 token introspection <https://tools.ietf.org/html/rfc7662>`_, 
-e.g. `this one <https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection>`_:: 
+e.g. `this one <https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection>`_
+
+.. code-block:: csharp
 
     services.AddAuthentication("token")
         .AddOAuth2Introspection("token", options =>
@@ -50,7 +54,9 @@ e.g. `this one <https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2
 Supporting both JWTs and reference tokens
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 You can setup ASP.NET Core to dispatch to the right handler based on the incoming token, see `this <https://leastprivilege.com/2020/07/06/flexible-access-token-validation-in-asp-net-core/>`_ blog post for more information.
-In this case you setup one default handler, and some forwarding logic, e.g.::
+In this case you setup one default handler, and some forwarding logic, e.g.
+
+.. code-block:: csharp
 
     services.AddAuthentication("token")
 

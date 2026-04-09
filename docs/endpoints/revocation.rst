@@ -12,7 +12,7 @@ It implements the token revocation specification `(RFC 7009) <https://tools.ietf
 Example
 ^^^^^^^
 
-::
+.. code-block:: http
 
     POST /connect/revocation HTTP/1.1
     Host: server.example.com

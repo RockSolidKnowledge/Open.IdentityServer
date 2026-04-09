@@ -1,0 +1,34 @@
+.language-alfa .token.keyword,
+.language-alfa .token.operator  {
+    color: #569CD6;
+}
+
+.language-alfa .token.keyword-alt,
+.language-alfa .token.property {
+    color: #c586c0;
+}
+
+.language-alfa .token.declaration {
+    color: #4ec9b0;
+}
+
+.language-alfa .token.identifier {
+    color: #9cdcfe;
+}
+
+.language-alfa .token.comment {
+    color: #6A9955;
+}
+
+.language-alfa .token.number,
+.language-alfa .token.type {
+    color: #B5CEA8;
+}
+
+.language-alfa .token.string {
+    color: #CE9178;
+}
+
+.language-alfa .token.import-namespace {
+    color: #e6db74;
+}

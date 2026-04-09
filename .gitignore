@@ -290,3 +290,6 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+# Docs build output
+docs/_build/

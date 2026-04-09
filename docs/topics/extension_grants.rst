@@ -4,7 +4,9 @@ Extension Grants
 
 OAuth 2.0 defines standard grant types for the token endpoint, such as ``password``, ``authorization_code`` and ``refresh_token``. Extension grants are a way to add support for non-standard token issuance scenarios like token translation, delegation, or custom credentials.
 
-You can add support for additional grant types by implementing the ``IExtensionGrantValidator`` interface::
+You can add support for additional grant types by implementing the ``IExtensionGrantValidator`` interface
+
+.. code-block:: csharp
 
     public interface IExtensionGrantValidator
     {
@@ -29,7 +31,9 @@ The ``ExtensionGrantValidationContext`` object gives you access to:
 * the result - either error or success
 * custom response parameters
 
-To register the extension grant, add it to DI::
+To register the extension grant, add it to DI
+
+.. code-block:: csharp
 
     builder.AddExtensionGrantValidator<MyExtensionsGrantValidator>();
 
@@ -49,7 +53,9 @@ In other words, the middle tier API (API 1) needs an access token containing the
 
 The front end would send the token to API 1, and now this token needs to be exchanged at IdentityServer with a new token for API 2.
 
-On the wire the call to token service for the exchange could look like this::
+On the wire the call to token service for the exchange could look like this
+
+.. code-block:: http
 
     POST /connect/token
 
@@ -59,7 +65,9 @@ On the wire the call to token service for the exchange could look like this::
     client_id=api1.client
     client_secret=secret
 
-It's the job of the extension grant validator to handle that request by validating the incoming token, and returning a result that represents the new token::
+It's the job of the extension grant validator to handle that request by validating the incoming token, and returning a result that represents the new token
+
+.. code-block:: csharp
 
     public class DelegationGrantValidator : IExtensionGrantValidator
     {
@@ -101,7 +109,9 @@ Don't forget to register the validator with DI.
 
 **Registering the delegation client**
 
-You need a client registration in IdentityServer that allows a client to use this new extension grant, e.g.::
+You need a client registration in IdentityServer that allows a client to use this new extension grant, e.g.
+
+.. code-block:: csharp
 
     var client = new Client
     {
@@ -121,8 +131,9 @@ You need a client registration in IdentityServer that allows a client to use thi
 
 **Calling the token endpoint**
 
-In API 1 you can now construct the HTTP payload yourself, or use the *IdentityModel* helper library::
+In API 1 you can now construct the HTTP payload yourself, or use the *IdentityModel* helper library
 
+.. code-block:: csharp
 
     public async Task<TokenResponse> DelegateAsync(string userToken)
     {

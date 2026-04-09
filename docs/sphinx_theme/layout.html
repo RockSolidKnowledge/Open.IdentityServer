@@ -1,0 +1,89 @@
+{# Base layout template for IdentityServer Sphinx theme.
+   Ported from MkDocs base.html — maps MkDocs variables to Sphinx equivalents. #}
+<!DOCTYPE html>
+<html lang="{{ language|default('en') }}" data-content_root="{{ pathto('', 1) }}">
+<head>
+    <meta charset="utf-8">
+
+    {% if theme_analytics and theme_gtm_key %}
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start': new Date().getTime(),
+                event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', '{{ theme_gtm_key }}');
+    </script>
+    {% endif %}
+
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>{% if title %}{{ title|striptags|e }} | {% endif %}{{ project|e }}</title>
+
+    <link rel="shortcut icon" href="{{ pathto('_static/img/favicon.png', 1) }}">
+    <link rel="stylesheet" href="{{ pathto('_static/css/fontawesome-5.7.2.min.css', 1) }}">
+    <link rel="stylesheet" href="{{ pathto('_static/css/fonts.css', 1) }}">
+    <link rel="stylesheet" href="{{ pathto('_static/css/site.min.css', 1) }}">
+    <link rel="stylesheet" href="{{ pathto('_static/css/search.css', 1) }}">
+    <link rel="stylesheet" href="{{ pathto('_static/css/theme.css', 1) }}">
+    <link rel="stylesheet" href="{{ pathto('_static/css/sphinx-admonitions.css', 1) }}">
+    <link rel="stylesheet" href="{{ pathto('_static/css/sphinx-code.css', 1) }}">
+    <link rel="stylesheet" href="{{ pathto('_static/css/sphinx-search.css', 1) }}">
+    <link rel="stylesheet" media="print" href="{{ pathto('_static/css/print.css', 1) }}">
+    {% if theme_custom_colour_mode and theme_custom_colour_mode != 'default' %}
+        <link rel="stylesheet" href="{{ pathto('_static/css/' + theme_custom_colour_mode + '.css', 1) }}">
+    {% endif %}
+
+    {% block extrahead %}{% endblock %}
+</head>
+
+<body class="preload w-100 bg-grey-darkest text-white text-center text-base font-sans leading-normal m-0 {% if theme_custom_colour_mode %}{{ theme_custom_colour_mode }}{% endif %}">
+
+    {% if theme_analytics and theme_gtm_key %}
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id={{ theme_gtm_key }}" height="0" width="0" style="display: none; visibility: hidden"></iframe>
+    </noscript>
+    {% endif %}
+
+    {% include "partials/header.html" %}
+    <main class="bg-grey-lightest text-copy">
+        <div id="skip">
+            <div id="content">
+                <div class="container p-4 lg:p-6 lg:flex items-start text-left mx-auto">
+                    <div class="lg:hidden no-print">
+                        {% include "partials/search.html" %}
+                    </div>
+                    {% include "partials/sidebar.html" %}
+                    <section role="main" class="flex-grow w-full p-4 lg:w-1 lg:p-8 lg:ml-10 bg-white rounded-lg shadow-lg">
+                        {% block body %}{% endblock %}
+                        {% if theme_show_doc_bottom_nav_btns != 'false' and theme_show_doc_bottom_nav_btns %}
+                            {% include "partials/navBtns.html" %}
+                        {% endif %}
+                    </section>
+                </div>
+            </div>
+        </div>
+        <div class="hidden fa-times fa-minus fa-minus-square"></div>
+    </main>
+    {% include "partials/footer.html" %}
+    <script src="{{ pathto('_static/js/jquery-3.5.1.min.js', 1) }}"></script>
+    <script src="{{ pathto('_static/js/sphinx-theme.js', 1) }}"></script>
+    <script src="{{ pathto('_static/js/theme.js', 1) }}"></script>
+
+    {% block extra_scripts %}{% endblock %}
+
+    {% if theme_load_menu_expanded and theme_load_menu_expanded != 'false' %}
+    <script>
+        window.addEventListener('load', function() {
+            var expandBtn = document.querySelector('.js-expand-all');
+            if (expandBtn) { expandBtn.click(); }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

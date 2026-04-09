@@ -1,0 +1,15 @@
+{# 404 error page template. #}
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="cms">
+    <h2 class="text-center">Page Not Found</h2>
+    <p class="text-center mt-6"><code>Error 404</code> the page you are looking for cannot be found.</p>
+    {% if theme_error_404_string %}
+        <p class="text-center mt-4">
+            {{ theme_error_404_string }}
+            {% if theme_error_404_email and theme_error_404_email_text %}<a href="mailto:{{ theme_error_404_email }}">{{ theme_error_404_email_text }}</a>{% endif %}
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

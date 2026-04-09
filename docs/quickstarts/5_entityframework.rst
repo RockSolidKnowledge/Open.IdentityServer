@@ -24,7 +24,9 @@ These contexts are suitable for any Entity Framework Core compatible relational 
 
 You can find these contexts, their entities, and the IdentityServer4 stores that use them in the ``IdentityServer4.EntityFramework.Storage`` nuget package.
 
-You can find the extension methods to register them in your IdentityServer in ``IdentityServer4.EntityFramework``, which we will do now::
+You can find the extension methods to register them in your IdentityServer in ``IdentityServer4.EntityFramework``, which we will do now
+
+.. code-block:: console
 
     dotnet add package IdentityServer4.EntityFramework
 
@@ -32,7 +34,9 @@ Using SqlServer
 ^^^^^^^^^^^^^^^
 
 For this quickstart, we will use the LocalDb version of SQLServer that comes with Visual Studio.
-To add SQL Server support to our IdentityServer project, you’ll need the following nuget package::
+To add SQL Server support to our IdentityServer project, you’ll need the following nuget package
+
+.. code-block:: console
 
     dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 
@@ -52,7 +56,9 @@ Configuring the Stores
 
 To start using these stores, you’ll need to replace any existing calls to ``AddInMemoryClients``, ``AddInMemoryIdentityResources``, ``AddInMemoryApiScopes``, ``AddInMemoryApiResources``, and ``AddInMemoryPersistedGrants`` in your ``ConfigureServices`` method in `Startup.cs` with ``AddConfigurationStore`` and ``AddOperationalStore``.
 
-These methods each require a ``DbContextOptionsBuilder``, meaning your code will look something like this::
+These methods each require a ``DbContextOptionsBuilder``, meaning your code will look something like this
+
+.. code-block:: csharp
 
     var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
     const string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=IdentityServer4.Quickstart.EntityFramework-4.0.0;trusted_connection=yes;";
@@ -70,7 +76,9 @@ These methods each require a ``DbContextOptionsBuilder``, meaning your code will
                 sql => sql.MigrationsAssembly(migrationsAssembly));
         });
 
-You might need these namespaces added to the file::
+You might need these namespaces added to the file
+
+.. code-block:: csharp
 
     using Microsoft.EntityFrameworkCore;
     using System.Reflection;
@@ -84,12 +92,16 @@ Adding Migrations
 
 Once the IdentityServer has been configured to use Entity Framework, we’ll need to generate some migrations.
 
-To create migrations, you will need to install the Entity Framework Core CLI on your machine and the ``Microsoft.EntityFrameworkCore.Design`` nuget package in IdentityServer::
+To create migrations, you will need to install the Entity Framework Core CLI on your machine and the ``Microsoft.EntityFrameworkCore.Design`` nuget package in IdentityServer
+
+.. code-block:: console
 
     dotnet tool install --global dotnet-ef
     dotnet add package Microsoft.EntityFrameworkCore.Design
 
-To create the migrations, open a command prompt in the IdentityServer project directory and run the following two commands::
+To create the migrations, open a command prompt in the IdentityServer project directory and run the following two commands
+
+.. code-block:: console
 
     dotnet ef migrations add InitialIdentityServerPersistedGrantDbMigration -c PersistedGrantDbContext -o Data/Migrations/IdentityServer/PersistedGrantDb
     dotnet ef migrations add InitialIdentityServerConfigurationDbMigration -c ConfigurationDbContext -o Data/Migrations/IdentityServer/ConfigurationDb
@@ -104,7 +116,9 @@ We can also seed the database with the in-memory configuration data that we alre
 
 .. Note:: The approach used in this quickstart is used to make it easy to get IdentityServer up and running. You should devise your own database creation and maintenance strategy that is appropriate for your architecture.
 
-In `Startup.cs` add this method to help initialize the database::
+In `Startup.cs` add this method to help initialize the database
+
+.. code-block:: csharp
 
     private void InitializeDatabase(IApplicationBuilder app)
     {
@@ -143,13 +157,17 @@ In `Startup.cs` add this method to help initialize the database::
         }
     }
 
-The above code may require you to add the following namespaces to your file::
+The above code may require you to add the following namespaces to your file
+
+.. code-block:: csharp
 
     using System.Linq;
     using Open.IdentityServer.EntityFramework.DbContexts;
     using Open.IdentityServer.EntityFramework.Mappers;
 
-And then we can invoke this from the ``Configure`` method::
+And then we can invoke this from the ``Configure`` method
+
+.. code-block:: csharp
 
     public void Configure(IApplicationBuilder app)
     {

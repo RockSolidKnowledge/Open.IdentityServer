@@ -20,7 +20,9 @@ Overriding cookie handler configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you wish to use your own cookie authentication handler, then you must configure it yourself.
 This must be done in ``ConfigureServices`` after registering IdentityServer in DI (with ``AddIdentityServer``).
-For example::
+For example
+
+.. code-block:: csharp
 
     services.AddIdentityServer()
         .AddInMemoryClients(Clients.Get())

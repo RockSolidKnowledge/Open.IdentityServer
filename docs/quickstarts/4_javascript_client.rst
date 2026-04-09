@@ -17,13 +17,17 @@ It can simply be an empty web project, an empty ASP.NET Core application, or som
 This quickstart will use an ASP.NET Core application.
 
 Create a new "Empty" ASP.NET Core web application in the `~/src` directory.
-You can use Visual Studio or do this from the command line::
+You can use Visual Studio or do this from the command line
+
+.. code-block:: console
 
     md JavaScriptClient
     cd JavaScriptClient
     dotnet new web
 
-As we have done before, with other client projects, add this project also to your solution. Run this from the root folder which has the sln file::
+As we have done before, with other client projects, add this project also to your solution. Run this from the root folder which has the sln file
+
+.. code-block:: console
 
     dotnet sln add .\src\JavaScriptClient\JavaScriptClient.csproj
     
@@ -38,7 +42,9 @@ Add the static file middleware
 Given that this project is designed to run client-side, all we need ASP.NET Core to do is to serve up the static HTML and JavaScript files that will make up our application.
 The static file middleware is designed to do this.
 
-Register the static file middleware in `Startup.cs` in the ``Configure`` method (and at the same time remove everything else)::
+Register the static file middleware in `Startup.cs` in the ``Configure`` method (and at the same time remove everything else)
+
+.. code-block:: csharp
 
     public void Configure(IApplicationBuilder app)
     {
@@ -60,7 +66,9 @@ It is available via `NPM <https://github.com/IdentityModel/oidc-client-js>`_, `B
 
 **NPM**
 
-If you want to use NPM to download `oidc-client`, then run these commands from your `JavaScriptClient` project directory::
+If you want to use NPM to download `oidc-client`, then run these commands from your `JavaScriptClient` project directory
+
+.. code-block:: console
 
     npm i oidc-client
     copy node_modules\oidc-client\dist\* wwwroot
@@ -85,7 +93,9 @@ It will simply contain the HTML for the buttons for the user to login, logout, a
 It will also contain the ``<script>`` tags to include our two JavaScript files.
 It will also contain a ``<pre>`` used for showing messages to the user.
 
-It should look like this::
+It should look like this
+
+.. code-block:: html
 
     <!DOCTYPE html>
     <html>
@@ -108,7 +118,9 @@ It should look like this::
 **app.js**
 
 This will contain the main code for our application.
-The first thing is to add a helper function to log messages to the ``<pre>``::
+The first thing is to add a helper function to log messages to the ``<pre>``
+
+.. code-block:: javascript
 
     function log() {
         document.getElementById('results').innerText = '';
@@ -124,7 +136,9 @@ The first thing is to add a helper function to log messages to the ``<pre>``::
         });
     }
 
-Next, add code to register ``click`` event handlers to the three buttons::
+Next, add code to register ``click`` event handlers to the three buttons
+
+.. code-block:: javascript
 
     document.getElementById("login").addEventListener("click", login, false);
     document.getElementById("api").addEventListener("click", api, false);
@@ -132,7 +146,9 @@ Next, add code to register ``click`` event handlers to the three buttons::
 
 Next, we can use the ``UserManager`` class from the `oidc-client` library to manage the OpenID Connect protocol. 
 It requires similar configuration that was necessary in the MVC Client (albeit with different values). 
-Add this code to configure and instantiate the ``UserManager``::
+Add this code to configure and instantiate the ``UserManager``
+
+.. code-block:: javascript
 
     var config = {
         authority: "https://localhost:5001",
@@ -147,7 +163,9 @@ Add this code to configure and instantiate the ``UserManager``::
 Next, the ``UserManager`` provides a ``getUser`` API to know if the user is logged into the JavaScript application.
 It uses a JavaScript ``Promise`` to return the results asynchronously. 
 The returned ``User`` object has a ``profile`` property which contains the claims for the user.
-Add this code to detect if the user is logged into the JavaScript application::
+Add this code to detect if the user is logged into the JavaScript application
+
+.. code-block:: javascript
 
     mgr.getUser().then(function (user) {
         if (user) {
@@ -162,7 +180,9 @@ Next, we want to implement the ``login``, ``api``, and ``logout`` functions.
 The ``UserManager`` provides a ``signinRedirect`` to log the user in, and a ``signoutRedirect`` to log the user out.
 The ``User`` object that we obtained in the above code also has an ``access_token`` property which can be used to authenticate to a web API.
 The ``access_token`` will be passed to the web API via the `Authorization` header with the `Bearer` scheme.
-Add this code to implement those three functions in our application::
+Add this code to implement those three functions in our application
+
+.. code-block:: javascript
 
     function login() {
         mgr.signinRedirect();
@@ -194,7 +214,9 @@ This HTML file is the designated ``redirect_uri`` page once the user has logged 
 It will complete the OpenID Connect protocol sign-in handshake with IdentityServer. 
 The code for this is all provided by the ``UserManager`` class we used earlier. 
 Once the sign-in is complete, we can then redirect the user back to the main `index.html` page. 
-Add this code to complete the signin process::
+Add this code to complete the signin process
+
+.. code-block:: html
 
     <!DOCTYPE html>
     <html>
@@ -220,7 +242,9 @@ Add a client registration to IdentityServer for the JavaScript client
 Now that the client application is ready to go, we need to define a configuration entry in IdentityServer for this new JavaScript client.
 In the IdentityServer project locate the client configuration (in `Config.cs`).
 Add a new `Client` to the list for our new JavaScript application.
-It should have the configuration listed below::
+It should have the configuration listed below
+
+.. code-block:: csharp
 
     // JavaScript Client
     new Client
@@ -250,7 +274,9 @@ This will allow Ajax calls to be made from `https://localhost:5003` to `https://
 
 **Configure CORS**
 
-Add the CORS services to the dependency injection system in ``ConfigureServices`` in `Startup.cs`::
+Add the CORS services to the dependency injection system in ``ConfigureServices`` in `Startup.cs`
+
+.. code-block:: csharp
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -268,7 +294,9 @@ Add the CORS services to the dependency injection system in ``ConfigureServices`
         });
     }
 
-Add the CORS middleware to the pipeline in ``Configure`` (just after routing)::
+Add the CORS middleware to the pipeline in ``Configure`` (just after routing)
+
+.. code-block:: csharp
 
     public void Configure(IApplicationBuilder app)
     {

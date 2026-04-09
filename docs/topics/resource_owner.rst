@@ -2,7 +2,9 @@
 Resource Owner Password Validation
 ===================================
 
-If you want to use the OAuth 2.0 resource owner password credential grant (aka ``password``), you need to implement and register the ``IResourceOwnerPasswordValidator`` interface::
+If you want to use the OAuth 2.0 resource owner password credential grant (aka ``password``), you need to implement and register the ``IResourceOwnerPasswordValidator`` interface
+
+.. code-block:: csharp
 
     public interface IResourceOwnerPasswordValidator
     {

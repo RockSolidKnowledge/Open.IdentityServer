@@ -1,0 +1,234 @@
+body {
+    margin: 1em;
+}
+
+.active a {
+    color: red;
+    font-weight: bold;
+}
+
+.btn-light {
+    background: transparent;
+    border-color: #EEE;
+}
+
+.btn-light:hover {
+    background: #EEE;
+    border-color: #EEE;
+    color: #404040;
+}
+
+.btn-line-subtle {
+    color: #404040;
+    border-color: #404040;
+}
+
+.btn-line-subtle:hover {
+    color: black;
+    border-color: black;
+}
+
+.header-overlay-colour {
+    background-color: rgba(86, 86, 85, 0.1);
+}
+
+.cms h1, .cms h2, .cms h3, .cms h4, .cms h5, .cms h6, .cms blockquote, .cms strong, .cms b, .cms em, .cms i {
+    color: #404040;
+}
+
+a.headerlink {
+    display: none;
+}
+
+.cms > pre {
+    margin-bottom: 1.5rem;
+    margin-top: .5rem;
+}
+
+.cms > pre,
+.cms > .md-fenced-code-tabs .code-tabpanel > pre {
+    padding: 1rem 1.5rem;
+    overflow: auto;
+    resize: vertical;
+}
+
+.cms > pre,
+.cms > .md-fenced-code-tabs .code-tabpanel > pre,
+.cms > pre code[class*=language],
+.cms > .md-fenced-code-tabs .code-tabpanel > pre code[class*=language] {
+    background-color:#000913;
+    border-radius: 0;
+    color:#bfbfbf;
+    display: block;
+    font-family: Consolas, Monaco, Andale Mono, Courier New, monospace;
+    font-size: .875rem;
+    -webkit-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    text-align:left;
+    white-space: pre;
+    word-wrap: normal;
+    word-break: normal;
+    word-spacing: normal;
+}
+
+.cms > pre:not(:first-child),
+.cms > .md-fenced-code-tabs .code-tabpanel > pre:not(:first-child) {
+    margin-top: 1.5rem;
+}
+
+.cms > :not(pre):not(.md-fenced-code-tabs) code {
+    background: #f7f7f9;
+    border-color: #e1e1e8;
+    border-radius: .25rem;
+    border-width: 1px;
+    color: #d14;
+    display: inline-block;
+    font-family: Consolas, Monaco, Andale Mono, Courier New, monospace;
+    font-size: .875rem;
+    padding: 2px 5px;
+    word-break: break-all;
+}
+
+/* admonition */
+
+.admonition {
+    background-color: #e6e9ec;
+    border-radius: .25rem;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.1);
+    color: #001f3f;
+    margin-bottom: 1.5rem;
+    padding: .75rem 1rem 1rem 1rem;
+    overflow: hidden;
+}
+
+.admonition > :last-child:not(.admonition-title) {
+    margin-bottom: 0;
+}
+
+.admonition .admonition-title {
+    background-color: #001f3f;
+    color: #fff;
+    display: block;
+    font-weight: 500;
+    margin: -.75rem -1rem 1rem -1rem;
+    padding: .75rem 1rem;
+}
+
+.admonition .admonition-title:before {
+    content: "\f05a";
+    font-family: "Font Awesome 5 Free";
+    font-style: normal;
+    font-weight: 800;
+    line-height: 1;
+    margin-right: .75rem;
+    text-rendering: auto;
+}
+
+.admonition.warning {
+    background-color: #fff3e8;
+    color: #995010;
+}
+
+.admonition.warning .admonition-title {
+    background-color: #E67818;
+    color: #fff;
+}
+
+.admonition.warning .admonition-title:before {
+    content: "\f071";
+}
+
+.admonition.error {
+    background-color: #ffeceb;
+    color: #992720;
+}
+
+.admonition.error .admonition-title {
+    background-color: #E63B31;
+    color: #fff;
+}
+
+.admonition.error .admonition-title:before {
+    content: "\f057";
+}
+
+.admonition.success {
+    background-color: #EAFAEC;
+    color: #1C7A26;
+}
+
+.admonition.success .admonition-title {
+    background-color: #29B83A;
+    color: #fff;
+}
+
+.admonition.success .admonition-title:before {
+    content: "\f058";
+}
+
+/* fenced-code-tabs */
+
+.md-fenced-code-tabs * {
+    box-sizing: border-box;
+}
+
+.md-fenced-code-tabs {
+    display: flex;
+    position: relative;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0 0 1rem 0;
+}
+
+.md-fenced-code-tabs input {
+    position: absolute;
+    opacity: 0;
+}
+
+.md-fenced-code-tabs label {
+    border-bottom: 2px solid rgba(0,0,0,.15);
+    color: #444;
+    cursor: pointer;
+    margin: 0;
+    padding: .5rem .75rem;
+    transition: all .15s ease-in-out;
+    width: auto;
+}
+
+.md-fenced-code-tabs label:hover,
+.md-fenced-code-tabs label:focus {
+    color: #ff4136;
+}
+
+.md-fenced-code-tabs input:checked + label {
+    color: #ff4136;
+    border-bottom-color: #ff4136;
+}
+
+.md-fenced-code-tabs .code-tabpanel {
+    display: none;
+    order: 99;
+    width: 100%;
+}
+
+.md-fenced-code-tabs input:checked + label + .code-tabpanel {
+    display: block;
+}
+
+.md-fenced-code-tabs pre,
+.md-fenced-code-tabs .codehilite {
+    margin: 0;
+    width: 100%;
+}
+
+/* Remove default bullet points from the Sphinx-generated toctree nav */
+.sphinx-nav-tree ul,
+.sphinx-nav-tree li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}

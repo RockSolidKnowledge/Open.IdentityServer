@@ -1,0 +1,108 @@
+/* Sphinx admonition styles — maps Sphinx class names to IdentityServer styles.
+   Sphinx generates: <div class="admonition <type>"><p class="admonition-title">...</p>...</div> */
+
+/* Info style: note, seealso */
+.admonition.note,
+.admonition.seealso {
+    background-color: #e6e9ec;
+    color: #001f3f;
+}
+
+.admonition.note .admonition-title,
+.admonition.seealso .admonition-title {
+    background-color: #001f3f;
+    color: #fff;
+}
+
+.admonition.note .admonition-title:before,
+.admonition.seealso .admonition-title:before {
+    content: "\f05a";
+}
+
+/* Warning style: warning, caution, attention, important, deprecated, versionadded, versionchanged */
+.admonition.warning,
+.admonition.caution,
+.admonition.attention,
+.admonition.important,
+.admonition.deprecated,
+.admonition.versionadded,
+.admonition.versionchanged {
+    background-color: #fff3e8;
+    color: #995010;
+}
+
+.admonition.warning .admonition-title,
+.admonition.caution .admonition-title,
+.admonition.attention .admonition-title,
+.admonition.important .admonition-title,
+.admonition.deprecated .admonition-title,
+.admonition.versionadded .admonition-title,
+.admonition.versionchanged .admonition-title {
+    background-color: #E67818;
+    color: #fff;
+}
+
+.admonition.warning .admonition-title:before,
+.admonition.caution .admonition-title:before,
+.admonition.attention .admonition-title:before,
+.admonition.important .admonition-title:before,
+.admonition.deprecated .admonition-title:before,
+.admonition.versionadded .admonition-title:before,
+.admonition.versionchanged .admonition-title:before {
+    content: "\f071";
+}
+
+/* Error style: danger, error */
+.admonition.danger,
+.admonition.error {
+    background-color: #ffeceb;
+    color: #992720;
+}
+
+.admonition.danger .admonition-title,
+.admonition.error .admonition-title {
+    background-color: #E63B31;
+    color: #fff;
+}
+
+.admonition.danger .admonition-title:before,
+.admonition.error .admonition-title:before {
+    content: "\f057";
+}
+
+/* Success style: hint, tip */
+.admonition.hint,
+.admonition.tip {
+    background-color: #EAFAEC;
+    color: #1C7A26;
+}
+
+.admonition.hint .admonition-title,
+.admonition.tip .admonition-title {
+    background-color: #29B83A;
+    color: #fff;
+}
+
+.admonition.hint .admonition-title:before,
+.admonition.tip .admonition-title:before {
+    content: "\f058";
+}
+
+/* Sphinx version directives use the deprecated class */
+div.versionadded,
+div.versionchanged,
+div.deprecated {
+    background-color: #fff3e8;
+    border-radius: .25rem;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.1);
+    color: #995010;
+    margin-bottom: 1.5rem;
+    padding: .75rem 1rem 1rem 1rem;
+    overflow: hidden;
+}
+
+div.versionadded p,
+div.versionchanged p,
+div.deprecated p {
+    margin-bottom: 0;
+}

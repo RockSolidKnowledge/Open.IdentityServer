@@ -36,7 +36,9 @@ Contains templates for the dotnet CLI.
 Dev builds
 ^^^^^^^^^^
 In addition we publish CI builds to our package repository.
-Add the following ``nuget.config`` to your project::
+Add the following ``nuget.config`` to your project
+
+.. code-block:: xml
 
     <?xml version="1.0" encoding="utf-8"?>
         <configuration>

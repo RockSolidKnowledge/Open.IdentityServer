@@ -1,0 +1,44 @@
+/* Sphinx search result styles — matches MkDocs search layout */
+
+#search-results {
+    padding: 0;
+    color: #444444;
+}
+
+.search .context {
+    margin: 0.5em 0;
+    color: #444444;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.search .result {
+    margin-bottom: 1.5em;
+}
+
+#search-results .search {
+    list-style: none;
+    padding: 0;
+}
+
+#search-results a {
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+#search-results .context {
+    margin-top: 0.25em;
+}
+
+/* Style the search summary text */
+#search-results p.search-summary {
+    color: #444444;
+    margin-bottom: 1.5em;
+}
+
+/* Highlighted search terms */
+.highlighted {
+    background-color: #fbe54e;
+    padding: 1px 3px;
+    border-radius: 2px;
+}

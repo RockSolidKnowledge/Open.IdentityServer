@@ -9,11 +9,15 @@ Removing the authentication cookie
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To remove the authentication cookie, simply use the ``SignOutAsync`` extension method on the ``HttpContext``.
-You will need to pass the scheme used (which is provided by ``IdentityServerConstants.DefaultCookieAuthenticationScheme`` unless you have changed it)::
+You will need to pass the scheme used (which is provided by ``IdentityServerConstants.DefaultCookieAuthenticationScheme`` unless you have changed it)
+
+.. code-block:: csharp
 
     await HttpContext.SignOutAsync(IdentityServerConstants.DefaultCookieAuthenticationScheme);
 
-Or you can use the convenience extension method that is provided by IdentityServer::
+Or you can use the convenience extension method that is provided by IdentityServer
+
+.. code-block:: csharp
 
     await HttpContext.SignOutAsync();
 

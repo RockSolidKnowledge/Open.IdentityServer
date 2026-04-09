@@ -1,0 +1,142 @@
+/* Sphinx code block styles — overrides Pygments defaults to match Prism.js/MkDocs look.
+   When pygments_style = None, Sphinx outputs <div class="highlight"><pre>...</pre></div> */
+
+.highlight pre,
+div.highlight pre {
+    background-color: #000913;
+    border-radius: 0;
+    color: #bfbfbf;
+    display: block;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Courier New', monospace;
+    font-size: .875rem;
+    -webkit-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    text-align: left;
+    white-space: pre;
+    word-wrap: normal;
+    word-break: normal;
+    word-spacing: normal;
+    padding: 1rem 1.5rem;
+    overflow: auto;
+    resize: vertical;
+    margin-bottom: 1.5rem;
+    margin-top: .5rem;
+}
+
+.highlight pre code,
+div.highlight pre code {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+/* Pygments token colours — mapped to the Okaidia palette */
+
+/* Keywords */
+.highlight .k,  .highlight .kd, .highlight .kn, .highlight .kp,
+.highlight .kr, .highlight .kt, .highlight .kw {
+    color: #66d9ef;
+}
+
+/* Strings */
+.highlight .s,  .highlight .s1, .highlight .s2, .highlight .sa,
+.highlight .sb, .highlight .sc, .highlight .sd, .highlight .se,
+.highlight .sh, .highlight .si, .highlight .sl, .highlight .ss,
+.highlight .sx, .highlight .sr, .highlight .dl {
+    color: #a6e22e;
+}
+
+/* Comments */
+.highlight .c,  .highlight .c1, .highlight .ch, .highlight .cm,
+.highlight .cp, .highlight .cpf, .highlight .cs {
+    color: #708090;
+}
+
+/* Numbers */
+.highlight .m,  .highlight .mb, .highlight .mf, .highlight .mh,
+.highlight .mi, .highlight .mo, .highlight .il {
+    color: #ae81ff;
+}
+
+/* Named constants (true, false, None, null) */
+.highlight .no {
+    color: #ae81ff;
+}
+
+/* Functions and methods */
+.highlight .nf, .highlight .fm {
+    color: #e6db74;
+}
+
+/* Class names */
+.highlight .nc, .highlight .ne, .highlight .nn {
+    color: #e6db74;
+}
+
+/* Built-in names */
+.highlight .nb, .highlight .bp {
+    color: #a6e22e;
+}
+
+/* Tag names (HTML/XML) */
+.highlight .nt {
+    color: #f92672;
+}
+
+/* Attribute names */
+.highlight .na {
+    color: #a6e22e;
+}
+
+/* Decorators and preprocessor directives */
+.highlight .nd {
+    color: #fd971f;
+}
+
+/* Diff: deleted lines */
+.highlight .gd {
+    color: #f92672;
+}
+
+/* Diff: inserted lines */
+.highlight .gi {
+    color: #a6e22e;
+}
+
+/* Diff: section heading */
+.highlight .gu {
+    color: #66d9ef;
+}
+
+/* Generic output, traceback */
+.highlight .go, .highlight .gt {
+    color: #66d9ef;
+}
+
+/* Errors */
+.highlight .err {
+    color: #f92672;
+}
+
+/* Operators */
+.highlight .o, .highlight .ow {
+    color: #f8f8f2;
+}
+
+/* Punctuation, whitespace, labels, variables — default foreground */
+.highlight .p,  .highlight .w,  .highlight .nl,
+.highlight .nv, .highlight .vc, .highlight .vg,
+.highlight .vi, .highlight .vm {
+    color: #f8f8f2;
+}
+
+/* Italic / bold generic emphasis */
+.highlight .ge { font-style: italic; }
+.highlight .gs { font-weight: bold; }

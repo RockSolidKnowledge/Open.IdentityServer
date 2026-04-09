@@ -33,7 +33,7 @@ Requesting an access token using a refresh token
 To get a new access token, you send the refresh token to the token endpoint.
 This will result in a new token response containing a new access token and its expiration and potentially also a new refresh token depending on the client configuration (see above).
 
-::
+.. code-block:: http
 
     POST /connect/token
 
@@ -50,7 +50,9 @@ This will result in a new token response containing a new access token and its e
 
 Customizing refresh token behavior
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-All refresh token handling is implemented in the ``DefaultRefreshTokenService`` (which is the default implementation of the ``IRefreshTokenService`` interface)::
+All refresh token handling is implemented in the ``DefaultRefreshTokenService`` (which is the default implementation of the ``IRefreshTokenService`` interface)
+
+.. code-block:: csharp
 
     public interface IRefreshTokenService
     {

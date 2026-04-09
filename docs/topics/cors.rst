@@ -30,7 +30,9 @@ Once implemented, simply register the implementation in DI and IdentityServer wi
 
 If you simply wish to hard-code a set of allowed origins, then there is a pre-built ``ICorsPolicyService`` implementation you can use called ``DefaultCorsPolicyService``.
 This would be configured as a singleton in DI, and hard-coded with its ``AllowedOrigins`` collection, or setting the flag ``AllowAll`` to ``true`` to allow all origins.
-For example, in ``ConfigureServices``::
+For example, in ``ConfigureServices``
+
+.. code-block:: csharp
 
     services.AddSingleton<ICorsPolicyService>((container) => {
         var logger = container.GetRequiredService<ILogger<DefaultCorsPolicyService>>();

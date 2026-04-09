@@ -16,7 +16,9 @@ Make sure that Windows authentication is enabled in ``launchSettings.json`` or y
 The IIS integration layer will configure a Windows authentication handler into DI that can be invoked via the authentication service.
 Typically in IdentityServer it is advisable to disable the automatic behavior. 
 
-This is done in ``ConfigureServices`` (details vary depending on in-proc vs out-of-proc hosting)::
+This is done in ``ConfigureServices`` (details vary depending on in-proc vs out-of-proc hosting)
+
+.. code-block:: csharp
 
     // configures IIS out-of-proc settings (see https://github.com/aspnet/AspNetCore/issues/14882)
     services.Configure<IISOptions>(iis =>
@@ -39,7 +41,9 @@ You can tell that Windows authentication was successful, when you call ``Authent
 is of type ``WindowsPrincipal``.
 
 The principal will have information like user and group SID and the Windows account name. The following snippet shows how to
-trigger authentication, and if successful convert the information into a standard ``ClaimsPrincipal`` for the temp-Cookie approach::
+trigger authentication, and if successful convert the information into a standard ``ClaimsPrincipal`` for the temp-Cookie approach
+
+.. code-block:: csharp
 
     private async Task<IActionResult> ChallengeWindowsAsync(string returnUrl)
     {

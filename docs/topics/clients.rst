@@ -14,7 +14,9 @@ The details vary, but you typically define the following common settings for a c
 
 Defining a client for server to server communication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In this scenario no interactive user is present - a service (aka client) wants to communicate with an API (aka scope)::
+In this scenario no interactive user is present - a service (aka client) wants to communicate with an API (aka scope)
+
+.. code-block:: csharp
 
     public class Clients
     {
@@ -38,7 +40,9 @@ In this scenario no interactive user is present - a service (aka client) wants t
 Defining an interactive application for use authentication and delegated API access
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Interactive applications (e.g. web applications or native desktop/mobile) applications use the authorization code flow.
-This flow gives you the best security because the access tokens are transmitted via back-channel calls only (and gives you access to refresh tokens)::
+This flow gives you the best security because the access tokens are transmitted via back-channel calls only (and gives you access to refresh tokens)
+
+.. code-block:: csharp
 
     var interactiveClient = new Client
     {
@@ -67,7 +71,9 @@ This flow gives you the best security because the access tokens are transmitted 
 Defining clients in appsettings.json
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``AddInMemoryClients`` extensions method also supports adding clients from the ASP.NET Core configuration file. This allows you to define static clients directly from the appsettings.json file::
+The ``AddInMemoryClients`` extensions method also supports adding clients from the ASP.NET Core configuration file. This allows you to define static clients directly from the appsettings.json file
+
+.. code-block:: json
 
     "IdentityServer": {
       "IssuerUri": "urn:sso.company.com",
@@ -83,6 +89,8 @@ The ``AddInMemoryClients`` extensions method also supports adding clients from t
       ]
     }
     
-Then pass the configuration section to the ``AddInMemoryClients`` method::
+Then pass the configuration section to the ``AddInMemoryClients`` method
+
+.. code-block:: csharp
 
     AddInMemoryClients(configuration.GetSection("IdentityServer:Clients"))

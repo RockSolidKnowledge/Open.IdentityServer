@@ -1,0 +1,112 @@
+{# Recursive navigation renderer for Sphinx toctree output.
+   Wraps toctree() HTML with CSS classes that theme.js expects for expand/collapse.
+   titles_only=True ensures only document pages appear as nodes — section headings
+   within a document are excluded, matching MkDocs navigation behaviour. #}
+<div class="sphinx-nav-tree">
+    {{ toctree(maxdepth=-1, collapse=False, includehidden=True, titles_only=True) }}
+</div>
+<script>
+(function() {
+    // Post-process toctree output to add MkDocs-compatible CSS classes
+    var navTree = document.querySelector('.sphinx-nav-tree');
+    if (!navTree) return;
+
+    // First pass: remove Sphinx's injected current-page section TOC from the nav tree.
+    // When rendering the active page, Sphinx appends that page's section headings as a
+    // child <ul> under its nav entry, even with titles_only=True. These section anchors
+    // (href contains '#') must not trigger branch-node treatment — the sidebar TOC
+    // partial already handles in-page navigation separately.
+    var uls = navTree.querySelectorAll('ul');
+    for (var u = 0; u < uls.length; u++) {
+        var ul = uls[u];
+        var childLis = ul.querySelectorAll(':scope > li');
+        if (childLis.length === 0) continue;
+        var allSectionAnchors = true;
+        for (var k = 0; k < childLis.length; k++) {
+            var a = childLis[k].querySelector(':scope > a');
+            if (!a || a.getAttribute('href').indexOf('#') === -1) {
+                allSectionAnchors = false;
+                break;
+            }
+        }
+        if (allSectionAnchors && ul.parentNode) {
+            ul.parentNode.removeChild(ul);
+        }
+    }
+
+    // Second pass: style toctree caption elements as section subheadings.
+    // Sphinx renders toctree :caption: values as <p class="caption"> — these are
+    // siblings of the nav <ul>, not <li> elements, so the li-targeting pass below
+    // never reaches them. Style them as bold intermediate headings sitting between
+    // the "Documentation" h2 and the leaf node links.
+    var captions = navTree.querySelectorAll('p.caption');
+    for (var c = 0; c < captions.length; c++) {
+        captions[c].classList.add('font-bold', 'mt-2', 'mb-1');
+    }
+
+    // Third pass: add classes to li elements that have child ul elements
+    var items = navTree.querySelectorAll('li');
+    for (var i = 0; i < items.length; i++) {
+        var childUl = items[i].querySelector(':scope > ul');
+        if (childUl) {
+            items[i].classList.add('js-has-children', 'lg:mb-2');
+            childUl.classList.add('js-children', 'hidden', 'list-reset', 'overflow-y-auto', 'pl-5', 'lg:pl-0', 'lg:pl-4', 'lg:mt-2');
+
+            // Wrap the anchor in a toggle span.
+            // lg:font-bold (not lg:font-normal) keeps branch labels bold on desktop,
+            // visually distinguishing them from normal-weight leaf node links.
+            var anchor = items[i].querySelector(':scope > a');
+            if (anchor) {
+                var toggle = document.createElement('span');
+                toggle.className = 'js-toggle cursor-pointer flex items-start px-6 py-4 font-bold text-left lg:font-bold lg:px-0 lg:py-0';
+                toggle.innerHTML = '<span class="js-icon flex-no-shrink mt-1 lg:inline-block fas fa-fw fa-plus text-grey-lighter mr-2"></span>';
+                var textSpan = document.createElement('span');
+                textSpan.textContent = anchor.textContent;
+                toggle.appendChild(textSpan);
+                items[i].insertBefore(toggle, anchor);
+                anchor.style.display = 'none';
+            }
+        } else {
+            items[i].classList.add('lg:border-0', 'lg:mb-2');
+            var link = items[i].querySelector(':scope > a');
+            if (link) {
+                // completing the three-level visual hierarchy:
+                // h2 "Documentation" > bold base-size labels > normal leaf nodes
+                link.classList.add('flex', 'items-start', 'px-6', 'py-4', 'text-left', 'lg:font-normal', 'lg:px-0', 'lg:py-0');
+                link.style.wordBreak = 'break-word';
+
+                // Add icon before link text
+                var href = link.getAttribute('href') || '';
+                var icon = document.createElement('span');
+                if (href.indexOf('http://') === 0 || href.indexOf('https://') === 0) {
+                    icon.className = 'flex-no-shrink fas mt-1 fa-fw fa-external-link-alt text-xs text-white lg:text-grey-light ml-1 mr-2';
+                } else {
+                    icon.className = 'flex-no-shrink hidden mt-1 lg:inline-block fas fa-fw fa-angle-right text-grey-light mr-2';
+                }
+                link.insertBefore(icon, link.firstChild);
+            }
+        }
+
+        // Handle active/current items
+        if (items[i].classList.contains('current')) {
+            items[i].classList.add('active');
+            // Expand parent items to show the active item
+            var parent = items[i].parentElement;
+            while (parent) {
+                if (parent.classList && parent.classList.contains('js-children')) {
+                    parent.classList.remove('hidden');
+                    var parentLi = parent.parentElement;
+                    if (parentLi) {
+                        var toggleIcon = parentLi.querySelector('.js-icon');
+                        if (toggleIcon) {
+                            toggleIcon.classList.remove('fa-plus');
+                            toggleIcon.classList.add('fa-minus');
+                        }
+                    }
+                }
+                parent = parent.parentElement;
+            }
+        }
+    }
+})();
+</script>

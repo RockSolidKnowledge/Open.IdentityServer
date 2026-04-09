@@ -9,12 +9,12 @@ Depending on the granted scopes, the UserInfo endpoint will return the mapped cl
 Example
 ^^^^^^^
 
-::
+.. code-block:: http
 
     GET /connect/userinfo
     Authorization: Bearer <access_token>
 
-::
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Content-Type: application/json

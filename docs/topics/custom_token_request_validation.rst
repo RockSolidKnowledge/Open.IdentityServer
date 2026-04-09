@@ -8,7 +8,9 @@ This allows e.g. for
 * adding additional validation logic
 * changing certain parameters (e.g. token lifetime) dynamically
 
-For this purpose, implement (and register) the ``ICustomTokenRequestValidator`` interface::
+For this purpose, implement (and register) the ``ICustomTokenRequestValidator`` interface
+
+.. code-block:: csharp
 
     /// <summary>
     /// Allows inserting custom validation logic into token requests

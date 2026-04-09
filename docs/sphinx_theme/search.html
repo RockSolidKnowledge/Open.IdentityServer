@@ -1,0 +1,18 @@
+{# Search results page — uses Sphinx's built-in JavaScript search engine. #}
+{% extends "layout.html" %}
+{% set title = _('Search') %}
+
+{% block body %}
+<div class="cms">
+    <div id="search-results"></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
+<script src="{{ pathto('_static/doctools.js', 1) }}"></script>
+<script src="{{ pathto('_static/language_data.js', 1) }}"></script>
+<script src="{{ pathto('_static/sphinx_highlight.js', 1) }}"></script>
+<script src="{{ pathto('_static/searchtools.js', 1) }}"></script>
+<script src="{{ pathto('searchindex.js', 1) }}"></script>
+{% endblock %}

@@ -62,7 +62,7 @@ This process typically involves authentication of the end-user and optionally co
 
 **Example**
 
-::
+.. code-block:: http
 
     GET /connect/authorize?
         client_id=client1&

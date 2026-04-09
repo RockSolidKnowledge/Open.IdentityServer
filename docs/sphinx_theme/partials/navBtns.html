@@ -1,0 +1,14 @@
+{% if prev or next %}
+<div class="mt-8 flex justify-between no-print">
+    {% if prev %}
+    <a class="btn btn-line-subtle btn-small flex justify-center w-32" href="{{ prev.link }}" title="{{ prev.title|striptags }}"><span class="fas fa-long-arrow-alt-left mr-2 flex-no-shrink"></span>Previous</a>
+    {% else %}
+    <span class="btn btn-line-subtle btn-small flex justify-center w-32 disabled"><span class="fas fa-long-arrow-alt-left mr-2 flex-no-shrink"></span>Previous</span>
+    {% endif %}
+    {% if next %}
+    <a class="btn btn-line-subtle btn-small flex justify-center w-32 ml-auto" href="{{ next.link }}" title="{{ next.title|striptags }}">Next<span class="fas fa-long-arrow-alt-right ml-2 flex-no-shrink"></span></a>
+    {% else %}
+    <span class="btn btn-line-subtle btn-small flex justify-center w-32 disabled">Next<span class="fas fa-long-arrow-alt-right ml-2 flex-no-shrink"></span></span>
+    {% endif %}
+</div>
+{% endif %}

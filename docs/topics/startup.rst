@@ -7,7 +7,9 @@ All configuration is done in your startup class.
 
 Configuring services
 ^^^^^^^^^^^^^^^^^^^^
-You add the IdentityServer services to the DI system by calling::
+You add the IdentityServer services to the DI system by calling
+
+.. code-block:: csharp
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -138,7 +140,9 @@ If you wish to customize the in-memory caching behavior, you can replace the ``I
 
 Configuring the pipeline
 ^^^^^^^^^^^^^^^^^^^^^^^^
-You need to add IdentityServer to the pipeline by calling::
+You need to add IdentityServer to the pipeline by calling
+
+.. code-block:: csharp
 
     public void Configure(IApplicationBuilder app)
     {

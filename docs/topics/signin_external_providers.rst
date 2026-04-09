@@ -15,7 +15,9 @@ See this :ref:`quickstart <refExternalAuthenticationQuickstart>` for step-by-ste
 
 The role of cookies
 ^^^^^^^^^^^^^^^^^^^
-One option on an external authentication handlers is called ``SignInScheme``, e.g.::
+One option on an external authentication handlers is called ``SignInScheme``, e.g.
+
+.. code-block:: csharp
 
     services.AddAuthentication()
         .AddGoogle("Google", options =>
@@ -32,7 +34,9 @@ external authentication process.
 
 Given that this is such a common practise, IdentityServer registers a cookie handler specifically for this external provider workflow.
 The scheme is represented via the ``IdentityServerConstants.ExternalCookieAuthenticationScheme`` constant.
-If you were to use our external cookie handler, then for the ``SignInScheme`` above you'd assign the value to be the ``IdentityServerConstants.ExternalCookieAuthenticationScheme`` constant::
+If you were to use our external cookie handler, then for the ``SignInScheme`` above you'd assign the value to be the ``IdentityServerConstants.ExternalCookieAuthenticationScheme`` constant
+
+.. code-block:: csharp
 
     services.AddAuthentication()
         .AddGoogle("Google", options =>
@@ -43,7 +47,9 @@ If you were to use our external cookie handler, then for the ``SignInScheme`` ab
             options.ClientSecret = "...";
         })
 
-You can also register your own custom cookie handler instead, like this::
+You can also register your own custom cookie handler instead, like this
+
+.. code-block:: csharp
 
     services.AddAuthentication()
         .AddCookie("YourCustomScheme")
@@ -61,7 +67,9 @@ Triggering the authentication handler
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 You invoke an external authentication handler via the ``ChallengeAsync`` extension method on the ``HttpContext`` (or using the MVC ``ChallengeResult``).
 
-You typically want to pass in some options to the challenge operation, e.g. the path to your callback page and the name of the provider for bookkeeping, e.g.::
+You typically want to pass in some options to the challenge operation, e.g. the path to your callback page and the name of the provider for bookkeeping, e.g.
+
+.. code-block:: csharp
 
     var callbackUrl = Url.Action("ExternalLoginCallback");
     
@@ -89,7 +97,9 @@ On the callback page your typical tasks are:
 * delete the temporary cookie
 * sign-in the user
 
-**Inspecting the external identity**::
+**Inspecting the external identity**
+
+.. code-block:: csharp
 
     // read external identity from the temporary cookie
     var result = await HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
@@ -125,7 +135,9 @@ On the callback page your typical tasks are:
 
     // use externalProvider and externalUserId to find your user, or provision a new user
 
-**Clean-up and sign-in**::
+**Clean-up and sign-in**
+
+.. code-block:: csharp
 
     // issue authentication cookie for user
     await HttpContext.SignInAsync(new IdentityServerUser(user.SubjectId) {
@@ -159,7 +171,9 @@ You can implement this yourself by implementing ``ISecureDataFormat<Authenticati
 
 Fortunately, IdentityServer provides an implementation of this for you, backed by the ``IDistributedCache`` implementation registered in the DI container (e.g. the standard ``MemoryDistributedCache``).
 To use the IdentityServer provided secure data format implementation, simply call the ``AddOidcStateDataFormatterCache`` extension method on the ``IServiceCollection`` when configuring DI.
-If no parameters are passed, then all OpenID Connect handlers configured will use the IdentityServer provided secure data format implementation::
+If no parameters are passed, then all OpenID Connect handlers configured will use the IdentityServer provided secure data format implementation
+
+.. code-block:: csharp
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -182,7 +196,9 @@ If no parameters are passed, then all OpenID Connect handlers configured will us
     }
 
 
-If only particular schemes are to be configured, then pass those schemes as parameters::
+If only particular schemes are to be configured, then pass those schemes as parameters
+
+.. code-block:: csharp
 
     public void ConfigureServices(IServiceCollection services)
     {

@@ -18,7 +18,9 @@ If client, identity resource, API resource, or CORS data is desired to be loaded
 This support provides implementations of the ``IClientStore``, ``IResourceStore``, and the ``ICorsPolicyService`` extensibility points.
 These implementations use a ``DbContext``-derived class called ``ConfigurationDbContext`` to model the tables in the database.
 
-To use the configuration store support, use the ``AddConfigurationStore`` extension method after the call to ``AddIdentityServer``::
+To use the configuration store support, use the ``AddConfigurationStore`` extension method after the call to ``AddIdentityServer``
+
+.. code-block:: csharp
 
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
@@ -49,7 +51,9 @@ This options class contains properties to control the configuration store and ``
     ::
             options.DefaultSchema = "myConfigurationSchema";      
 
-If you need to change the schema for the Migration History Table, you can chain another action to the ``UseSqlServer``::
+If you need to change the schema for the Migration History Table, you can chain another action to the ``UseSqlServer``
+
+.. code-block:: csharp
 
     options.ConfigureDbContext = b =>
         b.UseSqlServer(connectionString,
@@ -62,7 +66,9 @@ If :ref:`persisted grants <refPersistedGrants>` are desired to be loaded from a 
 This support provides implementations of the ``IPersistedGrantStore`` extensibility point.
 The implementation uses a ``DbContext``-derived class called ``PersistedGrantDbContext`` to model the table in the database.
 
-To use the operational store support, use the ``AddOperationalStore`` extension method after the call to ``AddIdentityServer``::
+To use the operational store support, use the ``AddOperationalStore`` extension method after the call to ``AddIdentityServer``
+
+.. code-block:: csharp
 
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {

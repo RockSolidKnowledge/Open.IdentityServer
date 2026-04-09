@@ -17,7 +17,9 @@ Every quickstart has a reference solution - you can find the code in the
 
 Preparation
 ^^^^^^^^^^^
-The first thing you should do is install our templates::
+The first thing you should do is install our templates
+
+.. code-block:: console
 
     dotnet new -i IdentityServer4.Templates
 

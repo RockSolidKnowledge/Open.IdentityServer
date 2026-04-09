@@ -30,7 +30,9 @@ Add a call to ``app.UseCertificateForwarding();`` in the beginning of your middl
 The exact format how proxies transmit the certificates is not standardized, that's why you need to register a callback to do the actual header parsing.
 The Microsoft `docs <https://docs.microsoft.com/en-us/aspnet/core/security/authentication/certauth?view=aspnetcore-3.1>`_ show how that would work for Azure Web Apps.
 
-If you are using Nginx (which we found is the most flexible hosting option), you need to register the following service in ``ConfigureServices``::
+If you are using Nginx (which we found is the most flexible hosting option), you need to register the following service in ``ConfigureServices``
+
+.. code-block:: csharp
 
     services.AddCertificateForwarding(options =>
     {
@@ -53,7 +55,9 @@ If you are using Nginx (which we found is the most flexible hosting option), you
 
 Once, the certificate has been loaded, you also need to setup the authentication handler.
 In this scenario we want to support self-signed certificates, hence the ``CertificateType.All`` and no revocation checking.
-These settings might be different in your environment:: 
+These settings might be different in your environment
+
+.. code-block:: csharp
 
     services.AddAuthentication()
         .AddCertificate(options =>
@@ -73,7 +77,9 @@ In IdentityServer, the mutual TLS endpoints, can be configured in three ways (as
 * sub-domain based - endpoints are on a sub-domain of the main server, e.g. ``https://mtls.identityserver.io/connect/token``.
 * domain-based - endpoints are on a different domain, e.g. ``https://identityserver-mtls.io``.  
 
-For example::
+For example
+
+.. code-block:: csharp
 
     var builder = services.AddIdentityServer(options =>
     {
@@ -94,14 +100,18 @@ Client authentication
 Clients can use a X.509 client certificate as an authentication mechanism to endpoints in IdentityServer.
 
 For this you need to associate a client certificate with a client in IdentityServer.
-Use the :ref:`IdentityServer builder <refStartup>` to add the services to DI which contain a default implementation to do that either thumbprint or common-name based::
+Use the :ref:`IdentityServer builder <refStartup>` to add the services to DI which contain a default implementation to do that either thumbprint or common-name based
+
+.. code-block:: csharp
 
     builder.AddMutualTlsSecretValidators();
 
 Finally, for the :ref:`client configuration <refClient>` add to the ``ClientSecrets`` collection a secret type of either ``SecretTypes.X509CertificateName`` 
 if you wish to authenticate the client from the certificate distinguished name or ``SecretTypes.X509CertificateThumbprint`` if you wish to authenticate the client by certificate thumbprint.
 
-For example::
+For example
+
+.. code-block:: csharp
 
     new Client
     {
@@ -131,7 +141,9 @@ class provides a convenient mechanism to add a client certificate to outgoing re
 And then HTTP calls (including using the various `IdentityModel <https://github.com/IdentityModel/IdentityModel2>`_ extension methods) with the ``HttpClient`` 
 will perform client certificate authentication at the TLS channel.
 
-For example::
+For example
+
+.. code-block:: csharp
 
     static async Task<TokenResponse> RequestTokenAsync()
     {
@@ -183,7 +195,9 @@ Validating and accepting a client certificate in APIs
 As mentioned above for client authentication in IdentityServer, in the API the web server is expected to perform the client certificate validation at the TLS layer.
 
 Additionally, the API hosting application will need a mechanism to accept the client certificate in order to obtain the thumbprint to perform the confirmation claim validation.
-Below is an example how an API in ASP.NET Core might be configured for both access tokens and client certificates::
+Below is an example how an API in ASP.NET Core might be configured for both access tokens and client certificates
+
+.. code-block:: csharp
 
     services.AddAuthentication("token")
         .AddIdentityServerAuthentication("token", options =>
@@ -199,7 +213,9 @@ Below is an example how an API in ASP.NET Core might be configured for both acce
 
 Finally, a mechanism is needed that runs after the authentication middleware to authenticate the client certificate and compare the thumbprint to the ``cnf`` from the access token.
 
-Below is a simple middleware that checks the claims::
+Below is a simple middleware that checks the claims
+
+.. code-block:: csharp
 
     public class ConfirmationValidationMiddlewareOptions
     {
@@ -251,7 +267,9 @@ Below is a simple middleware that checks the claims::
             await _next(ctx);
         }
 
-Below is an example pipeline for an API::
+Below is an example pipeline for an API
+
+.. code-block:: csharp
 
     app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
@@ -291,7 +309,9 @@ This is useful for situations where you already have client secrets in place tha
 Still, if a client certificate is present, the confirmation claim can be embedded in outgoing access tokens. And as long as the client is using the same client certificate to 
 request the token and calling the API, this will give you the desired proof-of-possession properties.
 
-For this enable the following setting in the options::
+For this enable the following setting in the options
+
+.. code-block:: csharp
 
     var builder = services.AddIdentityServer(options =>
     {
@@ -303,7 +323,9 @@ For this enable the following setting in the options::
 Using an ephemeral certificate to request a token
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In this scenario, the client uses *some* client secret (a shared secret in the below sample), but attaches an additional client certificate to the token request.
-Since this certificate does not need to be associated with the client at the token services, it can be created on the fly::
+Since this certificate does not need to be associated with the client at the token services, it can be created on the fly
+
+.. code-block:: csharp
 
     static X509Certificate2 CreateClientCertificate(string name)
     {
@@ -324,7 +346,9 @@ Since this certificate does not need to be associated with the client at the tok
         }
     }
 
-Then use this client certificate in addition to the already setup-up client secret::
+Then use this client certificate in addition to the already setup-up client secret
+
+.. code-block:: csharp
 
     static async Task<TokenResponse> RequestTokenAsync()
     {

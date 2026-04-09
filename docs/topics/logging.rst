@@ -15,7 +15,9 @@ We are roughly following the Microsoft guidelines for usage of log levels:
 
 Setup for Serilog
 ^^^^^^^^^^^^^^^^^
-We personally like `Serilog <https://serilog.net/>`_ and the ``Serilog.AspNetCore`` package a lot. Give it a try::
+We personally like `Serilog <https://serilog.net/>`_ and the ``Serilog.AspNetCore`` package a lot. Give it a try
+
+.. code-block:: csharp
 
     public class Program
     {

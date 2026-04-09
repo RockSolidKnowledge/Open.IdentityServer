@@ -9,7 +9,7 @@ The introspection endpoint requires authentication - since the client of an intr
 Example
 ^^^^^^^
 
-::
+.. code-block:: http
 
 
     POST /connect/introspect
@@ -18,8 +18,9 @@ Example
     token=<token>
 
 
-A successful response will return a status code of 200 and either an active or inactive token::
+A successful response will return a status code of 200 and either an active or inactive token
 
+.. code-block:: json
 
     {
         "active": true,
@@ -27,8 +28,9 @@ A successful response will return a status code of 200 and either an active or i
     }
 
 
-Unknown or expired tokens will be marked as inactive::
+Unknown or expired tokens will be marked as inactive
 
+.. code-block:: json
 
     {
         "active": false,

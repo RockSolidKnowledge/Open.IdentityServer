@@ -1,0 +1,32 @@
+<header class="bg-grey-darkest text-white bg-repeat theme-header-imagebg no-print" style="background-image: url('{{ pathto('_static/' + theme_theme_header_texture, 1) }}');">
+    <div class="header-overlay-colour">
+        <div class="container mx-auto px-4 lg:pt-4 lg:px-6 flex items-center">
+            <a href="{{ pathto(master_doc) }}" class="font-bold truncate py-4 lg:py-0 opacity-50">
+                {{ project }}
+            </a>
+            <a id="nav-link" class="bg-transparent flex -mr-4 lg:-mr-6 ml-auto w-16 lg:hidden self-stretch items-center justify-center" href="#" aria-label="Show Menu" aria-haspopup="true" aria-controls="nav-menu">
+                <i class="fas fa-bars text-xl js-nav-icon" aria-hidden="true"></i>
+                <span class="sr-only">Open Menu</span>
+            </a>
+            {% if theme_show_back_btn and theme_show_back_btn != 'false' %}
+                <div class="ml-auto hidden lg:block opacity-50 hover:opacity-100">
+                    <a href="{{ theme_back_btn_link }}" class="btn btn-small btn-light"><span class="fas fa-arrow-left mr-2"></span>{{ theme_back_btn_text }}</a>
+                </div>
+            {% endif %}
+            <nav id="nav-menu" class="bg-black overflow-y-auto fixed pin z-40 mt-header hidden lg:hidden" aria-labelledby="nav-link" aria-expanded="false" role="navigation">
+                <ul class="list-reset overflow-y-auto pin">
+                    {{ toctree(maxdepth=-1, collapse=False, includehidden=True) }}
+                    {% if theme_show_back_btn and theme_show_back_btn != 'false' %}
+                        <li>
+                            <a class="flex items-start px-6 py-4 text-left" href="{{ theme_back_btn_link }}">
+                                <span class="flex-no-shrink mt-1 lg:inline-block fas fa-fw fa-arrow-left text-navy-lighter mr-2"></span>
+                                {{ theme_back_btn_text }}
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% include "partials/hero.html" %}
+    </div>
+</header>

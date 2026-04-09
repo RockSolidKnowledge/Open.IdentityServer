@@ -8,11 +8,15 @@ You need to specify which grant types a client can use via the ``AllowedGrantTyp
 This allows locking down the protocol interactions that are allowed for a given client.
 
 A client can be configured to use more than a single grant type (e.g. Authorization Code flow for user centric operations and client credentials for server to server communication).
-The ``GrantTypes`` class can be used to pick from typical grant type combinations::
+The ``GrantTypes`` class can be used to pick from typical grant type combinations
+
+.. code-block:: csharp
 
     Client.AllowedGrantTypes = GrantTypes.CodeAndClientCredentials;
 
-You can also specify the grant types list manually::
+You can also specify the grant types list manually
+
+.. code-block:: csharp
 
     Client.AllowedGrantTypes = 
     {
@@ -81,7 +85,9 @@ If PKCE is available, this is the simpler solution to the problem.
 PKCE is already the official recommendation for `native <https://tools.ietf.org/html/rfc8252#section-6>`_ applications 
 and `SPAs <https://tools.ietf.org/html/draft-ietf-oauth-browser-based-apps-03#section-4>`_ - and with the release of ASP.NET Core 3 also by default supported in the OpenID Connect handler as well.
 
-This is how you would configure an interactive client::
+This is how you would configure an interactive client
+
+.. code-block:: csharp
 
     var client = new Client
     {

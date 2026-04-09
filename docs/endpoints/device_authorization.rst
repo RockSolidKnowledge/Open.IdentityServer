@@ -16,7 +16,7 @@ This endpoint is used to start the device flow authorization process.
 Example
 ^^^^^^^
 
-::
+.. code-block:: http
 
     POST /connect/deviceauthorization
 

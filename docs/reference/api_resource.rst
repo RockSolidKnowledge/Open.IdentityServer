@@ -22,7 +22,9 @@ This class models an API resource.
 
 Defining API resources in appsettings.json
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The ``AddInMemoryApiResource`` extensions method also supports adding API resources from the ASP.NET Core configuration file::
+The ``AddInMemoryApiResource`` extensions method also supports adding API resources from the ASP.NET Core configuration file
+
+.. code-block:: json
 
     "IdentityServer": {
         "IssuerUri": "urn:sso.company.com",
@@ -53,6 +55,8 @@ The ``AddInMemoryApiResource`` extensions method also supports adding API resour
         ]
     }
 
-Then pass the configuration section to the ``AddInMemoryApiResource`` method::
+Then pass the configuration section to the ``AddInMemoryApiResource`` method
+
+.. code-block:: csharp
 
     AddInMemoryApiResources(configuration.GetSection("IdentityServer:ApiResources"))

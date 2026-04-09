@@ -9,7 +9,9 @@ Events work great with event stores like `ELK <https://www.elastic.co/webinars/i
 
 Emitting events
 ^^^^^^^^^^^^^^^
-Events are not turned on by default - but can be globally configured in the ``ConfigureServices`` method, e.g.::
+Events are not turned on by default - but can be globally configured in the ``ConfigureServices`` method, e.g.
+
+.. code-block:: csharp
 
     services.AddIdentityServer(options =>
     {
@@ -18,7 +20,9 @@ Events are not turned on by default - but can be globally configured in the ``Co
         options.Events.RaiseErrorEvents = true;
     });
 
-To emit an event use the ``IEventService`` from the DI container and call the ``RaiseAsync`` method, e.g.::
+To emit an event use the ``IEventService`` from the DI container and call the ``RaiseAsync`` method, e.g.
+
+.. code-block:: csharp
 
     public async Task<IActionResult> Login(LoginInputModel model)
     {
@@ -39,7 +43,9 @@ Custom sinks
 Our default event sink will simply serialize the event class to JSON and forward it to the ASP.NET Core logging system.
 If you want to connect to a custom event store, implement the ``IEventSink`` interface and register it with DI.
 
-The following example uses `Seq <https://getseq.net/>`_ to emit events::
+The following example uses `Seq <https://getseq.net/>`_ to emit events
+
+.. code-block:: csharp
 
      public class SeqEventSink : IEventSink
     {
@@ -106,7 +112,9 @@ Custom events
 You can create your own events and emit them via our infrastructure.
 
 You need to derive from our base ``Event`` class which injects contextual information like activity ID, timestamp, etc.
-Your derived class can then add arbitrary data fields specific to the event context::
+Your derived class can then add arbitrary data fields specific to the event context
+
+.. code-block:: csharp
 
     public class UserLoginFailureEvent : Event
     {

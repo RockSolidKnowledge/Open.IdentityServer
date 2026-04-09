@@ -39,7 +39,7 @@ Furthermore the token endpoint can be extended to support extension grant types.
 Example
 ^^^^^^^
 
-::
+.. code-block:: http
 
     POST /connect/token
     CONTENT-TYPE application/x-www-form-urlencoded
