@@ -42,7 +42,8 @@
 
     <ItemGroup>
         <PackageReference Include="Open.IdentityServer.Storage"/>
-        <PackageReference Include="IdentityModel"/>
+        
+        <PackageReference Include="Open.IdentityModel"/>
         
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect"/>
 

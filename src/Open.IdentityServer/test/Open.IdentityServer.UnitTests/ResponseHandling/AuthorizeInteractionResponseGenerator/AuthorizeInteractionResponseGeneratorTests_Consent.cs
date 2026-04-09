@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityModel;
+using Open.IdentityModel;
 using IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Extensions;

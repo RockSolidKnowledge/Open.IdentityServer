@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 using System.Security.Claims;
-using IdentityModel;
+using Open.IdentityModel;
 using Open.IdentityServer;
 using Open.IdentityServer.Test;
 

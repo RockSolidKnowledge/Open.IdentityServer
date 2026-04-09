@@ -39,7 +39,21 @@ jobs:
           dotnetVersions: [10.x]
           nugetVersion: '5.4.0'
 
-      # Build, test, and pack Open.IdentityServer.Storage first, as it is a dependency for the other projects
+      # Build, test and pack Open.IdentityModel first, as it is a dependency for the other projects
+      - template: templates/dotnet-restore-build-and-test.yml
+        parameters:
+          nuGetConfig: NuGet.config
+          csproj: '**/Open.IdentityModel.sln'
+          testProjects:
+          - "**/Open.IdentityModel/test/UnitTests/UnitTests.csproj"
+      
+      - template: templates/dotnet-pack-ci.yml
+        parameters:
+          name: 'Open.IdentityModel'
+          projects: 
+          - csproj: '**/Open.IdentityModel.csproj'
+          
+      # Build, test, and pack Open.IdentityServer.Storage 
       - template: templates/dotnet-restore-build-and-test.yml
         parameters:
           nuGetConfig: NuGet.config

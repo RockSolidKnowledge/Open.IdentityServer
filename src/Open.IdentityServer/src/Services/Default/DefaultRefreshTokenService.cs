@@ -9,7 +9,7 @@ using Open.IdentityServer.Stores;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityModel;
+using Open.IdentityModel;
 using Open.IdentityServer.Logging.Models;
 using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Authentication;

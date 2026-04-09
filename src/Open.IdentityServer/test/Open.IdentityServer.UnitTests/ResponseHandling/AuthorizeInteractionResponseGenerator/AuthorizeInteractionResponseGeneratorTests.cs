@@ -12,7 +12,7 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 using Xunit;
-using static IdentityModel.OidcConstants;
+using static Open.IdentityModel.OidcConstants;
 
 namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponseGenerator
 {

@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityModel.Client;
+using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Common;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Test;
@@ -175,7 +175,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Revocation
                 ClientSecret = scope_secret,
 
                 Token = token,
-                TokenTypeHint = IdentityModel.OidcConstants.TokenTypes.AccessToken
+                TokenTypeHint = Open.IdentityModel.OidcConstants.TokenTypes.AccessToken
             });
 
             return response.IsError == false && response.IsActive;

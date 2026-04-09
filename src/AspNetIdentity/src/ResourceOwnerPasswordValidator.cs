@@ -7,7 +7,7 @@ using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using static IdentityModel.OidcConstants;
+using static Open.IdentityModel.OidcConstants;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Events;
 

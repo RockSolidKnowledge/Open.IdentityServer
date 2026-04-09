@@ -4,7 +4,7 @@
 
 using System;
 using System.Linq;
-using IdentityModel;
+using Open.IdentityModel;
 using Open.IdentityServer;
 using Open.IdentityServer.AspNetIdentity;
 using Open.IdentityServer.Configuration;

@@ -3,7 +3,7 @@
 
 
 using AwesomeAssertions;
-using IdentityModel;
+using Open.IdentityModel;
 using IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;

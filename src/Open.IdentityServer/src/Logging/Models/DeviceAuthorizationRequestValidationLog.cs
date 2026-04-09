@@ -3,7 +3,7 @@
 
 
 using System.Collections.Generic;
-using IdentityModel;
+using Open.IdentityModel;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Validation;
 

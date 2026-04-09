@@ -3,7 +3,7 @@
 
 
 using AwesomeAssertions;
-using IdentityModel.Client;
+using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
