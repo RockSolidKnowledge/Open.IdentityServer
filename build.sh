@@ -6,7 +6,7 @@ mkdir nuget
 
 dotnet tool restore
 
-pushd ./src/IdentityModel
+pushd ./src/Open.IdentityModel
 ./build.sh "$@"
 popd
 
