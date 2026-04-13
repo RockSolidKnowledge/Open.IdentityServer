@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Open.IdentityServer.Configuration.DependencyInjection;
 using Open.IdentityServer.Extensions;
 using System;
-using IdentityModel;
+using Open.IdentityModel;
 using System.Linq;
 using Open.IdentityServer.Configuration;
 

@@ -10,7 +10,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityModel.Client;
+using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;

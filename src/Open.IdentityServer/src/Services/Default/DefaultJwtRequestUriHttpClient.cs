@@ -7,7 +7,7 @@ using Open.IdentityServer.Models;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Threading.Tasks;
-using IdentityModel;
+using Open.IdentityModel;
 using Open.IdentityServer.Configuration;
 
 namespace Open.IdentityServer.Services

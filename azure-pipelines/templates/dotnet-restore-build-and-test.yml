@@ -47,7 +47,7 @@ steps:
           }
       }
 
-      Add-Mapping "local-ci" "Open.IdentityServer*"
+      Add-Mapping "local-ci" "Open.Identity*"
       Add-Mapping "NuGet" "*"
 
       $xml.Save($configPath)

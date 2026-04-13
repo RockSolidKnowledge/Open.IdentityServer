@@ -24,8 +24,7 @@
         <PackageReference Update="Moq" Version="4.20.72"/>
 
         <!--our stuff -->
-        <PackageReference Update="IdentityModel" Version="7.0.0"/>
-
+        <PackageReference Update="Open.IdentityModel" Version="$(IdentityServerVersion)"/>
         <PackageReference Update="Open.IdentityServer" Version="$(IdentityServerVersion)"/>
         <PackageReference Update="Open.IdentityServer.AspNetIdentity" Version="$(IdentityServerVersion)"/>
         <PackageReference Update="Open.IdentityServer.Storage" Version="$(IdentityServerVersion)"/>

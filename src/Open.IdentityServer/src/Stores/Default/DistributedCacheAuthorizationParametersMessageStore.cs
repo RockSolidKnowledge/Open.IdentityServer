@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using IdentityModel;
+using Open.IdentityModel;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Microsoft.Extensions.Caching.Distributed;

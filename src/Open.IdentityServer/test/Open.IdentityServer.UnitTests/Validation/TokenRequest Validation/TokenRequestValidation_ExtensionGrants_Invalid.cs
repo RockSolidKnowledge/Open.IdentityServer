@@ -5,7 +5,7 @@
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityModel;
+using Open.IdentityModel;
 using IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer.Stores;
 using Xunit;

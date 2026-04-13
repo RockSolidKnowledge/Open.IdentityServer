@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Hosting;
-using IdentityModel;
+using Open.IdentityModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;

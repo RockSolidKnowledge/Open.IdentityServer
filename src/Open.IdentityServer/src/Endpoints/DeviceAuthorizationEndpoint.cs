@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IdentityModel;
+using Open.IdentityModel;
 using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Events;
 using Open.IdentityServer.Extensions;

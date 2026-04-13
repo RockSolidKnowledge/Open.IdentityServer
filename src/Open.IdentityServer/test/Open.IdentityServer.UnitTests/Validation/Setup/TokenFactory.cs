@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using IdentityModel;
+using Open.IdentityModel;
 using IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Models;
 

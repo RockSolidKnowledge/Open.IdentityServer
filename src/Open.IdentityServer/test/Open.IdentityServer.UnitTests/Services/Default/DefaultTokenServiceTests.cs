@@ -5,7 +5,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityModel;
+using Open.IdentityModel;
 using IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
