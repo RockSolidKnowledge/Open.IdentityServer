@@ -31,10 +31,11 @@ namespace Open.IdentityServer.Stores
         {
         }
 
-        private string GetConsentKey(string subjectId, string clientId)
-        {
-            return clientId + "|" + subjectId;
-        }
+        private static string GetConsentKey(string subjectId, string clientId) =>
+            $"{clientId}|{subjectId}{HexEncodingSuffix}";
+
+        private static string GetLegacyConsentKey(string subjectId, string clientId) =>
+            $"{clientId}|{subjectId}";
 
         /// <summary>
         /// Stores the user consent asynchronous.
@@ -53,10 +54,20 @@ namespace Open.IdentityServer.Stores
         /// <param name="subjectId">The subject identifier.</param>
         /// <param name="clientId">The client identifier.</param>
         /// <returns></returns>
-        public Task<Consent> GetUserConsentAsync(string subjectId, string clientId)
+        public async Task<Consent> GetUserConsentAsync(string subjectId, string clientId)
         {
             var key = GetConsentKey(subjectId, clientId);
-            return GetItemAsync(key);
+            var item = await GetItemAsync(key);
+
+            if (item != null)
+            {
+                return item;
+            }
+            
+            key = GetLegacyConsentKey(subjectId, clientId);
+            item = await GetItemAsync(key);
+
+            return item;
         }
 
         /// <summary>

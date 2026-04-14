@@ -68,6 +68,11 @@ namespace Open.IdentityServer.Stores
         }
 
         private const string KeySeparator = ":";
+        
+        /// <summary>
+        /// Suffix used on protected grants to determine if the key should be hex encoded  
+        /// </summary>
+        public const string HexEncodingSuffix = "-1";
 
         /// <summary>
         /// Gets the hashed key.
@@ -76,7 +81,7 @@ namespace Open.IdentityServer.Stores
         /// <returns></returns>
         protected virtual string GetHashedKey(string value) {
             string key = $"{value}{KeySeparator}{GrantType}";
-            bool hexEncode = value.EndsWith("-1");
+            bool hexEncode = value.EndsWith(HexEncodingSuffix);
             return key.Sha256(hexEncode);
         }
 
