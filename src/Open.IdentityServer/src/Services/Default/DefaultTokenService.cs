@@ -168,7 +168,8 @@ namespace Open.IdentityServer.Services
                 Claims = claims.Distinct(new ClaimComparer()).ToList(),
                 ClientId = request.ValidatedRequest.Client.ClientId,
                 AccessTokenType = request.ValidatedRequest.AccessTokenType,
-                AllowedSigningAlgorithms = request.ValidatedRequest.Client.AllowedIdentityTokenSigningAlgorithms
+                AllowedSigningAlgorithms = request.ValidatedRequest.Client.AllowedIdentityTokenSigningAlgorithms,
+                IncludeJwtId = request.ValidatedRequest.Client.IncludeJwtId,
             };
 
             return token;
@@ -216,7 +217,8 @@ namespace Open.IdentityServer.Services
                 ClientId = request.ValidatedRequest.Client.ClientId,
                 Description = request.Description,
                 AccessTokenType = request.ValidatedRequest.AccessTokenType,
-                AllowedSigningAlgorithms = request.ValidatedResources.Resources.ApiResources.FindMatchingSigningAlgorithms()
+                AllowedSigningAlgorithms = request.ValidatedResources.Resources.ApiResources.FindMatchingSigningAlgorithms(),
+                IncludeJwtId = request.ValidatedRequest.Client.IncludeJwtId,
             };
 
             // add aud based on ApiResources in the validated request

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
+using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Services;
@@ -57,7 +59,14 @@ public class TokenResponseGeneratorTests
             AccessTokenLifetime = 2500,
             RefreshToken = new RefreshToken
             {
-                AccessToken = originalAccessToken,
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = originalAccessToken.ClientId,
+                SessionId = originalAccessToken.SessionId,
+                AuthorizedScopes = originalAccessToken.Scopes,
+                AccessTokens = new Dictionary<string, Token>
+                {
+                    {string.Empty, originalAccessToken}
+                },
             },
             Client = new Client
             {

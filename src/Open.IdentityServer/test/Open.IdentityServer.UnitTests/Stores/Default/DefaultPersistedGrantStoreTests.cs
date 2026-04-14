@@ -105,18 +105,11 @@ namespace IdentityServer.UnitTests.Stores.Default
             {
                 CreationTime = DateTime.UtcNow,
                 Lifetime = 10,
-                AccessToken = new Token
-                {
-                    ClientId = "client",
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Type = "type",
-                    Claims = new List<Claim>
-                    {
-                        new Claim("sub", "123"),
-                        new Claim("scope", "foo")
-                    }
-                },
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = "client",
+                AuthorizedScopes = ["foo"],
+                
                 Version = 1
             };
 
@@ -128,11 +121,8 @@ namespace IdentityServer.UnitTests.Stores.Default
             token1.Lifetime.Should().Be(token2.Lifetime);
             token1.Subject.GetSubjectId().Should().Be(token2.Subject.GetSubjectId());
             token1.Version.Should().Be(token2.Version);
-            token1.AccessToken.Audiences.Count.Should().Be(1);
-            token1.AccessToken.Audiences.First().Should().Be("aud");
-            token1.AccessToken.ClientId.Should().Be(token2.AccessToken.ClientId);
-            token1.AccessToken.CreationTime.Should().Be(token2.AccessToken.CreationTime);
-            token1.AccessToken.Type.Should().Be(token2.AccessToken.Type);
+            token1.SubjectId.Should().Be(token2.SubjectId);
+            token1.AuthorizedScopes.Should().BeEquivalentTo(token2.AuthorizedScopes);
         }
 
         [Fact]
@@ -142,18 +132,11 @@ namespace IdentityServer.UnitTests.Stores.Default
             {
                 CreationTime = DateTime.UtcNow,
                 Lifetime = 10,
-                AccessToken = new Token
-                {
-                    ClientId = "client",
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Type = "type",
-                    Claims = new List<Claim>
-                    {
-                        new Claim("sub", "123"),
-                        new Claim("scope", "foo")
-                    }
-                },
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = "client",
+                AuthorizedScopes = ["foo"],
+                
                 Version = 1
             };
 
@@ -171,18 +154,11 @@ namespace IdentityServer.UnitTests.Stores.Default
             {
                 CreationTime = DateTime.UtcNow,
                 Lifetime = 10,
-                AccessToken = new Token
-                {
-                    ClientId = "client",
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Type = "type",
-                    Claims = new List<Claim>
-                    {
-                        new Claim("sub", "123"),
-                        new Claim("scope", "foo")
-                    }
-                },
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = "client",
+                AuthorizedScopes = ["foo"],
+                
                 Version = 1
             };
 
@@ -336,19 +312,11 @@ namespace IdentityServer.UnitTests.Stores.Default
             {
                 CreationTime = DateTime.UtcNow,
                 Lifetime = 20,
-                AccessToken = new Token
-                {
-                    ClientId = "client1",
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Type = "type",
-                    Claims = new List<Claim>
-                    {
-                        new Claim("sub", "123"),
-                        new Claim("scope", "baz1"),
-                        new Claim("scope", "baz2")
-                    }
-                },
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = "client1",
+                AuthorizedScopes = ["baz1", "baz2"],
+                
                 Version = 1
             });
 

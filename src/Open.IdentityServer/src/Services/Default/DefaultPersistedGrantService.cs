@@ -71,7 +71,7 @@ namespace Open.IdentityServer.Services
                     ClientId = refreshToken.ClientId,
                     SubjectId = subjectId,
                     Description = refreshToken.Description,
-                    Scopes = refreshToken.Scopes,
+                    Scopes = refreshToken.AuthorizedScopes,
                     CreationTime = refreshToken.CreationTime,
                     Expiration = refreshToken.CreationTime.AddSeconds(refreshToken.Lifetime)
                 });

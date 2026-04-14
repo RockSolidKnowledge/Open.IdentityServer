@@ -119,16 +119,10 @@ namespace IdentityServer.UnitTests.Services.Default
             {
                 CreationTime = DateTime.UtcNow,
                 Lifetime = 10,
-                AccessToken = new Token
-                {
-                    ClientId = client.ClientId,
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = client.ClientId,
+                AuthorizedScopes = [],
             };
 
             var handle = await _store.StoreRefreshTokenAsync(refreshToken);
@@ -157,16 +151,10 @@ namespace IdentityServer.UnitTests.Services.Default
             var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
             {
                 CreationTime = now.AddSeconds(-10),
-                AccessToken = new Token
-                {
-                    ClientId = client.ClientId,
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = client.ClientId,
+                AuthorizedScopes = [],
             });
 
             var refreshToken = await _store.GetRefreshTokenAsync(handle);
@@ -198,16 +186,10 @@ namespace IdentityServer.UnitTests.Services.Default
             var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
             {
                 CreationTime = now.AddSeconds(-1000),
-                AccessToken = new Token
-                {
-                    ClientId = client.ClientId,
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = client.ClientId,
+                AuthorizedScopes = [],
             });
 
             var refreshToken = await _store.GetRefreshTokenAsync(handle);
@@ -239,16 +221,10 @@ namespace IdentityServer.UnitTests.Services.Default
             var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
             {
                 CreationTime = now.AddSeconds(-1000),
-                AccessToken = new Token
-                {
-                    ClientId = client.ClientId,
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = client.ClientId,
+                AuthorizedScopes = [],
             });
 
             var refreshToken = await _store.GetRefreshTokenAsync(handle);
@@ -280,16 +256,10 @@ namespace IdentityServer.UnitTests.Services.Default
             var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
             {
                 CreationTime = now.AddSeconds(-1000),
-                AccessToken = new Token
-                {
-                    ClientId = client.ClientId,
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = client.ClientId,
+                AuthorizedScopes = [],
             });
 
             var refreshToken = await _store.GetRefreshTokenAsync(handle);
@@ -316,16 +286,10 @@ namespace IdentityServer.UnitTests.Services.Default
             {
                 CreationTime = DateTime.UtcNow,
                 Lifetime = 10,
-                AccessToken = new Token
-                {
-                    ClientId = client.ClientId,
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = client.ClientId,
+                AuthorizedScopes = [],
             };
 
             var handle = await _store.StoreRefreshTokenAsync(refreshToken);
@@ -369,16 +333,10 @@ namespace IdentityServer.UnitTests.Services.Default
             {
                 CreationTime = DateTime.UtcNow,
                 Lifetime = 10,
-                AccessToken = new Token
-                {
-                    ClientId = client.ClientId,
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = client.ClientId,
+                AuthorizedScopes = [],
             };
 
             var handle = await _store.StoreRefreshTokenAsync(refreshToken);
@@ -405,16 +363,10 @@ namespace IdentityServer.UnitTests.Services.Default
             {
                 CreationTime = DateTime.UtcNow,
                 Lifetime = 10,
-                AccessToken = new Token
-                {
-                    ClientId = "client2",
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = "client2",
+                AuthorizedScopes = [],
             };
 
             var handle = await _store.StoreRefreshTokenAsync(refreshToken);
@@ -441,16 +393,10 @@ namespace IdentityServer.UnitTests.Services.Default
             {
                 CreationTime = DateTime.UtcNow,
                 Lifetime = 10,
-                AccessToken = new Token
-                {
-                    ClientId = client.ClientId,
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = client.ClientId,
+                AuthorizedScopes = [],
             };
 
             var handle = await _store.StoreRefreshTokenAsync(refreshToken);
@@ -479,16 +425,9 @@ namespace IdentityServer.UnitTests.Services.Default
                 Lifetime = 10,
                 ConsumedTime = DateTime.UtcNow,
                 
-                AccessToken = new Token
-                {
-                    ClientId = client.ClientId,
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = client.ClientId,
+                AuthorizedScopes = [],
             };
 
             var handle = await _store.StoreRefreshTokenAsync(refreshToken);
@@ -515,16 +454,9 @@ namespace IdentityServer.UnitTests.Services.Default
             {
                 CreationTime = DateTime.UtcNow,
                 Lifetime = 10,
-                AccessToken = new Token
-                {
-                    ClientId = client.ClientId,
-                    Audiences = { "aud" },
-                    CreationTime = DateTime.UtcNow,
-                    Claims = new List<Claim>()
-                    {
-                        new Claim("sub", "123")
-                    }
-                }
+                Subject = new IdentityServerUser("123").CreatePrincipal(),
+                ClientId = client.ClientId,
+                AuthorizedScopes = [],
             };
 
             var handle = await _store.StoreRefreshTokenAsync(refreshToken);

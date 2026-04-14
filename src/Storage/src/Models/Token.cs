@@ -119,7 +119,7 @@ namespace Open.IdentityServer.Models
         /// <value>
         /// The version.
         /// </value>
-        public int Version { get; set; } = 4;
+        public int Version { get; set; } = 5;
 
         /// <summary>
         /// Gets the subject identifier.
@@ -144,5 +144,14 @@ namespace Open.IdentityServer.Models
         /// The scopes.
         /// </value>
         public IEnumerable<string> Scopes => Claims.Where(x => x.Type == JwtClaimTypes.Scope).Select(x => x.Value);
+
+
+        /// <summary>
+        /// Indicates if access tokens require a JTI claim (could be inferred by composition of existing access token)
+        /// </summary>
+        /// <value>
+        /// Boolean true or false value
+        /// </value>
+        public bool IncludeJwtId { get; set; } 
     }
 }

@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
@@ -199,7 +200,17 @@ namespace Open.IdentityServer.Services
 
             var refreshToken = new RefreshToken
             {
-                CreationTime = Clock.GetUtcNow().UtcDateTime, Lifetime = lifetime, AccessToken = accessToken
+                CreationTime = Clock.GetUtcNow().UtcDateTime, 
+                Lifetime = lifetime,
+                Subject = subject,
+                ClientId = accessToken.ClientId,
+                SessionId = accessToken.SessionId,
+                Description = accessToken.Description,
+                AuthorizedScopes = accessToken.Scopes,
+                AccessTokens = new Dictionary<string, Token>
+                {
+                    {string.Empty, accessToken}
+                },
             };
 
             var handle = await RefreshTokenStore.StoreRefreshTokenAsync(refreshToken);

@@ -64,7 +64,7 @@ namespace Open.IdentityServer.Events
 
             if (GrantType == OidcConstants.GrantTypes.RefreshToken)
             {
-                Scopes = request.ValidatedRequest.RefreshToken.AccessToken.Scopes.ToSpaceSeparatedString();
+                Scopes = request.ValidatedRequest.RefreshToken.AuthorizedScopes.ToSpaceSeparatedString();
             }
             else if (GrantType == OidcConstants.GrantTypes.AuthorizationCode)
             {

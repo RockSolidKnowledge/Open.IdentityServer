@@ -1,10 +1,12 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+#nullable enable
 
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Open.IdentityModel;
 
 namespace Open.IdentityServer.Models
 {
@@ -43,29 +45,16 @@ namespace Open.IdentityServer.Models
         /// <value>
         /// The access token.
         /// </value>
-        public Token AccessToken { get; set; }
+        [Obsolete("Obsolete, kept for compatibility between existing serialised grants")]
+        public Token? AccessToken { get; set; }
 
         /// <summary>
-        /// Gets or sets the original subject that requiested the token.
+        /// Gets or sets the original subject that requested the token.
         /// </summary>
         /// <value>
         /// The subject.
         /// </value>
-        public ClaimsPrincipal Subject
-        {
-            get
-            {
-                var user = new IdentityServerUser(SubjectId);
-                if (AccessToken.Claims != null)
-                {
-                    foreach (var claim in AccessToken.Claims)
-                    {
-                        user.AdditionalClaims.Add(claim);
-                    }
-                }
-                return user.CreatePrincipal();
-            }
-        }
+        public ClaimsPrincipal? Subject { get; set; }
 
         /// <summary>
         /// Gets or sets the version number.
@@ -73,7 +62,7 @@ namespace Open.IdentityServer.Models
         /// <value>
         /// The version.
         /// </value>
-        public int Version { get; set; } = 4;
+        public int Version { get; set; } = 5;
 
         /// <summary>
         /// Gets the client identifier.
@@ -81,7 +70,7 @@ namespace Open.IdentityServer.Models
         /// <value>
         /// The client identifier.
         /// </value>
-        public string ClientId => AccessToken.ClientId;
+        public string? ClientId { get; set; }
 
         /// <summary>
         /// Gets the subject identifier.
@@ -89,7 +78,7 @@ namespace Open.IdentityServer.Models
         /// <value>
         /// The subject identifier.
         /// </value>
-        public string SubjectId => AccessToken.SubjectId;
+        public string? SubjectId => Subject?.FindFirst(JwtClaimTypes.Subject)?.Value;
 
         /// <summary>
         /// Gets the session identifier.
@@ -97,7 +86,7 @@ namespace Open.IdentityServer.Models
         /// <value>
         /// The session identifier.
         /// </value>
-        public string SessionId => AccessToken.SessionId;
+        public string? SessionId { get; set; }
 
         /// <summary>
         /// Gets the description the user assigned to the device being authorized.
@@ -105,7 +94,7 @@ namespace Open.IdentityServer.Models
         /// <value>
         /// The description.
         /// </value>
-        public string Description => AccessToken.Description;
+        public string? Description { get; set; }
 
         /// <summary>
         /// Gets the scopes.
@@ -113,6 +102,36 @@ namespace Open.IdentityServer.Models
         /// <value>
         /// The scopes.
         /// </value>
-        public IEnumerable<string> Scopes => AccessToken.Scopes;
+        public IEnumerable<string> AuthorizedScopes { get; set; } = [];
+
+        /// <summary>
+        /// Resource-specific access tokens dictionary
+        /// </summary>
+        public Dictionary<string, Token> AccessTokens { get; set; } = new();
+
+        /// <summary>
+        /// Gets access token in dictionary with resourceId as key
+        /// </summary>
+        /// <param name="resourceId">resource identifier to use as key, defaults to string.Empty</param>
+        /// <returns></returns>
+        public Token? GetAccessToken(string? resourceId) => AccessTokens.GetValueOrDefault(resourceId ?? string.Empty);
+
+        /// <summary>
+        /// Sets access token in dictionary with resourceId as key
+        /// </summary>
+        /// <param name="token">token to store</param>
+        /// <param name="resourceId">resource identifier to use as key, defaults to string.Empty</param>
+        public void SetAccessToken(Token token, string? resourceId) => AccessTokens[resourceId ?? string.Empty] = token;
+
+        /// <summary>
+        /// List of authorized resource indicators, null means no restrictions, while having a value restricts usage to
+        /// resource indicators present in list
+        /// </summary>
+        public IEnumerable<string>? AuthorizedResourceIndicators { get; set; }
+
+        /// <summary>
+        /// Placeholder not utilised by Open.IdentityServer yet 
+        /// </summary>
+        public int? ProofType { get; set; }
     }
 }

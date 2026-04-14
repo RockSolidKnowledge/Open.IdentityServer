@@ -258,15 +258,12 @@ namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation
         [Trait("Category", Category)]
         public async Task Valid_refresh_token_request_should_succeed()
         {
-            var subjectClaim = new Claim(JwtClaimTypes.Subject, "foo");
-
             var refreshToken = new RefreshToken
             {
-                AccessToken = new Token("access_token")
-                {
-                    Claims = new List<Claim> { subjectClaim },
-                    ClientId = "roclient"
-                },
+                Subject = new IdentityServerUser("foo").CreatePrincipal(),
+                ClientId = "roclient",
+                AuthorizedScopes = [],
+                
                 Lifetime = 600,
                 CreationTime = DateTime.UtcNow
             };
@@ -292,15 +289,11 @@ namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation
         [Trait("Category", Category)]
         public async Task Valid_refresh_token_request_using_restricted_client_should_succeed()
         {
-            var subjectClaim = new Claim(JwtClaimTypes.Subject, "foo");
-
             var refreshToken = new RefreshToken
             {
-                AccessToken = new Token("access_token")
-                {
-                    Claims = new List<Claim> { subjectClaim },
-                    ClientId = "roclient_restricted_refresh"
-                },
+                Subject = new IdentityServerUser("foo").CreatePrincipal(),
+                ClientId = "roclient_restricted_refresh",
+                AuthorizedScopes = [],
 
                 Lifetime = 600,
                 CreationTime = DateTime.UtcNow
