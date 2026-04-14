@@ -3,7 +3,10 @@
 
 #nullable enable
 
+using System.Linq;
 using System.Text.Json;
+using Open.IdentityModel;
+using Open.IdentityServer.Models;
 
 namespace Open.IdentityServer.Stores.Serialization
 {
@@ -46,7 +49,43 @@ namespace Open.IdentityServer.Stores.Serialization
         /// <returns></returns>
         public T? Deserialize<T>(string json)
         {
-            return JsonSerializer.Deserialize<T>(json, _settings);
+            T? deserializedObj = JsonSerializer.Deserialize<T>(json, _settings);
+
+            if (deserializedObj is RefreshToken refreshToken && refreshToken.Version != 5)
+            {
+                return HandleV4RefreshTokens<T>(refreshToken);
+            }
+
+            return deserializedObj;
+        }
+        
+        private static T HandleV4RefreshTokens<T>(RefreshToken refreshToken)
+        {
+            if (refreshToken.Version != 4)
+            {
+                throw new UnsupportedReferenceTokenException(refreshToken.Version);
+            }
+
+            var user = new IdentityServerUser(refreshToken.AccessToken.SubjectId);
+            if (refreshToken.AccessToken.Claims != null)
+            {
+                foreach (var claim in refreshToken.AccessToken.Claims)
+                {
+                    user.AdditionalClaims.Add(claim);
+                }
+            }
+                
+            refreshToken.AccessTokens[string.Empty] = refreshToken.AccessToken;
+            refreshToken.ClientId = refreshToken.AccessToken.ClientId;
+            refreshToken.SessionId = refreshToken.AccessToken.SessionId;
+            refreshToken.Description = refreshToken.AccessToken.Description;
+            refreshToken.AuthorizedScopes = refreshToken.AccessToken.Scopes;
+            refreshToken.Subject = user.CreatePrincipal();
+            refreshToken.Version = 5;
+                
+            refreshToken.AccessToken = null;
+
+            return (T)(object)refreshToken;
         }
     }
 }

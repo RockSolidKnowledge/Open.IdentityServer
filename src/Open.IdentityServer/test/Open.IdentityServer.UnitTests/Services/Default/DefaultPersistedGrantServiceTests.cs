@@ -126,7 +126,7 @@ namespace IdentityServer.UnitTests.Services.Default
                 Subject = new IdentityServerUser("123").CreatePrincipal(),
                 ClientId = "client1",
                 AuthorizedScopes = ["baz1", "baz2"],
-                Version = 1
+                Version = 5
             });
             var handle5 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
             {
@@ -135,7 +135,7 @@ namespace IdentityServer.UnitTests.Services.Default
                 Subject = new IdentityServerUser("456").CreatePrincipal(),
                 ClientId = "client1",
                 AuthorizedScopes = ["baz3"],
-                Version = 1
+                Version = 5
             });
             var handle6 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
             {
@@ -144,7 +144,7 @@ namespace IdentityServer.UnitTests.Services.Default
                 Subject = new IdentityServerUser("123").CreatePrincipal(),
                 ClientId = "client2",
                 AuthorizedScopes = ["baz3"],
-                Version = 1
+                Version = 5
             });
 
             var handle7 = await _codes.StoreAuthorizationCodeAsync(new AuthorizationCode
@@ -269,7 +269,7 @@ namespace IdentityServer.UnitTests.Services.Default
                 Subject = new IdentityServerUser("123").CreatePrincipal(),
                 ClientId = "client1",
                 AuthorizedScopes = ["baz1", "baz2"],
-                Version = 1
+                Version = 5
             });
             var handle5 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
             {
@@ -278,7 +278,7 @@ namespace IdentityServer.UnitTests.Services.Default
                 Subject = new IdentityServerUser("456").CreatePrincipal(),
                 ClientId = "client1",
                 AuthorizedScopes = ["baz3"],
-                Version = 1
+                Version = 5
             });
             var handle6 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
             {
@@ -287,7 +287,7 @@ namespace IdentityServer.UnitTests.Services.Default
                 Subject = new IdentityServerUser("123").CreatePrincipal(),
                 ClientId = "client2",
                 AuthorizedScopes = ["baz3"],
-                Version = 1
+                Version = 5
             });
 
             var handle7 = await _codes.StoreAuthorizationCodeAsync(new AuthorizationCode
@@ -350,7 +350,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client1",
                     SessionId = "session1",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 var handle2 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
                 {
@@ -360,7 +360,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client2",
                     SessionId = "session1",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 var handle3 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
                 {
@@ -370,7 +370,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client3",
                     SessionId = "session3",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
 
                 await _subject.RemoveAllGrantsAsync("123");
@@ -391,7 +391,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client1",
                     SessionId = "session1",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 var handle2 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
                 {
@@ -401,7 +401,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client2",
                     SessionId = "session1",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 var handle3 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
                 {
@@ -411,7 +411,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client3",
                     SessionId = "session3",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
 
                 await _subject.RemoveAllGrantsAsync("123", "client1");
@@ -432,7 +432,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client1",
                     SessionId = "session1",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 var handle2 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
                 {
@@ -442,7 +442,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client2",
                     SessionId = "session1",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 var handle3 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
                 {
@@ -452,7 +452,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client3",
                     SessionId = "session1",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 var handle4 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
                 {
@@ -462,7 +462,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client1",
                     SessionId = "session2",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 await _subject.RemoveAllGrantsAsync("123", "client1", "session1");
 
@@ -484,7 +484,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client1",
                     SessionId = "session1",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 var handle2 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
                 {
@@ -494,7 +494,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client2",
                     SessionId = "session1",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 var handle3 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
                 {
@@ -504,7 +504,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client3",
                     SessionId = "session1",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 var handle4 = await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
                 {
@@ -514,7 +514,7 @@ namespace IdentityServer.UnitTests.Services.Default
                     ClientId = "client1",
                     SessionId = "session2",
                     AuthorizedScopes = ["baz"],
-                    Version = 1
+                    Version = 5
                 });
                 await _subject.RemoveAllGrantsAsync("123", sessionId:"session1");
 

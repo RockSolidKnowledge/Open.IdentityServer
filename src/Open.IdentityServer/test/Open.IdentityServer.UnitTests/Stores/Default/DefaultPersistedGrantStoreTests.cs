@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.UnitTests.Common;
+using Open.IdentityModel;
 using Open.IdentityServer;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
@@ -97,6 +98,69 @@ namespace IdentityServer.UnitTests.Stores.Default
             var code2 = await _codes.GetAuthorizationCodeAsync(handle);
             code2.Should().BeNull();
         }
+        
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(6)]
+        [InlineData(7)]
+        public async Task GetRefreshTokenAsync_when_unsupported_token_stored_should_retrieve_mapped_grant(int unsupportedVersion)
+        {
+            var token1 = new RefreshToken()
+            {
+                CreationTime = DateTime.UtcNow,
+                Lifetime = 10,
+                Version = unsupportedVersion,
+            };
+
+            var handle = await _refreshTokens.StoreRefreshTokenAsync(token1);
+            var token2 = await _refreshTokens.GetRefreshTokenAsync(handle);
+
+            token2.Should().BeNull();
+        }
+        
+        [Fact]
+        public async Task GetRefreshTokenAsync_when_v4_token_stored_should_retrieve_mapped_grant()
+        {
+            var token1 = new RefreshToken()
+            {
+                CreationTime = DateTime.UtcNow,
+                Lifetime = 10,
+                
+                AccessToken = new Token
+                {
+                    ClientId = "client",
+                    Audiences = { "aud" },
+                    CreationTime = DateTime.UtcNow,
+                    Type = "type",
+                    Claims = new List<Claim>
+                    {
+                        new("sub", "123"),
+                        new("sid", "session1"),
+                        new("scope", "foo"),
+                        new("scope", "bar")
+                    }
+                },
+                
+                Version = 4
+            };
+
+            var handle = await _refreshTokens.StoreRefreshTokenAsync(token1);
+            var token2 = await _refreshTokens.GetRefreshTokenAsync(handle);
+
+            token2.CreationTime.Should().Be(token1.CreationTime);
+            token2.Lifetime.Should().Be(token1.Lifetime);
+            token2.Subject.GetSubjectId().Should().Be("123");
+            
+            token2.ClientId.Should().Be(token1.AccessToken.ClientId);
+            token2.AuthorizedScopes.Should().BeEquivalentTo("foo", "bar");
+            token2.SessionId.Should().Be("session1");
+            token2.Version.Should().Be(5);
+
+            token2.AccessTokens.Should().ContainKey(string.Empty).WhoseValue.Should()
+                .BeEquivalentTo(token1.AccessToken);
+        }
 
         [Fact]
         public async Task StoreRefreshTokenAsync_should_persist_grant()
@@ -109,8 +173,21 @@ namespace IdentityServer.UnitTests.Stores.Default
                 Subject = new IdentityServerUser("123").CreatePrincipal(),
                 ClientId = "client",
                 AuthorizedScopes = ["foo"],
-                
-                Version = 1
+                AccessTokens =
+                {
+                    {string.Empty, new Token
+                    {
+                        ClientId = "client",
+                        Audiences = { "aud" },
+                        CreationTime = DateTime.UtcNow,
+                        Type = "type",
+                        Claims = new List<Claim>
+                        {
+                            new("sub", "123"),
+                            new("scope", "foo")
+                        }
+                    }}
+                },
             };
 
             var handle = await _refreshTokens.StoreRefreshTokenAsync(token1);
@@ -123,6 +200,7 @@ namespace IdentityServer.UnitTests.Stores.Default
             token1.Version.Should().Be(token2.Version);
             token1.SubjectId.Should().Be(token2.SubjectId);
             token1.AuthorizedScopes.Should().BeEquivalentTo(token2.AuthorizedScopes);
+            token1.AccessTokens.Should().BeEquivalentTo(token2.AccessTokens);
         }
 
         [Fact]
@@ -316,8 +394,6 @@ namespace IdentityServer.UnitTests.Stores.Default
                 Subject = new IdentityServerUser("123").CreatePrincipal(),
                 ClientId = "client1",
                 AuthorizedScopes = ["baz1", "baz2"],
-                
-                Version = 1
             });
 
             await _codes.StoreAuthorizationCodeAsync(new AuthorizationCode()
