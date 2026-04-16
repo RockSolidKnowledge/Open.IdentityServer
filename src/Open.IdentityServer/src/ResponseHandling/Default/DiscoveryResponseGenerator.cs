@@ -321,7 +321,7 @@ namespace Open.IdentityServer.ResponseHandling
             if (Options.Endpoints.EnableAuthorizeEndpoint)
             {
                 entries.Add(OidcConstants.Discovery.RequestParameterSupported, true);
-                entries.Add(OidcConstants.Discovery.AuthorizationResponseIssParameterSupported, true);
+                entries.Add(OidcConstants.Discovery.AuthorizationResponseIssParameterSupported, Options.EnableAuthorizeResponseIssuerParam);
 
                 if (Options.Endpoints.EnableJwtRequestUri)
                 {

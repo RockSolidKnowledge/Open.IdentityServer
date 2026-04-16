@@ -53,15 +53,18 @@ public class DiscoveryResponseGeneratorTests
         actual.Should().NotContainKey(OidcConstants.Discovery.AuthorizationResponseIssParameterSupported);
     }
 
-    [Fact]
-    public async Task CreateDiscoveryDocumentAsync_WhenAuthoriseEndpointEnabled_ShouldContainAuthorizationResponseIssParameterSupportedAsTrue()
+    [Theory]
+    [InlineData(true), InlineData(false)]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthoriseEndpointEnabled_ShouldContainAuthorizationResponseIssParameterSupported(bool value)
     {
+        Options.EnableAuthorizeResponseIssuerParam = value;
+        
         var sut = CreateSut();
 
         var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
 
         actual.Should().ContainKey(OidcConstants.Discovery.AuthorizationResponseIssParameterSupported)
             .WhoseValue.Should().BeOfType<bool>()
-            .Which.Should().BeTrue();
+            .Which.Should().Be(value);
     }
 }

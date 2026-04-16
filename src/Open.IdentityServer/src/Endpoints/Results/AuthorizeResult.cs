@@ -58,7 +58,7 @@ namespace Open.IdentityServer.Endpoints.Results
             _userSession = _userSession ?? context.RequestServices.GetRequiredService<IUserSession>();
             _errorMessageStore = _errorMessageStore ?? context.RequestServices.GetRequiredService<IMessageStore<ErrorMessage>>();
             _clock = _clock ?? context.RequestServices.GetRequiredService<TimeProvider>();
-            Response.Issuer = context.GetIdentityServerIssuerUri();
+            Response.Issuer = _options.EnableAuthorizeResponseIssuerParam ? context.GetIdentityServerIssuerUri() : null;
         }
 
         public async Task ExecuteAsync(HttpContext context)

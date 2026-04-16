@@ -58,7 +58,7 @@ namespace IdentityServer.UnitTests.Endpoints.Results
         }
 
         [Fact]
-        public async Task error_should_redirect_to_error_page_and_passs_info()
+        public async Task Error_ShouldRedirectToErrorPage_AndPassInfo()
         {
             _response.Error = "some_error";
 
@@ -77,14 +77,14 @@ namespace IdentityServer.UnitTests.Endpoints.Results
         [InlineData(OidcConstants.AuthorizeErrors.LoginRequired)]
         [InlineData(OidcConstants.AuthorizeErrors.ConsentRequired)]
         [InlineData(OidcConstants.AuthorizeErrors.InteractionRequired)]
-        public async Task prompt_none_errors_should_return_to_client(string error)
+        public async Task PromptNoneErrors_ShouldReturnToClient(string error)
         {
             _response.Error = error;
             _response.Request = new ValidatedAuthorizeRequest
             {
                 ResponseMode = OidcConstants.ResponseModes.Query,
                 RedirectUri = "http://client/callback",
-                PromptModes = new[] { "none" }
+                PromptModes = ["none"]
             };
 
             await _subject.ExecuteAsync(_context);
@@ -100,7 +100,7 @@ namespace IdentityServer.UnitTests.Endpoints.Results
         [InlineData(OidcConstants.AuthorizeErrors.LoginRequired)]
         [InlineData(OidcConstants.AuthorizeErrors.ConsentRequired)]
         [InlineData(OidcConstants.AuthorizeErrors.InteractionRequired)]
-        public async Task prompt_none_errors_for_anonymous_users_should_include_session_state(string error)
+        public async Task PromptNoneErrorsForAnonymousUsers_ShouldIncludeSessionState(string error)
         {
             _response.Error = error;
             _response.Request = new ValidatedAuthorizeRequest
@@ -118,12 +118,41 @@ namespace IdentityServer.UnitTests.Endpoints.Results
             var location = _context.Response.Headers["Location"].First();
             var query = QueryHelpers.ParseQuery(new Uri(location).Query);
             query["session_state"].First().Should().Be(_response.SessionState);
-            query["iss"].First().Should().Be(_fakeOptions.IssuerUri);
         }
 
         [Fact]
-        public async Task access_denied_should_return_to_client()
+        public async Task AccessDenied_WithIssuerInResponseDisabled_ShouldReturnToClient_WithoutIssParam()
         {
+            _options.EnableAuthorizeResponseIssuerParam = false;
+            const string errorDescription = "some error description";
+
+            _response.Error = OidcConstants.AuthorizeErrors.AccessDenied;
+            _response.ErrorDescription = errorDescription;
+            _response.Request = new ValidatedAuthorizeRequest
+            {
+                ResponseMode = OidcConstants.ResponseModes.Query,
+                RedirectUri = "http://client/callback"
+            };
+
+            await _subject.ExecuteAsync(_context);
+
+            _mockUserSession.Clients.Count.Should().Be(0);
+            _context.Response.StatusCode.Should().Be(302);
+            var location = _context.Response.Headers["Location"].First();
+            location.Should().StartWith("http://client/callback");
+
+            var queryString = new Uri(location).Query;
+            var queryParams = QueryHelpers.ParseQuery(queryString);
+
+            queryParams["error"].Should().Equal(OidcConstants.AuthorizeErrors.AccessDenied);
+            queryParams["error_description"].Should().Equal(errorDescription);
+            queryParams.Should().NotContainKey("iss");
+        }
+        
+        [Fact]
+        public async Task AccessDenied_WithIssuerInResponseEnabled_ShouldReturnToClient_WithIssParam()
+        {
+            _options.EnableAuthorizeResponseIssuerParam = true;
             const string errorDescription = "some error description";
 
             _response.Error = OidcConstants.AuthorizeErrors.AccessDenied;
@@ -150,7 +179,7 @@ namespace IdentityServer.UnitTests.Endpoints.Results
         }
 
         [Fact]
-        public async Task success_should_add_client_to_client_list()
+        public async Task Success_ShouldAddClientToClientList()
         {
             _response.Request = new ValidatedAuthorizeRequest
             {
@@ -165,8 +194,34 @@ namespace IdentityServer.UnitTests.Endpoints.Results
         }
 
         [Fact]
-        public async Task query_mode_should_pass_results_in_query()
+        public async Task QueryMode_WithIssuerInResponseDisabled_ShouldPassResultsInQuery_WithoutIssParam()
         {
+            _options.EnableAuthorizeResponseIssuerParam = false;
+            _response.Request = new ValidatedAuthorizeRequest
+            {
+                ClientId = "client",
+                ResponseMode = OidcConstants.ResponseModes.Query,
+                RedirectUri = "http://client/callback",
+                State = "state"
+            };
+
+            await _subject.ExecuteAsync(_context);
+
+            _context.Response.StatusCode.Should().Be(302);
+            _context.Response.Headers["Cache-Control"].First().Should().Contain("no-store");
+            _context.Response.Headers["Cache-Control"].First().Should().Contain("no-cache");
+            _context.Response.Headers["Cache-Control"].First().Should().Contain("max-age=0");
+            var location = _context.Response.Headers["Location"].First();
+            location.Should().StartWith("http://client/callback");
+            var query = QueryHelpers.ParseQuery(new Uri(location).Query);
+            query["state"].First().Should().Be(_response.Request.State);
+            query.Should().NotContainKey("iss");
+        }
+
+        [Fact]
+        public async Task QueryMode_WithIssuerInResponseEnabled_ShouldPassResultsInQuery_WithIssParam()
+        {
+            _options.EnableAuthorizeResponseIssuerParam = true;
             _response.Request = new ValidatedAuthorizeRequest
             {
                 ClientId = "client",
@@ -189,8 +244,34 @@ namespace IdentityServer.UnitTests.Endpoints.Results
         }
 
         [Fact]
-        public async Task fragment_mode_should_pass_results_in_fragment()
+        public async Task FragmentMode_WithIssuerInResponseDisabled_ShouldPassResultsInFragment_WithoutIssParam()
         {
+            _options.EnableAuthorizeResponseIssuerParam = false;
+            _response.Request = new ValidatedAuthorizeRequest
+            {
+                ClientId = "client",
+                ResponseMode = OidcConstants.ResponseModes.Fragment,
+                RedirectUri = "http://client/callback",
+                State = "state"
+            };
+
+            await _subject.ExecuteAsync(_context);
+
+            _context.Response.StatusCode.Should().Be(302);
+            _context.Response.Headers["Cache-Control"].First().Should().Contain("no-store");
+            _context.Response.Headers["Cache-Control"].First().Should().Contain("no-cache");
+            _context.Response.Headers["Cache-Control"].First().Should().Contain("max-age=0");
+            var location = _context.Response.Headers["Location"].First();
+            location.Should().StartWith("http://client/callback");
+            var fragment = new Uri(location).Fragment;
+            fragment.Should().Contain("state=state");
+            fragment.Should().NotContain($"iss=");
+        }
+
+        [Fact]
+        public async Task FragmentMode_WithIssuerInResponseEnabled_ShouldPassResultsInFragment_WithIssParam()
+        {
+            _options.EnableAuthorizeResponseIssuerParam = true;
             _response.Request = new ValidatedAuthorizeRequest
             {
                 ClientId = "client",
@@ -213,8 +294,43 @@ namespace IdentityServer.UnitTests.Endpoints.Results
         }
     
         [Fact]
-        public async Task form_post_mode_should_pass_results_in_body()
+        public async Task FormPostMode_WithIssuerInResponseDisabled_ShouldPassResultsInBody_WithoutIssParam()
         {
+            _options.EnableAuthorizeResponseIssuerParam = false;
+            _response.Request = new ValidatedAuthorizeRequest
+            {
+                ClientId = "client",
+                ResponseMode = OidcConstants.ResponseModes.FormPost,
+                RedirectUri = "http://client/callback",
+                State = "state"
+            };
+
+            await _subject.ExecuteAsync(_context);
+
+            _context.Response.StatusCode.Should().Be(200);
+            _context.Response.ContentType.Should().StartWith("text/html");
+            _context.Response.Headers["Cache-Control"].First().Should().Contain("no-store");
+            _context.Response.Headers["Cache-Control"].First().Should().Contain("no-cache");
+            _context.Response.Headers["Cache-Control"].First().Should().Contain("max-age=0");
+            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("default-src 'none';");
+            _context.Response.Headers["Content-Security-Policy"].First().Should().Contain("script-src 'sha256-orD0/VhH8hLqrLxKHD/HUEMdwqX6/0ve7c5hspX5VJ8='");
+            _context.Response.Headers["X-Content-Security-Policy"].First().Should().Contain("default-src 'none';");
+            _context.Response.Headers["X-Content-Security-Policy"].First().Should().Contain("script-src 'sha256-orD0/VhH8hLqrLxKHD/HUEMdwqX6/0ve7c5hspX5VJ8='");
+            _context.Response.Body.Seek(0, SeekOrigin.Begin);
+            using (var rdr = new StreamReader(_context.Response.Body))
+            {
+                var html = rdr.ReadToEnd();
+                html.Should().Contain("<base target='_self'/>");
+                html.Should().Contain("<form method='post' action='http://client/callback'>");
+                html.Should().Contain("<input type='hidden' name='state' value='state' />");
+                html.Should().NotContain($"<input type='hidden' name='iss'");
+            }
+        }
+    
+        [Fact]
+        public async Task FormPostMode_WithIssuerInResponseEnabled_ShouldPassResultsInBody_WithIssParam()
+        {
+            _options.EnableAuthorizeResponseIssuerParam = true;
             _response.Request = new ValidatedAuthorizeRequest
             {
                 ClientId = "client",
@@ -246,7 +362,7 @@ namespace IdentityServer.UnitTests.Endpoints.Results
         }
 
         [Fact]
-        public async Task form_post_mode_should_add_unsafe_inline_for_csp_level_1()
+        public async Task FormPostMode_ShouldAddUnsafeInlineForCspLevel1()
         {
             _response.Request = new ValidatedAuthorizeRequest
             {
@@ -265,7 +381,7 @@ namespace IdentityServer.UnitTests.Endpoints.Results
         }
 
         [Fact]
-        public async Task form_post_mode_should_not_add_deprecated_header_when_it_is_disabled()
+        public async Task FormPostMode_ShouldNotAddDeprecatedHeaderWhenItIsDisabled()
         {
             _response.Request = new ValidatedAuthorizeRequest
             {

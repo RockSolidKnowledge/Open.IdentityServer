@@ -135,5 +135,10 @@ namespace Open.IdentityServer.Configuration
         /// Gets or sets the mutual TLS options.
         /// </summary>
         public MutualTlsOptions MutualTls { get; set; } = new MutualTlsOptions();
+
+        /// <summary>
+        /// Gets or sets the enable authorise response issuer param option
+        /// </summary>
+        public bool EnableAuthorizeResponseIssuerParam { get; set; } = false;
     }
 }
