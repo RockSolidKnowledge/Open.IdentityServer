@@ -87,14 +87,6 @@ public class TokenCreationRequest
     public string Description { get; set; }
 
     /// <summary>
-    /// Gets and set the audience's value for the generated token
-    /// </summary>
-    /// <value>
-    /// The audiences of token
-    /// </value>
-    public List<string> ResourceIndicators { get; set; }
-
-    /// <summary>
     /// Called to validate the <see cref="TokenCreationRequest"/> before it is processed.
     /// </summary>
     public void Validate()

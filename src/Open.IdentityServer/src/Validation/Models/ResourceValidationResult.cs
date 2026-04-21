@@ -66,19 +66,19 @@ public class ResourceValidationResult
     /// </summary>
     public ICollection<string> InvalidScopes { get; set; } = new HashSet<string>();
 
-        /// <summary>
-        /// The requested resource indicators that are invalid.
-        /// </summary>
-        public ICollection<string> InvalidResourceIndicators { get; set; } = new HashSet<string>();
+    /// <summary>
+    /// The requested resource indicators that are invalid.
+    /// </summary>
+    public ICollection<string> InvalidResourceIndicators { get; set; } = new HashSet<string>();
 
-        /// <summary>
-        /// Returns new result filted by the scope values.
-        /// </summary>
-        /// <param name="scopeValues"></param>
-        /// <returns></returns>
-        public ResourceValidationResult Filter(IEnumerable<string> scopeValues)
-        {
-            scopeValues ??= Enumerable.Empty<string>();
+    /// <summary>
+    /// Returns new result filted by the scope values.
+    /// </summary>
+    /// <param name="scopeValues"></param>
+    /// <returns></returns>
+    public ResourceValidationResult Filter(IEnumerable<string> scopeValues)
+    {
+        scopeValues ??= Enumerable.Empty<string>();
 
         var offline = scopeValues.Contains(IdentityServerConstants.StandardScopes.OfflineAccess);
 
@@ -86,7 +86,7 @@ public class ResourceValidationResult
         var parsedScopeNamesToKeep = parsedScopesToKeep.Select(x => x.ParsedName).ToArray();
 
         var identityToKeep = Resources.IdentityResources.Where(x => parsedScopeNamesToKeep.Contains(x.Name));
-        var apiScopesToKeep = Resources.ApiScopes.Where(x => parsedScopeNamesToKeep.Contains(x.Name));
+        IEnumerable<ApiScope> apiScopesToKeep = Resources.ApiScopes.Where(x => parsedScopeNamesToKeep.Contains(x.Name));
 
         var apiScopesNamesToKeep = apiScopesToKeep.Select(x => x.Name).ToArray();
         var apiResourcesToKeep = Resources.ApiResources.Where(x => x.Scopes.Any(y => apiScopesNamesToKeep.Contains(y)));
@@ -95,11 +95,28 @@ public class ResourceValidationResult
         {
             OfflineAccess = offline
         };
-            
+
         return new ResourceValidationResult()
         {
             Resources = resources,
             ParsedScopes = parsedScopesToKeep
         };
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="resourceIndicators"></param>
+    public void FilterUsingResourceIndicators(IEnumerable<string> resourceIndicators)
+    {
+        resourceIndicators ??= [];
+
+        var resourcesToKeep = Resources.ApiResources.Where(x => resourceIndicators.Contains(x.Name)).ToArray();
+        var allowedScopes = resourcesToKeep.SelectMany(x => x.Scopes).ToArray();
+        var scopesToKeep = Resources.ApiScopes.Where(x => allowedScopes.Contains(x.Name)).ToArray();
+
+        Resources.ApiResources = resourcesToKeep;
+        Resources.ApiScopes = scopesToKeep;
+        ParsedScopes = Resources.ToScopeNames().Select(x => new ParsedScopeValue(x)).ToList();
     }
 }

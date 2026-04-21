@@ -6,7 +6,6 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
 using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer.UnitTests.Validation.Setup;
@@ -31,9 +30,9 @@ public class DefaultRefreshTokenServiceTests
             TestLogger.Create<DefaultRefreshTokenStore>());
 
         _subject = new DefaultRefreshTokenService(
-            _store, 
+            _store,
             new TestProfileService(),
-            _clock, 
+            _clock,
             TestLogger.Create<DefaultRefreshTokenService>());
     }
 
@@ -43,7 +42,10 @@ public class DefaultRefreshTokenServiceTests
         var client = new Client();
         var accessToken = new Token();
 
-        var handle = await _subject.CreateRefreshTokenAsync(_user, accessToken, client);
+        var handle = await _subject.CreateRefreshTokenAsync(new RefreshTokenCreationRequest
+        {
+            Subject = _user, AccessToken = accessToken, Client = client, AuthorisedScopes = [],
+        });
 
         (await _store.GetRefreshTokenAsync(handle)).Should().NotBeNull();
     }
@@ -59,7 +61,10 @@ public class DefaultRefreshTokenServiceTests
             AbsoluteRefreshTokenLifetime = 10
         };
 
-        var handle = await _subject.CreateRefreshTokenAsync(_user, new Token(), client);
+        var handle = await _subject.CreateRefreshTokenAsync(new RefreshTokenCreationRequest
+        {
+            Subject = _user, AccessToken = new Token(), Client = client, AuthorisedScopes = [],
+        });
 
         var refreshToken = (await _store.GetRefreshTokenAsync(handle));
 
@@ -75,11 +80,14 @@ public class DefaultRefreshTokenServiceTests
             ClientId = "client1",
             RefreshTokenUsage = TokenUsage.ReUse,
             RefreshTokenExpiration = TokenExpiration.Sliding,
-            SlidingRefreshTokenLifetime  = 100,
+            SlidingRefreshTokenLifetime = 100,
             AbsoluteRefreshTokenLifetime = 10
         };
 
-        var handle = await _subject.CreateRefreshTokenAsync(_user, new Token(), client);
+        var handle = await _subject.CreateRefreshTokenAsync(new RefreshTokenCreationRequest
+        {
+            Subject = _user, AccessToken = new Token(), Client = client, AuthorisedScopes = [],
+        });
 
         var refreshToken = (await _store.GetRefreshTokenAsync(handle));
 
@@ -98,7 +106,10 @@ public class DefaultRefreshTokenServiceTests
             SlidingRefreshTokenLifetime = 10
         };
 
-        var handle = await _subject.CreateRefreshTokenAsync(_user, new Token(), client);
+        var handle = await _subject.CreateRefreshTokenAsync(new RefreshTokenCreationRequest
+        {
+            Subject = _user, AccessToken = new Token(), Client = client, AuthorisedScopes = [],
+        });
 
         var refreshToken = (await _store.GetRefreshTokenAsync(handle));
 
@@ -119,7 +130,7 @@ public class DefaultRefreshTokenServiceTests
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
-                
+
             Subject = new IdentityServerUser("123").CreatePrincipal(),
             ClientId = client.ClientId,
             AuthorizedScopes = [],
@@ -151,7 +162,7 @@ public class DefaultRefreshTokenServiceTests
         var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
         {
             CreationTime = now.AddSeconds(-10),
-                
+
             Subject = new IdentityServerUser("123").CreatePrincipal(),
             ClientId = client.ClientId,
             AuthorizedScopes = [],
@@ -165,7 +176,8 @@ public class DefaultRefreshTokenServiceTests
         var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
 
         newRefreshToken.Should().NotBeNull();
-        newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
+        newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds +
+                                             client.SlidingRefreshTokenLifetime);
     }
 
     [Fact]
@@ -186,7 +198,7 @@ public class DefaultRefreshTokenServiceTests
         var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
         {
             CreationTime = now.AddSeconds(-1000),
-                
+
             Subject = new IdentityServerUser("123").CreatePrincipal(),
             ClientId = client.ClientId,
             AuthorizedScopes = [],
@@ -221,7 +233,7 @@ public class DefaultRefreshTokenServiceTests
         var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
         {
             CreationTime = now.AddSeconds(-1000),
-                
+
             Subject = new IdentityServerUser("123").CreatePrincipal(),
             ClientId = client.ClientId,
             AuthorizedScopes = [],
@@ -235,7 +247,8 @@ public class DefaultRefreshTokenServiceTests
         var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
 
         newRefreshToken.Should().NotBeNull();
-        newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
+        newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds +
+                                             client.SlidingRefreshTokenLifetime);
     }
 
     [Fact]
@@ -256,7 +269,7 @@ public class DefaultRefreshTokenServiceTests
         var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
         {
             CreationTime = now.AddSeconds(-1000),
-                
+
             Subject = new IdentityServerUser("123").CreatePrincipal(),
             ClientId = client.ClientId,
             AuthorizedScopes = [],
@@ -270,7 +283,8 @@ public class DefaultRefreshTokenServiceTests
         var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
 
         newRefreshToken.Should().NotBeNull();
-        newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
+        newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds +
+                                             client.SlidingRefreshTokenLifetime);
     }
 
     [Fact]
@@ -286,7 +300,7 @@ public class DefaultRefreshTokenServiceTests
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
-                
+
             Subject = new IdentityServerUser("123").CreatePrincipal(),
             ClientId = client.ClientId,
             AuthorizedScopes = [],
@@ -305,7 +319,7 @@ public class DefaultRefreshTokenServiceTests
         oldToken.ConsumedTime.Should().Be(now);
         newToken.ConsumedTime.Should().BeNull();
     }
-        
+
     [Fact]
     public async Task ValidateRefreshToken_invalid_token_should_fail()
     {
@@ -319,7 +333,7 @@ public class DefaultRefreshTokenServiceTests
 
         result.IsError.Should().BeTrue();
     }
-        
+
     [Fact]
     public async Task ValidateRefreshToken_client_without_allow_offline_access_should_fail()
     {
@@ -333,7 +347,7 @@ public class DefaultRefreshTokenServiceTests
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
-                
+
             Subject = new IdentityServerUser("123").CreatePrincipal(),
             ClientId = client.ClientId,
             AuthorizedScopes = [],
@@ -348,7 +362,7 @@ public class DefaultRefreshTokenServiceTests
 
         result.IsError.Should().BeTrue();
     }
-        
+
     [Fact]
     public async Task ValidateRefreshToken_invalid_client_binding_should_fail()
     {
@@ -363,7 +377,7 @@ public class DefaultRefreshTokenServiceTests
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
-                
+
             Subject = new IdentityServerUser("123").CreatePrincipal(),
             ClientId = "client2",
             AuthorizedScopes = [],
@@ -378,7 +392,7 @@ public class DefaultRefreshTokenServiceTests
 
         result.IsError.Should().BeTrue();
     }
-        
+
     [Fact]
     public async Task ValidateRefreshToken_expired_token_should_fail()
     {
@@ -393,7 +407,7 @@ public class DefaultRefreshTokenServiceTests
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
-                
+
             Subject = new IdentityServerUser("123").CreatePrincipal(),
             ClientId = client.ClientId,
             AuthorizedScopes = [],
@@ -408,7 +422,7 @@ public class DefaultRefreshTokenServiceTests
 
         result.IsError.Should().BeTrue();
     }
-        
+
     [Fact]
     public async Task ValidateRefreshToken_consumed_token_should_fail()
     {
@@ -424,7 +438,7 @@ public class DefaultRefreshTokenServiceTests
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
             ConsumedTime = DateTime.UtcNow,
-                
+
             Subject = new IdentityServerUser("123").CreatePrincipal(),
             ClientId = client.ClientId,
             AuthorizedScopes = [],
@@ -439,7 +453,7 @@ public class DefaultRefreshTokenServiceTests
 
         result.IsError.Should().BeTrue();
     }
-        
+
     [Fact]
     public async Task ValidateRefreshToken_valid_token_should_succeed()
     {
