@@ -7,15 +7,14 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Validation;
 
-namespace IdentityServer.UnitTests.Endpoints.Authorize
-{
-    internal class StubAuthorizeInteractionResponseGenerator : IAuthorizeInteractionResponseGenerator
-    {
-        internal InteractionResponse Response { get; set; } = new InteractionResponse();
+namespace IdentityServer.UnitTests.Endpoints.Authorize;
 
-        public Task<InteractionResponse> ProcessInteractionAsync(ValidatedAuthorizeRequest request, ConsentResponse consent = null)
-        {
-            return Task.FromResult(Response);
-        }
+internal class StubAuthorizeInteractionResponseGenerator : IAuthorizeInteractionResponseGenerator
+{
+    internal InteractionResponse Response { get; set; } = new InteractionResponse();
+
+    public Task<InteractionResponse> ProcessInteractionAsync(ValidatedAuthorizeRequest request, ConsentResponse consent = null)
+    {
+        return Task.FromResult(Response);
     }
 }

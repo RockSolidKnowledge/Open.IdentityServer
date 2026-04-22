@@ -4,33 +4,32 @@
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Open.IdentityServer.EntityFramework.IntegrationTests
+namespace Open.IdentityServer.EntityFramework.IntegrationTests;
+
+/// <summary>
+/// Helper methods to initialize DbContextOptions for the specified database provider and context.
+/// </summary>
+public class DatabaseProviderBuilder
 {
-    /// <summary>
-    /// Helper methods to initialize DbContextOptions for the specified database provider and context.
-    /// </summary>
-    public class DatabaseProviderBuilder
+    public static DbContextOptions<T> BuildInMemory<T>(string name) where T : DbContext
     {
-        public static DbContextOptions<T> BuildInMemory<T>(string name) where T : DbContext
-        {
-            var builder = new DbContextOptionsBuilder<T>();
-            builder.UseInMemoryDatabase(name);
-            return builder.Options;
-        }
+        var builder = new DbContextOptionsBuilder<T>();
+        builder.UseInMemoryDatabase(name);
+        return builder.Options;
+    }
 
-        public static DbContextOptions<T> BuildSqlite<T>(string name) where T : DbContext
-        {
-            var builder = new DbContextOptionsBuilder<T>();
-            builder.UseSqlite($"Filename=./Test.Open.IdentityServer.EntityFramework-3.1.0.{name}.db");
-            return builder.Options;
-        }
+    public static DbContextOptions<T> BuildSqlite<T>(string name) where T : DbContext
+    {
+        var builder = new DbContextOptionsBuilder<T>();
+        builder.UseSqlite($"Filename=./Test.Open.IdentityServer.EntityFramework-3.1.0.{name}.db");
+        return builder.Options;
+    }
 
-        public static DbContextOptions<T> BuildLocalDb<T>(string name) where T : DbContext
-        {
-            var builder = new DbContextOptionsBuilder<T>();
-            builder.UseSqlServer(
-                $@"Data Source=(LocalDb)\MSSQLLocalDB;database=Test.Open.IdentityServer.EntityFramework-3.1.0.{name};trusted_connection=yes;");
-            return builder.Options;
-        }
+    public static DbContextOptions<T> BuildLocalDb<T>(string name) where T : DbContext
+    {
+        var builder = new DbContextOptionsBuilder<T>();
+        builder.UseSqlServer(
+            $@"Data Source=(LocalDb)\MSSQLLocalDB;database=Test.Open.IdentityServer.EntityFramework-3.1.0.{name};trusted_connection=yes;");
+        return builder.Options;
     }
 }

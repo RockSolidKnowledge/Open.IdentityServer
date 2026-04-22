@@ -8,28 +8,27 @@ using AwesomeAssertions;
 using IdentityServer.IntegrationTests.Common;
 using Xunit;
 
-namespace IdentityServer.IntegrationTests.Endpoints.CheckSession
+namespace IdentityServer.IntegrationTests.Endpoints.CheckSession;
+
+public class CheckSessionTests
 {
-    public class CheckSessionTests
+    private const string Category = "Check session endpoint";
+
+    private IdentityServerPipeline _mockPipeline = new IdentityServerPipeline();
+
+    public CheckSessionTests()
     {
-        private const string Category = "Check session endpoint";
+        _mockPipeline.Initialize();
+    }
 
-        private IdentityServerPipeline _mockPipeline = new IdentityServerPipeline();
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task get_request_should_not_return_404()
+    {
+        var response = await _mockPipeline.BackChannelClient.GetAsync(
+            IdentityServerPipeline.CheckSessionEndpoint, 
+            TestContext.Current.CancellationToken);
 
-        public CheckSessionTests()
-        {
-            _mockPipeline.Initialize();
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task get_request_should_not_return_404()
-        {
-            var response = await _mockPipeline.BackChannelClient.GetAsync(
-                IdentityServerPipeline.CheckSessionEndpoint, 
-                TestContext.Current.CancellationToken);
-
-            response.StatusCode.Should().NotBe(HttpStatusCode.NotFound);
-        }
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound);
     }
 }

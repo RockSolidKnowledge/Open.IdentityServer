@@ -6,41 +6,40 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Xunit;
 
-namespace Open.IdentityModel.UnitTests
+namespace Open.IdentityModel.UnitTests;
+
+public class DiscoveryCacheTests
 {
-    public class DiscoveryCacheTests
+    private readonly NetworkHandler _successHandler;
+    private const string _authority = "https://demo.identityserver.io";
+
+    public DiscoveryCacheTests()
     {
-        private readonly NetworkHandler _successHandler;
-        private const string _authority = "https://demo.identityserver.io";
+        var discoFileName = FileName.Create("discovery.json");
+        var document = File.ReadAllText(discoFileName);
 
-        public DiscoveryCacheTests()
+        var jwksFileName = FileName.Create("discovery_jwks.json");
+        var jwks = File.ReadAllText(jwksFileName);
+
+        _successHandler = new NetworkHandler(request =>
         {
-            var discoFileName = FileName.Create("discovery.json");
-            var document = File.ReadAllText(discoFileName);
-
-            var jwksFileName = FileName.Create("discovery_jwks.json");
-            var jwks = File.ReadAllText(jwksFileName);
-
-            _successHandler = new NetworkHandler(request =>
+            if (request.RequestUri.AbsoluteUri.EndsWith("jwks"))
             {
-                if (request.RequestUri.AbsoluteUri.EndsWith("jwks"))
-                {
-                    return jwks;
-                }
+                return jwks;
+            }
 
-                return document;
-            }, HttpStatusCode.OK);
-        }
+            return document;
+        }, HttpStatusCode.OK);
+    }
 
-        [Fact]
-        public async Task New_initialization_should_work()
-        {
-            var client = new HttpClient(_successHandler);
-            var cache = new DiscoveryCache(_authority, () => client);
+    [Fact]
+    public async Task New_initialization_should_work()
+    {
+        var client = new HttpClient(_successHandler);
+        var cache = new DiscoveryCache(_authority, () => client);
 
-            var disco = await cache.GetAsync();
+        var disco = await cache.GetAsync();
 
-            disco.IsError.Should().BeFalse();
-        }
+        disco.IsError.Should().BeFalse();
     }
 }

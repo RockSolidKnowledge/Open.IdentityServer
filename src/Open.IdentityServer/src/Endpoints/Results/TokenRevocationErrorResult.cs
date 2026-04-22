@@ -8,40 +8,39 @@ using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Open.IdentityServer.Endpoints.Results
+namespace Open.IdentityServer.Endpoints.Results;
+
+/// <summary>
+/// Result for revocation error
+/// </summary>
+/// <seealso cref="Open.IdentityServer.Hosting.IEndpointResult" />
+public class TokenRevocationErrorResult : IEndpointResult
 {
     /// <summary>
-    /// Result for revocation error
+    /// Gets or sets the error.
     /// </summary>
-    /// <seealso cref="Open.IdentityServer.Hosting.IEndpointResult" />
-    public class TokenRevocationErrorResult : IEndpointResult
+    /// <value>
+    /// The error.
+    /// </value>
+    public string Error { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TokenRevocationErrorResult"/> class.
+    /// </summary>
+    /// <param name="error">The error.</param>
+    public TokenRevocationErrorResult(string error)
     {
-        /// <summary>
-        /// Gets or sets the error.
-        /// </summary>
-        /// <value>
-        /// The error.
-        /// </value>
-        public string Error { get; set; }
+        Error = error;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TokenRevocationErrorResult"/> class.
-        /// </summary>
-        /// <param name="error">The error.</param>
-        public TokenRevocationErrorResult(string error)
-        {
-            Error = error;
-        }
-
-        /// <summary>
-        /// Executes the result.
-        /// </summary>
-        /// <param name="context">The HTTP context.</param>
-        /// <returns></returns>
-        public Task ExecuteAsync(HttpContext context)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return context.Response.WriteJsonAsync(new { error = Error });
-        }
+    /// <summary>
+    /// Executes the result.
+    /// </summary>
+    /// <param name="context">The HTTP context.</param>
+    /// <returns></returns>
+    public Task ExecuteAsync(HttpContext context)
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        return context.Response.WriteJsonAsync(new { error = Error });
     }
 }

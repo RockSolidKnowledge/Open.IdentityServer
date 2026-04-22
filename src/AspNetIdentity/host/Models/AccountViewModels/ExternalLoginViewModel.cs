@@ -1,11 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Open.IdentityServer.Models.AccountViewModels
+namespace Open.IdentityServer.Models.AccountViewModels;
+
+public class ExternalLoginViewModel
 {
-    public class ExternalLoginViewModel
-    {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-    }
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; }
 }

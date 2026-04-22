@@ -12,461 +12,460 @@ using System.Threading.Tasks;
 using IdentityServer.UnitTests.Validation.Setup;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.Default
+namespace IdentityServer.UnitTests.Services.Default;
+
+public class DefaultRefreshTokenServiceTests
 {
-    public class DefaultRefreshTokenServiceTests
+    private DefaultRefreshTokenService _subject;
+    private DefaultRefreshTokenStore _store;
+
+    private ClaimsPrincipal _user = new IdentityServerUser("123").CreatePrincipal();
+    private StubClock _clock = new StubClock();
+
+    public DefaultRefreshTokenServiceTests()
     {
-        private DefaultRefreshTokenService _subject;
-        private DefaultRefreshTokenStore _store;
+        _store = new DefaultRefreshTokenStore(
+            new InMemoryPersistedGrantStore(),
+            new PersistentGrantSerializer(),
+            new DefaultHandleGenerationService(),
+            TestLogger.Create<DefaultRefreshTokenStore>());
 
-        private ClaimsPrincipal _user = new IdentityServerUser("123").CreatePrincipal();
-        private StubClock _clock = new StubClock();
+        _subject = new DefaultRefreshTokenService(
+            _store, 
+            new TestProfileService(),
+            _clock, 
+            TestLogger.Create<DefaultRefreshTokenService>());
+    }
 
-        public DefaultRefreshTokenServiceTests()
+    [Fact]
+    public async Task CreateRefreshToken_token_exists_in_store()
+    {
+        var client = new Client();
+        var accessToken = new Token();
+
+        var handle = await _subject.CreateRefreshTokenAsync(_user, accessToken, client);
+
+        (await _store.GetRefreshTokenAsync(handle)).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task CreateRefreshToken_should_match_absolute_lifetime()
+    {
+        var client = new Client
         {
-            _store = new DefaultRefreshTokenStore(
-                new InMemoryPersistedGrantStore(),
-                new PersistentGrantSerializer(),
-                new DefaultHandleGenerationService(),
-                TestLogger.Create<DefaultRefreshTokenStore>());
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.ReUse,
+            RefreshTokenExpiration = TokenExpiration.Absolute,
+            AbsoluteRefreshTokenLifetime = 10
+        };
 
-            _subject = new DefaultRefreshTokenService(
-                _store, 
-                new TestProfileService(),
-                _clock, 
-                TestLogger.Create<DefaultRefreshTokenService>());
-        }
+        var handle = await _subject.CreateRefreshTokenAsync(_user, new Token(), client);
 
-        [Fact]
-        public async Task CreateRefreshToken_token_exists_in_store()
+        var refreshToken = (await _store.GetRefreshTokenAsync(handle));
+
+        refreshToken.Should().NotBeNull();
+        refreshToken.Lifetime.Should().Be(client.AbsoluteRefreshTokenLifetime);
+    }
+
+    [Fact]
+    public async Task CreateRefreshToken_should_cap_sliding_lifetime_that_exceeds_absolute_lifetime()
+    {
+        var client = new Client
         {
-            var client = new Client();
-            var accessToken = new Token();
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.ReUse,
+            RefreshTokenExpiration = TokenExpiration.Sliding,
+            SlidingRefreshTokenLifetime  = 100,
+            AbsoluteRefreshTokenLifetime = 10
+        };
 
-            var handle = await _subject.CreateRefreshTokenAsync(_user, accessToken, client);
+        var handle = await _subject.CreateRefreshTokenAsync(_user, new Token(), client);
 
-            (await _store.GetRefreshTokenAsync(handle)).Should().NotBeNull();
-        }
+        var refreshToken = (await _store.GetRefreshTokenAsync(handle));
 
-        [Fact]
-        public async Task CreateRefreshToken_should_match_absolute_lifetime()
+        refreshToken.Should().NotBeNull();
+        refreshToken.Lifetime.Should().Be(client.AbsoluteRefreshTokenLifetime);
+    }
+
+    [Fact]
+    public async Task CreateRefreshToken_should_match_sliding_lifetime()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.ReUse,
-                RefreshTokenExpiration = TokenExpiration.Absolute,
-                AbsoluteRefreshTokenLifetime = 10
-            };
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.ReUse,
+            RefreshTokenExpiration = TokenExpiration.Sliding,
+            SlidingRefreshTokenLifetime = 10
+        };
 
-            var handle = await _subject.CreateRefreshTokenAsync(_user, new Token(), client);
+        var handle = await _subject.CreateRefreshTokenAsync(_user, new Token(), client);
 
-            var refreshToken = (await _store.GetRefreshTokenAsync(handle));
+        var refreshToken = (await _store.GetRefreshTokenAsync(handle));
 
-            refreshToken.Should().NotBeNull();
-            refreshToken.Lifetime.Should().Be(client.AbsoluteRefreshTokenLifetime);
-        }
+        refreshToken.Should().NotBeNull();
+        refreshToken.Lifetime.Should().Be(client.SlidingRefreshTokenLifetime);
+    }
 
-        [Fact]
-        public async Task CreateRefreshToken_should_cap_sliding_lifetime_that_exceeds_absolute_lifetime()
+    [Fact]
+    public async Task UpdateRefreshToken_one_time_use_should_create_new_token()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.ReUse,
-                RefreshTokenExpiration = TokenExpiration.Sliding,
-                SlidingRefreshTokenLifetime  = 100,
-                AbsoluteRefreshTokenLifetime = 10
-            };
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.OneTimeOnly
+        };
 
-            var handle = await _subject.CreateRefreshTokenAsync(_user, new Token(), client);
-
-            var refreshToken = (await _store.GetRefreshTokenAsync(handle));
-
-            refreshToken.Should().NotBeNull();
-            refreshToken.Lifetime.Should().Be(client.AbsoluteRefreshTokenLifetime);
-        }
-
-        [Fact]
-        public async Task CreateRefreshToken_should_match_sliding_lifetime()
+        var refreshToken = new RefreshToken
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.ReUse,
-                RefreshTokenExpiration = TokenExpiration.Sliding,
-                SlidingRefreshTokenLifetime = 10
-            };
-
-            var handle = await _subject.CreateRefreshTokenAsync(_user, new Token(), client);
-
-            var refreshToken = (await _store.GetRefreshTokenAsync(handle));
-
-            refreshToken.Should().NotBeNull();
-            refreshToken.Lifetime.Should().Be(client.SlidingRefreshTokenLifetime);
-        }
-
-        [Fact]
-        public async Task UpdateRefreshToken_one_time_use_should_create_new_token()
-        {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.OneTimeOnly
-            };
-
-            var refreshToken = new RefreshToken
-            {
-                CreationTime = DateTime.UtcNow,
-                Lifetime = 10,
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
                 
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                AuthorizedScopes = [],
-            };
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        };
 
-            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+        var handle = await _store.StoreRefreshTokenAsync(refreshToken);
 
-            (await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client))
-                .Should().NotBeNull()
-                .And
-                .NotBe(handle);
-        }
+        (await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client))
+            .Should().NotBeNull()
+            .And
+            .NotBe(handle);
+    }
 
-        [Fact]
-        public async Task UpdateRefreshToken_sliding_with_non_zero_absolute_should_update_lifetime()
+    [Fact]
+    public async Task UpdateRefreshToken_sliding_with_non_zero_absolute_should_update_lifetime()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.ReUse,
-                RefreshTokenExpiration = TokenExpiration.Sliding,
-                SlidingRefreshTokenLifetime = 10,
-                AbsoluteRefreshTokenLifetime = 100
-            };
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.ReUse,
+            RefreshTokenExpiration = TokenExpiration.Sliding,
+            SlidingRefreshTokenLifetime = 10,
+            AbsoluteRefreshTokenLifetime = 100
+        };
 
-            var now = DateTime.UtcNow;
-            _clock.UtcNowFunc = () => now;
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
 
-            var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
-            {
-                CreationTime = now.AddSeconds(-10),
-                
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                AuthorizedScopes = [],
-            });
-
-            var refreshToken = await _store.GetRefreshTokenAsync(handle);
-            var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
-
-            newHandle.Should().NotBeNull().And.Be(handle);
-
-            var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
-
-            newRefreshToken.Should().NotBeNull();
-            newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
-        }
-
-        [Fact]
-        public async Task UpdateRefreshToken_lifetime_exceeds_absolute_should_be_absolute_lifetime()
+        var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.ReUse,
-                RefreshTokenExpiration = TokenExpiration.Sliding,
-                SlidingRefreshTokenLifetime = 10,
-                AbsoluteRefreshTokenLifetime = 1000
-            };
-
-            var now = DateTime.UtcNow;
-            _clock.UtcNowFunc = () => now;
-
-            var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
-            {
-                CreationTime = now.AddSeconds(-1000),
+            CreationTime = now.AddSeconds(-10),
                 
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                AuthorizedScopes = [],
-            });
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        });
 
-            var refreshToken = await _store.GetRefreshTokenAsync(handle);
-            var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
+        var refreshToken = await _store.GetRefreshTokenAsync(handle);
+        var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
 
-            newHandle.Should().NotBeNull().And.Be(handle);
+        newHandle.Should().NotBeNull().And.Be(handle);
 
-            var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
+        var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
 
-            newRefreshToken.Should().NotBeNull();
-            newRefreshToken.Lifetime.Should().Be(client.AbsoluteRefreshTokenLifetime);
-        }
+        newRefreshToken.Should().NotBeNull();
+        newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
+    }
 
-        [Fact]
-        public async Task UpdateRefreshToken_sliding_with_zero_absolute_should_update_lifetime()
+    [Fact]
+    public async Task UpdateRefreshToken_lifetime_exceeds_absolute_should_be_absolute_lifetime()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.ReUse,
-                RefreshTokenExpiration = TokenExpiration.Sliding,
-                SlidingRefreshTokenLifetime = 10,
-                AbsoluteRefreshTokenLifetime = 0
-            };
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.ReUse,
+            RefreshTokenExpiration = TokenExpiration.Sliding,
+            SlidingRefreshTokenLifetime = 10,
+            AbsoluteRefreshTokenLifetime = 1000
+        };
 
-            var now = DateTime.UtcNow;
-            _clock.UtcNowFunc = () => now;
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
 
-            var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
-            {
-                CreationTime = now.AddSeconds(-1000),
-                
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                AuthorizedScopes = [],
-            });
-
-            var refreshToken = await _store.GetRefreshTokenAsync(handle);
-            var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
-
-            newHandle.Should().NotBeNull().And.Be(handle);
-
-            var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
-
-            newRefreshToken.Should().NotBeNull();
-            newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
-        }
-
-        [Fact]
-        public async Task UpdateRefreshToken_for_onetime_and_sliding_with_zero_absolute_should_update_lifetime()
+        var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.OneTimeOnly,
-                RefreshTokenExpiration = TokenExpiration.Sliding,
-                SlidingRefreshTokenLifetime = 10,
-                AbsoluteRefreshTokenLifetime = 0
-            };
-
-            var now = DateTime.UtcNow;
-            _clock.UtcNowFunc = () => now;
-
-            var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
-            {
-                CreationTime = now.AddSeconds(-1000),
+            CreationTime = now.AddSeconds(-1000),
                 
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                AuthorizedScopes = [],
-            });
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        });
 
-            var refreshToken = await _store.GetRefreshTokenAsync(handle);
-            var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
+        var refreshToken = await _store.GetRefreshTokenAsync(handle);
+        var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
 
-            newHandle.Should().NotBeNull().And.NotBe(handle);
+        newHandle.Should().NotBeNull().And.Be(handle);
 
-            var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
+        var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
 
-            newRefreshToken.Should().NotBeNull();
-            newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
-        }
+        newRefreshToken.Should().NotBeNull();
+        newRefreshToken.Lifetime.Should().Be(client.AbsoluteRefreshTokenLifetime);
+    }
 
-        [Fact]
-        public async Task UpdateRefreshToken_one_time_use_should_consume_token_and_create_new_one_with_correct_dates()
+    [Fact]
+    public async Task UpdateRefreshToken_sliding_with_zero_absolute_should_update_lifetime()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.OneTimeOnly
-            };
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.ReUse,
+            RefreshTokenExpiration = TokenExpiration.Sliding,
+            SlidingRefreshTokenLifetime = 10,
+            AbsoluteRefreshTokenLifetime = 0
+        };
 
-            var refreshToken = new RefreshToken
-            {
-                CreationTime = DateTime.UtcNow,
-                Lifetime = 10,
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
+
+        var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
+        {
+            CreationTime = now.AddSeconds(-1000),
                 
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                AuthorizedScopes = [],
-            };
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        });
 
-            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+        var refreshToken = await _store.GetRefreshTokenAsync(handle);
+        var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
 
-            var now = DateTime.UtcNow;
-            _clock.UtcNowFunc = () => now;
+        newHandle.Should().NotBeNull().And.Be(handle);
 
-            var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
+        var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
 
-            var oldToken = await _store.GetRefreshTokenAsync(handle);
-            var newToken = await _store.GetRefreshTokenAsync(newHandle);
+        newRefreshToken.Should().NotBeNull();
+        newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
+    }
 
-            oldToken.ConsumedTime.Should().Be(now);
-            newToken.ConsumedTime.Should().BeNull();
-        }
+    [Fact]
+    public async Task UpdateRefreshToken_for_onetime_and_sliding_with_zero_absolute_should_update_lifetime()
+    {
+        var client = new Client
+        {
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.OneTimeOnly,
+            RefreshTokenExpiration = TokenExpiration.Sliding,
+            SlidingRefreshTokenLifetime = 10,
+            AbsoluteRefreshTokenLifetime = 0
+        };
+
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
+
+        var handle = await _store.StoreRefreshTokenAsync(new RefreshToken
+        {
+            CreationTime = now.AddSeconds(-1000),
+                
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        });
+
+        var refreshToken = await _store.GetRefreshTokenAsync(handle);
+        var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
+
+        newHandle.Should().NotBeNull().And.NotBe(handle);
+
+        var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
+
+        newRefreshToken.Should().NotBeNull();
+        newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds + client.SlidingRefreshTokenLifetime);
+    }
+
+    [Fact]
+    public async Task UpdateRefreshToken_one_time_use_should_consume_token_and_create_new_one_with_correct_dates()
+    {
+        var client = new Client
+        {
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.OneTimeOnly
+        };
+
+        var refreshToken = new RefreshToken
+        {
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
+                
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        };
+
+        var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
+
+        var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
+
+        var oldToken = await _store.GetRefreshTokenAsync(handle);
+        var newToken = await _store.GetRefreshTokenAsync(newHandle);
+
+        oldToken.ConsumedTime.Should().Be(now);
+        newToken.ConsumedTime.Should().BeNull();
+    }
         
-        [Fact]
-        public async Task ValidateRefreshToken_invalid_token_should_fail()
+    [Fact]
+    public async Task ValidateRefreshToken_invalid_token_should_fail()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.OneTimeOnly
-            };
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.OneTimeOnly
+        };
 
-            var result = await _subject.ValidateRefreshTokenAsync("invalid", client);
+        var result = await _subject.ValidateRefreshTokenAsync("invalid", client);
 
-            result.IsError.Should().BeTrue();
-        }
+        result.IsError.Should().BeTrue();
+    }
         
-        [Fact]
-        public async Task ValidateRefreshToken_client_without_allow_offline_access_should_fail()
+    [Fact]
+    public async Task ValidateRefreshToken_client_without_allow_offline_access_should_fail()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                RefreshTokenUsage = TokenUsage.OneTimeOnly
-            };
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.OneTimeOnly
+        };
 
-            var refreshToken = new RefreshToken
-            {
-                CreationTime = DateTime.UtcNow,
-                Lifetime = 10,
+        var refreshToken = new RefreshToken
+        {
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
                 
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                AuthorizedScopes = [],
-            };
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        };
 
-            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+        var handle = await _store.StoreRefreshTokenAsync(refreshToken);
 
-            var now = DateTime.UtcNow;
-            _clock.UtcNowFunc = () => now;
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
 
-            var result = await _subject.ValidateRefreshTokenAsync(handle, client);
+        var result = await _subject.ValidateRefreshTokenAsync(handle, client);
 
-            result.IsError.Should().BeTrue();
-        }
+        result.IsError.Should().BeTrue();
+    }
         
-        [Fact]
-        public async Task ValidateRefreshToken_invalid_client_binding_should_fail()
+    [Fact]
+    public async Task ValidateRefreshToken_invalid_client_binding_should_fail()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                AllowOfflineAccess = true,
-                RefreshTokenUsage = TokenUsage.OneTimeOnly
-            };
+            ClientId = "client1",
+            AllowOfflineAccess = true,
+            RefreshTokenUsage = TokenUsage.OneTimeOnly
+        };
 
-            var refreshToken = new RefreshToken
-            {
-                CreationTime = DateTime.UtcNow,
-                Lifetime = 10,
+        var refreshToken = new RefreshToken
+        {
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
                 
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = "client2",
-                AuthorizedScopes = [],
-            };
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = "client2",
+            AuthorizedScopes = [],
+        };
 
-            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+        var handle = await _store.StoreRefreshTokenAsync(refreshToken);
 
-            var now = DateTime.UtcNow;
-            _clock.UtcNowFunc = () => now;
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
 
-            var result = await _subject.ValidateRefreshTokenAsync(handle, client);
+        var result = await _subject.ValidateRefreshTokenAsync(handle, client);
 
-            result.IsError.Should().BeTrue();
-        }
+        result.IsError.Should().BeTrue();
+    }
         
-        [Fact]
-        public async Task ValidateRefreshToken_expired_token_should_fail()
+    [Fact]
+    public async Task ValidateRefreshToken_expired_token_should_fail()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                AllowOfflineAccess = true,
-                RefreshTokenUsage = TokenUsage.OneTimeOnly
-            };
+            ClientId = "client1",
+            AllowOfflineAccess = true,
+            RefreshTokenUsage = TokenUsage.OneTimeOnly
+        };
 
-            var refreshToken = new RefreshToken
-            {
-                CreationTime = DateTime.UtcNow,
-                Lifetime = 10,
+        var refreshToken = new RefreshToken
+        {
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
                 
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                AuthorizedScopes = [],
-            };
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        };
 
-            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+        var handle = await _store.StoreRefreshTokenAsync(refreshToken);
 
-            var now = DateTime.UtcNow.AddSeconds(20);
-            _clock.UtcNowFunc = () => now;
+        var now = DateTime.UtcNow.AddSeconds(20);
+        _clock.UtcNowFunc = () => now;
 
-            var result = await _subject.ValidateRefreshTokenAsync(handle, client);
+        var result = await _subject.ValidateRefreshTokenAsync(handle, client);
 
-            result.IsError.Should().BeTrue();
-        }
+        result.IsError.Should().BeTrue();
+    }
         
-        [Fact]
-        public async Task ValidateRefreshToken_consumed_token_should_fail()
+    [Fact]
+    public async Task ValidateRefreshToken_consumed_token_should_fail()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                AllowOfflineAccess = true,
-                RefreshTokenUsage = TokenUsage.OneTimeOnly
-            };
+            ClientId = "client1",
+            AllowOfflineAccess = true,
+            RefreshTokenUsage = TokenUsage.OneTimeOnly
+        };
 
-            var refreshToken = new RefreshToken
-            {
-                CreationTime = DateTime.UtcNow,
-                Lifetime = 10,
-                ConsumedTime = DateTime.UtcNow,
+        var refreshToken = new RefreshToken
+        {
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
+            ConsumedTime = DateTime.UtcNow,
                 
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                AuthorizedScopes = [],
-            };
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        };
 
-            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+        var handle = await _store.StoreRefreshTokenAsync(refreshToken);
 
-            var now = DateTime.UtcNow;
-            _clock.UtcNowFunc = () => now;
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
 
-            var result = await _subject.ValidateRefreshTokenAsync(handle, client);
+        var result = await _subject.ValidateRefreshTokenAsync(handle, client);
 
-            result.IsError.Should().BeTrue();
-        }
+        result.IsError.Should().BeTrue();
+    }
         
-        [Fact]
-        public async Task ValidateRefreshToken_valid_token_should_succeed()
+    [Fact]
+    public async Task ValidateRefreshToken_valid_token_should_succeed()
+    {
+        var client = new Client
         {
-            var client = new Client
-            {
-                ClientId = "client1",
-                AllowOfflineAccess = true,
-                RefreshTokenUsage = TokenUsage.OneTimeOnly
-            };
+            ClientId = "client1",
+            AllowOfflineAccess = true,
+            RefreshTokenUsage = TokenUsage.OneTimeOnly
+        };
 
-            var refreshToken = new RefreshToken
-            {
-                CreationTime = DateTime.UtcNow,
-                Lifetime = 10,
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                AuthorizedScopes = [],
-            };
+        var refreshToken = new RefreshToken
+        {
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        };
 
-            var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+        var handle = await _store.StoreRefreshTokenAsync(refreshToken);
 
-            var now = DateTime.UtcNow;
-            _clock.UtcNowFunc = () => now;
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
 
-            var result = await _subject.ValidateRefreshTokenAsync(handle, client);
+        var result = await _subject.ValidateRefreshTokenAsync(handle, client);
 
-            result.IsError.Should().BeFalse();
-        }
+        result.IsError.Should().BeFalse();
     }
 }

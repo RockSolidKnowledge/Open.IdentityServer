@@ -12,199 +12,198 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Open.IdentityModel.UnitTests
+namespace Open.IdentityModel.UnitTests;
+
+public class TokenRevocationExtensionsTests
 {
-    public class TokenRevocationExtensionsTests
+    private const string Endpoint = "http://server/endoint";
+
+    [Fact]
+    public async Task Http_request_should_have_correct_format()
     {
-        private const string Endpoint = "http://server/endoint";
+        var handler = new NetworkHandler(HttpStatusCode.NotFound, "not found");
 
-        [Fact]
-        public async Task Http_request_should_have_correct_format()
+        var client = new HttpClient(handler);
+        var request = new TokenRevocationRequest
         {
-            var handler = new NetworkHandler(HttpStatusCode.NotFound, "not found");
+            Address = Endpoint, 
+            Token = "token"
+        };
 
-            var client = new HttpClient(handler);
-            var request = new TokenRevocationRequest
-            {
-                Address = Endpoint, 
-                Token = "token"
-            };
+        request.Headers.Add("custom", "custom");
+        request.Properties.Add("custom", "custom");
 
-            request.Headers.Add("custom", "custom");
-            request.Properties.Add("custom", "custom");
+        var response = await client.RevokeTokenAsync(request, TestContext.Current.CancellationToken);
 
-            var response = await client.RevokeTokenAsync(request, TestContext.Current.CancellationToken);
+        var httpRequest = handler.Request;
 
-            var httpRequest = handler.Request;
+        httpRequest.Method.Should().Be(HttpMethod.Post);
+        httpRequest.RequestUri.Should().Be(new Uri(Endpoint));
+        httpRequest.Content.Should().NotBeNull();
 
-            httpRequest.Method.Should().Be(HttpMethod.Post);
-            httpRequest.RequestUri.Should().Be(new Uri(Endpoint));
-            httpRequest.Content.Should().NotBeNull();
+        var headers = httpRequest.Headers;
+        headers.Count().Should().Be(2);
+        headers.Should().Contain(h => h.Key == "custom" && h.Value.First() == "custom");
 
-            var headers = httpRequest.Headers;
-            headers.Count().Should().Be(2);
-            headers.Should().Contain(h => h.Key == "custom" && h.Value.First() == "custom");
+        var properties = httpRequest.Properties;
+        properties.Count.Should().Be(1);
 
-            var properties = httpRequest.Properties;
-            properties.Count.Should().Be(1);
+        var prop = properties.First();
+        prop.Key.Should().Be("custom");
+        ((string)prop.Value).Should().Be("custom");
+    }
 
-            var prop = properties.First();
-            prop.Key.Should().Be("custom");
-            ((string)prop.Value).Should().Be("custom");
-        }
+    [Fact]
+    public async Task Valid_protocol_response_should_be_handled_correctly()
+    {
+        var handler = new NetworkHandler(HttpStatusCode.OK, "ok");
+        var client = new HttpClient(handler);
 
-        [Fact]
-        public async Task Valid_protocol_response_should_be_handled_correctly()
+        var response = await client.RevokeTokenAsync(new TokenRevocationRequest
         {
-            var handler = new NetworkHandler(HttpStatusCode.OK, "ok");
-            var client = new HttpClient(handler);
+            Address = Endpoint,
+            Token = "token",
+            ClientId = "client"
+        }, TestContext.Current.CancellationToken);
 
-            var response = await client.RevokeTokenAsync(new TokenRevocationRequest
-            {
-                Address = Endpoint,
-                Token = "token",
-                ClientId = "client"
-            }, TestContext.Current.CancellationToken);
+        response.IsError.Should().BeFalse();
+        response.ErrorType.Should().Be(ResponseErrorType.None);
+        response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
+    }
 
-            response.IsError.Should().BeFalse();
-            response.ErrorType.Should().Be(ResponseErrorType.None);
-            response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
-        }
+    [Fact]
+    public async Task Repeating_a_request_should_succeed()
+    {
+        var handler = new NetworkHandler(HttpStatusCode.OK, "ok");
+        var client = new HttpClient(handler);
 
-        [Fact]
-        public async Task Repeating_a_request_should_succeed()
+        var request = new TokenRevocationRequest
         {
-            var handler = new NetworkHandler(HttpStatusCode.OK, "ok");
-            var client = new HttpClient(handler);
+            Address = Endpoint,
+            Token = "token",
+            ClientId = "client"
+        };
 
-            var request = new TokenRevocationRequest
-            {
-                Address = Endpoint,
-                Token = "token",
-                ClientId = "client"
-            };
+        var response = await client.RevokeTokenAsync(request, TestContext.Current.CancellationToken);
 
-            var response = await client.RevokeTokenAsync(request, TestContext.Current.CancellationToken);
+        response.IsError.Should().BeFalse();
+        response.ErrorType.Should().Be(ResponseErrorType.None);
+        response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
 
-            response.IsError.Should().BeFalse();
-            response.ErrorType.Should().Be(ResponseErrorType.None);
-            response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
+        // repeat
+        response = await client.RevokeTokenAsync(request, TestContext.Current.CancellationToken);
 
-            // repeat
-            response = await client.RevokeTokenAsync(request, TestContext.Current.CancellationToken);
+        response.IsError.Should().BeFalse();
+        response.ErrorType.Should().Be(ResponseErrorType.None);
+        response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
+    }
 
-            response.IsError.Should().BeFalse();
-            response.ErrorType.Should().Be(ResponseErrorType.None);
-            response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
-        }
+    [Fact]
+    public async Task Valid_protocol_error_should_be_handled_correctly()
+    {
+        var document = File.ReadAllText(FileName.Create("failure_token_revocation_response.json"));
+        var handler = new NetworkHandler(document, HttpStatusCode.BadRequest);
+        var client = new HttpClient(handler);
 
-        [Fact]
-        public async Task Valid_protocol_error_should_be_handled_correctly()
+        var response = await client.RevokeTokenAsync(new TokenRevocationRequest
         {
-            var document = File.ReadAllText(FileName.Create("failure_token_revocation_response.json"));
-            var handler = new NetworkHandler(document, HttpStatusCode.BadRequest);
-            var client = new HttpClient(handler);
+            Address = Endpoint,
+            Token = "token",
+            ClientId = "client"
+        }, TestContext.Current.CancellationToken);
 
-            var response = await client.RevokeTokenAsync(new TokenRevocationRequest
-            {
-                Address = Endpoint,
-                Token = "token",
-                ClientId = "client"
-            }, TestContext.Current.CancellationToken);
+        response.IsError.Should().BeTrue();
+        response.ErrorType.Should().Be(ResponseErrorType.Protocol);
+        response.HttpStatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.Error.Should().Be("error");
+    }
 
-            response.IsError.Should().BeTrue();
-            response.ErrorType.Should().Be(ResponseErrorType.Protocol);
-            response.HttpStatusCode.Should().Be(HttpStatusCode.BadRequest);
-            response.Error.Should().Be("error");
-        }
+    [Fact]
+    public async Task Malformed_response_document_should_be_handled_correctly()
+    {
+        var document = "invalid";
+        var handler = new NetworkHandler(document, HttpStatusCode.BadRequest);
+        var client = new HttpClient(handler);
 
-        [Fact]
-        public async Task Malformed_response_document_should_be_handled_correctly()
+        var response = await client.RevokeTokenAsync(new TokenRevocationRequest
         {
-            var document = "invalid";
-            var handler = new NetworkHandler(document, HttpStatusCode.BadRequest);
-            var client = new HttpClient(handler);
+            Address = Endpoint,
+            Token = "token",
+            ClientId = "client"
+        }, TestContext.Current.CancellationToken);
 
-            var response = await client.RevokeTokenAsync(new TokenRevocationRequest
-            {
-                Address = Endpoint,
-                Token = "token",
-                ClientId = "client"
-            }, TestContext.Current.CancellationToken);
+        response.IsError.Should().BeTrue();
+        response.ErrorType.Should().Be(ResponseErrorType.Exception);
+        response.Raw.Should().Be("invalid");
+        response.Exception.Should().NotBeNull();
+    }
 
-            response.IsError.Should().BeTrue();
-            response.ErrorType.Should().Be(ResponseErrorType.Exception);
-            response.Raw.Should().Be("invalid");
-            response.Exception.Should().NotBeNull();
-        }
+    [Fact]
+    public async Task Exception_should_be_handled_correctly()
+    {
+        var handler = new NetworkHandler(new Exception("exception"));
+        var client = new HttpClient(handler);
 
-        [Fact]
-        public async Task Exception_should_be_handled_correctly()
+        var response = await client.RevokeTokenAsync(new TokenRevocationRequest
         {
-            var handler = new NetworkHandler(new Exception("exception"));
-            var client = new HttpClient(handler);
+            Address = Endpoint,
+            Token = "token",
+            ClientId = "client"
+        }, TestContext.Current.CancellationToken);
 
-            var response = await client.RevokeTokenAsync(new TokenRevocationRequest
-            {
-                Address = Endpoint,
-                Token = "token",
-                ClientId = "client"
-            }, TestContext.Current.CancellationToken);
+        response.IsError.Should().BeTrue();
+        response.ErrorType.Should().Be(ResponseErrorType.Exception);
+        response.Error.Should().Be("exception");
+        response.Exception.Should().NotBeNull();
+    }
 
-            response.IsError.Should().BeTrue();
-            response.ErrorType.Should().Be(ResponseErrorType.Exception);
-            response.Error.Should().Be("exception");
-            response.Exception.Should().NotBeNull();
-        }
+    [Fact]
+    public async Task Http_error_should_be_handled_correctly()
+    {
+        var handler = new NetworkHandler(HttpStatusCode.NotFound, "not found");
+        var client = new HttpClient(handler);
 
-        [Fact]
-        public async Task Http_error_should_be_handled_correctly()
+        var response = await client.RevokeTokenAsync(new TokenRevocationRequest
         {
-            var handler = new NetworkHandler(HttpStatusCode.NotFound, "not found");
-            var client = new HttpClient(handler);
+            Address = Endpoint,
+            Token = "token",
+            ClientId = "client"
+        }, TestContext.Current.CancellationToken);
 
-            var response = await client.RevokeTokenAsync(new TokenRevocationRequest
-            {
-                Address = Endpoint,
-                Token = "token",
-                ClientId = "client"
-            }, TestContext.Current.CancellationToken);
+        response.IsError.Should().BeTrue();
+        response.ErrorType.Should().Be(ResponseErrorType.Http);
+        response.HttpStatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.Error.Should().Be("not found");
+    }
 
-            response.IsError.Should().BeTrue();
-            response.ErrorType.Should().Be(ResponseErrorType.Http);
-            response.HttpStatusCode.Should().Be(HttpStatusCode.NotFound);
-            response.Error.Should().Be("not found");
-        }
+    [Fact]
+    public async Task Additional_parameters_should_be_sent_correctly()
+    {
+        var handler = new NetworkHandler(HttpStatusCode.OK, "ok");
+        var client = new HttpClient(handler);
 
-        [Fact]
-        public async Task Additional_parameters_should_be_sent_correctly()
+        var response = await client.RevokeTokenAsync(new TokenRevocationRequest
         {
-            var handler = new NetworkHandler(HttpStatusCode.OK, "ok");
-            var client = new HttpClient(handler);
-
-            var response = await client.RevokeTokenAsync(new TokenRevocationRequest
+            Address = Endpoint,
+            ClientId = "client",
+            ClientSecret = "secret",
+            Token = "token",
+            Parameters =
             {
-                Address = Endpoint,
-                ClientId = "client",
-                ClientSecret = "secret",
-                Token = "token",
-                Parameters =
-                {
-                    { "foo", "bar" }
-                }
-            }, TestContext.Current.CancellationToken);
+                { "foo", "bar" }
+            }
+        }, TestContext.Current.CancellationToken);
 
-            // check request
-            var fields = QueryHelpers.ParseQuery(handler.Body);
-            fields.Count.Should().Be(2);
+        // check request
+        var fields = QueryHelpers.ParseQuery(handler.Body);
+        fields.Count.Should().Be(2);
             
-            fields["token"].First().Should().Be("token");
-            fields["foo"].First().Should().Be("bar");
+        fields["token"].First().Should().Be("token");
+        fields["foo"].First().Should().Be("bar");
 
-            // check response
-            response.IsError.Should().BeFalse();
-            response.ErrorType.Should().Be(ResponseErrorType.None);
-            response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
-        }
+        // check response
+        response.IsError.Should().BeFalse();
+        response.ErrorType.Should().Be(ResponseErrorType.None);
+        response.HttpStatusCode.Should().Be(HttpStatusCode.OK);
     }
 }

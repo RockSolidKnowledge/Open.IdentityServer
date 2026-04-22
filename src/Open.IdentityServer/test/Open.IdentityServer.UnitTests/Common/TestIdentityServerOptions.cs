@@ -4,18 +4,17 @@
 
 using Open.IdentityServer.Configuration;
 
-namespace IdentityServer.UnitTests.Common
-{
-    internal class TestIdentityServerOptions
-    {
-        public static IdentityServerOptions Create()
-        {
-            var options = new IdentityServerOptions
-            {
-                IssuerUri = "https://idsvr.com"
-            };
+namespace IdentityServer.UnitTests.Common;
 
-            return options;
-        }
+internal class TestIdentityServerOptions
+{
+    public static IdentityServerOptions Create()
+    {
+        var options = new IdentityServerOptions
+        {
+            IssuerUri = "https://idsvr.com"
+        };
+
+        return options;
     }
 }

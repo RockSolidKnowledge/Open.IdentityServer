@@ -6,84 +6,83 @@
 using System.Text.Json;
 using Open.IdentityServer.Models;
 
-namespace Open.IdentityServer.Stores.Serialization
+namespace Open.IdentityServer.Stores.Serialization;
+
+/// <summary>
+/// JSON-based persisted grant serializer
+/// </summary>
+/// <seealso cref="Open.IdentityServer.Stores.Serialization.IPersistentGrantSerializer" />
+public class PersistentGrantSerializer: IPersistentGrantSerializer
 {
-    /// <summary>
-    /// JSON-based persisted grant serializer
-    /// </summary>
-    /// <seealso cref="Open.IdentityServer.Stores.Serialization.IPersistentGrantSerializer" />
-    public class PersistentGrantSerializer: IPersistentGrantSerializer
+    private static readonly JsonSerializerOptions _settings;
+
+    static PersistentGrantSerializer()
     {
-        private static readonly JsonSerializerOptions _settings;
-
-        static PersistentGrantSerializer()
+        _settings = new JsonSerializerOptions
         {
-            _settings = new JsonSerializerOptions
-            {
-                IgnoreReadOnlyFields = true,
-                IgnoreReadOnlyProperties = true,
-            };
+            IgnoreReadOnlyFields = true,
+            IgnoreReadOnlyProperties = true,
+        };
             
-            _settings.Converters.Add(new ClaimConverter());
-            _settings.Converters.Add(new ClaimsPrincipalConverter());
-        }
+        _settings.Converters.Add(new ClaimConverter());
+        _settings.Converters.Add(new ClaimsPrincipalConverter());
+    }
 
-        /// <summary>
-        /// Serializes the specified value.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
-        public string Serialize<T>(T value)
+    /// <summary>
+    /// Serializes the specified value.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="value">The value.</param>
+    /// <returns></returns>
+    public string Serialize<T>(T value)
+    {
+        return JsonSerializer.Serialize(value, _settings);
+    }
+
+    /// <summary>
+    /// Deserializes the specified string.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="json">The json.</param>
+    /// <returns></returns>
+    public T? Deserialize<T>(string json)
+    {
+        T? deserializedObj = JsonSerializer.Deserialize<T>(json, _settings);
+
+        if (deserializedObj is RefreshToken refreshToken && refreshToken.Version != 5)
         {
-            return JsonSerializer.Serialize(value, _settings);
+            return HandleV4RefreshTokens<T>(refreshToken);
         }
 
-        /// <summary>
-        /// Deserializes the specified string.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="json">The json.</param>
-        /// <returns></returns>
-        public T? Deserialize<T>(string json)
-        {
-            T? deserializedObj = JsonSerializer.Deserialize<T>(json, _settings);
-
-            if (deserializedObj is RefreshToken refreshToken && refreshToken.Version != 5)
-            {
-                return HandleV4RefreshTokens<T>(refreshToken);
-            }
-
-            return deserializedObj;
-        }
+        return deserializedObj;
+    }
         
-        private static T HandleV4RefreshTokens<T>(RefreshToken refreshToken)
+    private static T HandleV4RefreshTokens<T>(RefreshToken refreshToken)
+    {
+        if (refreshToken.Version != 4)
         {
-            if (refreshToken.Version != 4)
-            {
-                throw new UnsupportedRefreshTokenException(refreshToken.Version);
-            }
-
-            var user = new IdentityServerUser(refreshToken.AccessToken.SubjectId);
-            if (refreshToken.AccessToken.Claims != null)
-            {
-                foreach (var claim in refreshToken.AccessToken.Claims)
-                {
-                    user.AdditionalClaims.Add(claim);
-                }
-            }
-                
-            refreshToken.AccessTokens[string.Empty] = refreshToken.AccessToken;
-            refreshToken.ClientId = refreshToken.AccessToken.ClientId;
-            refreshToken.SessionId = refreshToken.AccessToken.SessionId;
-            refreshToken.Description = refreshToken.AccessToken.Description;
-            refreshToken.AuthorizedScopes = refreshToken.AccessToken.Scopes;
-            refreshToken.Subject = user.CreatePrincipal();
-            refreshToken.Version = 5;
-                
-            refreshToken.AccessToken = null;
-
-            return (T)(object)refreshToken;
+            throw new UnsupportedRefreshTokenException(refreshToken.Version);
         }
+
+        var user = new IdentityServerUser(refreshToken.AccessToken.SubjectId);
+        if (refreshToken.AccessToken.Claims != null)
+        {
+            foreach (var claim in refreshToken.AccessToken.Claims)
+            {
+                user.AdditionalClaims.Add(claim);
+            }
+        }
+                
+        refreshToken.AccessTokens[string.Empty] = refreshToken.AccessToken;
+        refreshToken.ClientId = refreshToken.AccessToken.ClientId;
+        refreshToken.SessionId = refreshToken.AccessToken.SessionId;
+        refreshToken.Description = refreshToken.AccessToken.Description;
+        refreshToken.AuthorizedScopes = refreshToken.AccessToken.Scopes;
+        refreshToken.Subject = user.CreatePrincipal();
+        refreshToken.Version = 5;
+                
+        refreshToken.AccessToken = null;
+
+        return (T)(object)refreshToken;
     }
 }

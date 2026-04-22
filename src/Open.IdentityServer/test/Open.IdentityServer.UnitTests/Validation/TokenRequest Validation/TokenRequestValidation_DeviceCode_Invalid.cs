@@ -15,100 +15,99 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation
+namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation;
+
+public class TokenRequestValidation_DeviceCode_Invalid
 {
-    public class TokenRequestValidation_DeviceCode_Invalid
+    private const string Category = "TokenRequest Validation - DeviceCode - Invalid";
+
+    private readonly IClientStore _clients = Factory.CreateClientStore();
+
+    private readonly DeviceCode deviceCode = new DeviceCode
     {
-        private const string Category = "TokenRequest Validation - DeviceCode - Invalid";
+        ClientId = "device_flow",
+        IsAuthorized = true,
+        Subject = new IdentityServerUser("bob").CreatePrincipal(),
+        IsOpenId = true,
+        Lifetime = 300,
+        CreationTime = DateTime.UtcNow,
+        AuthorizedScopes = new[] {"openid", "profile", "resource"}
+    };
 
-        private readonly IClientStore _clients = Factory.CreateClientStore();
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Missing_DeviceCode()
+    {
+        var client = await _clients.FindClientByIdAsync("device_flow");
 
-        private readonly DeviceCode deviceCode = new DeviceCode
+        var validator = Factory.CreateTokenRequestValidator();
+
+        var parameters = new NameValueCollection
         {
-            ClientId = "device_flow",
-            IsAuthorized = true,
-            Subject = new IdentityServerUser("bob").CreatePrincipal(),
-            IsOpenId = true,
-            Lifetime = 300,
-            CreationTime = DateTime.UtcNow,
-            AuthorizedScopes = new[] {"openid", "profile", "resource"}
+            {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode}
         };
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Missing_DeviceCode()
-        {
-            var client = await _clients.FindClientByIdAsync("device_flow");
-
-            var validator = Factory.CreateTokenRequestValidator();
-
-            var parameters = new NameValueCollection
-            {
-                {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode}
-            };
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidRequest);
-        }
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.TokenErrors.InvalidRequest);
+    }
         
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task DeviceCode_Too_Long()
-        {
-            var client = await _clients.FindClientByIdAsync("device_flow");
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task DeviceCode_Too_Long()
+    {
+        var client = await _clients.FindClientByIdAsync("device_flow");
 
-            var longCode = "x".Repeat(new IdentityServerOptions().InputLengthRestrictions.AuthorizationCode + 1);
+        var longCode = "x".Repeat(new IdentityServerOptions().InputLengthRestrictions.AuthorizationCode + 1);
             
-            var validator = Factory.CreateTokenRequestValidator();
+        var validator = Factory.CreateTokenRequestValidator();
 
-            var parameters = new NameValueCollection
-            {
-                {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode},
-                {"device_code", longCode}
-            };
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Invalid_Grant_For_Client()
+        var parameters = new NameValueCollection
         {
-            var client = await _clients.FindClientByIdAsync("codeclient");
+            {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode},
+            {"device_code", longCode}
+        };
 
-            var validator = Factory.CreateTokenRequestValidator();
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
+    }
 
-            var parameters = new NameValueCollection
-            {
-                {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode},
-                {"device_code", Guid.NewGuid().ToString()}
-            };
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Invalid_Grant_For_Client()
+    {
+        var client = await _clients.FindClientByIdAsync("codeclient");
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.UnauthorizedClient);
-        }
+        var validator = Factory.CreateTokenRequestValidator();
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task DeviceCodeValidator_Failure()
+        var parameters = new NameValueCollection
         {
-            var client = await _clients.FindClientByIdAsync("device_flow");
+            {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode},
+            {"device_code", Guid.NewGuid().ToString()}
+        };
 
-            var validator = Factory.CreateTokenRequestValidator(deviceCodeValidator: new TestDeviceCodeValidator(true));
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.TokenErrors.UnauthorizedClient);
+    }
 
-            var parameters = new NameValueCollection
-            {
-                {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode},
-                {"device_code", Guid.NewGuid().ToString()}
-            };
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task DeviceCodeValidator_Failure()
+    {
+        var client = await _clients.FindClientByIdAsync("device_flow");
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-            result.IsError.Should().BeTrue();
-            result.Error.Should().NotBeNull();
-        }
+        var validator = Factory.CreateTokenRequestValidator(deviceCodeValidator: new TestDeviceCodeValidator(true));
+
+        var parameters = new NameValueCollection
+        {
+            {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode},
+            {"device_code", Guid.NewGuid().ToString()}
+        };
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        result.IsError.Should().BeTrue();
+        result.Error.Should().NotBeNull();
     }
 }

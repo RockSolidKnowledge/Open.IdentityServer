@@ -6,25 +6,24 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Open.IdentityServer.EntityFramework.Entities;
 
-namespace Open.IdentityServer.EntityFramework
+namespace Open.IdentityServer.EntityFramework;
+
+/// <summary>
+/// Interface to model notifications from the TokenCleanup feature.
+/// </summary>
+public interface IOperationalStoreNotification
 {
     /// <summary>
-    /// Interface to model notifications from the TokenCleanup feature.
+    /// Notification for persisted grants being removed.
     /// </summary>
-    public interface IOperationalStoreNotification
-    {
-        /// <summary>
-        /// Notification for persisted grants being removed.
-        /// </summary>
-        /// <param name="persistedGrants"></param>
-        /// <returns></returns>
-        Task PersistedGrantsRemovedAsync(IEnumerable<PersistedGrant> persistedGrants);
+    /// <param name="persistedGrants"></param>
+    /// <returns></returns>
+    Task PersistedGrantsRemovedAsync(IEnumerable<PersistedGrant> persistedGrants);
 
-        /// <summary>
-        /// Notification for device codes being removed.
-        /// </summary>
-        /// <param name="deviceCodes"></param>
-        /// <returns></returns>
-        Task DeviceCodesRemovedAsync(IEnumerable<DeviceFlowCodes> deviceCodes);
-    }
+    /// <summary>
+    /// Notification for device codes being removed.
+    /// </summary>
+    /// <param name="deviceCodes"></param>
+    /// <returns></returns>
+    Task DeviceCodesRemovedAsync(IEnumerable<DeviceFlowCodes> deviceCodes);
 }

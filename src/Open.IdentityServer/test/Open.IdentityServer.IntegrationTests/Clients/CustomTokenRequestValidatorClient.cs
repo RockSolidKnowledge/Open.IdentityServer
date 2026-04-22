@@ -15,133 +15,132 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using Xunit;
 
-namespace IdentityServer.IntegrationTests.Clients
+namespace IdentityServer.IntegrationTests.Clients;
+
+public class CustomTokenRequestValidatorClient : IDisposable
 {
-    public class CustomTokenRequestValidatorClient : IDisposable
+    private const string TokenEndpoint = "https://server/connect/token";
+
+    private readonly HttpClient _client;
+    private readonly IHost _host;
+
+    public CustomTokenRequestValidatorClient()
     {
-        private const string TokenEndpoint = "https://server/connect/token";
+        var val = new TestCustomTokenRequestValidator();
+        Startup.CustomTokenRequestValidator = val;
 
-        private readonly HttpClient _client;
-        private readonly IHost _host;
+        _host = new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
+            {
+                webBuilder.UseTestServer();
+                webBuilder.UseStartup<Startup>();
+            })
+            .Build();
 
-        public CustomTokenRequestValidatorClient()
-        {
-            var val = new TestCustomTokenRequestValidator();
-            Startup.CustomTokenRequestValidator = val;
-
-            _host = new HostBuilder()
-                .ConfigureWebHost(webBuilder =>
-                {
-                    webBuilder.UseTestServer();
-                    webBuilder.UseStartup<Startup>();
-                })
-                .Build();
-
-            _host.Start();
-            _client = _host.GetTestClient();
-        }
+        _host.Start();
+        _client = _host.GetTestClient();
+    }
         
-        public void Dispose()
+    public void Dispose()
+    {
+        _client?.Dispose();
+        _host?.Dispose();
+    }
+
+    [Fact]
+    public async Task Client_credentials_request_should_contain_custom_response()
+    {
+        var response = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
         {
-            _client?.Dispose();
-            _host?.Dispose();
-        }
+            Address = TokenEndpoint,
 
-        [Fact]
-        public async Task Client_credentials_request_should_contain_custom_response()
+            ClientId = "client",
+            ClientSecret = "secret",
+            Scope = "api1"
+        }, TestContext.Current.CancellationToken);
+
+        var fields = GetFields(response);
+        (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
+    }
+
+    [Fact]
+    public async Task Resource_owner_credentials_request_should_contain_custom_response()
+    {
+        var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
-            var response = await _client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                Address = TokenEndpoint,
+            Address = TokenEndpoint,
 
-                ClientId = "client",
-                ClientSecret = "secret",
-                Scope = "api1"
-            }, TestContext.Current.CancellationToken);
+            ClientId = "roclient",
+            ClientSecret = "secret",
+            Scope = "api1",
 
-            var fields = GetFields(response);
-            (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
-        }
+            UserName = "bob",
+            Password = "bob"
+        }, TestContext.Current.CancellationToken);
 
-        [Fact]
-        public async Task Resource_owner_credentials_request_should_contain_custom_response()
+        var fields = GetFields(response);
+        (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
+    }
+
+    [Fact]
+    public async Task Refreshing_a_token_should_contain_custom_response()
+    {
+        var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
+            Address = TokenEndpoint,
 
-                ClientId = "roclient",
-                ClientSecret = "secret",
-                Scope = "api1",
+            ClientId = "roclient",
+            ClientSecret = "secret",
+            Scope = "api1 offline_access",
 
-                UserName = "bob",
-                Password = "bob"
-            }, TestContext.Current.CancellationToken);
+            UserName = "bob",
+            Password = "bob"
+        }, TestContext.Current.CancellationToken);
 
-            var fields = GetFields(response);
-            (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
-        }
-
-        [Fact]
-        public async Task Refreshing_a_token_should_contain_custom_response()
+        response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                ClientId = "roclient",
-                ClientSecret = "secret",
-                Scope = "api1 offline_access",
+            RefreshToken = response.RefreshToken
+        }, TestContext.Current.CancellationToken);
 
-                UserName = "bob",
-                Password = "bob"
-            }, TestContext.Current.CancellationToken);
+        var fields = GetFields(response);
+        (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
+    }
 
-            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                RefreshToken = response.RefreshToken
-            }, TestContext.Current.CancellationToken);
-
-            var fields = GetFields(response);
-            (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
-        }
-
-        [Fact]
-        public async Task Extension_grant_request_should_contain_custom_response()
+    [Fact]
+    public async Task Extension_grant_request_should_contain_custom_response()
+    {
+        var response = await _client.RequestTokenAsync(new TokenRequest
         {
-            var response = await _client.RequestTokenAsync(new TokenRequest
+            Address = TokenEndpoint,
+            GrantType = "custom",
+
+            ClientId = "client.custom",
+            ClientSecret = "secret",
+
+            Parameters =
             {
-                Address = TokenEndpoint,
-                GrantType = "custom",
-
-                ClientId = "client.custom",
-                ClientSecret = "secret",
-
-                Parameters =
-                {
-                    { "scope", "api1" },
-                    { "custom_credential", "custom credential"}
-                }
-            }, TestContext.Current.CancellationToken);
-
-            var fields = GetFields(response);
-            (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
-        }
-
-        private Dictionary<string, object> GetFields(TokenResponse response)
-        {
-            var dictionary = new Dictionary<string, object>();
-
-            if (response.Json.HasValue)
-            {
-                dictionary = response.Json.Value.Deserialize<Dictionary<string, object>>();
+                { "scope", "api1" },
+                { "custom_credential", "custom credential"}
             }
+        }, TestContext.Current.CancellationToken);
 
-            return dictionary;
+        var fields = GetFields(response);
+        (fields["custom"] as JsonElement?)?.GetString().Should().BeEquivalentTo("custom");
+    }
+
+    private Dictionary<string, object> GetFields(TokenResponse response)
+    {
+        var dictionary = new Dictionary<string, object>();
+
+        if (response.Json.HasValue)
+        {
+            dictionary = response.Json.Value.Deserialize<Dictionary<string, object>>();
         }
+
+        return dictionary;
     }
 }

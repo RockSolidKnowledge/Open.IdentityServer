@@ -10,31 +10,30 @@ using Open.IdentityModel;
 
 #pragma warning disable 1591
 
-namespace Open.IdentityServer.Stores.Serialization
+namespace Open.IdentityServer.Stores.Serialization;
+
+public class ClaimsPrincipalConverter: JsonConverter<ClaimsPrincipal>
 {
-    public class ClaimsPrincipalConverter: JsonConverter<ClaimsPrincipal>
+    public override ClaimsPrincipal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        public override ClaimsPrincipal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        var source = JsonSerializer.Deserialize<ClaimsPrincipalLite>(ref reader, options);
+        if (source == null) return null;
+
+        var claims = source.Claims.Select(x => new Claim(x.Type, x.Value, x.ValueType));
+        var id = new ClaimsIdentity(claims, source.AuthenticationType, JwtClaimTypes.Name, JwtClaimTypes.Role);
+        var target = new ClaimsPrincipal(id);
+        return target;
+    }
+
+    public override void Write(Utf8JsonWriter writer, ClaimsPrincipal value, JsonSerializerOptions options)
+    {
+        var source = value;
+
+        var target = new ClaimsPrincipalLite
         {
-            var source = JsonSerializer.Deserialize<ClaimsPrincipalLite>(ref reader, options);
-            if (source == null) return null;
-
-            var claims = source.Claims.Select(x => new Claim(x.Type, x.Value, x.ValueType));
-            var id = new ClaimsIdentity(claims, source.AuthenticationType, JwtClaimTypes.Name, JwtClaimTypes.Role);
-            var target = new ClaimsPrincipal(id);
-            return target;
-        }
-
-        public override void Write(Utf8JsonWriter writer, ClaimsPrincipal value, JsonSerializerOptions options)
-        {
-            var source = value;
-
-            var target = new ClaimsPrincipalLite
-            {
-                AuthenticationType = source.Identity.AuthenticationType,
-                Claims = source.Claims.Select(x => new ClaimLite { Type = x.Type, Value = x.Value, ValueType = x.ValueType }).ToArray()
-            };
-            JsonSerializer.Serialize(writer, target, options);
-        }
+            AuthenticationType = source.Identity.AuthenticationType,
+            Claims = source.Claims.Select(x => new ClaimLite { Type = x.Type, Value = x.Value, ValueType = x.ValueType }).ToArray()
+        };
+        JsonSerializer.Serialize(writer, target, options);
     }
 }

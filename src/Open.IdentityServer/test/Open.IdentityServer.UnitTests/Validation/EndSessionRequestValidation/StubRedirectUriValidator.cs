@@ -6,21 +6,20 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 
-namespace IdentityServer.UnitTests.Validation.EndSessionRequestValidation
+namespace IdentityServer.UnitTests.Validation.EndSessionRequestValidation;
+
+public class StubRedirectUriValidator : IRedirectUriValidator
 {
-    public class StubRedirectUriValidator : IRedirectUriValidator
+    public bool IsRedirectUriValid { get; set; }
+    public bool IsPostLogoutRedirectUriValid { get; set; }
+
+    public Task<bool> IsPostLogoutRedirectUriValidAsync(string requestedUri, Client client)
     {
-        public bool IsRedirectUriValid { get; set; }
-        public bool IsPostLogoutRedirectUriValid { get; set; }
+        return Task.FromResult(IsPostLogoutRedirectUriValid);
+    }
 
-        public Task<bool> IsPostLogoutRedirectUriValidAsync(string requestedUri, Client client)
-        {
-            return Task.FromResult(IsPostLogoutRedirectUriValid);
-        }
-
-        public Task<bool> IsRedirectUriValidAsync(string requestedUri, Client client)
-        {
-            return Task.FromResult(IsRedirectUriValid);
-        }
+    public Task<bool> IsRedirectUriValidAsync(string requestedUri, Client client)
+    {
+        return Task.FromResult(IsRedirectUriValid);
     }
 }

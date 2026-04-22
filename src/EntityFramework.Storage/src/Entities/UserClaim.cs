@@ -4,11 +4,10 @@
 
 #pragma warning disable 1591
 
-namespace Open.IdentityServer.EntityFramework.Entities
+namespace Open.IdentityServer.EntityFramework.Entities;
+
+public abstract class UserClaim
 {
-    public abstract class UserClaim
-    {
-        public int Id { get; set; }
-        public string Type { get; set; }
-    }
+    public int Id { get; set; }
+    public string Type { get; set; }
 }

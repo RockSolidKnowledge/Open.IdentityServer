@@ -17,229 +17,228 @@ using Open.IdentityServer.Services;
 using Microsoft.AspNetCore.Authentication;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.Default
+namespace IdentityServer.UnitTests.Services.Default;
+
+[SuppressMessage(
+    "Usage", 
+    "ASP0019:Suggest using IHeaderDictionary.Append or the indexer", 
+    Justification = "Maintain throwing ArgumentException if the header is already set.")]
+public class DefaultUserSessionTests
 {
-    [SuppressMessage(
-        "Usage", 
-        "ASP0019:Suggest using IHeaderDictionary.Append or the indexer", 
-        Justification = "Maintain throwing ArgumentException if the header is already set.")]
-    public class DefaultUserSessionTests
+    private DefaultUserSession _subject;
+    private MockHttpContextAccessor _mockHttpContext = new MockHttpContextAccessor();
+    private MockAuthenticationHandlerProvider _mockAuthenticationHandlerProvider = new MockAuthenticationHandlerProvider();
+    private MockAuthenticationHandler _mockAuthenticationHandler = new MockAuthenticationHandler();
+
+    private IdentityServerOptions _options = new IdentityServerOptions();
+    private ClaimsPrincipal _user;
+    private AuthenticationProperties _props = new AuthenticationProperties();
+
+    public DefaultUserSessionTests()
     {
-        private DefaultUserSession _subject;
-        private MockHttpContextAccessor _mockHttpContext = new MockHttpContextAccessor();
-        private MockAuthenticationHandlerProvider _mockAuthenticationHandlerProvider = new MockAuthenticationHandlerProvider();
-        private MockAuthenticationHandler _mockAuthenticationHandler = new MockAuthenticationHandler();
+        _mockAuthenticationHandlerProvider.Handler = _mockAuthenticationHandler;
 
-        private IdentityServerOptions _options = new IdentityServerOptions();
-        private ClaimsPrincipal _user;
-        private AuthenticationProperties _props = new AuthenticationProperties();
+        _user = new IdentityServerUser("123").CreatePrincipal();
+        _subject = new DefaultUserSession(
+            _mockHttpContext, 
+            _mockAuthenticationHandlerProvider,
+            _options,
+            new StubClock(), 
+            TestLogger.Create<DefaultUserSession>());
+    }
 
-        public DefaultUserSessionTests()
-        {
-            _mockAuthenticationHandlerProvider.Handler = _mockAuthenticationHandler;
+    [Fact]
+    public async Task CreateSessionId_when_user_is_anonymous_should_generate_new_sid()
+    {
+        await _subject.CreateSessionIdAsync(_user, _props);
 
-            _user = new IdentityServerUser("123").CreatePrincipal();
-            _subject = new DefaultUserSession(
-                _mockHttpContext, 
-                _mockAuthenticationHandlerProvider,
-                _options,
-                new StubClock(), 
-                TestLogger.Create<DefaultUserSession>());
-        }
+        _props.GetSessionId().Should().NotBeNull();
+    }
 
-        [Fact]
-        public async Task CreateSessionId_when_user_is_anonymous_should_generate_new_sid()
-        {
-            await _subject.CreateSessionIdAsync(_user, _props);
+    [Fact]
+    public async Task CreateSessionId_when_user_is_authenticated_should_not_generate_new_sid()
+    {
+        // this test is needed to allow same session id when cookie is slid
+        // IOW, if UI layer passes in same properties dictionary, then we assume it's the same user
 
-            _props.GetSessionId().Should().NotBeNull();
-        }
+        _props.SetSessionId("999");
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-        [Fact]
-        public async Task CreateSessionId_when_user_is_authenticated_should_not_generate_new_sid()
-        {
-            // this test is needed to allow same session id when cookie is slid
-            // IOW, if UI layer passes in same properties dictionary, then we assume it's the same user
+        await _subject.CreateSessionIdAsync(_user, _props);
 
-            _props.SetSessionId("999");
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
+        _props.GetSessionId().Should().NotBeNull();
+        _props.GetSessionId().Should().Be("999");
+    }
 
-            await _subject.CreateSessionIdAsync(_user, _props);
+    [Fact]
+    public async Task CreateSessionId_when_props_does_not_contain_key_should_generate_new_sid()
+    {
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-            _props.GetSessionId().Should().NotBeNull();
-            _props.GetSessionId().Should().Be("999");
-        }
+        _props.GetSessionId().Should().BeNull();
 
-        [Fact]
-        public async Task CreateSessionId_when_props_does_not_contain_key_should_generate_new_sid()
-        {
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
+        await _subject.CreateSessionIdAsync(_user, _props);
 
-            _props.GetSessionId().Should().BeNull();
+        _props.GetSessionId().Should().NotBeNull();
+    }
 
-            await _subject.CreateSessionIdAsync(_user, _props);
+    [Fact]
+    public async Task CreateSessionId_when_user_is_authenticated_but_different_sub_should_create_new_sid()
+    {
+        _props.SetSessionId("999");
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-            _props.GetSessionId().Should().NotBeNull();
-        }
+        await _subject.CreateSessionIdAsync(new IdentityServerUser("alice").CreatePrincipal(), _props);
 
-        [Fact]
-        public async Task CreateSessionId_when_user_is_authenticated_but_different_sub_should_create_new_sid()
-        {
-            _props.SetSessionId("999");
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
+        _props.GetSessionId().Should().NotBeNull();
+        _props.GetSessionId().Should().NotBe("999");
+    }
 
-            await _subject.CreateSessionIdAsync(new IdentityServerUser("alice").CreatePrincipal(), _props);
+    [Fact]
+    public async Task CreateSessionId_should_issue_session_id_cookie()
+    {
+        await _subject.CreateSessionIdAsync(_user, _props);
 
-            _props.GetSessionId().Should().NotBeNull();
-            _props.GetSessionId().Should().NotBe("999");
-        }
+        var cookieContainer = new CookieContainer();
+        var cookies = _mockHttpContext.HttpContext.Response.Headers.Where(x => x.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)).Select(x => x.Value);
+        cookieContainer.SetCookies(new Uri("http://server"), string.Join(",", cookies));
+        _mockHttpContext.HttpContext.Response.Headers.Clear();
 
-        [Fact]
-        public async Task CreateSessionId_should_issue_session_id_cookie()
-        {
-            await _subject.CreateSessionIdAsync(_user, _props);
+        var cookie = cookieContainer.GetCookies(new Uri("http://server")).Cast<Cookie>().Where(x => x.Name == _options.Authentication.CheckSessionCookieName).FirstOrDefault();
+        cookie.Value.Should().Be(_props.GetSessionId());
+    }
 
-            var cookieContainer = new CookieContainer();
-            var cookies = _mockHttpContext.HttpContext.Response.Headers.Where(x => x.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)).Select(x => x.Value);
-            cookieContainer.SetCookies(new Uri("http://server"), string.Join(",", cookies));
-            _mockHttpContext.HttpContext.Response.Headers.Clear();
+    [Fact]
+    public async Task EnsureSessionIdCookieAsync_should_add_cookie()
+    {
+        _props.SetSessionId("999");
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-            var cookie = cookieContainer.GetCookies(new Uri("http://server")).Cast<Cookie>().Where(x => x.Name == _options.Authentication.CheckSessionCookieName).FirstOrDefault();
-            cookie.Value.Should().Be(_props.GetSessionId());
-        }
+        await _subject.EnsureSessionIdCookieAsync();
 
-        [Fact]
-        public async Task EnsureSessionIdCookieAsync_should_add_cookie()
-        {
-            _props.SetSessionId("999");
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
+        var cookieContainer = new CookieContainer();
+        var cookies = _mockHttpContext.HttpContext.Response.Headers.Where(x => x.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)).Select(x => x.Value);
+        cookieContainer.SetCookies(new Uri("http://server"), string.Join(",", cookies));
+        _mockHttpContext.HttpContext.Response.Headers.Clear();
 
-            await _subject.EnsureSessionIdCookieAsync();
+        var cookie = cookieContainer.GetCookies(new Uri("http://server")).Cast<Cookie>().Where(x => x.Name == _options.Authentication.CheckSessionCookieName).FirstOrDefault();
+        cookie.Value.Should().Be("999");
+    }
 
-            var cookieContainer = new CookieContainer();
-            var cookies = _mockHttpContext.HttpContext.Response.Headers.Where(x => x.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)).Select(x => x.Value);
-            cookieContainer.SetCookies(new Uri("http://server"), string.Join(",", cookies));
-            _mockHttpContext.HttpContext.Response.Headers.Clear();
+    [Fact]
+    public async Task EnsureSessionIdCookieAsync_should_not_add_cookie_if_no_sid()
+    {
+        await _subject.EnsureSessionIdCookieAsync();
 
-            var cookie = cookieContainer.GetCookies(new Uri("http://server")).Cast<Cookie>().Where(x => x.Name == _options.Authentication.CheckSessionCookieName).FirstOrDefault();
-            cookie.Value.Should().Be("999");
-        }
+        var cookieContainer = new CookieContainer();
+        var cookies = _mockHttpContext.HttpContext.Response.Headers.Where(x => x.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)).Select(x => x.Value);
+        cookieContainer.SetCookies(new Uri("http://server"), string.Join(",", cookies));
+        _mockHttpContext.HttpContext.Response.Headers.Clear();
 
-        [Fact]
-        public async Task EnsureSessionIdCookieAsync_should_not_add_cookie_if_no_sid()
-        {
-            await _subject.EnsureSessionIdCookieAsync();
+        var cookie = cookieContainer.GetCookies(new Uri("http://server")).Cast<Cookie>().Where(x => x.Name == _options.Authentication.CheckSessionCookieName).FirstOrDefault();
+        cookie.Should().BeNull();
+    }
 
-            var cookieContainer = new CookieContainer();
-            var cookies = _mockHttpContext.HttpContext.Response.Headers.Where(x => x.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)).Select(x => x.Value);
-            cookieContainer.SetCookies(new Uri("http://server"), string.Join(",", cookies));
-            _mockHttpContext.HttpContext.Response.Headers.Clear();
+    [Fact]
+    public async Task RemoveSessionIdCookie_should_remove_cookie()
+    {
+        _props.SetSessionId("999");
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-            var cookie = cookieContainer.GetCookies(new Uri("http://server")).Cast<Cookie>().Where(x => x.Name == _options.Authentication.CheckSessionCookieName).FirstOrDefault();
-            cookie.Should().BeNull();
-        }
+        await _subject.EnsureSessionIdCookieAsync();
 
-        [Fact]
-        public async Task RemoveSessionIdCookie_should_remove_cookie()
-        {
-            _props.SetSessionId("999");
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
+        var cookieContainer = new CookieContainer();
+        var cookies = _mockHttpContext.HttpContext.Response.Headers.Where(x => x.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)).Select(x => x.Value);
+        cookieContainer.SetCookies(new Uri("http://server"), string.Join(",", cookies));
+        _mockHttpContext.HttpContext.Response.Headers.Clear();
 
-            await _subject.EnsureSessionIdCookieAsync();
+        string cookie = cookieContainer.GetCookieHeader(new Uri("http://server"));
+        _mockHttpContext.HttpContext.Request.Headers.Add("Cookie", cookie);
 
-            var cookieContainer = new CookieContainer();
-            var cookies = _mockHttpContext.HttpContext.Response.Headers.Where(x => x.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)).Select(x => x.Value);
-            cookieContainer.SetCookies(new Uri("http://server"), string.Join(",", cookies));
-            _mockHttpContext.HttpContext.Response.Headers.Clear();
+        await _subject.RemoveSessionIdCookieAsync();
 
-            string cookie = cookieContainer.GetCookieHeader(new Uri("http://server"));
-            _mockHttpContext.HttpContext.Request.Headers.Add("Cookie", cookie);
+        cookies = _mockHttpContext.HttpContext.Response.Headers.Where(x => x.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)).Select(x => x.Value);
+        cookieContainer.SetCookies(new Uri("http://server"), string.Join(",", cookies));
 
-            await _subject.RemoveSessionIdCookieAsync();
+        var query = cookieContainer.GetCookies(new Uri("http://server")).Cast<Cookie>().Where(x => x.Name == _options.Authentication.CheckSessionCookieName);
+        query.Count().Should().Be(0);
+    }
 
-            cookies = _mockHttpContext.HttpContext.Response.Headers.Where(x => x.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)).Select(x => x.Value);
-            cookieContainer.SetCookies(new Uri("http://server"), string.Join(",", cookies));
+    [Fact]
+    public async Task GetCurrentSessionIdAsync_when_user_is_authenticated_should_return_sid()
+    {
+        _props.SetSessionId("999");
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-            var query = cookieContainer.GetCookies(new Uri("http://server")).Cast<Cookie>().Where(x => x.Name == _options.Authentication.CheckSessionCookieName);
-            query.Count().Should().Be(0);
-        }
+        var sid = await _subject.GetSessionIdAsync();
+        sid.Should().Be("999");
+    }
 
-        [Fact]
-        public async Task GetCurrentSessionIdAsync_when_user_is_authenticated_should_return_sid()
-        {
-            _props.SetSessionId("999");
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
+    [Fact]
+    public async Task GetCurrentSessionIdAsync_when_user_is_anonymous_should_return_null()
+    {
+        var sid = await _subject.GetSessionIdAsync();
+        sid.Should().BeNull();
+    }
 
-            var sid = await _subject.GetSessionIdAsync();
-            sid.Should().Be("999");
-        }
+    [Fact]
+    public async Task adding_client_should_set_item_in_cookie_properties()
+    {
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-        [Fact]
-        public async Task GetCurrentSessionIdAsync_when_user_is_anonymous_should_return_null()
-        {
-            var sid = await _subject.GetSessionIdAsync();
-            sid.Should().BeNull();
-        }
+        _props.Items.Count.Should().Be(0);
+        await _subject.AddClientIdAsync("client");
+        _props.Items.Count.Should().Be(1);
+    }
 
-        [Fact]
-        public async Task adding_client_should_set_item_in_cookie_properties()
-        {
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
+    [Fact]
+    public async Task when_authenticated_GetIdentityServerUserAsync_should_should_return_authenticated_user()
+    {
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-            _props.Items.Count.Should().Be(0);
-            await _subject.AddClientIdAsync("client");
-            _props.Items.Count.Should().Be(1);
-        }
+        var user = await _subject.GetUserAsync();
+        user.GetSubjectId().Should().Be("123");
+    }
 
-        [Fact]
-        public async Task when_authenticated_GetIdentityServerUserAsync_should_should_return_authenticated_user()
-        {
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
+    [Fact]
+    public async Task when_anonymous_GetIdentityServerUserAsync_should_should_return_null()
+    {
+        var user = await _subject.GetUserAsync();
+        user.Should().BeNull();
+    }
 
-            var user = await _subject.GetUserAsync();
-            user.GetSubjectId().Should().Be("123");
-        }
+    [Fact]
+    public async Task corrupt_properties_entry_should_clear_entry()
+    {
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-        [Fact]
-        public async Task when_anonymous_GetIdentityServerUserAsync_should_should_return_null()
-        {
-            var user = await _subject.GetUserAsync();
-            user.Should().BeNull();
-        }
+        await _subject.AddClientIdAsync("client");
+        var item = _props.Items.First();
+        _props.Items[item.Key] = "junk";
 
-        [Fact]
-        public async Task corrupt_properties_entry_should_clear_entry()
-        {
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
+        var clients = await _subject.GetClientListAsync();
+        clients.Should().BeEmpty();
+        _props.Items.Count.Should().Be(0);
+    }
 
-            await _subject.AddClientIdAsync("client");
-            var item = _props.Items.First();
-            _props.Items[item.Key] = "junk";
+    [Fact]
+    public async Task adding_client_should_be_able_to_read_client()
+    {
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-            var clients = await _subject.GetClientListAsync();
-            clients.Should().BeEmpty();
-            _props.Items.Count.Should().Be(0);
-        }
+        await _subject.AddClientIdAsync("client");
+        var clients = await _subject.GetClientListAsync();
+        clients.Should().Contain(new string[] { "client" });
+    }
 
-        [Fact]
-        public async Task adding_client_should_be_able_to_read_client()
-        {
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
+    [Fact]
+    public async Task adding_clients_should_be_able_to_read_clients()
+    {
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
 
-            await _subject.AddClientIdAsync("client");
-            var clients = await _subject.GetClientListAsync();
-            clients.Should().Contain(new string[] { "client" });
-        }
-
-        [Fact]
-        public async Task adding_clients_should_be_able_to_read_clients()
-        {
-            _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, _props, "scheme"));
-
-            await _subject.AddClientIdAsync("client1");
-            await _subject.AddClientIdAsync("client2");
-            var clients = await _subject.GetClientListAsync();
-            clients.Should().Contain(new string[] { "client2", "client1" });
-        }
+        await _subject.AddClientIdAsync("client1");
+        await _subject.AddClientIdAsync("client2");
+        var clients = await _subject.GetClientListAsync();
+        clients.Should().Contain(new string[] { "client2", "client1" });
     }
 }

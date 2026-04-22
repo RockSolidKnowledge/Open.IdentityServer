@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Open.IdentityServer.Models.AccountViewModels
+namespace Open.IdentityServer.Models.AccountViewModels;
+
+public class LoginWithRecoveryCodeViewModel
 {
-    public class LoginWithRecoveryCodeViewModel
-    {
-            [Required]
-            [DataType(DataType.Text)]
-            [Display(Name = "Recovery Code")]
-            public string RecoveryCode { get; set; }
-    }
+    [Required]
+    [DataType(DataType.Text)]
+    [Display(Name = "Recovery Code")]
+    public string RecoveryCode { get; set; }
 }

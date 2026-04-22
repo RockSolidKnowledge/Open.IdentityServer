@@ -4,11 +4,10 @@
 
 #pragma warning disable 1591
 
-namespace Open.IdentityServer.EntityFramework.Entities
+namespace Open.IdentityServer.EntityFramework.Entities;
+
+public class IdentityResourceClaim : UserClaim
 {
-    public class IdentityResourceClaim : UserClaim
-    {
-        public int IdentityResourceId { get; set; }
-        public IdentityResource IdentityResource { get; set; }
-    }
+    public int IdentityResourceId { get; set; }
+    public IdentityResource IdentityResource { get; set; }
 }

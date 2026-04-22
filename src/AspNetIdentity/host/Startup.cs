@@ -10,74 +10,73 @@ using Open.IdentityServer.Models;
 using Microsoft.Extensions.Hosting;
 using Open.IdentityServer;
 
-namespace IdentityServerHost
+namespace IdentityServerHost;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        Configuration = configuration;
+    }
 
-        public IConfiguration Configuration { get; }
+    public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
+        services.AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
-            services.AddControllersWithViews();
+        services.AddControllersWithViews();
 
-            services.AddIdentityServer()
-                .AddDeveloperSigningCredential()
-                .AddInMemoryIdentityResources(IdentityServerHost.Configuration.Resources.IdentityResources)
-                .AddInMemoryApiResources(IdentityServerHost.Configuration.Resources.ApiResources)
-                .AddInMemoryApiScopes(IdentityServerHost.Configuration.Resources.ApiScopes)
-                .AddInMemoryClients(Clients.Get())
-                .AddAspNetIdentity<ApplicationUser>();
+        services.AddIdentityServer()
+            .AddDeveloperSigningCredential()
+            .AddInMemoryIdentityResources(IdentityServerHost.Configuration.Resources.IdentityResources)
+            .AddInMemoryApiResources(IdentityServerHost.Configuration.Resources.ApiResources)
+            .AddInMemoryApiScopes(IdentityServerHost.Configuration.Resources.ApiScopes)
+            .AddInMemoryClients(Clients.Get())
+            .AddAspNetIdentity<ApplicationUser>();
 
-            services.AddAuthentication()
-                .AddOpenIdConnect("Google", "Google", options =>
-                {
-                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-                    options.ForwardSignOut = IdentityServerConstants.DefaultCookieAuthenticationScheme;
-
-                    options.Authority = "https://accounts.google.com/";
-                    options.ClientId = "708996912208-9m4dkjb5hscn7cjrn5u0r4tbgkbj1fko.apps.googleusercontent.com";
-
-                    options.CallbackPath = "/signin-google";
-                    options.Scope.Add("email");
-                });
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
+        services.AddAuthentication()
+            .AddOpenIdConnect("Google", "Google", options =>
             {
-                app.UseDeveloperExceptionPage();
-                //app.UseDatabaseErrorPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
+                options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                options.ForwardSignOut = IdentityServerConstants.DefaultCookieAuthenticationScheme;
 
-            app.UseStaticFiles();
+                options.Authority = "https://accounts.google.com/";
+                options.ClientId = "708996912208-9m4dkjb5hscn7cjrn5u0r4tbgkbj1fko.apps.googleusercontent.com";
 
-            app.UseRouting();
-
-            app.UseIdentityServer();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapDefaultControllerRoute();
+                options.CallbackPath = "/signin-google";
+                options.Scope.Add("email");
             });
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            //app.UseDatabaseErrorPage();
         }
+        else
+        {
+            app.UseExceptionHandler("/Home/Error");
+        }
+
+        app.UseStaticFiles();
+
+        app.UseRouting();
+
+        app.UseIdentityServer();
+
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapDefaultControllerRoute();
+        });
     }
 }

@@ -13,330 +13,329 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using Xunit;
 
-namespace IdentityServer.IntegrationTests.Clients
+namespace IdentityServer.IntegrationTests.Clients;
+
+public class RefreshTokenClient : IDisposable
 {
-    public class RefreshTokenClient : IDisposable
+    private const string TokenEndpoint = "https://server/connect/token";
+    private const string RevocationEndpoint = "https://server/connect/revocation";
+
+    private readonly HttpClient _client;
+    private readonly IHost _host;
+
+    public RefreshTokenClient()
     {
-        private const string TokenEndpoint = "https://server/connect/token";
-        private const string RevocationEndpoint = "https://server/connect/revocation";
+        _host = new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
+            {
+                webBuilder.UseTestServer();
+                webBuilder.UseStartup<Startup>();
+            })
+            .Build();
 
-        private readonly HttpClient _client;
-        private readonly IHost _host;
+        _host.Start();
+        _client = _host.GetTestClient();
+    }
 
-        public RefreshTokenClient()
+    public void Dispose()
+    {
+        _client?.Dispose();
+        _host?.Dispose();
+    }
+
+    [Fact]
+    public async Task Requesting_a_refresh_token_without_identity_scopes_should_return_expected_results()
+    {
+        var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
-            _host = new HostBuilder()
-                .ConfigureWebHost(webBuilder =>
-                {
-                    webBuilder.UseTestServer();
-                    webBuilder.UseStartup<Startup>();
-                })
-                .Build();
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-            _host.Start();
-            _client = _host.GetTestClient();
-        }
+            Scope = "api1 offline_access",
+            UserName = "bob",
+            Password = "bob"
+        }, TestContext.Current.CancellationToken);
 
-        public void Dispose()
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().BeNull();
+        response.RefreshToken.Should().NotBeNull();
+
+        response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
         {
-            _client?.Dispose();
-            _host?.Dispose();
-        }
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-        [Fact]
-        public async Task Requesting_a_refresh_token_without_identity_scopes_should_return_expected_results()
+            RefreshToken = response.RefreshToken
+        }, TestContext.Current.CancellationToken);
+
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().BeNull();
+        response.RefreshToken.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task Requesting_a_refresh_token_with_identity_scopes_should_return_expected_results()
+    {
+        var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                Scope = "api1 offline_access",
-                UserName = "bob",
-                Password = "bob"
-            }, TestContext.Current.CancellationToken);
+            Scope = "openid api1 offline_access",
+            UserName = "bob",
+            Password = "bob"
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().BeNull();
-            response.RefreshToken.Should().NotBeNull();
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().BeNull();
+        response.RefreshToken.Should().NotBeNull();
 
-            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                RefreshToken = response.RefreshToken
-            }, TestContext.Current.CancellationToken);
-
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().BeNull();
-            response.RefreshToken.Should().NotBeNull();
-        }
-
-        [Fact]
-        public async Task Requesting_a_refresh_token_with_identity_scopes_should_return_expected_results()
+        response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                Scope = "openid api1 offline_access",
-                UserName = "bob",
-                Password = "bob"
-            }, TestContext.Current.CancellationToken);
+            RefreshToken = response.RefreshToken
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().BeNull();
-            response.RefreshToken.Should().NotBeNull();
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().NotBeNull();
+        response.RefreshToken.Should().NotBeNull();
+    }
 
-            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                RefreshToken = response.RefreshToken
-            }, TestContext.Current.CancellationToken);
-
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().NotBeNull();
-            response.RefreshToken.Should().NotBeNull();
-        }
-
-        [Fact]
-        public async Task Refreshing_a_refresh_token_with_reuse_should_return_same_refresh_token()
+    [Fact]
+    public async Task Refreshing_a_refresh_token_with_reuse_should_return_same_refresh_token()
+    {
+        var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient.reuse",
-                ClientSecret = "secret",
+            Address = TokenEndpoint,
+            ClientId = "roclient.reuse",
+            ClientSecret = "secret",
 
-                Scope = "openid api1 offline_access",
-                UserName = "bob",
-                Password = "bob"
-            }, TestContext.Current.CancellationToken);
+            Scope = "openid api1 offline_access",
+            UserName = "bob",
+            Password = "bob"
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().BeNull();
-            response.RefreshToken.Should().NotBeNull();
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().BeNull();
+        response.RefreshToken.Should().NotBeNull();
 
-            var rt1 = response.RefreshToken;
+        var rt1 = response.RefreshToken;
 
-            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient.reuse",
-                ClientSecret = "secret",
+        response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
+        {
+            Address = TokenEndpoint,
+            ClientId = "roclient.reuse",
+            ClientSecret = "secret",
 
-                RefreshToken = response.RefreshToken
-            }, TestContext.Current.CancellationToken);
+            RefreshToken = response.RefreshToken
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().NotBeNull();
-            response.RefreshToken.Should().NotBeNull();
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().NotBeNull();
+        response.RefreshToken.Should().NotBeNull();
 
-            var rt2 = response.RefreshToken;
+        var rt2 = response.RefreshToken;
 
-            rt1.Should().BeEquivalentTo(rt2);
-        }
+        rt1.Should().BeEquivalentTo(rt2);
+    }
         
-        [Fact]
-        public async Task Refreshing_a_refresh_token_with_one_time_only_should_return_different_refresh_token()
+    [Fact]
+    public async Task Refreshing_a_refresh_token_with_one_time_only_should_return_different_refresh_token()
+    {
+        var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                Scope = "openid api1 offline_access",
-                UserName = "bob",
-                Password = "bob"
-            }, TestContext.Current.CancellationToken);
+            Scope = "openid api1 offline_access",
+            UserName = "bob",
+            Password = "bob"
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().BeNull();
-            response.RefreshToken.Should().NotBeNull();
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().BeNull();
+        response.RefreshToken.Should().NotBeNull();
 
-            var rt1 = response.RefreshToken;
+        var rt1 = response.RefreshToken;
 
-            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
+        response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
+        {
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                RefreshToken = response.RefreshToken
-            }, TestContext.Current.CancellationToken);
+            RefreshToken = response.RefreshToken
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().NotBeNull();
-            response.RefreshToken.Should().NotBeNull();
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().NotBeNull();
+        response.RefreshToken.Should().NotBeNull();
 
-            var rt2 = response.RefreshToken;
+        var rt2 = response.RefreshToken;
 
-            rt1.Should().NotBeEquivalentTo(rt2);
-        }
+        rt1.Should().NotBeEquivalentTo(rt2);
+    }
         
-        [Fact]
-        public async Task Replaying_a_rotated_token_should_fail()
+    [Fact]
+    public async Task Replaying_a_rotated_token_should_fail()
+    {
+        // request initial token
+        var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
-            // request initial token
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                Scope = "openid api1 offline_access",
-                UserName = "bob",
-                Password = "bob"
-            }, TestContext.Current.CancellationToken);
+            Scope = "openid api1 offline_access",
+            UserName = "bob",
+            Password = "bob"
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().BeNull();
-            response.RefreshToken.Should().NotBeNull();
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().BeNull();
+        response.RefreshToken.Should().NotBeNull();
 
-            var rt1 = response.RefreshToken;
+        var rt1 = response.RefreshToken;
 
-            // refresh token
-            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
+        // refresh token
+        response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
+        {
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                RefreshToken = response.RefreshToken
-            }, TestContext.Current.CancellationToken);
+            RefreshToken = response.RefreshToken
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().NotBeNull();
-            response.RefreshToken.Should().NotBeNull();
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().NotBeNull();
+        response.RefreshToken.Should().NotBeNull();
             
-            // refresh token (again)
-            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                RefreshToken = rt1
-            }, TestContext.Current.CancellationToken);
-
-            response.IsError.Should().BeTrue();
-            response.Error.Should().Be("invalid_grant");
-        }
-        
-        [Fact]
-        public async Task Using_a_valid_refresh_token_should_succeed()
+        // refresh token (again)
+        response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
         {
-            // request initial token
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                Scope = "openid api1 offline_access",
-                UserName = "bob",
-                Password = "bob"
-            }, TestContext.Current.CancellationToken);
+            RefreshToken = rt1
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().BeNull();
-            response.RefreshToken.Should().NotBeNull();
-
-            var rt1 = response.RefreshToken;
-
-            // refresh token
-            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
-
-                RefreshToken = rt1
-            }, TestContext.Current.CancellationToken);
-
-            response.IsError.Should().BeFalse();
-        }
+        response.IsError.Should().BeTrue();
+        response.Error.Should().Be("invalid_grant");
+    }
         
-        [Fact]
-        public async Task Using_a_revoked_refresh_token_should_fail()
+    [Fact]
+    public async Task Using_a_valid_refresh_token_should_succeed()
+    {
+        // request initial token
+        var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
-            // request initial token
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                Scope = "openid api1 offline_access",
-                UserName = "bob",
-                Password = "bob"
-            }, TestContext.Current.CancellationToken);
+            Scope = "openid api1 offline_access",
+            UserName = "bob",
+            Password = "bob"
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
-            response.ExpiresIn.Should().Be(3600);
-            response.TokenType.Should().Be("Bearer");
-            response.IdentityToken.Should().BeNull();
-            response.RefreshToken.Should().NotBeNull();
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().BeNull();
+        response.RefreshToken.Should().NotBeNull();
 
-            var rt1 = response.RefreshToken;
+        var rt1 = response.RefreshToken;
 
-            // revoke refresh token
-            var revocationResponse = await _client.RevokeTokenAsync(new TokenRevocationRequest
-            {
-                Address = RevocationEndpoint,
+        // refresh token
+        response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
+        {
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                ClientId = "roclient",
-                ClientSecret = "secret",
+            RefreshToken = rt1
+        }, TestContext.Current.CancellationToken);
 
-                Token = rt1,
-                TokenTypeHint = "refresh_token"
-            }, TestContext.Current.CancellationToken);
+        response.IsError.Should().BeFalse();
+    }
+        
+    [Fact]
+    public async Task Using_a_revoked_refresh_token_should_fail()
+    {
+        // request initial token
+        var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
+        {
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-            revocationResponse.IsError.Should().Be(false);
+            Scope = "openid api1 offline_access",
+            UserName = "bob",
+            Password = "bob"
+        }, TestContext.Current.CancellationToken);
+
+        response.IsError.Should().BeFalse();
+        response.ExpiresIn.Should().Be(3600);
+        response.TokenType.Should().Be("Bearer");
+        response.IdentityToken.Should().BeNull();
+        response.RefreshToken.Should().NotBeNull();
+
+        var rt1 = response.RefreshToken;
+
+        // revoke refresh token
+        var revocationResponse = await _client.RevokeTokenAsync(new TokenRevocationRequest
+        {
+            Address = RevocationEndpoint,
+
+            ClientId = "roclient",
+            ClientSecret = "secret",
+
+            Token = rt1,
+            TokenTypeHint = "refresh_token"
+        }, TestContext.Current.CancellationToken);
+
+        revocationResponse.IsError.Should().Be(false);
             
-            // refresh token
-            response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient",
-                ClientSecret = "secret",
+        // refresh token
+        response = await _client.RequestRefreshTokenAsync(new RefreshTokenRequest
+        {
+            Address = TokenEndpoint,
+            ClientId = "roclient",
+            ClientSecret = "secret",
 
-                RefreshToken = rt1
-            }, TestContext.Current.CancellationToken);
+            RefreshToken = rt1
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeTrue();
-            response.Error.Should().Be("invalid_grant");
-        }
+        response.IsError.Should().BeTrue();
+        response.Error.Should().Be("invalid_grant");
     }
 }

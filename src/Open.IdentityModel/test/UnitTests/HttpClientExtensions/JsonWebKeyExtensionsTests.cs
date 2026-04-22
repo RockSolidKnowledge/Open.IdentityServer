@@ -12,179 +12,178 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Open.IdentityModel.UnitTests
+namespace Open.IdentityModel.UnitTests;
+
+public class JsonWebkeyExtensionsTests
 {
-    public class JsonWebkeyExtensionsTests
-    {
-        private readonly NetworkHandler _successHandler;
-        private readonly string _endpoint = "https://demo.identityserver.io/.well-known/openid-configuration/jwks";
+    private readonly NetworkHandler _successHandler;
+    private readonly string _endpoint = "https://demo.identityserver.io/.well-known/openid-configuration/jwks";
         
-        public JsonWebkeyExtensionsTests()
+    public JsonWebkeyExtensionsTests()
+    {
+        var discoFileName = FileName.Create("discovery.json");
+        var document = File.ReadAllText(discoFileName);
+
+        var jwksFileName = FileName.Create("discovery_jwks.json");
+        var jwks = File.ReadAllText(jwksFileName);
+
+        _successHandler = new NetworkHandler(request =>
         {
-            var discoFileName = FileName.Create("discovery.json");
-            var document = File.ReadAllText(discoFileName);
-
-            var jwksFileName = FileName.Create("discovery_jwks.json");
-            var jwks = File.ReadAllText(jwksFileName);
-
-            _successHandler = new NetworkHandler(request =>
+            if (request.RequestUri.AbsoluteUri.EndsWith("jwks"))
             {
-                if (request.RequestUri.AbsoluteUri.EndsWith("jwks"))
-                {
-                    return jwks;
-                }
+                return jwks;
+            }
 
-                return document;
-            }, HttpStatusCode.OK);
-        }
+            return document;
+        }, HttpStatusCode.OK);
+    }
 
-        [Fact]
-        public async Task Http_request_should_have_correct_format()
+    [Fact]
+    public async Task Http_request_should_have_correct_format()
+    {
+        var handler = new NetworkHandler(HttpStatusCode.NotFound, "not found");
+
+        var client = new HttpClient(handler);
+        var request = new JsonWebKeySetRequest
         {
-            var handler = new NetworkHandler(HttpStatusCode.NotFound, "not found");
+            Address = _endpoint
+        };
 
-            var client = new HttpClient(handler);
-            var request = new JsonWebKeySetRequest
-            {
-                Address = _endpoint
-            };
+        request.Headers.Add("custom", "custom");
+        request.Properties.Add("custom", "custom");
 
-            request.Headers.Add("custom", "custom");
-            request.Properties.Add("custom", "custom");
+        var response = await client.GetJsonWebKeySetAsync(request, TestContext.Current.CancellationToken);
 
-            var response = await client.GetJsonWebKeySetAsync(request, TestContext.Current.CancellationToken);
+        var httpRequest = handler.Request;
 
-            var httpRequest = handler.Request;
+        httpRequest.Method.Should().Be(HttpMethod.Get);
+        httpRequest.RequestUri.Should().Be(new Uri(_endpoint));
+        httpRequest.Content.Should().BeNull();
 
-            httpRequest.Method.Should().Be(HttpMethod.Get);
-            httpRequest.RequestUri.Should().Be(new Uri(_endpoint));
-            httpRequest.Content.Should().BeNull();
+        var headers = httpRequest.Headers;
+        headers.Count().Should().Be(2);
+        headers.Should().Contain(h => h.Key == "custom" && h.Value.First() == "custom");
 
-            var headers = httpRequest.Headers;
-            headers.Count().Should().Be(2);
-            headers.Should().Contain(h => h.Key == "custom" && h.Value.First() == "custom");
+        var properties = httpRequest.Properties;
+        properties.Count.Should().Be(1);
 
-            var properties = httpRequest.Properties;
-            properties.Count.Should().Be(1);
+        var prop = properties.First();
+        prop.Key.Should().Be("custom");
+        ((string)prop.Value).Should().Be("custom");
+    }
 
-            var prop = properties.First();
-            prop.Key.Should().Be("custom");
-            ((string)prop.Value).Should().Be("custom");
-        }
-
-        [Fact]
-        public async Task Base_address_should_work()
+    [Fact]
+    public async Task Base_address_should_work()
+    {
+        var client = new HttpClient(_successHandler)
         {
-            var client = new HttpClient(_successHandler)
-            {
-                BaseAddress = new Uri(_endpoint)
-            };
+            BaseAddress = new Uri(_endpoint)
+        };
 
-            var jwk = await client.GetJsonWebKeySetAsync(cancellationToken: TestContext.Current.CancellationToken);
+        var jwk = await client.GetJsonWebKeySetAsync(cancellationToken: TestContext.Current.CancellationToken);
 
-            jwk.IsError.Should().BeFalse();
-        }
+        jwk.IsError.Should().BeFalse();
+    }
 
-        [Fact]
-        public async Task Explicit_address_should_work()
+    [Fact]
+    public async Task Explicit_address_should_work()
+    {
+        var client = new HttpClient(_successHandler);
+
+        var jwk = await client.GetJsonWebKeySetAsync(_endpoint, TestContext.Current.CancellationToken);
+
+        jwk.IsError.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Http_error_should_be_handled_correctly()
+    {
+        var handler = new NetworkHandler(HttpStatusCode.NotFound, "not found");
+        var client = new HttpClient(handler)
         {
-            var client = new HttpClient(_successHandler);
+            BaseAddress = new Uri(_endpoint)
+        };
 
-            var jwk = await client.GetJsonWebKeySetAsync(_endpoint, TestContext.Current.CancellationToken);
+        var jwk = await client.GetJsonWebKeySetAsync(cancellationToken: TestContext.Current.CancellationToken);
 
-            jwk.IsError.Should().BeFalse();
-        }
+        jwk.IsError.Should().BeTrue();
+        jwk.ErrorType.Should().Be(ResponseErrorType.Http);
+        jwk.Error.Should().StartWith("Error connecting to");
+        jwk.Error.Should().EndWith("not found");
+        jwk.HttpStatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 
-        [Fact]
-        public async Task Http_error_should_be_handled_correctly()
+    [Fact]
+    public async Task Exception_should_be_handled_correctly()
+    {
+        var handler = new NetworkHandler(new Exception("error"));
+
+        var client = new HttpClient(handler);
+        var jwk = await client.GetJsonWebKeySetAsync(_endpoint, TestContext.Current.CancellationToken);
+
+        jwk.IsError.Should().BeTrue();
+        jwk.ErrorType.Should().Be(ResponseErrorType.Exception);
+        jwk.Error.Should().StartWith("Error connecting to");
+        jwk.Error.Should().EndWith("error.");
+    }
+
+    [Fact]
+    public async Task Strongly_typed_accessors_should_behave_as_expected()
+    {
+        var client = new HttpClient(_successHandler)
         {
-            var handler = new NetworkHandler(HttpStatusCode.NotFound, "not found");
-            var client = new HttpClient(handler)
-            {
-                BaseAddress = new Uri(_endpoint)
-            };
+            BaseAddress = new Uri(_endpoint)
+        };
 
-            var jwk = await client.GetJsonWebKeySetAsync(cancellationToken: TestContext.Current.CancellationToken);
+        var jwk = await client.GetJsonWebKeySetAsync(cancellationToken: TestContext.Current.CancellationToken);
 
-            jwk.IsError.Should().BeTrue();
-            jwk.ErrorType.Should().Be(ResponseErrorType.Http);
-            jwk.Error.Should().StartWith("Error connecting to");
-            jwk.Error.Should().EndWith("not found");
-            jwk.HttpStatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
+        jwk.IsError.Should().BeFalse();
+        jwk.KeySet.Should().NotBeNull();
+    }
 
-        [Fact]
-        public async Task Exception_should_be_handled_correctly()
+    [Fact]
+    public async Task Http_error_with_non_json_content_should_be_handled_correctly()
+    {
+        var handler = new NetworkHandler("not_json", HttpStatusCode.InternalServerError);
+        var client = new HttpClient(handler)
         {
-            var handler = new NetworkHandler(new Exception("error"));
+            BaseAddress = new Uri(_endpoint)
+        };
 
-            var client = new HttpClient(handler);
-            var jwk = await client.GetJsonWebKeySetAsync(_endpoint, TestContext.Current.CancellationToken);
+        var jwk = await client.GetJsonWebKeySetAsync(cancellationToken: TestContext.Current.CancellationToken);
 
-            jwk.IsError.Should().BeTrue();
-            jwk.ErrorType.Should().Be(ResponseErrorType.Exception);
-            jwk.Error.Should().StartWith("Error connecting to");
-            jwk.Error.Should().EndWith("error.");
-        }
+        jwk.IsError.Should().BeTrue();
+        jwk.ErrorType.Should().Be(ResponseErrorType.Http);
+        jwk.HttpStatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        jwk.Error.Should().Contain("Internal Server Error");
+        jwk.Raw.Should().Be("not_json");
+        jwk.Json?.ValueKind.Should().Be(JsonValueKind.Undefined);
+    }
 
-        [Fact]
-        public async Task Strongly_typed_accessors_should_behave_as_expected()
+    [Fact]
+    public async Task Http_error_with_json_content_should_be_handled_correctly()
+    {
+        var content = new
         {
-            var client = new HttpClient(_successHandler)
-            {
-                BaseAddress = new Uri(_endpoint)
-            };
+            foo = "foo",
+            bar = "bar"
+        };
 
-            var jwk = await client.GetJsonWebKeySetAsync(cancellationToken: TestContext.Current.CancellationToken);
+        var handler = new NetworkHandler(JsonSerializer.Serialize(content), HttpStatusCode.InternalServerError);
 
-            jwk.IsError.Should().BeFalse();
-            jwk.KeySet.Should().NotBeNull();
-        }
-
-        [Fact]
-        public async Task Http_error_with_non_json_content_should_be_handled_correctly()
+        var client = new HttpClient(handler)
         {
-            var handler = new NetworkHandler("not_json", HttpStatusCode.InternalServerError);
-            var client = new HttpClient(handler)
-            {
-                BaseAddress = new Uri(_endpoint)
-            };
+            BaseAddress = new Uri(_endpoint)
+        };
 
-            var jwk = await client.GetJsonWebKeySetAsync(cancellationToken: TestContext.Current.CancellationToken);
+        var jwk = await client.GetJsonWebKeySetAsync(cancellationToken: TestContext.Current.CancellationToken);
 
-            jwk.IsError.Should().BeTrue();
-            jwk.ErrorType.Should().Be(ResponseErrorType.Http);
-            jwk.HttpStatusCode.Should().Be(HttpStatusCode.InternalServerError);
-            jwk.Error.Should().Contain("Internal Server Error");
-            jwk.Raw.Should().Be("not_json");
-            jwk.Json?.ValueKind.Should().Be(JsonValueKind.Undefined);
-        }
+        jwk.IsError.Should().BeTrue();
+        jwk.ErrorType.Should().Be(ResponseErrorType.Http);
+        jwk.HttpStatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        jwk.Error.Should().Contain("Internal Server Error");
 
-        [Fact]
-        public async Task Http_error_with_json_content_should_be_handled_correctly()
-        {
-            var content = new
-            {
-                foo = "foo",
-                bar = "bar"
-            };
-
-            var handler = new NetworkHandler(JsonSerializer.Serialize(content), HttpStatusCode.InternalServerError);
-
-            var client = new HttpClient(handler)
-            {
-                BaseAddress = new Uri(_endpoint)
-            };
-
-            var jwk = await client.GetJsonWebKeySetAsync(cancellationToken: TestContext.Current.CancellationToken);
-
-            jwk.IsError.Should().BeTrue();
-            jwk.ErrorType.Should().Be(ResponseErrorType.Http);
-            jwk.HttpStatusCode.Should().Be(HttpStatusCode.InternalServerError);
-            jwk.Error.Should().Contain("Internal Server Error");
-
-            jwk.Json?.TryGetString("foo").Should().Be("foo");
-            jwk.Json?.TryGetString("bar").Should().Be("bar");
-        }
+        jwk.Json?.TryGetString("foo").Should().Be("foo");
+        jwk.Json?.TryGetString("bar").Should().Be("bar");
     }
 }

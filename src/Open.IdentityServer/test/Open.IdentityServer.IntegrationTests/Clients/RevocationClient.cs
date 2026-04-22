@@ -13,87 +13,86 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using Xunit;
 
-namespace IdentityServer.IntegrationTests.Clients
+namespace IdentityServer.IntegrationTests.Clients;
+
+public class RevocationClient : IDisposable
 {
-    public class RevocationClient : IDisposable
+    private const string TokenEndpoint = "https://server/connect/token";
+    private const string RevocationEndpoint = "https://server/connect/revocation";
+    private const string IntrospectionEndpoint = "https://server/connect/introspect";
+
+    private readonly HttpClient _client;
+    private readonly IHost _host;
+
+    public RevocationClient()
     {
-        private const string TokenEndpoint = "https://server/connect/token";
-        private const string RevocationEndpoint = "https://server/connect/revocation";
-        private const string IntrospectionEndpoint = "https://server/connect/introspect";
+        _host = new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
+            {
+                webBuilder.UseTestServer();
+                webBuilder.UseStartup<Startup>();
+            })
+            .Build();
 
-        private readonly HttpClient _client;
-        private readonly IHost _host;
+        _host.Start();
+        _client = _host.GetTestClient();
+    }
 
-        public RevocationClient()
+    public void Dispose()
+    {
+        _client?.Dispose();
+        _host?.Dispose();
+    }
+
+    [Fact]
+    public async Task Revoking_reference_token_should_invalidate_token()
+    {
+        // request acccess token
+        var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
-            _host = new HostBuilder()
-                .ConfigureWebHost(webBuilder =>
-                {
-                    webBuilder.UseTestServer();
-                    webBuilder.UseStartup<Startup>();
-                })
-                .Build();
+            Address = TokenEndpoint,
+            ClientId = "roclient.reference",
+            ClientSecret = "secret",
 
-            _host.Start();
-            _client = _host.GetTestClient();
-        }
+            Scope = "api1",
+            UserName = "bob",
+            Password = "bob"
+        }, TestContext.Current.CancellationToken);
 
-        public void Dispose()
+        response.IsError.Should().BeFalse();
+
+        // introspect - should be active
+        var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
         {
-            _client?.Dispose();
-            _host?.Dispose();
-        }
+            Address = IntrospectionEndpoint,
+            ClientId = "api",
+            ClientSecret = "secret",
 
-        [Fact]
-        public async Task Revoking_reference_token_should_invalidate_token()
+            Token = response.AccessToken
+        }, TestContext.Current.CancellationToken);
+
+        introspectionResponse.IsActive.Should().Be(true);
+
+        // revoke access token
+        var revocationResponse = await _client.RevokeTokenAsync(new TokenRevocationRequest
         {
-            // request acccess token
-            var response = await _client.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = TokenEndpoint,
-                ClientId = "roclient.reference",
-                ClientSecret = "secret",
+            Address = RevocationEndpoint,
+            ClientId = "roclient.reference",
+            ClientSecret = "secret",
 
-                Scope = "api1",
-                UserName = "bob",
-                Password = "bob"
-            }, TestContext.Current.CancellationToken);
+            Token = response.AccessToken
+        }, TestContext.Current.CancellationToken);
 
-            response.IsError.Should().BeFalse();
+        // introspect - should be inactive
+        introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
+        {
+            Address = IntrospectionEndpoint,
+            ClientId = "api",
+            ClientSecret = "secret",
 
-            // introspect - should be active
-            var introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
-            {
-                Address = IntrospectionEndpoint,
-                ClientId = "api",
-                ClientSecret = "secret",
+            Token = response.AccessToken
+        }, TestContext.Current.CancellationToken);
 
-                Token = response.AccessToken
-            }, TestContext.Current.CancellationToken);
-
-            introspectionResponse.IsActive.Should().Be(true);
-
-            // revoke access token
-            var revocationResponse = await _client.RevokeTokenAsync(new TokenRevocationRequest
-            {
-                Address = RevocationEndpoint,
-                ClientId = "roclient.reference",
-                ClientSecret = "secret",
-
-                Token = response.AccessToken
-            }, TestContext.Current.CancellationToken);
-
-            // introspect - should be inactive
-            introspectionResponse = await _client.IntrospectTokenAsync(new TokenIntrospectionRequest
-            {
-                Address = IntrospectionEndpoint,
-                ClientId = "api",
-                ClientSecret = "secret",
-
-                Token = response.AccessToken
-            }, TestContext.Current.CancellationToken);
-
-            introspectionResponse.IsActive.Should().Be(false);
-        }
+        introspectionResponse.IsActive.Should().Be(false);
     }
 }

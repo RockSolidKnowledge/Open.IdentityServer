@@ -8,21 +8,20 @@ using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Hosting;
 using Microsoft.AspNetCore.Http;
 
-namespace Open.IdentityServer.Endpoints.Results
+namespace Open.IdentityServer.Endpoints.Results;
+
+internal class UserInfoResult : IEndpointResult
 {
-    internal class UserInfoResult : IEndpointResult
+    public Dictionary<string, object> Claims;
+
+    public UserInfoResult(Dictionary<string, object> claims)
     {
-        public Dictionary<string, object> Claims;
+        Claims = claims;
+    }
 
-        public UserInfoResult(Dictionary<string, object> claims)
-        {
-            Claims = claims;
-        }
-
-        public async Task ExecuteAsync(HttpContext context)
-        {
-            context.Response.SetNoCache();
-            await context.Response.WriteJsonAsync(Claims);
-        }
+    public async Task ExecuteAsync(HttpContext context)
+    {
+        context.Response.SetNoCache();
+        await context.Response.WriteJsonAsync(Claims);
     }
 }

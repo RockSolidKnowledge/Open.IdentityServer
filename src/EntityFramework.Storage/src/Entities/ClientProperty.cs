@@ -4,11 +4,10 @@
 
 #pragma warning disable 1591
 
-namespace Open.IdentityServer.EntityFramework.Entities
+namespace Open.IdentityServer.EntityFramework.Entities;
+
+public class ClientProperty : Property
 {
-    public class ClientProperty : Property
-    {
-        public int ClientId { get; set; }
-        public Client Client { get; set; }
-    }
+    public int ClientId { get; set; }
+    public Client Client { get; set; }
 }

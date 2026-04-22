@@ -15,334 +15,333 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation
+namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation;
+
+public class TokenRequestValidation_Valid
 {
-    public class TokenRequestValidation_Valid
+    private const string Category = "TokenRequest Validation - General - Valid";
+
+    private IClientStore _clients = Factory.CreateClientStore();
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Missing_ResourceOwner_password_for_user_with_no_password_should_succeed()
     {
-        private const string Category = "TokenRequest Validation - General - Valid";
+        var client = await _clients.FindEnabledClientByIdAsync("roclient");
+        var validator = Factory.CreateTokenRequestValidator();
 
-        private IClientStore _clients = Factory.CreateClientStore();
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
+        parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
+        parameters.Add(OidcConstants.TokenRequest.UserName, "bob_no_password");
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Missing_ResourceOwner_password_for_user_with_no_password_should_succeed()
-        {
-            var client = await _clients.FindEnabledClientByIdAsync("roclient");
-            var validator = Factory.CreateTokenRequestValidator();
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
-            parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
-            parameters.Add(OidcConstants.TokenRequest.UserName, "bob_no_password");
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeFalse();
-            result.ValidatedRequest.UserName.Should().Be("bob_no_password");
-        }
+        result.IsError.Should().BeFalse();
+        result.ValidatedRequest.UserName.Should().Be("bob_no_password");
+    }
         
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_code_request_should_succeed()
-        {
-            var client = await _clients.FindEnabledClientByIdAsync("codeclient");
-            var grants = Factory.CreateAuthorizationCodeStore();
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_code_request_should_succeed()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("codeclient");
+        var grants = Factory.CreateAuthorizationCodeStore();
 
-            var code = new AuthorizationCode
+        var code = new AuthorizationCode
+        {
+            CreationTime = DateTime.UtcNow,
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            Lifetime = client.AuthorizationCodeLifetime,
+            RedirectUri = "https://server/cb",
+            RequestedScopes = new List<string>
             {
-                CreationTime = DateTime.UtcNow,
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                ClientId = client.ClientId,
-                Lifetime = client.AuthorizationCodeLifetime,
-                RedirectUri = "https://server/cb",
-                RequestedScopes = new List<string>
-                {
-                    "openid"
-                }
-            };
+                "openid"
+            }
+        };
 
-            var handle = await grants.StoreAuthorizationCodeAsync(code);
+        var handle = await grants.StoreAuthorizationCodeAsync(code);
 
-            var validator = Factory.CreateTokenRequestValidator(
-                authorizationCodeStore: grants);
+        var validator = Factory.CreateTokenRequestValidator(
+            authorizationCodeStore: grants);
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.AuthorizationCode);
-            parameters.Add(OidcConstants.TokenRequest.Code, handle);
-            parameters.Add(OidcConstants.TokenRequest.RedirectUri, "https://server/cb");
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.AuthorizationCode);
+        parameters.Add(OidcConstants.TokenRequest.Code, handle);
+        parameters.Add(OidcConstants.TokenRequest.RedirectUri, "https://server/cb");
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            result.IsError.Should().BeFalse();
-        }
+        result.IsError.Should().BeFalse();
+    }
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_code_request_with_refresh_token_should_succeed()
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_code_request_with_refresh_token_should_succeed()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("codeclient");
+        var grants = Factory.CreateAuthorizationCodeStore();
+
+        var code = new AuthorizationCode
         {
-            var client = await _clients.FindEnabledClientByIdAsync("codeclient");
-            var grants = Factory.CreateAuthorizationCodeStore();
-
-            var code = new AuthorizationCode
+            CreationTime = DateTime.UtcNow,
+            ClientId = client.ClientId,
+            Lifetime = client.AuthorizationCodeLifetime,
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            RedirectUri = "https://server/cb",
+            RequestedScopes = new List<string>
             {
-                CreationTime = DateTime.UtcNow,
-                ClientId = client.ClientId,
-                Lifetime = client.AuthorizationCodeLifetime,
-                Subject = new IdentityServerUser("123").CreatePrincipal(),
-                RedirectUri = "https://server/cb",
-                RequestedScopes = new List<string>
-                {
-                    "openid",
-                    "offline_access"
-                }
-            };
+                "openid",
+                "offline_access"
+            }
+        };
 
-            var handle = await grants.StoreAuthorizationCodeAsync(code);
+        var handle = await grants.StoreAuthorizationCodeAsync(code);
 
-            var validator = Factory.CreateTokenRequestValidator(
-                authorizationCodeStore: grants);
+        var validator = Factory.CreateTokenRequestValidator(
+            authorizationCodeStore: grants);
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.AuthorizationCode);
-            parameters.Add(OidcConstants.TokenRequest.Code, handle);
-            parameters.Add(OidcConstants.TokenRequest.RedirectUri, "https://server/cb");
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.AuthorizationCode);
+        parameters.Add(OidcConstants.TokenRequest.Code, handle);
+        parameters.Add(OidcConstants.TokenRequest.RedirectUri, "https://server/cb");
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            result.IsError.Should().BeFalse();
-        }
+        result.IsError.Should().BeFalse();
+    }
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_client_credentials_request_should_succeed()
-        {
-            var client = await _clients.FindEnabledClientByIdAsync("client");
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_client_credentials_request_should_succeed()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("client");
 
-            var validator = Factory.CreateTokenRequestValidator();
+        var validator = Factory.CreateTokenRequestValidator();
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
-            parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
+        parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            result.IsError.Should().BeFalse();
-        }
+        result.IsError.Should().BeFalse();
+    }
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_client_credentials_request_with_default_scopes_should_succeed()
-        {
-            var client = await _clients.FindEnabledClientByIdAsync("client_restricted");
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_client_credentials_request_with_default_scopes_should_succeed()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("client_restricted");
 
-            var validator = Factory.CreateTokenRequestValidator();
+        var validator = Factory.CreateTokenRequestValidator();
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
             
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            result.IsError.Should().BeFalse();
-        }
+        result.IsError.Should().BeFalse();
+    }
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_client_credentials_request_for_implicit_and_client_credentials_client_should_succeed()
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_client_credentials_request_for_implicit_and_client_credentials_client_should_succeed()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("implicit_and_client_creds_client");
+
+        var validator = Factory.CreateTokenRequestValidator();
+
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
+        parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_client_credentials_request_restricted_client_should_succeed()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("client_restricted");
+
+        var validator = Factory.CreateTokenRequestValidator();
+
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
+        parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_resource_owner_request_should_succeed()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("roclient");
+
+        var validator = Factory.CreateTokenRequestValidator();
+
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
+        parameters.Add(OidcConstants.TokenRequest.UserName, "bob");
+        parameters.Add(OidcConstants.TokenRequest.Password, "bob");
+        parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_resource_wwner_request_with_refresh_token_should_succeed()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("roclient");
+
+        var validator = Factory.CreateTokenRequestValidator();
+
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
+        parameters.Add(OidcConstants.TokenRequest.UserName, "bob");
+        parameters.Add(OidcConstants.TokenRequest.Password, "bob");
+        parameters.Add(OidcConstants.TokenRequest.Scope, "resource offline_access");
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_resource_owner_request_restricted_client_should_succeed()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("roclient_restricted");
+
+        var validator = Factory.CreateTokenRequestValidator();
+
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
+        parameters.Add(OidcConstants.TokenRequest.UserName, "bob");
+        parameters.Add(OidcConstants.TokenRequest.Password, "bob");
+        parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task valid_extension_grant_request_should_succeed()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("customgrantclient");
+
+        var validator = Factory.CreateTokenRequestValidator();
+
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, "custom_grant");
+        parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_refresh_token_request_should_succeed()
+    {
+        var refreshToken = new RefreshToken
         {
-            var client = await _clients.FindEnabledClientByIdAsync("implicit_and_client_creds_client");
-
-            var validator = Factory.CreateTokenRequestValidator();
-
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
-            parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeFalse();
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_client_credentials_request_restricted_client_should_succeed()
-        {
-            var client = await _clients.FindEnabledClientByIdAsync("client_restricted");
-
-            var validator = Factory.CreateTokenRequestValidator();
-
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
-            parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeFalse();
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_resource_owner_request_should_succeed()
-        {
-            var client = await _clients.FindEnabledClientByIdAsync("roclient");
-
-            var validator = Factory.CreateTokenRequestValidator();
-
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
-            parameters.Add(OidcConstants.TokenRequest.UserName, "bob");
-            parameters.Add(OidcConstants.TokenRequest.Password, "bob");
-            parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeFalse();
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_resource_wwner_request_with_refresh_token_should_succeed()
-        {
-            var client = await _clients.FindEnabledClientByIdAsync("roclient");
-
-            var validator = Factory.CreateTokenRequestValidator();
-
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
-            parameters.Add(OidcConstants.TokenRequest.UserName, "bob");
-            parameters.Add(OidcConstants.TokenRequest.Password, "bob");
-            parameters.Add(OidcConstants.TokenRequest.Scope, "resource offline_access");
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeFalse();
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_resource_owner_request_restricted_client_should_succeed()
-        {
-            var client = await _clients.FindEnabledClientByIdAsync("roclient_restricted");
-
-            var validator = Factory.CreateTokenRequestValidator();
-
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.Password);
-            parameters.Add(OidcConstants.TokenRequest.UserName, "bob");
-            parameters.Add(OidcConstants.TokenRequest.Password, "bob");
-            parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeFalse();
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task valid_extension_grant_request_should_succeed()
-        {
-            var client = await _clients.FindEnabledClientByIdAsync("customgrantclient");
-
-            var validator = Factory.CreateTokenRequestValidator();
-
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, "custom_grant");
-            parameters.Add(OidcConstants.TokenRequest.Scope, "resource");
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeFalse();
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_refresh_token_request_should_succeed()
-        {
-            var refreshToken = new RefreshToken
-            {
-                Subject = new IdentityServerUser("foo").CreatePrincipal(),
-                ClientId = "roclient",
-                AuthorizedScopes = [],
+            Subject = new IdentityServerUser("foo").CreatePrincipal(),
+            ClientId = "roclient",
+            AuthorizedScopes = [],
                 
-                Lifetime = 600,
-                CreationTime = DateTime.UtcNow
-            };
+            Lifetime = 600,
+            CreationTime = DateTime.UtcNow
+        };
 
-            var grants = Factory.CreateRefreshTokenStore();
-            var handle = await grants.StoreRefreshTokenAsync(refreshToken);
+        var grants = Factory.CreateRefreshTokenStore();
+        var handle = await grants.StoreRefreshTokenAsync(refreshToken);
 
-            var client = await _clients.FindEnabledClientByIdAsync("roclient");
+        var client = await _clients.FindEnabledClientByIdAsync("roclient");
 
-            var validator = Factory.CreateTokenRequestValidator(
-                refreshTokenStore: grants);
+        var validator = Factory.CreateTokenRequestValidator(
+            refreshTokenStore: grants);
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, "refresh_token");
-            parameters.Add(OidcConstants.TokenRequest.RefreshToken, handle);
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, "refresh_token");
+        parameters.Add(OidcConstants.TokenRequest.RefreshToken, handle);
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            result.IsError.Should().BeFalse();
-        }
+        result.IsError.Should().BeFalse();
+    }
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_refresh_token_request_using_restricted_client_should_succeed()
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_refresh_token_request_using_restricted_client_should_succeed()
+    {
+        var refreshToken = new RefreshToken
         {
-            var refreshToken = new RefreshToken
-            {
-                Subject = new IdentityServerUser("foo").CreatePrincipal(),
-                ClientId = "roclient_restricted_refresh",
-                AuthorizedScopes = [],
+            Subject = new IdentityServerUser("foo").CreatePrincipal(),
+            ClientId = "roclient_restricted_refresh",
+            AuthorizedScopes = [],
 
-                Lifetime = 600,
-                CreationTime = DateTime.UtcNow
-            };
+            Lifetime = 600,
+            CreationTime = DateTime.UtcNow
+        };
 
-            var grants = Factory.CreateRefreshTokenStore();
-            var handle = await grants.StoreRefreshTokenAsync(refreshToken);
+        var grants = Factory.CreateRefreshTokenStore();
+        var handle = await grants.StoreRefreshTokenAsync(refreshToken);
 
-            var client = await _clients.FindEnabledClientByIdAsync("roclient_restricted_refresh");
+        var client = await _clients.FindEnabledClientByIdAsync("roclient_restricted_refresh");
 
-            var validator = Factory.CreateTokenRequestValidator(
-                refreshTokenStore: grants);
+        var validator = Factory.CreateTokenRequestValidator(
+            refreshTokenStore: grants);
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, "refresh_token");
-            parameters.Add(OidcConstants.TokenRequest.RefreshToken, handle);
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, "refresh_token");
+        parameters.Add(OidcConstants.TokenRequest.RefreshToken, handle);
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            result.IsError.Should().BeFalse();
-        }
+        result.IsError.Should().BeFalse();
+    }
         
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Valid_device_code_request_should_succeed()
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Valid_device_code_request_should_succeed()
+    {
+        var deviceCode = new DeviceCode
         {
-            var deviceCode = new DeviceCode
-            {
-                ClientId = "device_flow",
-                IsAuthorized = true,
-                Subject = new IdentityServerUser("bob").CreatePrincipal(),
-                IsOpenId = true,
-                Lifetime = 300,
-                CreationTime = DateTime.UtcNow,
-                AuthorizedScopes = new[] { "openid", "profile", "resource" }
-            };
+            ClientId = "device_flow",
+            IsAuthorized = true,
+            Subject = new IdentityServerUser("bob").CreatePrincipal(),
+            IsOpenId = true,
+            Lifetime = 300,
+            CreationTime = DateTime.UtcNow,
+            AuthorizedScopes = new[] { "openid", "profile", "resource" }
+        };
 
-            var client = await _clients.FindClientByIdAsync("device_flow");
+        var client = await _clients.FindClientByIdAsync("device_flow");
 
-            var validator = Factory.CreateTokenRequestValidator();
+        var validator = Factory.CreateTokenRequestValidator();
 
-            var parameters = new NameValueCollection
-            {
-                {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode},
-                {"device_code", Guid.NewGuid().ToString()}
-            };
+        var parameters = new NameValueCollection
+        {
+            {OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.DeviceCode},
+            {"device_code", Guid.NewGuid().ToString()}
+        };
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-            result.IsError.Should().BeFalse();
-        }
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        result.IsError.Should().BeFalse();
     }
 }

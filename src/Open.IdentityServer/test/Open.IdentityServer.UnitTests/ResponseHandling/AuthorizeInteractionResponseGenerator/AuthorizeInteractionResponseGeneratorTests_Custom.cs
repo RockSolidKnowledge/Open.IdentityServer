@@ -17,162 +17,161 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using static Open.IdentityModel.OidcConstants;
 
-namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponseGenerator
+namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponseGenerator;
+
+public class CustomAuthorizeInteractionResponseGenerator : Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator
 {
-    public class CustomAuthorizeInteractionResponseGenerator : Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator
+    public CustomAuthorizeInteractionResponseGenerator(
+        TimeProvider clock, 
+        ILogger<Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator> logger, 
+        IConsentService consent, IProfileService profile) : base(clock, logger, consent, profile)
     {
-        public CustomAuthorizeInteractionResponseGenerator(
-            TimeProvider clock, 
-            ILogger<Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator> logger, 
-            IConsentService consent, IProfileService profile) : base(clock, logger, consent, profile)
-        {
-        }
-
-        public InteractionResponse ProcessLoginResponse { get; set; }
-        protected internal override Task<InteractionResponse> ProcessLoginAsync(ValidatedAuthorizeRequest request)
-        {
-            if (ProcessLoginResponse != null)
-            {
-                return Task.FromResult(ProcessLoginResponse);
-            }
-
-            return base.ProcessLoginAsync(request);
-        }
-
-        public InteractionResponse ProcessConsentResponse { get; set; }
-        protected internal override Task<InteractionResponse> ProcessConsentAsync(ValidatedAuthorizeRequest request, ConsentResponse consent = null)
-        {
-            if (ProcessConsentResponse != null)
-            {
-                return Task.FromResult(ProcessConsentResponse);
-            }
-            return base.ProcessConsentAsync(request, consent);
-        }
     }
 
-    public class AuthorizeInteractionResponseGeneratorTests_Custom
+    public InteractionResponse ProcessLoginResponse { get; set; }
+    protected internal override Task<InteractionResponse> ProcessLoginAsync(ValidatedAuthorizeRequest request)
     {
-        private IdentityServerOptions _options = new IdentityServerOptions();
-        private readonly CustomAuthorizeInteractionResponseGenerator _subject;
-        private readonly MockConsentService _mockConsentService = new MockConsentService();
-        private readonly StubClock _clock = new StubClock();
-
-        public AuthorizeInteractionResponseGeneratorTests_Custom()
+        if (ProcessLoginResponse != null)
         {
-            _subject = new CustomAuthorizeInteractionResponseGenerator(
-                _clock,
-                TestLogger.Create<Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator>(),
-                _mockConsentService,
-                new MockProfileService());
+            return Task.FromResult(ProcessLoginResponse);
         }
 
+        return base.ProcessLoginAsync(request);
+    }
 
-        [Fact]
-        public async Task ProcessInteractionAsync_with_overridden_login_returns_redirect_should_return_redirect()
+    public InteractionResponse ProcessConsentResponse { get; set; }
+    protected internal override Task<InteractionResponse> ProcessConsentAsync(ValidatedAuthorizeRequest request, ConsentResponse consent = null)
+    {
+        if (ProcessConsentResponse != null)
         {
-            var request = new ValidatedAuthorizeRequest
-            {
-                ClientId = "foo",
-                Subject = new IdentityServerUser("123")
-                {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider
-                }.CreatePrincipal(),
-                Client = new Client
-                {
-                },
-            };
-
-            _subject.ProcessLoginResponse = new InteractionResponse
-            {
-                RedirectUrl = "/custom"
-            };
-
-            var result = await _subject.ProcessInteractionAsync(request);
-
-            result.IsRedirect.Should().BeTrue();
-            result.RedirectUrl.Should().Be("/custom");
+            return Task.FromResult(ProcessConsentResponse);
         }
+        return base.ProcessConsentAsync(request, consent);
+    }
+}
 
-        [Fact]
-        public async Task ProcessInteractionAsync_with_prompt_none_and_login_returns_login_should_return_error()
+public class AuthorizeInteractionResponseGeneratorTests_Custom
+{
+    private IdentityServerOptions _options = new IdentityServerOptions();
+    private readonly CustomAuthorizeInteractionResponseGenerator _subject;
+    private readonly MockConsentService _mockConsentService = new MockConsentService();
+    private readonly StubClock _clock = new StubClock();
+
+    public AuthorizeInteractionResponseGeneratorTests_Custom()
+    {
+        _subject = new CustomAuthorizeInteractionResponseGenerator(
+            _clock,
+            TestLogger.Create<Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator>(),
+            _mockConsentService,
+            new MockProfileService());
+    }
+
+
+    [Fact]
+    public async Task ProcessInteractionAsync_with_overridden_login_returns_redirect_should_return_redirect()
+    {
+        var request = new ValidatedAuthorizeRequest
         {
-            var request = new ValidatedAuthorizeRequest
+            ClientId = "foo",
+            Subject = new IdentityServerUser("123")
             {
-                ClientId = "foo",
-                Subject = new IdentityServerUser("123")
-                {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider
-                }.CreatePrincipal(),
-                Client = new Client
-                {
-                },
-                PromptModes = new[] { PromptModes.None },
-            };
-
-            _subject.ProcessLoginResponse = new InteractionResponse
+                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+            }.CreatePrincipal(),
+            Client = new Client
             {
-                IsLogin = true
-            };
+            },
+        };
 
-            var result = await _subject.ProcessInteractionAsync(request);
-
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be("login_required");
-        }
-
-        [Fact]
-        public async Task ProcessInteractionAsync_with_prompt_none_and_login_returns_redirect_should_return_error()
+        _subject.ProcessLoginResponse = new InteractionResponse
         {
-            var request = new ValidatedAuthorizeRequest
-            {
-                ClientId = "foo",
-                Subject = new IdentityServerUser("123")
-                {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider
-                }.CreatePrincipal(),
-                Client = new Client
-                {
-                },
-                PromptModes = new[] { PromptModes.None },
-            };
+            RedirectUrl = "/custom"
+        };
 
-            _subject.ProcessLoginResponse = new InteractionResponse
-            {
-                RedirectUrl = "/custom"
-            };
+        var result = await _subject.ProcessInteractionAsync(request);
 
-            var result = await _subject.ProcessInteractionAsync(request);
+        result.IsRedirect.Should().BeTrue();
+        result.RedirectUrl.Should().Be("/custom");
+    }
 
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be("interaction_required");
-            result.RedirectUrl.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task ProcessInteractionAsync_with_prompt_none_and_consent_returns_consent_should_return_error()
+    [Fact]
+    public async Task ProcessInteractionAsync_with_prompt_none_and_login_returns_login_should_return_error()
+    {
+        var request = new ValidatedAuthorizeRequest
         {
-            var request = new ValidatedAuthorizeRequest
+            ClientId = "foo",
+            Subject = new IdentityServerUser("123")
             {
-                ClientId = "foo",
-                Subject = new IdentityServerUser("123")
-                {
-                    IdentityProvider = IdentityServerConstants.LocalIdentityProvider
-                }.CreatePrincipal(),
-                Client = new Client
-                {
-                },
-                PromptModes = new[] { PromptModes.None },
-            };
-
-            _subject.ProcessConsentResponse = new InteractionResponse
+                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+            }.CreatePrincipal(),
+            Client = new Client
             {
-                IsConsent = true
-            };
+            },
+            PromptModes = new[] { PromptModes.None },
+        };
 
-            var result = await _subject.ProcessInteractionAsync(request);
+        _subject.ProcessLoginResponse = new InteractionResponse
+        {
+            IsLogin = true
+        };
 
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be("consent_required");
-        }
+        var result = await _subject.ProcessInteractionAsync(request);
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be("login_required");
+    }
+
+    [Fact]
+    public async Task ProcessInteractionAsync_with_prompt_none_and_login_returns_redirect_should_return_error()
+    {
+        var request = new ValidatedAuthorizeRequest
+        {
+            ClientId = "foo",
+            Subject = new IdentityServerUser("123")
+            {
+                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+            }.CreatePrincipal(),
+            Client = new Client
+            {
+            },
+            PromptModes = new[] { PromptModes.None },
+        };
+
+        _subject.ProcessLoginResponse = new InteractionResponse
+        {
+            RedirectUrl = "/custom"
+        };
+
+        var result = await _subject.ProcessInteractionAsync(request);
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be("interaction_required");
+        result.RedirectUrl.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ProcessInteractionAsync_with_prompt_none_and_consent_returns_consent_should_return_error()
+    {
+        var request = new ValidatedAuthorizeRequest
+        {
+            ClientId = "foo",
+            Subject = new IdentityServerUser("123")
+            {
+                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+            }.CreatePrincipal(),
+            Client = new Client
+            {
+            },
+            PromptModes = new[] { PromptModes.None },
+        };
+
+        _subject.ProcessConsentResponse = new InteractionResponse
+        {
+            IsConsent = true
+        };
+
+        var result = await _subject.ProcessInteractionAsync(request);
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be("consent_required");
     }
 }

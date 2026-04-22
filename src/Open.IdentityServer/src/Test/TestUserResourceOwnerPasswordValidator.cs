@@ -8,45 +8,44 @@ using System.Threading.Tasks;
 using System;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Open.IdentityServer.Test
+namespace Open.IdentityServer.Test;
+
+/// <summary>
+/// Resource owner password validator for test users
+/// </summary>
+/// <seealso cref="Open.IdentityServer.Validation.IResourceOwnerPasswordValidator" />
+public class TestUserResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
 {
+    private readonly TestUserStore _users;
+    private readonly TimeProvider _clock;
+
     /// <summary>
-    /// Resource owner password validator for test users
+    /// Initializes a new instance of the <see cref="TestUserResourceOwnerPasswordValidator"/> class.
     /// </summary>
-    /// <seealso cref="Open.IdentityServer.Validation.IResourceOwnerPasswordValidator" />
-    public class TestUserResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
+    /// <param name="users">The users.</param>
+    /// <param name="clock">The clock.</param>
+    public TestUserResourceOwnerPasswordValidator(TestUserStore users, TimeProvider clock)
     {
-        private readonly TestUserStore _users;
-        private readonly TimeProvider _clock;
+        _users = users;
+        _clock = clock;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TestUserResourceOwnerPasswordValidator"/> class.
-        /// </summary>
-        /// <param name="users">The users.</param>
-        /// <param name="clock">The clock.</param>
-        public TestUserResourceOwnerPasswordValidator(TestUserStore users, TimeProvider clock)
+    /// <summary>
+    /// Validates the resource owner password credential
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <returns></returns>
+    public Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
+    {
+        if (_users.ValidateCredentials(context.UserName, context.Password))
         {
-            _users = users;
-            _clock = clock;
+            var user = _users.FindByUsername(context.UserName);
+            context.Result = new GrantValidationResult(
+                user.SubjectId ?? throw new ArgumentException("Subject ID not set", nameof(user.SubjectId)), 
+                OidcConstants.AuthenticationMethods.Password, _clock.GetUtcNow().UtcDateTime, 
+                user.Claims);
         }
 
-        /// <summary>
-        /// Validates the resource owner password credential
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <returns></returns>
-        public Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
-        {
-            if (_users.ValidateCredentials(context.UserName, context.Password))
-            {
-                var user = _users.FindByUsername(context.UserName);
-                context.Result = new GrantValidationResult(
-                    user.SubjectId ?? throw new ArgumentException("Subject ID not set", nameof(user.SubjectId)), 
-                    OidcConstants.AuthenticationMethods.Password, _clock.GetUtcNow().UtcDateTime, 
-                    user.Claims);
-            }
-
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

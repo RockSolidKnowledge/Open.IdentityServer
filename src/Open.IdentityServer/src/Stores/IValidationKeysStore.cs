@@ -6,17 +6,16 @@ using Open.IdentityServer.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Open.IdentityServer.Stores
+namespace Open.IdentityServer.Stores;
+
+/// <summary>
+/// Interface for the validation key store
+/// </summary>
+public interface IValidationKeysStore
 {
     /// <summary>
-    /// Interface for the validation key store
+    /// Gets all validation keys.
     /// </summary>
-    public interface IValidationKeysStore
-    {
-        /// <summary>
-        /// Gets all validation keys.
-        /// </summary>
-        /// <returns></returns>
-        Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync();
-    }
+    /// <returns></returns>
+    Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync();
 }

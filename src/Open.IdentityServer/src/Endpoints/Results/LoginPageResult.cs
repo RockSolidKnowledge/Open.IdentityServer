@@ -9,48 +9,47 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Stores;
 using Microsoft.AspNetCore.Http;
 
-namespace Open.IdentityServer.Endpoints.Results
+namespace Open.IdentityServer.Endpoints.Results;
+
+/// <summary>
+/// Result for login page
+/// </summary>
+/// <seealso cref="Open.IdentityServer.Hosting.ReturnUrlResult" />
+public class LoginPageResult : ReturnUrlResult
 {
     /// <summary>
-    /// Result for login page
+    /// Initializes a new instance of the <see cref="LoginPageResult"/> class.
     /// </summary>
-    /// <seealso cref="Open.IdentityServer.Hosting.ReturnUrlResult" />
-    public class LoginPageResult : ReturnUrlResult
+    /// <param name="request">The request.</param>
+    /// <exception cref="System.ArgumentNullException">request</exception>
+    public LoginPageResult(ValidatedAuthorizeRequest request):
+        base(request) { }
+
+    internal LoginPageResult(
+        ValidatedAuthorizeRequest request,
+        IdentityServerOptions options,
+        IAuthorizationParametersMessageStore authorizationParametersMessageStore = null): 
+        base(request, options, authorizationParametersMessageStore) { }
+
+    /// <summary>
+    /// Executes the result.
+    /// </summary>
+    /// <param name="context">The HTTP context.</param>
+    /// <returns></returns>
+    public override async Task ExecuteAsync(HttpContext context)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LoginPageResult"/> class.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <exception cref="System.ArgumentNullException">request</exception>
-        public LoginPageResult(ValidatedAuthorizeRequest request):
-            base(request) { }
+        Init(context);
+        var returnUrl = await BuildReturnUrl(context);
 
-        internal LoginPageResult(
-            ValidatedAuthorizeRequest request,
-            IdentityServerOptions options,
-            IAuthorizationParametersMessageStore authorizationParametersMessageStore = null): 
-            base(request, options, authorizationParametersMessageStore) { }
-
-        /// <summary>
-        /// Executes the result.
-        /// </summary>
-        /// <param name="context">The HTTP context.</param>
-        /// <returns></returns>
-        public override async Task ExecuteAsync(HttpContext context)
+        var loginUrl = Options.UserInteraction.LoginUrl;
+        if (!loginUrl.IsLocalUrl())
         {
-            Init(context);
-            var returnUrl = await BuildReturnUrl(context);
-
-            var loginUrl = Options.UserInteraction.LoginUrl;
-            if (!loginUrl.IsLocalUrl())
-            {
-                // this converts the relative redirect path to an absolute one if we're 
-                // redirecting to a different server
-                returnUrl = context.GetIdentityServerHost().EnsureTrailingSlash() + returnUrl.RemoveLeadingSlash();
-            }
-
-            var url = loginUrl.AddQueryString(Options.UserInteraction.LoginReturnUrlParameter, returnUrl);
-            context.Response.RedirectToAbsoluteUrl(url);
+            // this converts the relative redirect path to an absolute one if we're 
+            // redirecting to a different server
+            returnUrl = context.GetIdentityServerHost().EnsureTrailingSlash() + returnUrl.RemoveLeadingSlash();
         }
+
+        var url = loginUrl.AddQueryString(Options.UserInteraction.LoginReturnUrlParameter, returnUrl);
+        context.Response.RedirectToAbsoluteUrl(url);
     }
 }
