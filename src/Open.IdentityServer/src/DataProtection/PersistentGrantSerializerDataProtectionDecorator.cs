@@ -38,10 +38,8 @@ public class PersistentGrantSerializerDataProtectionDecorator(
         
         var wrappedData = new DataProtectedGrantData
         {
-            // DataProtected = true,
-            // Payload = dataProtector.Protect(data),
-            DataProtected = false,
-            Payload = data,
+            DataProtected = true,
+            Payload = dataProtector.Protect(data),
         };
 
         return JsonSerializer.Serialize(wrappedData, serializerOptions);
