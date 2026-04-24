@@ -127,7 +127,7 @@ public class DefaultGrantStore<T>
     /// <returns></returns>
     protected virtual async Task<string> CreateItemAsync(T item, string clientId, string subjectId, string sessionId, string description, DateTime created, int lifetime)
     {
-        var handle = await HandleGenerationService.GenerateAsync();
+        var handle = await HandleGenerationService.GenerateAsync() + HexEncodingSuffix;
         await StoreItemAsync(handle, item, clientId, subjectId, sessionId, description, created, created.AddSeconds(lifetime));
         return handle;
     }

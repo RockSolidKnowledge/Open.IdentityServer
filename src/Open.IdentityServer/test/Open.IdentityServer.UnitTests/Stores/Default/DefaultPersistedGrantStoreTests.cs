@@ -54,6 +54,26 @@ public class DefaultPersistedGrantStoreTests
     }
         
     [Fact]
+    public async Task StoreAuthorizationCodeAsync_ShouldGenerateHexEncodedHandle()
+    {
+        var code1 = new AuthorizationCode()
+        {
+            ClientId = "test",
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
+            Subject = _user,
+            CodeChallenge = "challenge",
+            RedirectUri = "http://client/cb",
+            Nonce = "nonce",
+            RequestedScopes = ["scope1", "scope2"]
+        };
+
+        var handle = await _codes.StoreAuthorizationCodeAsync(code1);
+
+        handle.Should().EndWith(DefaultGrantStore<AuthorizationCode>.HexEncodingSuffix);
+    }
+        
+    [Fact]
     public async Task StoreAuthorizationCodeAsync_should_persist_grant()
     {
         var code1 = new AuthorizationCode()
@@ -65,7 +85,7 @@ public class DefaultPersistedGrantStoreTests
             CodeChallenge = "challenge",
             RedirectUri = "http://client/cb",
             Nonce = "nonce",
-            RequestedScopes = new string[] { "scope1", "scope2" }
+            RequestedScopes = ["scope1", "scope2"]
         };
 
         var handle = await _codes.StoreAuthorizationCodeAsync(code1);
@@ -93,7 +113,7 @@ public class DefaultPersistedGrantStoreTests
             CodeChallenge = "challenge",
             RedirectUri = "http://client/cb",
             Nonce = "nonce",
-            RequestedScopes = new string[] { "scope1", "scope2" }
+            RequestedScopes = ["scope1", "scope2"]
         };
 
         var handle = await _codes.StoreAuthorizationCodeAsync(code1);
@@ -166,6 +186,39 @@ public class DefaultPersistedGrantStoreTests
 
         token2.AccessTokens.Should().ContainKey(string.Empty).WhoseValue.Should()
             .BeEquivalentTo(token1.AccessToken);
+    }
+
+    [Fact]
+    public async Task StoreRefreshTokenAsync_ShouldGenerateHexEncodedHandle()
+    {
+        var token1 = new RefreshToken()
+        {
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
+                
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = "client",
+            AuthorizedScopes = ["foo"],
+            AccessTokens =
+            {
+                {string.Empty, new Token
+                {
+                    ClientId = "client",
+                    Audiences = { "aud" },
+                    CreationTime = DateTime.UtcNow,
+                    Type = "type",
+                    Claims = new List<Claim>
+                    {
+                        new("sub", "123"),
+                        new("scope", "foo")
+                    }
+                }}
+            },
+        };
+
+        var handle = await _refreshTokens.StoreRefreshTokenAsync(token1);
+
+        handle.Should().EndWith(DefaultGrantStore<RefreshToken>.HexEncodingSuffix);
     }
 
     [Fact]
@@ -257,6 +310,29 @@ public class DefaultPersistedGrantStoreTests
     }
 
     [Fact]
+    public async Task StoreReferenceTokenAsync_ShouldGenerateHexEncodedHandle()
+    {
+        var token1 = new Token()
+        {
+            ClientId = "client",
+            Audiences = { "aud" },
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
+            Type = "type",
+            Claims = new List<Claim>
+            {
+                new Claim("sub", "123"),
+                new Claim("scope", "foo")
+            },
+            Version = 1
+        };
+
+        var handle = await _referenceTokens.StoreReferenceTokenAsync(token1);
+
+        handle.Should().EndWith(DefaultGrantStore<AuthorizationCode>.HexEncodingSuffix);
+    }
+
+    [Fact]
     public async Task StoreReferenceTokenAsync_should_persist_grant()
     {
         var token1 = new Token()
@@ -335,7 +411,7 @@ public class DefaultPersistedGrantStoreTests
         token2 = await _referenceTokens.GetReferenceTokenAsync(handle2);
         token2.Should().BeNull();
     }
-
+    
     [Fact]
     public async Task StoreUserConsentAsync_should_persist_grant()
     {
@@ -344,7 +420,7 @@ public class DefaultPersistedGrantStoreTests
             CreationTime = DateTime.UtcNow,
             ClientId = "client",
             SubjectId = "123",
-            Scopes = new string[] { "foo", "bar" }
+            Scopes = ["foo", "bar"]
         };
 
         await _userConsent.StoreUserConsentAsync(consent1);
@@ -352,18 +428,18 @@ public class DefaultPersistedGrantStoreTests
 
         consent2.ClientId.Should().Be(consent1.ClientId);
         consent2.SubjectId.Should().Be(consent1.SubjectId);
-        consent2.Scopes.Should().BeEquivalentTo(new string[] { "bar", "foo" });
+        consent2.Scopes.Should().BeEquivalentTo("bar", "foo");
     }
 
     [Fact]
     public async Task RemoveUserConsentAsync_should_remove_grant()
     {
-        var consent1 = new Consent()
+        var consent1 = new Consent
         {
             CreationTime = DateTime.UtcNow,
             ClientId = "client",
             SubjectId = "123",
-            Scopes = new string[] { "foo", "bar" }
+            Scopes = ["foo", "bar"]
         };
 
         await _userConsent.StoreUserConsentAsync(consent1);
@@ -411,11 +487,11 @@ public class DefaultPersistedGrantStoreTests
             CodeChallenge = "challenge",
             RedirectUri = "http://client/cb",
             Nonce = "nonce",
-            RequestedScopes = new string[] { "quux1", "quux2" }
+            RequestedScopes = ["quux1", "quux2"]
         });
 
-        (await _codes.GetAuthorizationCodeAsync("key")).Lifetime.Should().Be(30);
-        (await _refreshTokens.GetRefreshTokenAsync("key")).Lifetime.Should().Be(20);
-        (await _referenceTokens.GetReferenceTokenAsync("key")).Lifetime.Should().Be(10);
+        (await _codes.GetAuthorizationCodeAsync("key-1")).Lifetime.Should().Be(30);
+        (await _refreshTokens.GetRefreshTokenAsync("key-1")).Lifetime.Should().Be(20);
+        (await _referenceTokens.GetReferenceTokenAsync("key-1")).Lifetime.Should().Be(10);
     }
 }
