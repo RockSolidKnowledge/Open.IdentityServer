@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
 
         <PackageId>Open.IdentityServer.Storage</PackageId>
         <Description>Storage interfaces and models for Open.IdentityServer</Description>
@@ -36,9 +36,9 @@
         <None Include="../../../icon.jpg" Pack="true" Visible="false" PackagePath=""/>
     </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Open.IdentityModel" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Open.IdentityModel"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+    </ItemGroup>
 
 </Project>

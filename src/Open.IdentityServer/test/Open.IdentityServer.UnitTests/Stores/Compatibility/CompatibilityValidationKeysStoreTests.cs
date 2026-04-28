@@ -1,0 +1,175 @@
+using System;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+using AwesomeAssertions;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.IdentityModel.Tokens;
+using Moq;
+using Open.IdentityServer.Configuration;
+using Open.IdentityServer.DataProtection;
+using Open.IdentityServer.Models;
+using Open.IdentityServer.Stores;
+using Xunit;
+
+namespace IdentityServer.UnitTests.Stores.Compatibility;
+
+public class CompatibilityValidationKeysStoreTests
+{
+    private readonly ICompatibilityKeyStore compatibilityKeyStore = Mock.Of<ICompatibilityKeyStore>();
+    private readonly IDataProtectionProvider dataProtectionProvider = Mock.Of<IDataProtectionProvider>();
+    private IDataProtector dataProtector = Mock.Of<IDataProtector>();
+    private readonly CompatibilityKeyMaterialConverter compatibilityKeyMaterialConverter;
+    
+    private List<CompatibilityKeyMaterial> fakeKeyMaterials = [];
+
+    public CompatibilityValidationKeysStoreTests()
+    {
+        compatibilityKeyMaterialConverter = new CompatibilityKeyMaterialConverter(dataProtectionProvider);
+        
+        Mock.Get(compatibilityKeyStore)
+            .Setup(x => x.GetKeys())
+            .Returns(fakeKeyMaterials);
+
+        Mock.Get(dataProtectionProvider)
+            .Setup(x => x.CreateProtector("DataProtectionKeyProtector"))
+            .Returns(dataProtector);
+    }
+    
+    private CompatibilityValidationKeysStore CreateSut() => new(compatibilityKeyStore, compatibilityKeyMaterialConverter);
+
+    [Fact]
+    public async Task GetValidationKeysAsync_ShouldReturnCollectionOfOldestKeysExcludingNewest()
+    {
+        var fakeRsaKey0 = new RsaCompatibilityKeyData
+        {
+            Id = "Fake_RS256_0",
+            Created = new DateTime(2026, 04, 25, 11, 20, 21, DateTimeKind.Utc),
+            Algorithm = "RS256",
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        var fakeRsaKey1 = new RsaCompatibilityKeyData
+        {
+            Id = "Fake_RS256_1",
+            Created = new DateTime(2026, 03, 05, 11, 20, 21, DateTimeKind.Utc),
+            Algorithm = "RS256",
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        var fakeEcKey0 = new EcCompatibilityKeyData
+        {
+            Id = "Fake_ES384_0",
+            Created = new DateTime(2026, 02, 19, 11, 20, 21, DateTimeKind.Utc),
+            Algorithm = "ES384",
+            D = FakeKeyData.EcDsaSecurityKey384.D,
+            Q = FakeKeyData.EcDsaSecurityKey384.Q,
+        };
+        
+        var fakeEcKey1 = new EcCompatibilityKeyData
+        {
+            Id = "Fake_ES521_0",
+            Created = new DateTime(2026, 01, 15, 11, 20, 21, DateTimeKind.Utc),
+            Algorithm = "ES521",
+            D = FakeKeyData.EcDsaSecurityKey521.D,
+            Q = FakeKeyData.EcDsaSecurityKey521.Q,
+        };
+        
+        fakeKeyMaterials = [
+            new CompatibilityKeyMaterial { Id = fakeRsaKey0.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeRsaKey0.Algorithm, Data = fakeRsaKey0.ToExpectedJson() },
+            new CompatibilityKeyMaterial { Id = fakeRsaKey1.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeRsaKey1.Algorithm, Data = fakeRsaKey1.ToExpectedJson() },
+            new CompatibilityKeyMaterial { Id = fakeEcKey0.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey0.Algorithm, Data = fakeEcKey0.ToExpectedJson() },
+            new CompatibilityKeyMaterial { Id = fakeEcKey1.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey1.Algorithm, Data = fakeEcKey1.ToExpectedJson() },
+        ];
+
+        Mock.Get(compatibilityKeyStore)
+            .Setup(x => x.GetKeys())
+            .Returns(fakeKeyMaterials);
+
+        var sut = CreateSut();
+        var actual = await sut.GetValidationKeysAsync();
+        
+        
+        ECDsa expectedEcDsa0 = ECDsa.Create(new ECParameters
+        {
+            Curve = CryptoHelper.GetCurveFromCrvValue("P-384"), D = fakeEcKey0.D, Q = fakeEcKey0.Q,
+        });
+        
+        ECDsa expectedEcDsa1 = ECDsa.Create(new ECParameters
+        {
+            Curve = CryptoHelper.GetCurveFromCrvValue("P-521"), D = fakeEcKey1.D, Q = fakeEcKey1.Q,
+        });
+
+        IEnumerable<SecurityKeyInfo> expectedCredentials = [
+            new() { Key = new RsaSecurityKey(fakeRsaKey1.Parameters) { KeyId = fakeRsaKey1.Id }, SigningAlgorithm = fakeRsaKey1.Algorithm },
+            new() { Key = new ECDsaSecurityKey(expectedEcDsa0) { KeyId = fakeEcKey0.Id }, SigningAlgorithm = fakeEcKey0.Algorithm },
+            new() { Key = new ECDsaSecurityKey(expectedEcDsa1) { KeyId = fakeEcKey1.Id }, SigningAlgorithm = fakeEcKey1.Algorithm },
+        ];
+
+        actual.Should().BeEquivalentTo(expectedCredentials);
+    }
+
+    [Fact]
+    public async Task GetValidationKeysAsync_ShouldReturnCollectionOfOldestKeysExcludingNewest_AndFilterOutNonSigning()
+    {
+        var fakeRsaKey0 = new RsaCompatibilityKeyData
+        {
+            Id = "Fake_RS256_0",
+            Created = new DateTime(2026, 04, 25, 11, 20, 21, DateTimeKind.Utc),
+            Algorithm = "RS256",
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        var fakeRsaKey1 = new RsaCompatibilityKeyData
+        {
+            Id = "Fake_RS256_1",
+            Created = new DateTime(2026, 03, 05, 11, 20, 21, DateTimeKind.Utc),
+            Algorithm = "RS256",
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        var fakeEcKey0 = new EcCompatibilityKeyData
+        {
+            Id = "Fake_ES256_0",
+            Created = new DateTime(2026, 02, 19, 11, 20, 21, DateTimeKind.Utc),
+            Algorithm = "ES256",
+            D = FakeKeyData.EcDsaSecurityKey256.D,
+            Q = FakeKeyData.EcDsaSecurityKey256.Q,
+        };
+        
+        var fakeEcKey1 = new EcCompatibilityKeyData
+        {
+            Id = "Fake_ES521_0",
+            Created = new DateTime(2026, 01, 15, 11, 20, 21, DateTimeKind.Utc),
+            Algorithm = "ES521",
+            D = FakeKeyData.EcDsaSecurityKey521.D,
+            Q = FakeKeyData.EcDsaSecurityKey521.Q,
+        };
+        
+        fakeKeyMaterials = [
+            new CompatibilityKeyMaterial { Id = fakeRsaKey0.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeRsaKey0.Algorithm, Data = fakeRsaKey0.ToExpectedJson() },
+            new CompatibilityKeyMaterial { Id = fakeRsaKey1.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeRsaKey1.Algorithm, Data = fakeRsaKey1.ToExpectedJson() },
+            new CompatibilityKeyMaterial { Id = fakeEcKey0.Id, Version = 1, Use = "other_use", DataProtected = false, Algorithm = fakeEcKey0.Algorithm, Data = fakeEcKey0.ToExpectedJson() },
+            new CompatibilityKeyMaterial { Id = fakeEcKey1.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey1.Algorithm, Data = fakeEcKey1.ToExpectedJson() },
+        ];
+
+        Mock.Get(compatibilityKeyStore)
+            .Setup(x => x.GetKeys())
+            .Returns(fakeKeyMaterials);
+
+        var sut = CreateSut();
+        var actual = await sut.GetValidationKeysAsync();
+        
+        ECDsa expectedEcDsa1 = ECDsa.Create(new ECParameters
+        {
+            Curve = CryptoHelper.GetCurveFromCrvValue("P-521"), D = fakeEcKey1.D, Q = fakeEcKey1.Q,
+        });
+
+        IEnumerable<SecurityKeyInfo> expectedCredentials = [
+            new() { Key = new RsaSecurityKey(fakeRsaKey1.Parameters) { KeyId = fakeRsaKey1.Id }, SigningAlgorithm = fakeRsaKey1.Algorithm },
+            new() { Key = new ECDsaSecurityKey(expectedEcDsa1) { KeyId = fakeEcKey1.Id }, SigningAlgorithm = fakeEcKey1.Algorithm },
+        ];
+
+        actual.Should().BeEquivalentTo(expectedCredentials);
+    }
+}
