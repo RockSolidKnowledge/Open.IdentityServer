@@ -9,8 +9,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-#pragma warning disable 1591
-
 namespace Open.IdentityModel.Client;
 
 /// <summary>
@@ -70,33 +68,82 @@ public class DiscoveryDocumentResponse : ProtocolResponse
     /// </value>
     public MtlsEndpointAliases? MtlsEndpointAliases { get; internal set; }
         
-    // strongly typed
+    /// <summary>Gets the issuer identifier.</summary>
     public string? Issuer => TryGetString(OidcConstants.Discovery.Issuer);
+    
+    /// <summary>Gets the URL of the authorization endpoint.</summary>
     public string? AuthorizeEndpoint => TryGetString(OidcConstants.Discovery.AuthorizationEndpoint);
+    
+    /// <summary>Gets the URL of the token endpoint.</summary>
     public string? TokenEndpoint => TryGetString(OidcConstants.Discovery.TokenEndpoint);
+    
+    /// <summary>Gets the URL of the userinfo endpoint.</summary>
     public string? UserInfoEndpoint => TryGetString(OidcConstants.Discovery.UserInfoEndpoint);
+    
+    /// <summary>Gets the URL of the introspection endpoint.</summary>
     public string? IntrospectionEndpoint => TryGetString(OidcConstants.Discovery.IntrospectionEndpoint);
+    
+    /// <summary>Gets the URL of the token revocation endpoint.</summary>
     public string? RevocationEndpoint => TryGetString(OidcConstants.Discovery.RevocationEndpoint);
+    
+    /// <summary>Gets the URL of the device authorization endpoint.</summary>
     public string? DeviceAuthorizationEndpoint => TryGetString(OidcConstants.Discovery.DeviceAuthorizationEndpoint);
+    
+    /// <summary>Gets the URL of the backchannel authentication endpoint.</summary>
     public string? BackchannelAuthenticationEndpoint => TryGetString(OidcConstants.Discovery.BackchannelAuthenticationEndpoint);
     
+    /// <summary>Gets the URL of the JSON Web Key Set document.</summary>
     public string? JwksUri => TryGetString(OidcConstants.Discovery.JwksUri);
+    
+    /// <summary>Gets the URL of the end session endpoint.</summary>
     public string? EndSessionEndpoint => TryGetString(OidcConstants.Discovery.EndSessionEndpoint);
+    
+    /// <summary>Gets the URL of the check session iframe.</summary>
     public string? CheckSessionIframe => TryGetString(OidcConstants.Discovery.CheckSessionIframe);
+    
+    /// <summary>Gets the URL of the client registration endpoint.</summary>
     public string? RegistrationEndpoint => TryGetString(OidcConstants.Discovery.RegistrationEndpoint);
+    
+    /// <summary>Gets the URL of the pushed authorization request endpoint.</summary>
     public string? PushedAuthorizationRequestEndpoint => TryGetString(OidcConstants.Discovery.PushedAuthorizationRequestEndpoint);
+    
+    /// <summary>Gets a value indicating whether front-channel logout is supported.</summary>
     public bool? FrontChannelLogoutSupported => TryGetBoolean(OidcConstants.Discovery.FrontChannelLogoutSupported);
+    
+    /// <summary>Gets a value indicating whether front-channel logout session management is supported.</summary>
     public bool? FrontChannelLogoutSessionSupported => TryGetBoolean(OidcConstants.Discovery.FrontChannelLogoutSessionSupported);
+    
+    /// <summary>Gets the grant types supported by the authorization server.</summary>
     public IEnumerable<string> GrantTypesSupported => TryGetStringArray(OidcConstants.Discovery.GrantTypesSupported);
+    
+    /// <summary>Gets the PKCE code challenge methods supported by the authorization server.</summary>
     public IEnumerable<string> CodeChallengeMethodsSupported => TryGetStringArray(OidcConstants.Discovery.CodeChallengeMethodsSupported);
+    
+    /// <summary>Gets the OAuth scopes supported by the authorization server.</summary>
     public IEnumerable<string> ScopesSupported => TryGetStringArray(OidcConstants.Discovery.ScopesSupported);
+    
+    /// <summary>Gets the subject identifier types supported by the authorization server.</summary>
     public IEnumerable<string> SubjectTypesSupported => TryGetStringArray(OidcConstants.Discovery.SubjectTypesSupported);
+    
+    /// <summary>Gets the OAuth response modes supported by the authorization server.</summary>
     public IEnumerable<string> ResponseModesSupported => TryGetStringArray(OidcConstants.Discovery.ResponseModesSupported);
+    
+    /// <summary>Gets the OAuth response types supported by the authorization server.</summary>
     public IEnumerable<string> ResponseTypesSupported => TryGetStringArray(OidcConstants.Discovery.ResponseTypesSupported);
+    
+    /// <summary>Gets the claims supported by the authorization server.</summary>
     public IEnumerable<string> ClaimsSupported => TryGetStringArray(OidcConstants.Discovery.ClaimsSupported);
+    
+    /// <summary>Gets the client authentication methods supported by the token endpoint.</summary>
     public IEnumerable<string> TokenEndpointAuthenticationMethodsSupported => TryGetStringArray(OidcConstants.Discovery.TokenEndpointAuthenticationMethodsSupported);
+    
+    /// <summary>Gets the backchannel token delivery modes supported by the authorization server.</summary>
     public IEnumerable<string> BackchannelTokenDeliveryModesSupported => TryGetStringArray(OidcConstants.Discovery.BackchannelTokenDeliveryModesSupported);
+    
+    /// <summary>Gets a value indicating whether the backchannel user code parameter is supported.</summary>
     public bool? BackchannelUserCodeParameterSupported => TryGetBoolean(OidcConstants.Discovery.BackchannelUserCodeParameterSupported);
+    
+    /// <summary>Gets a value indicating whether pushed authorization requests are required.</summary>
     public bool? RequirePushedAuthorizationRequests => TryGetBoolean(OidcConstants.Discovery.RequirePushedAuthorizationRequests);
 
     // generic
@@ -187,7 +234,7 @@ public class DiscoveryDocumentResponse : ProtocolResponse
     }
     
     /// <summary>
-    /// Validates the endoints and jwks_uri according to the security policy.
+    /// Validates the endpoints and jwks_uri according to the security policy.
     /// </summary>
     /// <param name="json">The json.</param>
     /// <param name="policy">The policy.</param>

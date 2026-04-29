@@ -8,8 +8,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-#pragma warning disable 1591
-
 namespace Open.IdentityModel.Client;
 
 /// <summary>
@@ -111,6 +109,10 @@ public class DynamicClientRegistrationDocument
     [JsonPropertyName(OidcConstants.ClientMetadata.JwksUri)]
     public Uri? JwksUri { get; set; }
 
+    /// <summary>
+    /// The client's JSON Web Key Set, containing the client's public keys inline.
+    /// The <see cref="JwksUri"/> and <see cref="Jwks"/> parameters must not both be present in the same request or response.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.Jwks)]
     public JsonWebKeySet? Jwks { get; set; }
 
@@ -123,6 +125,9 @@ public class DynamicClientRegistrationDocument
     [JsonPropertyName(OidcConstants.ClientMetadata.SectorIdentifierUri)]
     public Uri? SectorIdentifierUri { get; set; }
 
+    /// <summary>
+    /// Subject identifier type requested for responses to this client.
+    /// </summary>
     /// <remarks>
     /// Valid types include "pairwise" and "public".
     /// </remarks>
@@ -170,7 +175,7 @@ public class DynamicClientRegistrationDocument
     /// <summary>
     /// Boolean value specifying whether the RP requires that a sid (session ID)
     /// Claim be included in the Logout Token to identify the RP session with
-    /// the OP when the backchannel_logout_uri is used.e
+    /// the OP when the backchannel_logout_uri is used.
     /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.BackchannelLogoutSessionRequired)]
     public bool? BackchannelLogoutSessionRequired { get; set; }
@@ -199,30 +204,57 @@ public class DynamicClientRegistrationDocument
     [JsonPropertyName(OidcConstants.ClientMetadata.SoftwareVersion)]
     public string? SoftwareVersion { get; set; }
 
+    /// <summary>
+    /// JWS algorithm for signing the identity token issued to this client.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.IdentityTokenSignedResponseAlgorithm)]
     public string? IdentityTokenSignedResponseAlgorithm { get; set; }
 
+    /// <summary>
+    /// JWE algorithm for encrypting the identity token issued to this client.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.IdentityTokenEncryptedResponseAlgorithm)]
     public string? IdentityTokenEncryptedResponseAlgorithm { get; set; }
 
+    /// <summary>
+    /// JWE encryption method for encrypting the identity token issued to this client.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.IdentityTokenEncryptedResponseEncryption)]
     public string? IdentityTokenEncryptedResponseEncryption { get; set; }
 
+    /// <summary>
+    /// JWS algorithm for signing userinfo responses to this client.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.UserinfoSignedResponseAlgorithm)]
     public string? UserinfoSignedResponseAlgorithm { get; set; }
 
+    /// <summary>
+    /// JWE algorithm for encrypting userinfo responses to this client.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.UserInfoEncryptedResponseAlgorithm)]
     public string? UserInfoEncryptedResponseAlgorithm { get; set; }
 
+    /// <summary>
+    /// JWE encryption method for encrypting userinfo responses to this client.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.UserinfoEncryptedResponseEncryption)]
     public string? UserinfoEncryptedResponseEncryption { get; set; }
 
+    /// <summary>
+    /// JWS algorithm that must be used for signing request objects sent to the authorization server.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.RequestObjectSigningAlgorithm)]
     public string? RequestObjectSigningAlgorithm { get; set; }
 
+    /// <summary>
+    /// JWE algorithm the relying party declares it may use for encrypting request objects sent to the authorization server.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.RequestObjectEncryptionAlgorithm)]
     public string? RequestObjectEncryptionAlgorithm { get; set; }
 
+    /// <summary>
+    /// JWE encryption method the relying party declares it may use for encrypting request objects sent to the authorization server.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.RequestObjectEncryptionEncryption)]
     public string? RequestObjectEncryptionEncryption { get; set; }
 
@@ -234,9 +266,15 @@ public class DynamicClientRegistrationDocument
     [JsonPropertyName(OidcConstants.ClientMetadata.RequireSignedRequestObject)]
     public bool? RequireSignedRequestObject { get; set; }
 
+    /// <summary>
+    /// Authentication method the client uses to authenticate to the token endpoint.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.TokenEndpointAuthenticationMethod)]
     public string? TokenEndpointAuthenticationMethod { get; set; }
 
+    /// <summary>
+    /// JWS algorithm used for signing the JWT for client authentication at the token endpoint.
+    /// </summary>
     [JsonPropertyName(OidcConstants.ClientMetadata.TokenEndpointAuthenticationSigningAlgorithm)]
     public string? TokenEndpointAuthenticationSigningAlgorithm { get; set; }
 
@@ -283,13 +321,18 @@ public class DynamicClientRegistrationDocument
     public IDictionary<string, JsonElement>? Extensions { get; set; } = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
 
     // Don't serialize empty arrays
+    /// <summary>Returns <see langword="true"/> if <see cref="RequestUris"/> should be serialized.</summary>
     public bool ShouldSerializeRequestUris() => RequestUris.Any();
-
+    
+    /// <summary>Returns <see langword="true"/> if <see cref="DefaultAcrValues"/> should be serialized.</summary>
     public bool ShouldSerializeDefaultAcrValues() => DefaultAcrValues.Any();
-
+    
+    /// <summary>Returns <see langword="true"/> if <see cref="ResponseTypes"/> should be serialized.</summary>
     public bool ShouldSerializeResponseTypes() => ResponseTypes.Any();
-
+    
+    /// <summary>Returns <see langword="true"/> if <see cref="GrantTypes"/> should be serialized.</summary>
     public bool ShouldSerializeGrantTypes() => GrantTypes.Any();
-
+    
+    /// <summary>Returns <see langword="true"/> if <see cref="Contacts"/> should be serialized.</summary>
     public bool ShouldSerializeContacts() => Contacts.Any();
 }

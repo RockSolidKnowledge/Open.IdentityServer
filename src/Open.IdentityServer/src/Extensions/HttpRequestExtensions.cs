@@ -7,12 +7,21 @@ using Microsoft.AspNetCore.Http;
 using System.Linq;
 using Microsoft.Net.Http.Headers;
 
-#pragma warning disable 1591
 
 namespace Open.IdentityServer.Extensions;
 
+/// <summary>
+/// Extension methods for <see cref="HttpRequest"/>.
+/// </summary>
 public static class HttpRequestExtensions
 {
+    /// <summary>
+    /// Gets the CORS origin from the request if the request originated from a different host than the server.
+    /// </summary>
+    /// <param name="request">The HTTP request.</param>
+    /// <returns>
+    /// The value of the Origin header if it differs from the server's own origin; otherwise, <c>null</c>.
+    /// </returns>
     public static string GetCorsOrigin(this HttpRequest request)
     {
         var origin = request.Headers["Origin"].FirstOrDefault();

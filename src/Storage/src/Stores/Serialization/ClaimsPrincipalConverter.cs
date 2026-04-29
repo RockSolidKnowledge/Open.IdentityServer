@@ -8,12 +8,21 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Open.IdentityModel;
 
-#pragma warning disable 1591
 
 namespace Open.IdentityServer.Stores.Serialization;
 
+/// <summary>
+/// JSON converter for serializing and deserializing <see cref="ClaimsPrincipal"/> instances.
+/// </summary>
 public class ClaimsPrincipalConverter: JsonConverter<ClaimsPrincipal>
 {
+    /// <summary>
+    /// Reads and converts JSON to a <see cref="ClaimsPrincipal"/>.
+    /// </summary>
+    /// <param name="reader">The reader to deserialize from.</param>
+    /// <param name="typeToConvert">The type to convert.</param>
+    /// <param name="options">The serializer options to use.</param>
+    /// <returns>The deserialized <see cref="ClaimsPrincipal"/>, or <c>null</c> if the JSON is null.</returns>
     public override ClaimsPrincipal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var source = JsonSerializer.Deserialize<ClaimsPrincipalLite>(ref reader, options);
@@ -25,6 +34,12 @@ public class ClaimsPrincipalConverter: JsonConverter<ClaimsPrincipal>
         return target;
     }
 
+    /// <summary>
+    /// Writes a <see cref="ClaimsPrincipal"/> as JSON.
+    /// </summary>
+    /// <param name="writer">The writer to serialize to.</param>
+    /// <param name="value">The <see cref="ClaimsPrincipal"/> to serialize.</param>
+    /// <param name="options">The serializer options to use.</param>
     public override void Write(Utf8JsonWriter writer, ClaimsPrincipal value, JsonSerializerOptions options)
     {
         var source = value;

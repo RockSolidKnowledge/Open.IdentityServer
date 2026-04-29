@@ -3,12 +3,16 @@
 
 using System.Security.Cryptography.X509Certificates;
 
-#pragma warning disable 1591
 
 namespace Open.IdentityModel;
 
+/// <summary>
+/// Provides entry points for accessing X.509 certificate stores by location.
+/// </summary>
 public static class X509
 {
+    /// <summary>Gets an accessor for the current user's X.509 certificate store.</summary>
     public static X509CertificatesLocation CurrentUser => new X509CertificatesLocation(StoreLocation.CurrentUser);
+    /// <summary>Gets an accessor for the local machine's X.509 certificate store.</summary>
     public static X509CertificatesLocation LocalMachine => new X509CertificatesLocation(StoreLocation.LocalMachine);
 }
