@@ -3,7 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Open.IdentityServer.EntityFramework.Options;
 
-public class CompatibilityStoreOptions
+/// <summary>
+/// Options for configuring the identity server compatibility context.
+/// </summary>
+public class IdentityServerCompatibilityStoreOptions
 {
     /// <summary>
     /// Callback to configure the EF DbContext.
@@ -35,5 +38,5 @@ public class CompatibilityStoreOptions
     /// <value>
     /// The identity resource.
     /// </value>
-    public TableConfiguration Keys { get; set; } = new TableConfiguration("Keys");
+    public TableConfiguration Keys { get; set; } = new("Keys");
 }

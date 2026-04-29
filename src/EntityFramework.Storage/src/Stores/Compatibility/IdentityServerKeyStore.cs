@@ -8,7 +8,7 @@ namespace Open.IdentityServer.EntityFramework.Stores;
 /// <summary>
 /// Duende key material store
 /// </summary>
-public class IdentityServerKeyStore(IIdentityServerKeyDbContext dbContext): IIdentityServerKeyStore
+public class IdentityServerKeyStore(IIdentityServerCompatibilityDbContext dbContext): IIdentityServerKeyStore
 {
     /// <summary>
     /// Gets all keys stored in Duende key store

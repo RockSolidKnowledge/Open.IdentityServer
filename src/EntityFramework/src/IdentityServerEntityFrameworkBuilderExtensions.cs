@@ -121,12 +121,12 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
         return builder;
     }
     
-    public static IIdentityServerBuilder AddIdentityServerKeyStore<TContext>(
+    public static IIdentityServerBuilder AddIdentityServerCompatibilityStore<TContext>(
         this IIdentityServerBuilder builder,
-        Action<CompatibilityStoreOptions> storeOptionsAction = null)
-        where TContext : DbContext, IIdentityServerKeyDbContext
+        Action<IdentityServerCompatibilityStoreOptions> storeOptionsAction = null)
+        where TContext : DbContext, IIdentityServerCompatibilityDbContext
     {
-        builder.Services.AddIdentityServerKeyDbContext<TContext>(storeOptionsAction);
+        builder.Services.AddIdentityServerCompatibilityDbContext<TContext>(storeOptionsAction);
 
         builder.Services.AddScoped<IIdentityServerKeyStore, IdentityServerKeyStore>();
 

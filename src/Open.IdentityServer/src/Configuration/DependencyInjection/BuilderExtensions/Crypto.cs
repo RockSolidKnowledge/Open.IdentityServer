@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Open.IdentityServer.DataProtection;
 using JsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
 
@@ -297,10 +298,14 @@ public static class IdentityServerBuilderExtensionsCrypto
         return builder.AddValidationKey(certificate, signingAlgorithm);
     }
 
-    public static IIdentityServerBuilder AddIdentityServerKeys(this IIdentityServerBuilder builder)
+    /// <summary>
+    /// Add the signing and validation key stores that target the IdentityServer compatibility key stores
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <returns></returns>
+    public static IIdentityServerBuilder AddCompatibilityKeyStores(this IIdentityServerBuilder builder)
     {
-        // builder.Services
-        builder.Services.AddSingleton<DataProtectedIdentityServerKeyMaterialConverter>();
+        builder.Services.AddTransient<DataProtectedIdentityServerKeyMaterialConverter>();
         builder.Services.AddScoped<ISigningCredentialStore, IdentityServerSigningCredentialStore>();
         builder.Services.AddScoped<IValidationKeysStore, IdentityServerValidationKeysStore>();
 

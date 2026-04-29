@@ -77,4 +77,12 @@ public class OperationalStoreOptions
     /// The size of the token cleanup batch.
     /// </value>
     public int TokenCleanupBatchSize { get; set; } = 100;
+
+    /// <summary>
+    /// Gets or sets the value indicating if identity server compatibility should be enabled. Defaults to <c>true</c>.
+    /// </summary>
+    /// <value>
+    /// <c>true</c> if [compatibility enables]; otherwise, <c>false</c>.
+    /// </value>
+    public bool EnableIdentityServerCompatibility { get; set; } = true;
 }
