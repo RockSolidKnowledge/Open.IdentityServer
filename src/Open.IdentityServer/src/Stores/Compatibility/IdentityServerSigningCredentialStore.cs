@@ -9,10 +9,10 @@ namespace Open.IdentityServer.Stores;
 /// <summary>
 /// Duende compatibility signing key store
 /// </summary>
-/// <param name="compatibilityKeyStore"/>
-public class CompatibilitySigningCredentialStore(
-    ICompatibilityKeyStore compatibilityKeyStore,
-    CompatibilityKeyMaterialConverter compatibilityKeyMaterialConverter): ISigningCredentialStore
+/// <param name="identityServerKeyStore/>
+public class IdentityServerSigningCredentialStore(
+    IIdentityServerKeyStore identityServerKeyStore,
+    DataProtectedIdentityServerKeyMaterialConverter dataProtectedIdentityServerKeyMaterialConverter): ISigningCredentialStore
 {
     /// <summary>
     /// Gets the key to be used for signing from the key store, will be the newest key 
@@ -20,9 +20,9 @@ public class CompatibilitySigningCredentialStore(
     /// <returns>a key to be used for signing</returns>
     public async Task<SigningCredentials> GetSigningCredentialsAsync()
     {
-        return compatibilityKeyStore.GetKeys()
+        return identityServerKeyStore.GetKeys()
             .Where(x => x.Use == "signing")
-            .Select(compatibilityKeyMaterialConverter.Convert)
+            .Select(dataProtectedIdentityServerKeyMaterialConverter.Convert)
             .OrderByDescending(x => x.Created)
             .Select(x => x.Credentials)
             .First();

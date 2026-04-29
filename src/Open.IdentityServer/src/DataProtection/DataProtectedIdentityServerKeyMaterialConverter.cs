@@ -4,16 +4,15 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
-using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 
 namespace Open.IdentityServer.DataProtection;
 
 /// <summary>
-/// Deserializes CompatibilityKeyMaterial into SigningKey object
+/// Deserializes <see cref="IdentityServerKeyMaterial"/> into SigningKey object
 /// </summary>
 /// <param name="dataProtectionProvider"></param>
-public class CompatibilityKeyMaterialConverter(IDataProtectionProvider dataProtectionProvider)
+public class DataProtectedIdentityServerKeyMaterialConverter(IDataProtectionProvider dataProtectionProvider)
 {
     private IDataProtector dataProtector = dataProtectionProvider.CreateProtector("DataProtectionKeyProtector");
     
@@ -24,12 +23,12 @@ public class CompatibilityKeyMaterialConverter(IDataProtectionProvider dataProte
     };
 
     /// <summary>
-    /// Deserialized <see cref="CompatibilityKeyMaterial"/> into <see cref="SigningKey"/>
+    /// Deserialized <see cref="Open.IdentityServer.Models.IdentityServerKeyMaterial"/> into <see cref="SigningKey"/>
     /// </summary>
-    /// <param name="keyMaterial">material to deserialize </param>
+    /// <param name="keyMaterial"> to deserialize </param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns></returns>
-    public SigningKey Convert(CompatibilityKeyMaterial keyMaterial)
+    public SigningKey Convert(IdentityServerKeyMaterial keyMaterial)
     {
         var signingKey = new SigningKey
         {
@@ -43,7 +42,7 @@ public class CompatibilityKeyMaterialConverter(IDataProtectionProvider dataProte
         if (!keyMaterial.IsX509Certificate &&
             (keyMaterial.Algorithm.StartsWith('R') || keyMaterial.Algorithm.StartsWith('P')))
         {
-            var keyData = JsonSerializer.Deserialize<RsaCompatibilityKeyData>(unprotectedData, Settings);
+            var keyData = JsonSerializer.Deserialize<RsaIdentityServerKeyData>(unprotectedData, Settings);
 
             signingKey.Created = keyData.Created;
             signingKey.Credentials = new SigningCredentials(new RsaSecurityKey(keyData.Parameters) { KeyId = keyData.Id }, keyData.Algorithm);
@@ -51,7 +50,7 @@ public class CompatibilityKeyMaterialConverter(IDataProtectionProvider dataProte
         
         if (!keyMaterial.IsX509Certificate && keyMaterial.Algorithm.StartsWith('E'))
         {
-            var keyData = JsonSerializer.Deserialize<EcCompatibilityKeyData>(unprotectedData, Settings);
+            var keyData = JsonSerializer.Deserialize<EcIdentityServerKeyData>(unprotectedData, Settings);
 
             signingKey.Created = keyData.Created;
 
@@ -70,7 +69,7 @@ public class CompatibilityKeyMaterialConverter(IDataProtectionProvider dataProte
 
         if (keyMaterial.IsX509Certificate)
         {
-            var keyData = JsonSerializer.Deserialize<X509CompatibilityKeyData>(unprotectedData, Settings);
+            var keyData = JsonSerializer.Deserialize<X509IdentityServerKeyData>(unprotectedData, Settings);
             
             var cert = X509CertificateLoader.LoadPkcs12(System.Convert.FromBase64String(keyData.CertificateRawData), null);
             

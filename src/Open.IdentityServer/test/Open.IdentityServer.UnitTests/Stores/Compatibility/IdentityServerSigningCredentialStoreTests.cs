@@ -19,18 +19,18 @@ using Xunit;
 
 namespace IdentityServer.UnitTests.Stores.Compatibility;
 
-public class CompatibilitySigningCredentialStoreTests
+public class IdentityServerSigningCredentialStoreTests
 {
-    private readonly ICompatibilityKeyStore compatibilityKeyStore = Mock.Of<ICompatibilityKeyStore>();
+    private readonly IIdentityServerKeyStore _identityServerKeyStore = Mock.Of<IIdentityServerKeyStore>();
     private readonly IDataProtectionProvider dataProtectionProvider = Mock.Of<IDataProtectionProvider>();
     private readonly IDataProtector dataProtector = Mock.Of<IDataProtector>();
-    private readonly CompatibilityKeyMaterialConverter compatibilityKeyMaterialConverter;
+    private readonly DataProtectedIdentityServerKeyMaterialConverter _dataProtectedIdentityServerKeyMaterialConverter;
     
-    private List<CompatibilityKeyMaterial> fakeKeyMaterials = [];
+    private List<IdentityServerKeyMaterial> fakeKeyMaterials = [];
 
-    public CompatibilitySigningCredentialStoreTests()
+    public IdentityServerSigningCredentialStoreTests()
     {
-        Mock.Get(compatibilityKeyStore)
+        Mock.Get(_identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
 
@@ -38,15 +38,15 @@ public class CompatibilitySigningCredentialStoreTests
             .Setup(x => x.CreateProtector("DataProtectionKeyProtector"))
             .Returns(dataProtector);
         
-        compatibilityKeyMaterialConverter = new CompatibilityKeyMaterialConverter(dataProtectionProvider);
+        _dataProtectedIdentityServerKeyMaterialConverter = new DataProtectedIdentityServerKeyMaterialConverter(dataProtectionProvider);
     }
     
-    private CompatibilitySigningCredentialStore CreateSut() => new(compatibilityKeyStore, compatibilityKeyMaterialConverter);
+    private IdentityServerSigningCredentialStore CreateSut() => new(_identityServerKeyStore, _dataProtectedIdentityServerKeyMaterialConverter);
 
     [Fact]
     public async Task GetSigningCredentialsAsync_WhenDataUnprotected_AndLatestRsaKey_ShouldReturnSigningCredentialsRepresenting()
     {
-        var fakeRsaKey = new RsaCompatibilityKeyData
+        var fakeRsaKey = new RsaIdentityServerKeyData
         {
             Id = "Fake_RS256",
             Created = new DateTime(2026, 04, 25, 11, 20, 21, DateTimeKind.Utc),
@@ -54,7 +54,7 @@ public class CompatibilitySigningCredentialStoreTests
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
         
-        var fakeEcKey = new EcCompatibilityKeyData
+        var fakeEcKey = new EcIdentityServerKeyData
         {
             Id = "Fake_ES256",
             Created = new DateTime(2026, 02, 25, 11, 20, 21, DateTimeKind.Utc),
@@ -64,11 +64,11 @@ public class CompatibilitySigningCredentialStoreTests
         };
         
         fakeKeyMaterials = [
-            new CompatibilityKeyMaterial { Id = fakeEcKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey.Algorithm, Data = fakeEcKey.ToExpectedJson() },
-            new CompatibilityKeyMaterial { Id = fakeRsaKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeRsaKey.Algorithm, Data = fakeRsaKey.ToExpectedJson() },
+            new IdentityServerKeyMaterial { Id = fakeEcKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey.Algorithm, Data = fakeEcKey.ToExpectedJson() },
+            new IdentityServerKeyMaterial { Id = fakeRsaKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeRsaKey.Algorithm, Data = fakeRsaKey.ToExpectedJson() },
         ];
 
-        Mock.Get(compatibilityKeyStore)
+        Mock.Get(_identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
 
@@ -83,7 +83,7 @@ public class CompatibilitySigningCredentialStoreTests
     [Fact]
     public async Task GetSigningCredentialsAsync_ShouldFilterOutNonSigningKeys()
     {
-        var fakeRsaKey = new RsaCompatibilityKeyData
+        var fakeRsaKey = new RsaIdentityServerKeyData
         {
             Id = "Fake_RS256",
             Created = new DateTime(2026, 04, 25, 11, 20, 21, DateTimeKind.Utc),
@@ -91,7 +91,7 @@ public class CompatibilitySigningCredentialStoreTests
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
         
-        var fakeEcKey = new EcCompatibilityKeyData
+        var fakeEcKey = new EcIdentityServerKeyData
         {
             Id = "Fake_ES256",
             Created = new DateTime(2026, 02, 25, 11, 20, 21, DateTimeKind.Utc),
@@ -101,11 +101,11 @@ public class CompatibilitySigningCredentialStoreTests
         };
         
         fakeKeyMaterials = [
-            new CompatibilityKeyMaterial { Id = fakeEcKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey.Algorithm, Data = fakeEcKey.ToExpectedJson() },
-            new CompatibilityKeyMaterial { Id = fakeRsaKey.Id, Version = 1, Use = "encryption", DataProtected = false, Algorithm = fakeRsaKey.Algorithm, Data = fakeRsaKey.ToExpectedJson() },
+            new IdentityServerKeyMaterial { Id = fakeEcKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey.Algorithm, Data = fakeEcKey.ToExpectedJson() },
+            new IdentityServerKeyMaterial { Id = fakeRsaKey.Id, Version = 1, Use = "encryption", DataProtected = false, Algorithm = fakeRsaKey.Algorithm, Data = fakeRsaKey.ToExpectedJson() },
         ];
 
-        Mock.Get(compatibilityKeyStore)
+        Mock.Get(_identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
 
@@ -124,7 +124,7 @@ public class CompatibilitySigningCredentialStoreTests
     [Fact]
     public async Task GetSigningCredentialsAsync_WhenDataProtected_AndLatestEcdsaKey_ShouldReturnSigningCredentialsRepresenting()
     {
-        var fakeRsaKey = new RsaCompatibilityKeyData
+        var fakeRsaKey = new RsaIdentityServerKeyData
         {
             Id = "Fake_RS256",
             Created = new DateTime(2026, 02, 25, 11, 20, 21, DateTimeKind.Utc),
@@ -134,7 +134,7 @@ public class CompatibilitySigningCredentialStoreTests
         var fakeRsaKeyJson = fakeRsaKey.ToExpectedJson();
         var fakeRsaKeyJsonProtectedBase64 = Convert.ToBase64String("FakeRsaKeyJson_PROTECTED"u8.ToArray());
         
-        var fakeEcKey = new EcCompatibilityKeyData
+        var fakeEcKey = new EcIdentityServerKeyData
         {
             Id = "Fake_ES256",
             Created = new DateTime(2026, 04, 25, 11, 20, 21, DateTimeKind.Utc),
@@ -146,11 +146,11 @@ public class CompatibilitySigningCredentialStoreTests
         var fakeEcKeyJsonProtectedBase64 = Convert.ToBase64String("FakeEcKeyJson_PROTECTED"u8.ToArray());
         
         fakeKeyMaterials = [
-            new CompatibilityKeyMaterial { Id = fakeEcKey.Id, Version = 1, Use = "signing", DataProtected = true, Algorithm = fakeEcKey.Algorithm, Data = fakeEcKeyJsonProtectedBase64 },
-            new CompatibilityKeyMaterial { Id = fakeRsaKey.Id, Version = 1, Use = "signing", DataProtected = true, Algorithm = fakeRsaKey.Algorithm, Data = fakeRsaKeyJsonProtectedBase64 },
+            new IdentityServerKeyMaterial { Id = fakeEcKey.Id, Version = 1, Use = "signing", DataProtected = true, Algorithm = fakeEcKey.Algorithm, Data = fakeEcKeyJsonProtectedBase64 },
+            new IdentityServerKeyMaterial { Id = fakeRsaKey.Id, Version = 1, Use = "signing", DataProtected = true, Algorithm = fakeRsaKey.Algorithm, Data = fakeRsaKeyJsonProtectedBase64 },
         ];
 
-        Mock.Get(compatibilityKeyStore)
+        Mock.Get(_identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
         
@@ -179,7 +179,7 @@ public class CompatibilitySigningCredentialStoreTests
     [Fact]
     public async Task GetSigningCredentialsAsync_WhenProtected_AndSingleEcdsa384Key_ShouldReturnSigningCredentialsRepresentingThatKey()
     {
-        var fakeEcKey = new EcCompatibilityKeyData
+        var fakeEcKey = new EcIdentityServerKeyData
         {
             Id = "Fake_ES384",
             Created = new DateTime(2026, 04, 25, 11, 20, 21, DateTimeKind.Utc),
@@ -191,10 +191,10 @@ public class CompatibilitySigningCredentialStoreTests
         var fakeEcKeyJsonProtectedBase64 = Convert.ToBase64String("FakeEcKeyJson_PROTECTED"u8.ToArray());
         
         fakeKeyMaterials = [
-            new CompatibilityKeyMaterial { Id = fakeEcKey.Id, Version = 1, Use = "signing", DataProtected = true, Algorithm = fakeEcKey.Algorithm, Data = fakeEcKeyJsonProtectedBase64 },
+            new IdentityServerKeyMaterial { Id = fakeEcKey.Id, Version = 1, Use = "signing", DataProtected = true, Algorithm = fakeEcKey.Algorithm, Data = fakeEcKeyJsonProtectedBase64 },
         ];
 
-        Mock.Get(compatibilityKeyStore)
+        Mock.Get(_identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
         
@@ -218,7 +218,7 @@ public class CompatibilitySigningCredentialStoreTests
     [Fact]
     public async Task GetSigningCredentialsAsync_WhenUnProtected_AndSingleEcdsa521Key_ShouldReturnSigningCredentialsRepresentingThatKey()
     {
-        var fakeEcKey = new EcCompatibilityKeyData
+        var fakeEcKey = new EcIdentityServerKeyData
         {
             Id = "Fake_ES521",
             Created = new DateTime(2026, 04, 25, 11, 20, 21, DateTimeKind.Utc),
@@ -229,10 +229,10 @@ public class CompatibilitySigningCredentialStoreTests
         var fakeEcKeyJson = fakeEcKey.ToExpectedJson();
         
         fakeKeyMaterials = [
-            new CompatibilityKeyMaterial { Id = fakeEcKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey.Algorithm, Data = fakeEcKeyJson },
+            new IdentityServerKeyMaterial { Id = fakeEcKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey.Algorithm, Data = fakeEcKeyJson },
         ];
 
-        Mock.Get(compatibilityKeyStore)
+        Mock.Get(_identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
 
@@ -255,7 +255,7 @@ public class CompatibilitySigningCredentialStoreTests
         {
             KeyId = "Fake_RS256",
         };
-        var fakeX509CertData = new X509CompatibilityKeyData
+        var fakeX509CertData = new X509IdentityServerKeyData
         {
             Id = fakeRsaSecurityKey.KeyId,
             Created = new DateTime(2026, 02, 25, 11, 20, 21, DateTimeKind.Utc),
@@ -266,10 +266,10 @@ public class CompatibilitySigningCredentialStoreTests
         var fakeX509PfxProtectedBase64 = Convert.ToBase64String("FakeRsaKeyJson_PROTECTED"u8.ToArray());
         
         fakeKeyMaterials = [
-            new CompatibilityKeyMaterial { Id = fakeX509CertData.Id, Version = 1, Use = "signing", DataProtected = true, Algorithm = fakeX509CertData.Algorithm, IsX509Certificate = true, Data = fakeX509PfxProtectedBase64 },
+            new IdentityServerKeyMaterial { Id = fakeX509CertData.Id, Version = 1, Use = "signing", DataProtected = true, Algorithm = fakeX509CertData.Algorithm, IsX509Certificate = true, Data = fakeX509PfxProtectedBase64 },
         ];
 
-        Mock.Get(compatibilityKeyStore)
+        Mock.Get(_identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
         
@@ -294,7 +294,7 @@ public class CompatibilitySigningCredentialStoreTests
         {
             KeyId = "Fake_EC384",
         };
-        var fakeX509CertData = new X509CompatibilityKeyData
+        var fakeX509CertData = new X509IdentityServerKeyData
         {
             Id = fakeECDsaSecurityKey.KeyId,
             Created = new DateTime(2026, 02, 25, 11, 20, 21, DateTimeKind.Utc),
@@ -305,10 +305,10 @@ public class CompatibilitySigningCredentialStoreTests
         var fakeX509PfxProtectedBase64 = Convert.ToBase64String("FakeRsaKeyJson_PROTECTED"u8.ToArray());
         
         fakeKeyMaterials = [
-            new CompatibilityKeyMaterial { Id = fakeX509CertData.Id, Version = 1, Use = "signing", DataProtected = true, Algorithm = fakeX509CertData.Algorithm, IsX509Certificate = true, Data = fakeX509PfxProtectedBase64 },
+            new IdentityServerKeyMaterial { Id = fakeX509CertData.Id, Version = 1, Use = "signing", DataProtected = true, Algorithm = fakeX509CertData.Algorithm, IsX509Certificate = true, Data = fakeX509PfxProtectedBase64 },
         ];
 
-        Mock.Get(compatibilityKeyStore)
+        Mock.Get(_identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
         

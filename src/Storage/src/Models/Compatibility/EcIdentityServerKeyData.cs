@@ -5,7 +5,7 @@ namespace Open.IdentityServer.Models;
 /// <summary>
 /// EcKey class representing EC key data field in database
 /// </summary>
-public class EcCompatibilityKeyData: CompatibilityKeyData
+public class EcIdentityServerKeyData: IdentityServerKeyData
 {
     /// <summary>
     /// Get or set D value

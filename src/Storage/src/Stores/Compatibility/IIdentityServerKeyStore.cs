@@ -8,11 +8,11 @@ namespace Open.IdentityServer.Stores;
 /// <summary>
 /// Retrieval of key material
 /// </summary>
-public interface ICompatibilityKeyStore
+public interface IIdentityServerKeyStore
 {
     /// <summary>
     /// Get all key material stored in databased
     /// </summary>
     /// <returns></returns>
-    IEnumerable<CompatibilityKeyMaterial> GetKeys();
+    IEnumerable<IdentityServerKeyMaterial> GetKeys();
 }

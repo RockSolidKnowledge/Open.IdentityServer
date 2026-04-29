@@ -7,7 +7,7 @@ namespace Open.IdentityServer.Models;
 /// <summary>
 /// Model for the Key Material stored in a Duende IdentityServer database
 /// </summary>
-public class CompatibilityKeyMaterial
+public class IdentityServerKeyMaterial
 {
     /// <summary>
     /// Get or set unique identifier

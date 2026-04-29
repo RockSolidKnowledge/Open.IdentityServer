@@ -5,7 +5,7 @@ namespace Open.IdentityServer.Models;
 /// <summary>
 /// RsaKey class representing RSA key data field in database
 /// </summary>
-public class RsaCompatibilityKeyData: CompatibilityKeyData
+public class RsaIdentityServerKeyData: IdentityServerKeyData
 {
     /// <summary>
     /// Get or set value of RSA parameters

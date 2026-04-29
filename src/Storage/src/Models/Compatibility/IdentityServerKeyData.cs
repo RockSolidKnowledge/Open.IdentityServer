@@ -5,7 +5,7 @@ namespace Open.IdentityServer.Models;
 /// <summary>
 /// Base class representing key data field in database
 /// </summary>
-public class CompatibilityKeyData
+public class IdentityServerKeyData
 {
     /// <summary>
     /// Get or set unique identifier

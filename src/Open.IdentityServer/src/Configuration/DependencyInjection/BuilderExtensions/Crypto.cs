@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
+using Open.IdentityServer.DataProtection;
 using JsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -294,5 +295,15 @@ public static class IdentityServerBuilderExtensionsCrypto
         if (certificate == null) throw new InvalidOperationException($"certificate: '{name}' not found in certificate store");
 
         return builder.AddValidationKey(certificate, signingAlgorithm);
+    }
+
+    public static IIdentityServerBuilder AddIdentityServerKeys(this IIdentityServerBuilder builder)
+    {
+        // builder.Services
+        builder.Services.AddSingleton<DataProtectedIdentityServerKeyMaterialConverter>();
+        builder.Services.AddScoped<ISigningCredentialStore, IdentityServerSigningCredentialStore>();
+        builder.Services.AddScoped<IValidationKeysStore, IdentityServerValidationKeysStore>();
+
+        return builder;
     }
 }

@@ -62,5 +62,5 @@ public static class FakeKeyData
         return Convert.ToBase64String(cert.Export(X509ContentType.Pfx));
     }
 
-    public static string ToExpectedJson(this object data) => JsonSerializer.Serialize(data, CompatibilityKeyMaterialConverter.Settings);
+    public static string ToExpectedJson(this object data) => JsonSerializer.Serialize(data, DataProtectedIdentityServerKeyMaterialConverter.Settings);
 }

@@ -120,4 +120,16 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
         builder.Services.AddOperationalStoreNotification<T>();
         return builder;
     }
+    
+    public static IIdentityServerBuilder AddIdentityServerKeyStore<TContext>(
+        this IIdentityServerBuilder builder,
+        Action<CompatibilityStoreOptions> storeOptionsAction = null)
+        where TContext : DbContext, IIdentityServerKeyDbContext
+    {
+        builder.Services.AddIdentityServerKeyDbContext<TContext>(storeOptionsAction);
+
+        builder.Services.AddScoped<IIdentityServerKeyStore, IdentityServerKeyStore>();
+
+        return builder;
+    }
 }

@@ -116,4 +116,36 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
         services.AddTransient<IOperationalStoreNotification, T>();
         return services;
     }
+    
+    public static IServiceCollection AddIdentityServerKeyDbContext(this IServiceCollection services,
+        Action<CompatibilityStoreOptions> storeOptionsAction = null)
+    {
+        return services.AddIdentityServerKeyDbContext<IdentityServerKeyDbContext>(storeOptionsAction);
+    }
+
+    public static IServiceCollection AddIdentityServerKeyDbContext<TContext>(this IServiceCollection services,
+        Action<CompatibilityStoreOptions> storeOptionsAction = null)
+        where TContext : DbContext, IIdentityServerKeyDbContext
+    {
+        var storeOptions = new CompatibilityStoreOptions();
+        services.AddSingleton(storeOptions);
+        storeOptionsAction?.Invoke(storeOptions);
+        
+        if (storeOptions.ResolveDbContextOptions != null)
+        {
+            services.AddDbContext<TContext>(storeOptions.ResolveDbContextOptions);
+        }
+        else
+        {
+            services.AddDbContext<TContext>(dbCtxBuilder =>
+            {
+                storeOptions.ConfigureDbContext?.Invoke(dbCtxBuilder);
+            });
+        }
+
+        services.AddScoped<IIdentityServerKeyDbContext, TContext>();
+        services.AddTransient<TokenCleanupService>();
+
+        return services;
+    }
 }
