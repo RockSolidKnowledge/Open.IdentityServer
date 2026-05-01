@@ -1,4 +1,6 @@
-using System;
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -6,7 +8,6 @@ using AwesomeAssertions;
 using Moq;
 using Open.IdentityModel;
 using Open.IdentityServer.Models;
-using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Xunit;
 

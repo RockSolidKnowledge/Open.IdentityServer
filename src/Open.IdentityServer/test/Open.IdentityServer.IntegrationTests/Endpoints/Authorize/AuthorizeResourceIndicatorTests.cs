@@ -1,16 +1,12 @@
 // Copyright (c) 2026, Rock Solid Knowledge 
-// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.IntegrationTests.Common;
-using Microsoft.AspNetCore.Http;
 using Open.IdentityModel;
 using Open.IdentityModel.Client;
 using Open.IdentityServer.IntegrationTests.Endpoints;
