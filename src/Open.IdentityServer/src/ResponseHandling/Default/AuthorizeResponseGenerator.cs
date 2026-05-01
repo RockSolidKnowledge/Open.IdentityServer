@@ -169,8 +169,8 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
             {
                 Subject = request.Subject,
                 ValidatedResources = request.ValidatedResources,
-
                 ValidatedRequest = request,
+                ResourceIndicatorsUsed = request.RequestedResourceIndicators.Count != 0,
             };
 
             var accessToken = await TokenService.CreateAccessTokenAsync(tokenRequest);

@@ -1,3 +1,6 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,6 +58,7 @@ public class TokenResponseGeneratorTests_RefreshToken : TokenResponseGeneratorTe
             .Should().ContainSingle(x => x.Name == "api")
             .And.HaveCount(1);
         capturedTokenRequest.Value.ValidatedResources.RawScopeValues.Should().BeEquivalentTo("resource");
+        capturedTokenRequest.Value.ResourceIndicatorsUsed.Should().BeFalse();
 
         capturedRefreshTokenRequest.UpdatedRefreshToken.Should().NotBeNull();
         capturedRefreshTokenRequest.UpdatedRefreshToken!.AccessTokens.Should().ContainKey(string.Empty)
@@ -245,6 +249,7 @@ public class TokenResponseGeneratorTests_RefreshToken : TokenResponseGeneratorTe
         capturedTokenRequest.Value.ValidatedResources.RawScopeValues.Should().BeEquivalentTo("valid:Read", "valid:Write");
 
         capturedTokenRequest.TokenValue.Should().BeEquivalentTo(newAccessToken);
+        capturedTokenRequest.Value.ResourceIndicatorsUsed.Should().BeTrue();
 
         capturedRefreshTokenRequest.UpdatedRefreshToken.Should().NotBeNull();
         capturedRefreshTokenRequest.UpdatedRefreshToken!.AccessTokens.Should().ContainKey("urn:valid.resource")
@@ -316,8 +321,8 @@ public class TokenResponseGeneratorTests_RefreshToken : TokenResponseGeneratorTe
             .And.ContainSingle(x => x.Name == "api")
             .And.HaveCount(3);
         capturedTokenRequest.Value.ValidatedResources.RawScopeValues.Should().BeEquivalentTo("urn:valid.resource:Read", "valid:Read", "valid:Write", "resource");
-
         capturedTokenRequest.TokenValue.Should().BeEquivalentTo(newAccessToken);
+        capturedTokenRequest.Value.ResourceIndicatorsUsed.Should().BeFalse();
 
         capturedRefreshTokenRequest.UpdatedRefreshToken.Should().NotBeNull();
         capturedRefreshTokenRequest.UpdatedRefreshToken!.AccessTokens.Should().ContainKey("urn:valid.resource")

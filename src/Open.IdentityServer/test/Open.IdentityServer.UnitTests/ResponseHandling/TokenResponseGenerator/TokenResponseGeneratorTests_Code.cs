@@ -1,3 +1,6 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -44,6 +47,7 @@ public class TokenResponseGeneratorTests_Code : TokenResponseGeneratorTests
             .And.HaveCount(1);
 
         capturedRequest.Value.ValidatedResources.RawScopeValues.Should().BeEquivalentTo(request.AuthorizationCode.RequestedScopes);
+        capturedRequest.Value.ResourceIndicatorsUsed.Should().BeFalse();
     }
 
     [Fact]
@@ -82,6 +86,7 @@ public class TokenResponseGeneratorTests_Code : TokenResponseGeneratorTests
             .And.HaveCount(3);
 
         capturedRequest.Value.ValidatedResources.RawScopeValues.Should().BeEquivalentTo("urn:valid.resource:Read", "urn:valid.resource:Write", "valid:Read", "resource");
+        capturedRequest.Value.ResourceIndicatorsUsed.Should().BeFalse();
     }
 
     [Fact]
@@ -119,6 +124,7 @@ public class TokenResponseGeneratorTests_Code : TokenResponseGeneratorTests
             .And.HaveCount(1);
 
         capturedRequest.Value.ValidatedResources.RawScopeValues.Should().BeEquivalentTo("urn:valid.resource:Read", "urn:valid.resource:Write");
+        capturedRequest.Value.ResourceIndicatorsUsed.Should().BeTrue();
     }
 
     [Fact]

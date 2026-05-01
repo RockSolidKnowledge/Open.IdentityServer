@@ -36,6 +36,7 @@ internal class TestScopes
             {
                 Name = "https://valid.resource.com",
                 Scopes = ["valid:Read", "valid:Write", "valid:All", "All"],
+                RequireResourceIndicator = true,
             },
             new ApiResource
             {

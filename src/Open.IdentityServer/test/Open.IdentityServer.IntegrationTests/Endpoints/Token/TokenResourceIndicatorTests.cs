@@ -47,7 +47,7 @@ public class TokenResourceIndicatorTests : ResourceIndicatorTests
             responseMode: "query",
             scope: scope,
             redirectUri: "https://server/cb",
-            extra: new Parameters([
+            extra: string.IsNullOrWhiteSpace(resource) ? null : new Parameters([
                 new KeyValuePair<string, string>("resource", resource)
             ]));
 
@@ -104,7 +104,39 @@ public class TokenResourceIndicatorTests : ResourceIndicatorTests
         var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var result = JsonElement.Parse(json);
         result.TryGetProperty("error", out _).Should().BeFalse();
-        result.TryGetProperty("access_token", out _).Should().BeTrue();
+
+        result.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudience("urn:valid.resource")
+            .WithScope("urn:valid.resource:Read");
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task ClientCredentials_WithoutResourceIndicator_ShouldSucceed_ExcludingResourcesThatRequireIndicatorsFromAud()
+    {
+        var data = new Dictionary<string, string>
+        {
+            { "grant_type", "client_credentials" },
+            { "client_id", ClientCredentialsClient.ClientId },
+            { "client_secret", "secret" },
+            { "scope", "urn:valid.resource:Read valid:Read" },
+        };
+
+        var response = await mockPipeline.BackChannelClient!.PostAsync(
+            IdentityServerPipeline.TokenEndpoint,
+            new FormUrlEncodedContent(data),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var result = JsonElement.Parse(json);
+        result.TryGetProperty("error", out _).Should().BeFalse();
+        
+        result.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudiencesEquivalentTo("urn:valid.resource")
+            .WithScopesEquivalentTo("urn:valid.resource:Read", "valid:Read");
     }
 
     [Fact]
@@ -129,7 +161,11 @@ public class TokenResourceIndicatorTests : ResourceIndicatorTests
         var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var result = JsonElement.Parse(json);
         result.TryGetProperty("error", out _).Should().BeFalse();
-        result.TryGetProperty("access_token", out _).Should().BeTrue();
+
+        result.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudience("https://valid.resource.com")
+            .WithScope("valid:Read");
     }
 
     [Fact]
@@ -154,7 +190,11 @@ public class TokenResourceIndicatorTests : ResourceIndicatorTests
         var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var result = JsonElement.Parse(json);
         result.TryGetProperty("error", out _).Should().BeFalse();
-        result.TryGetProperty("access_token", out _).Should().BeTrue();
+
+        result.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudiencesEquivalentTo("urn:valid.resource")
+            .WithScopesEquivalentTo("urn:valid.resource:Read", "urn:valid.resource:Write", "urn:valid.resource:All");
     }
 
     [Fact]
@@ -276,7 +316,11 @@ public class TokenResourceIndicatorTests : ResourceIndicatorTests
         var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var result = JsonElement.Parse(json);
         result.TryGetProperty("error", out _).Should().BeFalse();
-        result.TryGetProperty("access_token", out _).Should().BeTrue();
+
+        result.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudience("urn:valid.resource")
+            .WithScope("urn:valid.resource:Read");
     }
 
     [Fact]
@@ -303,7 +347,11 @@ public class TokenResourceIndicatorTests : ResourceIndicatorTests
         var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var result = JsonElement.Parse(json);
         result.TryGetProperty("error", out _).Should().BeFalse();
-        result.TryGetProperty("access_token", out _).Should().BeTrue();
+
+        result.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudience("https://valid.resource.com")
+            .WithScope("valid:Read");
     }
 
     [Fact]
@@ -357,7 +405,43 @@ public class TokenResourceIndicatorTests : ResourceIndicatorTests
         var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var result = JsonElement.Parse(json);
         result.TryGetProperty("error", out _).Should().BeFalse();
-        result.TryGetProperty("access_token", out _).Should().BeTrue();
+
+        result.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudiencesEquivalentTo("urn:valid.resource")
+            .WithScopesEquivalentTo("openid", "urn:valid.resource:Read");
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task CodeExchange_WithMultipleResources_NoResourcesSpecifiedAtTokenEndpoint_ShouldSucceed_ExcludingAudienceForResourcesThatRequireIndicators()
+    {
+        var code = await GetAuthorizationCodeWithMultipleResourcesAsync(
+            "openid urn:valid.resource:Read valid:Read",
+            "urn:valid.resource", "https://valid.resource.com");
+
+        var data = new Dictionary<string, string>
+        {
+            { "grant_type", "authorization_code" },
+            { "client_id", CodeClient.ClientId },
+            { "code", code },
+            { "redirect_uri", "https://server/cb" },
+        };
+
+        var response = await mockPipeline.BackChannelClient!.PostAsync(
+            IdentityServerPipeline.TokenEndpoint,
+            new FormUrlEncodedContent(data),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var result = JsonElement.Parse(json);
+        result.TryGetProperty("error", out _).Should().BeFalse();
+
+        result.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudiencesEquivalentTo("urn:valid.resource")
+            .WithScopesEquivalentTo("openid", "urn:valid.resource:Read", "valid:Read");
     }
 
     [Fact]
@@ -391,7 +475,9 @@ public class TokenResourceIndicatorTests : ResourceIndicatorTests
     [Trait("Category", Category)]
     public async Task RefreshToken_WithResourceIndicator_ShouldSucceed()
     {
-        var code = await GetAuthorizationCodeAsync("openid offline_access urn:valid.resource:Read", "urn:valid.resource");
+        var code = await GetAuthorizationCodeAsync(
+            scope: "openid offline_access urn:valid.resource:Read", 
+            resource: "urn:valid.resource");
 
         var tokenData = new Dictionary<string, string>
         {
@@ -428,7 +514,64 @@ public class TokenResourceIndicatorTests : ResourceIndicatorTests
         var refreshJson = await refreshResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var refreshResult = JsonElement.Parse(refreshJson);
         refreshResult.TryGetProperty("error", out _).Should().BeFalse();
-        refreshResult.TryGetProperty("access_token", out _).Should().BeTrue();
+
+        refreshResult.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudience("urn:valid.resource")
+            .WithScope("urn:valid.resource:Read");
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task RefreshToken_WithoutResourceIndicator_ShouldSucceed_ExcludingAudienceForResourcesThatRequireIndicators()
+    {
+        var code = await GetAuthorizationCodeAsync(
+            scope: "openid offline_access urn:valid.resource:Read valid:Read", 
+            resource: null);
+
+        var tokenData = new Dictionary<string, string>
+        {
+            { "grant_type", "authorization_code" },
+            { "client_id", CodeClient.ClientId },
+            { "code", code },
+            { "redirect_uri", "https://server/cb" },
+        };
+
+        var tokenResponse = await mockPipeline.BackChannelClient!.PostAsync(
+            IdentityServerPipeline.TokenEndpoint,
+            new FormUrlEncodedContent(tokenData),
+            TestContext.Current.CancellationToken);
+
+        var tokenJson = await tokenResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var tokenResult = JsonElement.Parse(tokenJson);
+        tokenResult.TryGetProperty("refresh_token", out var refreshToken).Should().BeTrue();
+        
+        tokenResult.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudiencesEquivalentTo("urn:valid.resource")
+            .WithScopesEquivalentTo("offline_access", "openid", "urn:valid.resource:Read", "valid:Read");
+
+        var refreshData = new Dictionary<string, string>
+        {
+            { "grant_type", "refresh_token" },
+            { "client_id", CodeClient.ClientId },
+            { "refresh_token", refreshToken.GetString()! },
+        };
+
+        var refreshResponse = await mockPipeline.BackChannelClient!.PostAsync(
+            IdentityServerPipeline.TokenEndpoint,
+            new FormUrlEncodedContent(refreshData),
+            TestContext.Current.CancellationToken);
+
+        refreshResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var refreshJson = await refreshResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var refreshResult = JsonElement.Parse(refreshJson);
+        refreshResult.TryGetProperty("error", out _).Should().BeFalse();
+        
+        refreshResult.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudiencesEquivalentTo("urn:valid.resource")
+            .WithScopesEquivalentTo("offline_access", "openid", "urn:valid.resource:Read", "valid:Read");
     }
 
     [Fact]
@@ -536,7 +679,11 @@ public class TokenResourceIndicatorTests : ResourceIndicatorTests
         var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var result = JsonElement.Parse(json);
         result.TryGetProperty("error", out _).Should().BeFalse();
-        result.TryGetProperty("access_token", out _).Should().BeTrue();
+
+        result.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithAudiencesEquivalentTo("urn:valid.resource")
+            .WithScopesEquivalentTo("urn:valid.resource:Read", "urn:valid.resource:Write", "urn:valid.resource:All");
     }
 
     [Fact]

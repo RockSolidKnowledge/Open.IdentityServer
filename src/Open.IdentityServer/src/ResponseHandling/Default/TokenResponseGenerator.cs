@@ -227,7 +227,8 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 Subject = subject,
                 Description = request.ValidatedRequest.RefreshToken.Description,
                 ValidatedRequest = request.ValidatedRequest,
-                ValidatedResources = validatedResources
+                ValidatedResources = validatedResources,
+                ResourceIndicatorsUsed = request.ValidatedRequest.RequestedResourceIndicator.IsPresent(),
             };
 
             var newAccessToken = await TokenService.CreateAccessTokenAsync(creationRequest);
@@ -398,7 +399,7 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 Subject = request.AuthorizationCode.Subject,
                 Description = request.AuthorizationCode.Description,
                 ValidatedResources = validatedResources,
-                ValidatedRequest = request
+                ValidatedRequest = request,
             };
         }
         else if (request.DeviceCode != null)
@@ -425,7 +426,7 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 Subject = request.DeviceCode.Subject,
                 Description = request.DeviceCode.Description,
                 ValidatedResources = validatedResources,
-                ValidatedRequest = request
+                ValidatedRequest = request,
             };
         }
         else
@@ -443,6 +444,7 @@ public class TokenResponseGenerator : ITokenResponseGenerator
         var preDownscopeScopes = tokenRequest.ValidatedResources.RawScopeValues.ToList();
 
         tokenRequest.ValidatedResources.DownscopeWhenResourceIndicators(request);
+        tokenRequest.ResourceIndicatorsUsed = request.RequestedResourceIndicator.IsPresent();
         request.ValidatedResources = tokenRequest.ValidatedResources;
 
         var at = await TokenService.CreateAccessTokenAsync(tokenRequest);

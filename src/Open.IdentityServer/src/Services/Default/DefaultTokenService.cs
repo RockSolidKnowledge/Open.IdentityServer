@@ -222,7 +222,9 @@ public class DefaultTokenService : ITokenService
         };
 
         // add aud based on ApiResources in the validated request
-        foreach (var aud in request.ValidatedResources.Resources.ApiResources.Select(x => x.Name).Distinct())
+        foreach (var aud in request.ValidatedResources.Resources.ApiResources
+                     .Where(x => !x.RequireResourceIndicator || request.ResourceIndicatorsUsed)
+                     .Select(x => x.Name).Distinct())
         {
             token.Audiences.Add(aud);
         }

@@ -1,3 +1,6 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,6 +41,7 @@ public class TokenResponseGeneratorTests_ClientCredentials : TokenResponseGenera
 
         capturedRequest.Value.Should().NotBeNull();
         capturedRequest.Value!.ValidatedResources.Should().BeEquivalentTo(request.ValidatedResources);
+        capturedRequest.Value.ResourceIndicatorsUsed.Should().BeFalse();
     }
     
     [Fact]
@@ -56,17 +60,6 @@ public class TokenResponseGeneratorTests_ClientCredentials : TokenResponseGenera
                 ["api", "https://valid.resource.com"], 
                 ["resource", "valid:Read", "valid:Write"]),
             
-            // ValidatedResources = new ResourceValidationResult
-            // {
-            //     ParsedScopes = [ new ParsedScopeValue("resource"), new ParsedScopeValue("valid:Read"), new ParsedScopeValue("valid:Write") ],
-            //     Resources = new Resources
-            //     {
-            //         ApiResources = TestScopes.GetApis().Where(x => x.Name is "api" or "https://valid.resource.com").ToArray(),
-            //         ApiScopes = [new ApiScope("resource"), new ApiScope("valid:Read"), new ApiScope( "valid:Write")],
-            //         IdentityResources = [],
-            //         OfflineAccess = false,
-            //     }
-            // },
             RequestedResourceIndicator = "https://valid.resource.com",
         };
 
@@ -88,6 +81,7 @@ public class TokenResponseGeneratorTests_ClientCredentials : TokenResponseGenera
             .Should().ContainSingle(x => x.Name == "valid:Read")
             .And.ContainSingle(x => x.Name == "valid:Write")
             .And.HaveCount(2);
+        capturedRequest.Value.ResourceIndicatorsUsed.Should().BeTrue();
     }
 
     [Fact]

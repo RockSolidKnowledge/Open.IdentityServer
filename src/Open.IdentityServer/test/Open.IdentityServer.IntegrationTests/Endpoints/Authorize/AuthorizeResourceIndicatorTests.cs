@@ -9,6 +9,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using IdentityServer.IntegrationTests.Common;
 using Microsoft.AspNetCore.Http;
 using Open.IdentityModel;
 using Open.IdentityModel.Client;
@@ -303,20 +304,45 @@ public class AuthorizeResourceIndicatorTests: ResourceIndicatorTests
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("oob://implicit/cb");
 
-        var fragments = response.Headers.Location.Fragment.Replace("#", "")
-            .Split("&")
-            .Select(x =>
-            {
-                var split = x.Split("=");
-                if (split.Length != 2) throw new Exception("Failed to Parse Result Fragment");
-                return new KeyValuePair<string, string>(split[0], split[1]);
-            })
-            .ToList();
+        var fragments = response.Headers.Location.Fragment.ParseFragment();
 
-        fragments.Should().ContainKey("access_token");
+        fragments.Should().ContainKey("access_token")
+            .WhoseValue.Should().BeAccessToken()
+            .WithAudience("urn:valid.resource");
         fragments.Should().ContainKey("scope")
             .WhoseValue.Should().Contain("openid")
-            .And.Contain("urn%3Avalid.resource%3ARead");
+            .And.Contain("urn:valid.resource:Read");
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task ImplicitFlow_WithoutResourceIndicator_AuthenticatedUser_ShouldSucceedExcludingResourcesRequiringIndicators()
+    {
+        await mockPipeline.LoginAsync("bob");
+        mockPipeline.BrowserClient!.AllowAutoRedirect = false;
+
+        var url = mockPipeline.CreateAuthorizeUrl(
+            clientId: ImplicitClient.ClientId,
+            responseType: "id_token token",
+            scope: "openid urn:valid.resource:Read valid:Read",
+            redirectUri: "oob://implicit/cb",
+            nonce: "123_nonce");
+
+        var response = await mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location.Should().NotBeNull();
+        response.Headers.Location!.ToString().Should().StartWith("oob://implicit/cb");
+
+        var fragments = response.Headers.Location.Fragment.ParseFragment();
+
+        fragments.Should().ContainKey("access_token")
+            .WhoseValue.Should().BeAccessToken()
+            .WithAudience("urn:valid.resource")
+            .WithoutAudience("https://valid.resource.com");
+        fragments.Should().ContainKey("scope")
+            .WhoseValue.Should().Contain("openid")
+            .And.Contain("urn:valid.resource:Read");
     }
 
     [Fact]
@@ -342,20 +368,12 @@ public class AuthorizeResourceIndicatorTests: ResourceIndicatorTests
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("oob://implicit/cb");
 
-        var fragments = response.Headers.Location.Fragment.Replace("#", "")
-            .Split("&")
-            .Select(x =>
-            {
-                var split = x.Split("=");
-                if (split.Length != 2) throw new Exception("Failed to Parse Result Fragment");
-                return new KeyValuePair<string, string>(split[0], split[1]);
-            })
-            .ToList();
+        var fragments = response.Headers.Location.Fragment.ParseFragment();
 
         fragments.Should().ContainKey("access_token");
         fragments.Should().ContainKey("scope")
             .WhoseValue.Should().Contain("openid")
-            .And.Contain("urn%3Avalid.resource%3ARead")
+            .And.Contain("urn:valid.resource:Read")
             .And.NotContain("valid%3ARead");
     }
 
