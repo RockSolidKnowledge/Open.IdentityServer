@@ -66,7 +66,7 @@ public class DefaultResourceValidator : IResourceValidator
 
         if (request.ResourceIndicators != null && request.ResourceIndicators.Any())
         {
-            await ValidateResourceIndicators(request.ResourceIndicators, resourcesFromStore, result);
+            ValidateResourceIndicators(request.ResourceIndicators, resourcesFromStore, result);
         }
 
         if (result.InvalidScopes.Count > 0 || result.InvalidResourceIndicators.Count > 0)
@@ -86,12 +86,13 @@ public class DefaultResourceValidator : IResourceValidator
     /// <param name="resourceIndicators"></param>
     /// <param name="resources"></param>
     /// <param name="result"></param>
-    protected virtual async Task ValidateResourceIndicators(IEnumerable<string> resourceIndicators, Resources resources,
+    protected virtual void ValidateResourceIndicators(IEnumerable<string> resourceIndicators, Resources resources,
         ResourceValidationResult result)
     {
         foreach (var resourceIndicator in resourceIndicators)
         {
-            if (resources.ApiResources.All(x => x.Name != resourceIndicator))
+            var exists = resources.ApiResources.Any(x => x.Name == resourceIndicator);
+            if (!exists)
             {
                 result.InvalidResourceIndicators.Add(resourceIndicator);
             }

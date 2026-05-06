@@ -104,7 +104,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
             return mandatoryResult;
         }
 
-        // scope, scope restrictions and plausability
+        // scope, resource indicators, scope restrictions and plausability
         var scopeResult = await ValidateScopeAsync(request);
         if (scopeResult.IsError)
         {
