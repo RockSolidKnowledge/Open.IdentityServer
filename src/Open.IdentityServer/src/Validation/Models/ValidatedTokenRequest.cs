@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
 using Open.IdentityServer.Models;
 using System.Collections.Generic;
 
@@ -19,7 +18,7 @@ public class ValidatedTokenRequest : ValidatedRequest
     /// The type of the grant.
     /// </value>
     public string GrantType { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the scopes.
     /// </summary>
@@ -35,7 +34,7 @@ public class ValidatedTokenRequest : ValidatedRequest
     /// The name of the user.
     /// </value>
     public string UserName { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the refresh token.
     /// </summary>
@@ -43,7 +42,7 @@ public class ValidatedTokenRequest : ValidatedRequest
     /// The refresh token.
     /// </value>
     public RefreshToken RefreshToken { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the refresh token handle.
     /// </summary>
@@ -83,4 +82,12 @@ public class ValidatedTokenRequest : ValidatedRequest
     /// The device code.
     /// </value>
     public DeviceCode DeviceCode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the requested resource indicator
+    /// </summary>
+    /// <value>
+    /// The resource indicator
+    /// </value>
+    public string RequestedResourceIndicator { get; set; }
 }

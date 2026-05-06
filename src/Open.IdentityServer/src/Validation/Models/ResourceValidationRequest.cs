@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using Open.IdentityServer.Models;
 using System.Collections.Generic;
@@ -22,9 +22,8 @@ public class ResourceValidationRequest
     /// </summary>
     public IEnumerable<string> Scopes { get; set; }
 
-    // /// <summary>
-    // /// The requested resource indicators.
-    // /// </summary>
-    //  todo: add back when we support resource indicators
-    // public IEnumerable<string> ResourceIndicators { get; set; }
+    /// <summary>
+    /// The requested resource indicators.
+    /// </summary>
+    public IEnumerable<string> ResourceIndicators { get; set; }
 }

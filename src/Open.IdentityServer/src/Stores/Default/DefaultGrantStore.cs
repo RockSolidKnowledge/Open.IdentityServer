@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
@@ -127,7 +127,7 @@ public class DefaultGrantStore<T>
     /// <returns></returns>
     protected virtual async Task<string> CreateItemAsync(T item, string clientId, string subjectId, string sessionId, string description, DateTime created, int lifetime)
     {
-        var handle = await HandleGenerationService.GenerateAsync();
+        var handle = await HandleGenerationService.GenerateAsync() + HexEncodingSuffix;
         await StoreItemAsync(handle, item, clientId, subjectId, sessionId, description, created, created.AddSeconds(lifetime));
         return handle;
     }

@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System;
 using System.Collections.Generic;
@@ -8,12 +8,9 @@ using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Open.IdentityModel;
-using Open.IdentityServer.Logging.Models;
 using Open.IdentityServer.Validation;
-using Microsoft.AspNetCore.Authentication;
 
 namespace Open.IdentityServer.Services;
 
@@ -93,7 +90,7 @@ public class DefaultRefreshTokenService : IRefreshTokenService
             Logger.LogWarning("Refresh token has expired.");
             return invalidGrant;
         }
-            
+
         /////////////////////////////////////////////
         // check if client belongs to requested refresh token
         /////////////////////////////////////////////
@@ -111,7 +108,7 @@ public class DefaultRefreshTokenService : IRefreshTokenService
             Logger.LogError("{clientId} does not have access to offline_access scope anymore", client.ClientId);
             return invalidGrant;
         }
-            
+
         /////////////////////////////////////////////
         // check if refresh token has been consumed
         /////////////////////////////////////////////
@@ -123,7 +120,7 @@ public class DefaultRefreshTokenService : IRefreshTokenService
                 return invalidGrant;
             }
         }
-            
+
         /////////////////////////////////////////////
         // make sure user is enabled
         /////////////////////////////////////////////
@@ -139,11 +136,11 @@ public class DefaultRefreshTokenService : IRefreshTokenService
             Logger.LogError("{subjectId} has been disabled", refreshToken.Subject.GetSubjectId());
             return invalidGrant;
         }
-            
+
         return new TokenValidationResult
         {
-            IsError = false, 
-            RefreshToken = refreshToken, 
+            IsError = false,
+            RefreshToken = refreshToken,
             Client = client
         };
     }
@@ -164,35 +161,33 @@ public class DefaultRefreshTokenService : IRefreshTokenService
     /// <summary>
     /// Creates the refresh token.
     /// </summary>
-    /// <param name="subject">The subject.</param>
-    /// <param name="accessToken">The access token.</param>
-    /// <param name="client">The client.</param>
+    /// <param name="request">The refresh token creation request</param>
     /// <returns>
     /// The refresh token handle
     /// </returns>
-    public virtual async Task<string> CreateRefreshTokenAsync(ClaimsPrincipal subject, Token accessToken,
-        Client client)
+    public virtual async Task<string> CreateRefreshTokenAsync(RefreshTokenCreationRequest request)
     {
         Logger.LogDebug("Creating refresh token");
 
         int lifetime;
-        if (client.RefreshTokenExpiration == TokenExpiration.Absolute)
+        if (request.Client.RefreshTokenExpiration == TokenExpiration.Absolute)
         {
-            Logger.LogDebug("Setting an absolute lifetime: {absoluteLifetime}",
-                client.AbsoluteRefreshTokenLifetime);
-            lifetime = client.AbsoluteRefreshTokenLifetime;
+            Logger.LogDebug("Setting an absolute lifetime: {AbsoluteLifetime}",
+                request.Client.AbsoluteRefreshTokenLifetime);
+            lifetime = request.Client.AbsoluteRefreshTokenLifetime;
         }
         else
         {
-            lifetime = client.SlidingRefreshTokenLifetime;
-            if (client.AbsoluteRefreshTokenLifetime > 0 && lifetime > client.AbsoluteRefreshTokenLifetime)
+            lifetime = request.Client.SlidingRefreshTokenLifetime;
+            if (request.Client.AbsoluteRefreshTokenLifetime > 0 &&
+                lifetime > request.Client.AbsoluteRefreshTokenLifetime)
             {
                 Logger.LogWarning(
-                    "Client {clientId}'s configured " + nameof(client.SlidingRefreshTokenLifetime) +
-                    " of {slidingLifetime} exceeds its " + nameof(client.AbsoluteRefreshTokenLifetime) +
+                    "Client {clientId}'s configured " + nameof(request.Client.SlidingRefreshTokenLifetime) +
+                    " of {slidingLifetime} exceeds its " + nameof(request.Client.AbsoluteRefreshTokenLifetime) +
                     " of {absoluteLifetime}. The refresh_token's sliding lifetime will be capped to the absolute lifetime",
-                    client.ClientId, lifetime, client.AbsoluteRefreshTokenLifetime);
-                lifetime = client.AbsoluteRefreshTokenLifetime;
+                    request.Client.ClientId, lifetime, request.Client.AbsoluteRefreshTokenLifetime);
+                lifetime = request.Client.AbsoluteRefreshTokenLifetime;
             }
 
             Logger.LogDebug("Setting a sliding lifetime: {slidingLifetime}", lifetime);
@@ -200,17 +195,18 @@ public class DefaultRefreshTokenService : IRefreshTokenService
 
         var refreshToken = new RefreshToken
         {
-            CreationTime = Clock.GetUtcNow().UtcDateTime, 
+            CreationTime = Clock.GetUtcNow().UtcDateTime,
             Lifetime = lifetime,
-            Subject = subject,
-            ClientId = accessToken.ClientId,
-            SessionId = accessToken.SessionId,
-            Description = accessToken.Description,
-            AuthorizedScopes = accessToken.Scopes,
+            Subject = request.Subject,
+            ClientId = request.AccessToken.ClientId,
+            SessionId = request.AccessToken.SessionId,
+            Description = request.AccessToken.Description,
+            AuthorizedScopes = request.AccessToken.Scopes,
             AccessTokens = new Dictionary<string, Token>
             {
-                {string.Empty, accessToken}
+                { request.RequestedResourceIndicator ?? string.Empty, request.AccessToken }
             },
+            AuthorizedResourceIndicators = request.AuthorisedResourceIndicators,
         };
 
         var handle = await RefreshTokenStore.StoreRefreshTokenAsync(refreshToken);
@@ -236,7 +232,8 @@ public class DefaultRefreshTokenService : IRefreshTokenService
 
         if (client.RefreshTokenUsage == TokenUsage.OneTimeOnly)
         {
-            Logger.LogDebug("Token usage is one-time only. Setting current handle as consumed, and generating new handle");
+            Logger.LogDebug(
+                "Token usage is one-time only. Setting current handle as consumed, and generating new handle");
 
             // flag as consumed
             if (refreshToken.ConsumedTime == null)

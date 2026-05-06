@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System.Collections.Generic;
 using Open.IdentityServer;
@@ -25,7 +25,13 @@ internal class TestClients
                 },
 
                 AllowedGrantTypes = GrantTypes.Code,
-                AllowedScopes = { "openid", "profile", "resource", "resource2" },
+                AllowedScopes =
+                [
+                    "openid", "profile", "resource", "resource2",
+                    "urn:valid.resource:Read", "urn:valid.resource:Write", "urn:valid.resource:All",
+                    "valid:Read", "valid:Write", "valid:All",
+                    "All",
+                ],
 
                 RequireConsent = false,
                 RequirePkce = false,
@@ -35,7 +41,7 @@ internal class TestClients
                     "https://server/cb"
                 },
 
-                AuthorizationCodeLifetime = 60
+                AuthorizationCodeLifetime = 60,
             },
             new Client
             {
@@ -118,7 +124,12 @@ internal class TestClients
                 },
 
                 AllowedGrantTypes = GrantTypes.Hybrid,
-                AllowedScopes = { "openid", "profile", "resource", "resource2" },
+                AllowedScopes =
+                [
+                    "openid", "profile", "resource", "resource2",
+                    "urn:valid.resource:Read", "urn:valid.resource:Write", "urn:valid.resource:All",
+                    "valid:Read", "valid:Write", "valid:All", "All",
+                ],
                 AllowAccessTokensViaBrowser = true,
 
                 RequireConsent = false,
@@ -185,7 +196,12 @@ internal class TestClients
                 ClientId = "implicitclient",
 
                 AllowedGrantTypes = GrantTypes.Implicit,
-                AllowedScopes = { "openid", "profile", "resource", "resource2" },
+                AllowedScopes =
+                [
+                    "openid", "profile", "resource", "resource2",
+                    "urn:valid.resource:Read", "urn:valid.resource:Write", "urn:valid.resource:All",
+                    "valid:Read", "valid:Write", "valid:All", "All",
+                ],
                 AllowAccessTokensViaBrowser = true,
 
                 RequireConsent = false,
@@ -265,7 +281,13 @@ internal class TestClients
                 },
 
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
-                AllowedScopes = { "openid", "profile", "resource", "resource2" },
+                AllowedScopes =
+                [
+                    "openid", "profile", "resource", "resource2",
+                    "urn:valid.resource:Read", "urn:valid.resource:Write", "urn:valid.resource:All",
+                    "valid:Read", "valid:Write", "valid:All",
+                    "All",
+                ],
 
                 AllowOfflineAccess = true,
 
@@ -299,7 +321,13 @@ internal class TestClients
                 },
 
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                AllowedScopes = { "openid", "profile", "resource", "resource2" },
+                AllowedScopes =
+                [
+                    "openid", "profile", "resource", "resource2",
+                    "urn:valid.resource:Read", "urn:valid.resource:Write", "urn:valid.resource:All",
+                    "valid:Read", "valid:Write", "valid:All",
+                    "All",
+                ],
                 AllowOfflineAccess = true
             },
             new Client
@@ -470,7 +498,7 @@ internal class TestClients
                 AllowedGrantTypes = GrantTypes.Implicit,
                 Enabled = true,
                 AllowedScopes = { "openid", "profile", "resource", "resource2" },
-                RedirectUris = { "http://wsfed/callback"  }
+                RedirectUris = { "http://wsfed/callback" }
             },
             new Client
             {
@@ -496,14 +524,18 @@ internal class TestClients
                 ClientId = "implicit_and_client_creds",
                 AllowedGrantTypes = GrantTypes.ImplicitAndClientCredentials,
                 RedirectUris = { "https://notused" },
-                AllowedScopes = {"api1"}
+                AllowedScopes = { "api1" }
             },
             new Client
             {
                 ClientId = "device_flow",
                 ClientName = "Device Flow Client",
                 AllowedGrantTypes = GrantTypes.DeviceFlow,
-                AllowedScopes = { "openid", "profile", "resource" },
+                AllowedScopes =
+                [
+                    "openid", "profile", "resource",
+                    "urn:valid.resource:Read", "urn:valid.resource:Write",
+                ],
                 AllowOfflineAccess = true,
                 ClientSecrets = new List<Secret>
                 {

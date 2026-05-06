@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System.Collections.Generic;
 using Open.IdentityServer.Configuration;
@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Open.IdentityModel;
 using System.Linq;
 using System;
+using Open.IdentityServer.Extensions;
 
 namespace Open.IdentityServer.Validation;
 
@@ -75,7 +76,7 @@ public class ValidatedRequest
     /// The session identifier.
     /// </value>
     public string SessionId { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the identity server options.
     /// </summary>
@@ -125,5 +126,20 @@ public class ValidatedRequest
         AccessTokenLifetime = client.AccessTokenLifetime;
         AccessTokenType = client.AccessTokenType;
         ClientClaims = client.Claims.Select(c => new Claim(c.Type, c.Value, c.ValueType)).ToList();
+    }
+    
+    /// <summary>
+    /// Gets the list of resource indicators provided in the raw request.
+    /// </summary>
+    /// <returns>list of resource indicators, empty if missing</returns>
+    public List<string> GetResourceIndicators()
+    {
+        var resourceRaw = Raw.Get(OidcConstants.AuthorizeRequest.Resource);
+        if (!resourceRaw.IsMissing())
+        {
+            return resourceRaw.FromSeparatedString().Distinct().ToList();
+        }
+
+        return [];
     }
 }

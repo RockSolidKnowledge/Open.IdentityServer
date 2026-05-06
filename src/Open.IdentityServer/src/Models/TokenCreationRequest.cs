@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using Open.IdentityServer.Validation;
 using System;
@@ -84,6 +84,14 @@ public class TokenCreationRequest
     /// The description.
     /// </value>
     public string Description { get; set; }
+    
+    /// <summary>
+    /// Gets or sets value indicating if resource indicators have been used
+    /// </summary>
+    /// <value>
+    /// The bool value <c>true</c> if reource indicators used, otherwise <c>false</c>
+    /// </value>
+    public bool ResourceIndicatorsUsed { get; set; }
 
     /// <summary>
     /// Called to validate the <see cref="TokenCreationRequest"/> before it is processed.

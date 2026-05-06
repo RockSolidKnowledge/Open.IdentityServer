@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System.Collections.Specialized;
 using System.Linq;
@@ -51,11 +51,23 @@ public class TokenRequestValidation_ClientCredentials_Invalid
         var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
         result.IsError.Should().BeFalse();
-        result.ValidatedRequest.ValidatedResources.Resources.ApiResources.Count.Should().Be(1);
-        result.ValidatedRequest.ValidatedResources.Resources.ApiResources.First().Name.Should().Be("api");
+        result.ValidatedRequest.ValidatedResources.Resources.ApiResources
+            .Should().ContainSingle(x => x.Name == "urn:valid.resource")
+            .And.ContainSingle(x => x.Name == "https://valid.resource.com")
+            .And.ContainSingle(x => x.Name == "api")
+            .And.HaveCount(3);
 
-        result.ValidatedRequest.ValidatedResources.Resources.ApiScopes.Count.Should().Be(2);
-        result.ValidatedRequest.ValidatedResources.Resources.ApiScopes.Select(x=>x.Name).Should().BeEquivalentTo(new[] { "resource", "resource2" });
+        result.ValidatedRequest.ValidatedResources.Resources.ApiScopes
+            .Should().ContainSingle(x => x.Name == "valid:Read")
+            .And.ContainSingle(x => x.Name == "valid:Write")
+            .And.ContainSingle(x => x.Name == "valid:All")
+            .And.ContainSingle(x => x.Name == "urn:valid.resource:Read")
+            .And.ContainSingle(x => x.Name == "urn:valid.resource:Write")
+            .And.ContainSingle(x => x.Name == "urn:valid.resource:All")
+            .And.ContainSingle(x => x.Name == "All")
+            .And.ContainSingle(x => x.Name == "resource")
+            .And.ContainSingle(x => x.Name == "resource2")
+            .And.HaveCount(9);
     }
 
     [Fact]
@@ -64,7 +76,7 @@ public class TokenRequestValidation_ClientCredentials_Invalid
     {
         var client = await _clients.FindEnabledClientByIdAsync("client");
         var validator = Factory.CreateTokenRequestValidator();
-            
+
         var parameters = new NameValueCollection();
         parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials);
         parameters.Add(OidcConstants.TokenRequest.Scope, "unknown");

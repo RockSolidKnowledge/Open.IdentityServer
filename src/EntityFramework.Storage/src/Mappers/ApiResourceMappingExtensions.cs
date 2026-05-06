@@ -1,3 +1,6 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 using System.Linq;
 
 namespace Open.IdentityServer.EntityFramework.Mappers;
@@ -31,6 +34,7 @@ public static class ApiResourceMappingExtensions
                 ApiSecrets = apiResourceEntity.Secrets.ToModel(),
                 Scopes = apiResourceEntity.Scopes?.Select(x => x.Scope).ToList() ?? [],
                 AllowedAccessTokenSigningAlgorithms = apiResourceEntity.AllowedAccessTokenSigningAlgorithms.ToCollectionUsingSepator(),
+                RequireResourceIndicator = apiResourceEntity.RequireResourceIndicator, 
             };
         }
     }
@@ -58,7 +62,8 @@ public static class ApiResourceMappingExtensions
                 Properties = apiResourceModel.Properties.ToEntityList<Entities.ApiResourceProperty>(),
                 Secrets = apiResourceModel.ApiSecrets.ToEntity<Entities.ApiResourceSecret>(),
                 Scopes = apiResourceModel.Scopes.Select(scope => new Entities.ApiResourceScope { Scope = scope }).ToList(),
-                AllowedAccessTokenSigningAlgorithms = apiResourceModel.AllowedAccessTokenSigningAlgorithms.ToSeparatedString()
+                AllowedAccessTokenSigningAlgorithms = apiResourceModel.AllowedAccessTokenSigningAlgorithms.ToSeparatedString(),
+                RequireResourceIndicator = apiResourceModel.RequireResourceIndicator,
             };
         }
     }

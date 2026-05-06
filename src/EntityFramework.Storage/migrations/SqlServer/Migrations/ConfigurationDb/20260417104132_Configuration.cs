@@ -26,7 +26,8 @@ public partial class Configuration : Migration
                 Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                 Updated = table.Column<DateTime>(type: "datetime2", nullable: true),
                 LastAccessed = table.Column<DateTime>(type: "datetime2", nullable: true),
-                NonEditable = table.Column<bool>(type: "bit", nullable: false)
+                NonEditable = table.Column<bool>(type: "bit", nullable: false),
+                RequireResourceIndicator = table.Column<bool>(type: "bit", nullable: false)
             },
             constraints: table =>
             {

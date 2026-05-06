@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 #nullable enable
@@ -108,20 +109,6 @@ public class RefreshToken
     /// Resource-specific access tokens dictionary
     /// </summary>
     public Dictionary<string, Token> AccessTokens { get; set; } = new();
-
-    /// <summary>
-    /// Gets access token in dictionary with resourceId as key
-    /// </summary>
-    /// <param name="resourceId">resource identifier to use as key, defaults to string.Empty</param>
-    /// <returns></returns>
-    public Token? GetAccessToken(string? resourceId) => AccessTokens.GetValueOrDefault(resourceId ?? string.Empty);
-
-    /// <summary>
-    /// Sets access token in dictionary with resourceId as key
-    /// </summary>
-    /// <param name="token">token to store</param>
-    /// <param name="resourceId">resource identifier to use as key, defaults to string.Empty</param>
-    public void SetAccessToken(Token token, string? resourceId) => AccessTokens[resourceId ?? string.Empty] = token;
 
     /// <summary>
     /// List of authorized resource indicators, null means no restrictions, while having a value restricts usage to

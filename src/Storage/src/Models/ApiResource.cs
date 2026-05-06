@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using Open.IdentityServer.Extensions;
 using System;
@@ -90,4 +90,9 @@ public class ApiResource : Resource
     /// Signing algorithm for access token. If empty, will use the server default signing algorithm.
     /// </summary>
     public ICollection<string> AllowedAccessTokenSigningAlgorithms { get; set; } = new HashSet<string>();
+
+    /// <summary>
+    /// Setting indicating if the resource indicator is needed to be present in 'aud' claim
+    /// </summary>
+    public bool RequireResourceIndicator { get; set; } 
 }

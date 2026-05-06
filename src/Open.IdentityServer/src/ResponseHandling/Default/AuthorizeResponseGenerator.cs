@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -90,10 +91,12 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
         {
             return await CreateCodeFlowResponseAsync(request);
         }
+
         if (request.GrantType == GrantType.Implicit)
         {
             return await CreateImplicitFlowResponseAsync(request);
         }
+
         if (request.GrantType == GrantType.Hybrid)
         {
             return await CreateHybridFlowResponseAsync(request);
@@ -160,12 +163,14 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
 
         if (responseTypes.Contains(OidcConstants.ResponseTypes.Token))
         {
+            request.ValidatedResources.DownscopeWhenResourceIndicators(request);
+            
             var tokenRequest = new TokenCreationRequest
             {
                 Subject = request.Subject,
                 ValidatedResources = request.ValidatedResources,
-
-                ValidatedRequest = request
+                ValidatedRequest = request,
+                ResourceIndicatorsUsed = request.RequestedResourceIndicators.Count != 0,
             };
 
             var accessToken = await TokenService.CreateAccessTokenAsync(tokenRequest);
@@ -199,7 +204,7 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
                 IncludeAllIdentityClaims = !request.AccessTokenRequested,
                 AccessTokenToHash = accessTokenValue,
                 AuthorizationCodeToHash = authorizationCode,
-                StateHash = stateHash
+                StateHash = stateHash,
             };
 
             var idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
@@ -255,7 +260,9 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
             Nonce = request.Nonce,
             StateHash = stateHash,
 
-            WasConsentShown = request.WasConsentShown
+            WasConsentShown = request.WasConsentShown,
+
+            RequestedResourceIndicators = request.RequestedResourceIndicators,
         };
 
         return code;

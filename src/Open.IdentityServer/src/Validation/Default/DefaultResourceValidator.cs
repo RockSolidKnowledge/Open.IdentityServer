@@ -1,11 +1,11 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,7 +26,8 @@ public class DefaultResourceValidator : IResourceValidator
     /// <param name="store">The store.</param>
     /// <param name="scopeParser"></param>
     /// <param name="logger">The logger.</param>
-    public DefaultResourceValidator(IResourceStore store, IScopeParser scopeParser, ILogger<DefaultResourceValidator> logger)
+    public DefaultResourceValidator(IResourceStore store, IScopeParser scopeParser,
+        ILogger<DefaultResourceValidator> logger)
     {
         _logger = logger;
         _scopeParser = scopeParser;
@@ -34,19 +35,21 @@ public class DefaultResourceValidator : IResourceValidator
     }
 
     /// <inheritdoc/>
-    public virtual async Task<ResourceValidationResult> ValidateRequestedResourcesAsync(ResourceValidationRequest request)
+    public virtual async Task<ResourceValidationResult> ValidateRequestedResourcesAsync(
+        ResourceValidationRequest request)
     {
         if (request == null) throw new ArgumentNullException(nameof(request));
 
         var parsedScopesResult = _scopeParser.ParseScopeValues(request.Scopes);
 
         var result = new ResourceValidationResult();
-            
+
         if (!parsedScopesResult.Succeeded)
         {
             foreach (var invalidScope in parsedScopesResult.Errors)
             {
-                _logger.LogError("Invalid parsed scope {scope}, message: {error}", invalidScope.RawValue, invalidScope.Error);
+                _logger.LogError("Invalid parsed scope {scope}, message: {error}", invalidScope.RawValue,
+                    invalidScope.Error);
                 result.InvalidScopes.Add(invalidScope.RawValue);
             }
 
@@ -61,7 +64,12 @@ public class DefaultResourceValidator : IResourceValidator
             await ValidateScopeAsync(request.Client, resourcesFromStore, scope, result);
         }
 
-        if (result.InvalidScopes.Count > 0)
+        if (request.ResourceIndicators != null && request.ResourceIndicators.Any())
+        {
+            ValidateResourceIndicators(request.ResourceIndicators, resourcesFromStore, result);
+        }
+
+        if (result.InvalidScopes.Count > 0 || result.InvalidResourceIndicators.Count > 0)
         {
             result.Resources.IdentityResources.Clear();
             result.Resources.ApiResources.Clear();
@@ -73,6 +81,25 @@ public class DefaultResourceValidator : IResourceValidator
     }
 
     /// <summary>
+    /// Validates that the requested resource indicators exist and are accessible to the client.
+    /// </summary>
+    /// <param name="resourceIndicators"></param>
+    /// <param name="resources"></param>
+    /// <param name="result"></param>
+    protected virtual void ValidateResourceIndicators(IEnumerable<string> resourceIndicators, Resources resources,
+        ResourceValidationResult result)
+    {
+        foreach (var resourceIndicator in resourceIndicators)
+        {
+            var exists = resources.ApiResources.Any(x => x.Name == resourceIndicator);
+            if (!exists)
+            {
+                result.InvalidResourceIndicators.Add(resourceIndicator);
+            }
+        }
+    }
+
+    /// <summary>
     /// Validates that the requested scopes is contained in the store, and the client is allowed to request it.
     /// </summary>
     /// <param name="client"></param>
@@ -81,9 +108,9 @@ public class DefaultResourceValidator : IResourceValidator
     /// <param name="result"></param>
     /// <returns></returns>
     protected virtual async Task ValidateScopeAsync(
-        Client client, 
-        Resources resourcesFromStore, 
-        ParsedScopeValue requestedScope, 
+        Client client,
+        Resources resourcesFromStore,
+        ParsedScopeValue requestedScope,
         ResourceValidationResult result)
     {
         if (requestedScope.ParsedName == IdentityServerConstants.StandardScopes.OfflineAccess)
@@ -156,6 +183,7 @@ public class DefaultResourceValidator : IResourceValidator
         {
             _logger.LogError("Client {client} is not allowed access to scope {scope}.", client.ClientId, identity.Name);
         }
+
         return Task.FromResult(allowed);
     }
 
@@ -172,6 +200,7 @@ public class DefaultResourceValidator : IResourceValidator
         {
             _logger.LogError("Client {client} is not allowed access to scope {scope}.", client.ClientId, apiScope.Name);
         }
+
         return Task.FromResult(allowed);
     }
 
@@ -185,8 +214,11 @@ public class DefaultResourceValidator : IResourceValidator
         var allowed = client.AllowOfflineAccess;
         if (!allowed)
         {
-            _logger.LogError("Client {client} is not allowed access to scope offline_access (via AllowOfflineAccess setting).", client.ClientId);
+            _logger.LogError(
+                "Client {client} is not allowed access to scope offline_access (via AllowOfflineAccess setting).",
+                client.ClientId);
         }
+
         return Task.FromResult(allowed);
     }
 }

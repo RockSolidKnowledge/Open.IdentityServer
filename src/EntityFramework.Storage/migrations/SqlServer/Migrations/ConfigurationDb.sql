@@ -21,6 +21,7 @@ CREATE TABLE [ApiResources] (
     [Updated] datetime2 NULL,
     [LastAccessed] datetime2 NULL,
     [NonEditable] bit NOT NULL,
+    [RequireResourceIndicator] bit NOT NULL,
     CONSTRAINT [PK_ApiResources] PRIMARY KEY ([Id])
 );
 
@@ -291,7 +292,7 @@ CREATE INDEX [IX_IdentityResourceProperties_IdentityResourceId] ON [IdentityReso
 CREATE UNIQUE INDEX [IX_IdentityResources_Name] ON [IdentityResources] ([Name]);
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260327102653_Configuration', N'10.0.5');
+VALUES (N'20260417104132_Configuration', N'10.0.5');
 
 COMMIT;
 GO

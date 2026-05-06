@@ -1,4 +1,9 @@
 ﻿BEGIN TRANSACTION;
+
+-- Configurations Schema
+ALTER TABLE [ApiResources] ADD [RequireResourceIndicator] bit NOT NULL DEFAULT CAST(0 AS bit);
+
+-- Grants Schema
 ALTER TABLE [PersistedGrants] DROP CONSTRAINT [PK_PersistedGrants];
 
 DECLARE @var nvarchar(max);
@@ -14,9 +19,6 @@ ALTER TABLE [PersistedGrants] ADD [Id] bigint NOT NULL IDENTITY;
 ALTER TABLE [PersistedGrants] ADD CONSTRAINT [PK_PersistedGrants] PRIMARY KEY ([Id]);
 
 CREATE UNIQUE INDEX [IX_PersistedGrants_Key] ON [PersistedGrants] ([Key]) WHERE [Key] IS NOT NULL;
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260325140642_Grants_OpenIdS', N'10.0.5');
 
 COMMIT;
 GO

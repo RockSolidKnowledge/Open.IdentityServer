@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using Open.IdentityModel;
 using System.Collections.Generic;
@@ -53,6 +53,14 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
     /// </value>
     // todo: consider replacing with extension method to access Raw collection; would neeed to be done wholesale for all props.
     public List<string> RequestedScopes { get; set; }
+
+    /// <summary>
+    /// Gets or sets the requested resource indicators
+    /// </summary>
+    /// <value>
+    /// The request resource indicators
+    /// </value>
+    public List<string> RequestedResourceIndicators { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether consent was shown.
@@ -181,7 +189,7 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
     /// The request object
     /// </value>
     public string RequestObject { get; set; }
-        
+
     /// <summary>
     /// Gets a value indicating whether an access token was requested.
     /// </summary>
@@ -195,13 +203,13 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
                                         ResponseType == OidcConstants.ResponseTypes.CodeIdTokenToken;
 
 
-
     /// <summary>
     /// Initializes a new instance of the <see cref="ValidatedAuthorizeRequest"/> class.
     /// </summary>
     public ValidatedAuthorizeRequest()
     {
-        RequestedScopes = new List<string>();
-        AuthenticationContextReferenceClasses = new List<string>();
+        RequestedScopes = [];
+        RequestedResourceIndicators = [];
+        AuthenticationContextReferenceClasses = [];
     }
 }

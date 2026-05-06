@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using Microsoft.AspNetCore.WebUtilities;
 using System;
@@ -31,6 +31,13 @@ internal static class StringExtensions
         }
 
         return sb.ToString().Trim();
+    }
+
+    [DebuggerStepThrough]
+    public static IEnumerable<string> FromSeparatedString(this string input)
+    {
+        input = input.Trim();
+        return input.Split([' ', ','], StringSplitOptions.RemoveEmptyEntries).ToList();
     }
 
     [DebuggerStepThrough]
@@ -72,6 +79,7 @@ internal static class StringExtensions
         {
             return true;
         }
+
         if (value.Length > maxLength)
         {
             return true;
@@ -247,6 +255,7 @@ internal static class StringExtensions
             {
                 url = url.Substring(idx + 1);
             }
+
             var query = QueryHelpers.ParseNullableQuery(url);
             if (query != null)
             {
@@ -254,7 +263,7 @@ internal static class StringExtensions
             }
         }
 
-        return new NameValueCollection();           
+        return new NameValueCollection();
     }
 
     public static string GetOrigin(this string url)
@@ -279,7 +288,7 @@ internal static class StringExtensions
 
         return null;
     }
-        
+
     public static string Obfuscate(this string value)
     {
         var last4Chars = "****";
@@ -289,5 +298,22 @@ internal static class StringExtensions
         }
 
         return "****" + last4Chars;
+    }
+
+    [DebuggerStepThrough]
+    public static bool InValidResourceIndicatorString(this string value)
+    {
+        if (!Uri.IsWellFormedUriString(value, UriKind.Absolute))
+        {
+            return true;
+        }
+
+        Uri resourceUri = new Uri(value);
+        if (resourceUri.Query.IsPresent() || resourceUri.Fragment.IsPresent())
+        {
+            return true;
+        }
+
+        return false;
     }
 }

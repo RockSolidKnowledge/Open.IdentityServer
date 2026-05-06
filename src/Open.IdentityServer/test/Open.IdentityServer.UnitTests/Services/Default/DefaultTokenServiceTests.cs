@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System.Linq;
 using System.Threading.Tasks;
@@ -58,7 +58,7 @@ public class DefaultTokenServiceTests
                 {
                     ApiResources = 
                     {
-                        new ApiResource("api1"){ Scopes = { "scope1" } },
+                        new ApiResource("api1"){ Scopes = { "scope1" }, RequireResourceIndicator = true },
                         new ApiResource("api2"){ Scopes = { "scope2" } },
                         new ApiResource("api3"){ Scopes = { "scope3" } },
                     },
@@ -73,13 +73,49 @@ public class DefaultTokenServiceTests
             ValidatedRequest = new ValidatedRequest()
             {
                 Client = new Client { }
-            }
+            },
+            ResourceIndicatorsUsed = true,
         };
 
         var result = await _subject.CreateAccessTokenAsync(request);
 
         result.Audiences.Count.Should().Be(3);
-        result.Audiences.Should().BeEquivalentTo(new[] { "api1", "api2", "api3" });
+        result.Audiences.Should().BeEquivalentTo("api1", "api2", "api3");
+    }
+
+    [Fact]
+    public async Task CreateAccessTokenAsync_WhenResourceIndicatorsNotSpecified_ShouldOnlyIncludeApiResourceInAudienceThatDontRequireThem()
+    {
+        var request = new TokenCreationRequest { 
+            ValidatedResources = new ResourceValidationResult()
+            {
+                Resources = new Resources()
+                {
+                    ApiResources = 
+                    {
+                        new ApiResource("api1"){ Scopes = { "scope1" }, RequireResourceIndicator = true },
+                        new ApiResource("api2"){ Scopes = { "scope2" } },
+                        new ApiResource("api3"){ Scopes = { "scope3" } },
+                    },
+                },
+                ParsedScopes =
+                {
+                    new ParsedScopeValue("scope1"),
+                    new ParsedScopeValue("scope2"),
+                    new ParsedScopeValue("scope3"),
+                }
+            },
+            ValidatedRequest = new ValidatedRequest()
+            {
+                Client = new Client { }
+            },
+            ResourceIndicatorsUsed = false,
+        };
+
+        var result = await _subject.CreateAccessTokenAsync(request);
+
+        result.Audiences.Count.Should().Be(2);
+        result.Audiences.Should().BeEquivalentTo("api2", "api3");
     }
 
     [Fact]

@@ -1,0 +1,124 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+using System.Collections.Specialized;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using AwesomeAssertions;
+using Moq;
+using Open.IdentityModel;
+using Open.IdentityServer.Models;
+using Open.IdentityServer.Validation;
+using Xunit;
+
+namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeResponseGenerator;
+
+public class AuthorizeResponseGeneratorTests_Implicit : AuthorizeResponseGeneratorTests
+{
+    [Fact]
+    public async Task CreateResponseAsync_ImplicitFlow_WithTokenResponseType_ReturnsAccessToken()
+    {
+        var request = CreateImplicitRequest(OidcConstants.ResponseTypes.Token);
+
+        var token = new Token { Lifetime = 3600 };
+        Mock.Get(tokenService)
+            .Setup(x => x.CreateAccessTokenAsync(It.IsAny<TokenCreationRequest>()))
+            .ReturnsAsync(token);
+        Mock.Get(tokenService)
+            .Setup(x => x.CreateSecurityTokenAsync(token))
+            .ReturnsAsync("access_token_value");
+
+        var sut = CreateSut();
+        var response = await sut.CreateResponseAsync(request);
+
+        response.AccessToken.Should().Be("access_token_value");
+        response.AccessTokenLifetime.Should().Be(3600);
+        response.Code.Should().BeNull();
+        response.IdentityToken.Should().BeNull();
+    }
+    
+    [Fact]
+    public async Task CreateResponseAsync_ImplicitFlow_WithTokenResponseType_AndResourceIndicators_ReturnsAccessToken()
+    {
+        var request = CreateImplicitRequest(OidcConstants.ResponseTypes.Token);
+        request.RequestedResourceIndicators = ["urn:fake.resource.one", "https://other.resource"];
+
+        var token = new Token { Lifetime = 3600 };
+        Mock.Get(tokenService)
+            .Setup(x => x.CreateAccessTokenAsync(It.IsAny<TokenCreationRequest>()))
+            .ReturnsAsync(token);
+        Mock.Get(tokenService)
+            .Setup(x => x.CreateSecurityTokenAsync(token))
+            .ReturnsAsync("access_token_value");
+
+        var sut = CreateSut();
+        var response = await sut.CreateResponseAsync(request);
+
+        response.AccessToken.Should().Be("access_token_value");
+        response.AccessTokenLifetime.Should().Be(3600);
+        response.Code.Should().BeNull();
+        response.IdentityToken.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task CreateResponseAsync_ImplicitFlow_WithIdTokenResponseType_ReturnsIdentityToken()
+    {
+        var request = CreateImplicitRequest(OidcConstants.ResponseTypes.IdToken);
+
+        var idToken = new Token();
+        Mock.Get(tokenService)
+            .Setup(x => x.CreateIdentityTokenAsync(It.IsAny<TokenCreationRequest>()))
+            .ReturnsAsync(idToken);
+        Mock.Get(tokenService)
+            .Setup(x => x.CreateSecurityTokenAsync(idToken))
+            .ReturnsAsync("id_token_jwt");
+
+        var sut = CreateSut();
+        var response = await sut.CreateResponseAsync(request);
+
+        response.IdentityToken.Should().Be("id_token_jwt");
+        response.AccessToken.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task CreateResponseAsync_ImplicitFlow_WithIdTokenAndToken_ReturnsBoth()
+    {
+        var request = CreateImplicitRequest($"{OidcConstants.ResponseTypes.IdToken} {OidcConstants.ResponseTypes.Token}");
+
+        var accessToken = new Token { Lifetime = 3600 };
+        Mock.Get(tokenService)
+            .Setup(x => x.CreateAccessTokenAsync(It.IsAny<TokenCreationRequest>()))
+            .ReturnsAsync(accessToken);
+        Mock.Get(tokenService)
+            .Setup(x => x.CreateSecurityTokenAsync(accessToken))
+            .ReturnsAsync("access_token_value");
+
+        var idToken = new Token();
+        Mock.Get(tokenService)
+            .Setup(x => x.CreateIdentityTokenAsync(It.IsAny<TokenCreationRequest>()))
+            .ReturnsAsync(idToken);
+        Mock.Get(tokenService)
+            .Setup(x => x.CreateSecurityTokenAsync(idToken))
+            .ReturnsAsync("id_token_jwt");
+
+        var sut = CreateSut();
+        var response = await sut.CreateResponseAsync(request);
+
+        response.AccessToken.Should().Be("access_token_value");
+        response.IdentityToken.Should().Be("id_token_jwt");
+    }
+
+    private static ValidatedAuthorizeRequest CreateImplicitRequest(string responseType) => new()
+    {
+        GrantType = GrantType.Implicit,
+        ResponseType = responseType,
+        Client = new Client
+        {
+            ClientId = "client",
+            AllowedIdentityTokenSigningAlgorithms = []
+        },
+        Subject = new ClaimsPrincipal(new ClaimsIdentity()),
+        ValidatedResources = new ResourceValidationResult(),
+        Raw = new NameValueCollection()
+    };
+}

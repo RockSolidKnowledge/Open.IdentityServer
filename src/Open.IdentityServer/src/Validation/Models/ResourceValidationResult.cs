@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -67,6 +68,11 @@ public class ResourceValidationResult
     public ICollection<string> InvalidScopes { get; set; } = new HashSet<string>();
 
     /// <summary>
+    /// The requested resource indicators that are invalid.
+    /// </summary>
+    public ICollection<string> InvalidResourceIndicators { get; set; } = new HashSet<string>();
+
+    /// <summary>
     /// Returns new result filted by the scope values.
     /// </summary>
     /// <param name="scopeValues"></param>
@@ -81,7 +87,7 @@ public class ResourceValidationResult
         var parsedScopeNamesToKeep = parsedScopesToKeep.Select(x => x.ParsedName).ToArray();
 
         var identityToKeep = Resources.IdentityResources.Where(x => parsedScopeNamesToKeep.Contains(x.Name));
-        var apiScopesToKeep = Resources.ApiScopes.Where(x => parsedScopeNamesToKeep.Contains(x.Name));
+        IEnumerable<ApiScope> apiScopesToKeep = Resources.ApiScopes.Where(x => parsedScopeNamesToKeep.Contains(x.Name));
 
         var apiScopesNamesToKeep = apiScopesToKeep.Select(x => x.Name).ToArray();
         var apiResourcesToKeep = Resources.ApiResources.Where(x => x.Scopes.Any(y => apiScopesNamesToKeep.Contains(y)));
@@ -90,11 +96,28 @@ public class ResourceValidationResult
         {
             OfflineAccess = offline
         };
-            
+
         return new ResourceValidationResult()
         {
             Resources = resources,
             ParsedScopes = parsedScopesToKeep
         };
+    }
+
+    /// <summary>
+    /// Filters resource validation result based on a list of resource indicators
+    /// </summary>
+    /// <param name="resourceIndicators">The resource indicators</param>
+    public void FilterUsingResourceIndicators(IEnumerable<string> resourceIndicators)
+    {
+        resourceIndicators ??= [];
+
+        var resourcesToKeep = Resources.ApiResources.Where(x => resourceIndicators.Contains(x.Name)).ToArray();
+        var allowedScopes = resourcesToKeep.SelectMany(x => x.Scopes).ToArray();
+        var scopesToKeep = Resources.ApiScopes.Where(x => allowedScopes.Contains(x.Name)).ToArray();
+
+        Resources.ApiResources = resourcesToKeep;
+        Resources.ApiScopes = scopesToKeep;
+        ParsedScopes = Resources.ToScopeNames().Select(x => new ParsedScopeValue(x)).ToList();
     }
 }

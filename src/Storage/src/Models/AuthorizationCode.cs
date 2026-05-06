@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System;
 using System.Collections.Generic;
@@ -35,7 +35,7 @@ public class AuthorizationCode
     /// <value>
     /// The ID of the client.
     /// </value>
-    public string ClientId { get; set; }
+    public string ClientId { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the subject.
@@ -43,7 +43,7 @@ public class AuthorizationCode
     /// <value>
     /// The subject.
     /// </value>
-    public ClaimsPrincipal Subject { get; set; }
+    public ClaimsPrincipal Subject { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets a value indicating whether this code is an OpenID Connect code.
@@ -52,15 +52,14 @@ public class AuthorizationCode
     /// <c>true</c> if this instance is open identifier; otherwise, <c>false</c>.
     /// </value>
     public bool IsOpenId { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the requested scopes.
     /// </summary>
     /// <value>
     /// The requested scopes.
     /// </value>
-    // todo: brock, change to parsed scopes
-    public IEnumerable<string> RequestedScopes { get; set; }
+    public IEnumerable<string> RequestedScopes { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the redirect URI.
@@ -68,7 +67,7 @@ public class AuthorizationCode
     /// <value>
     /// The redirect URI.
     /// </value>
-    public string RedirectUri { get; set; }
+    public string RedirectUri { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the nonce.
@@ -100,7 +99,7 @@ public class AuthorizationCode
     /// <value>
     /// The session identifier.
     /// </value>
-    public string SessionId { get; set; }
+    public string SessionId { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the code challenge.
@@ -133,4 +132,12 @@ public class AuthorizationCode
     /// The properties
     /// </value>
     public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+
+    /// <summary>
+    /// Gets or sets the requested resources indicators
+    /// </summary>
+    /// <value>
+    /// Requested resource indicators
+    /// </value>
+    public IEnumerable<string> RequestedResourceIndicators { get; set; }
 }

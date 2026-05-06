@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using Open.IdentityModel;
 using Open.IdentityServer.Configuration;
@@ -222,7 +222,9 @@ public class DefaultTokenService : ITokenService
         };
 
         // add aud based on ApiResources in the validated request
-        foreach (var aud in request.ValidatedResources.Resources.ApiResources.Select(x => x.Name).Distinct())
+        foreach (var aud in request.ValidatedResources.Resources.ApiResources
+                     .Where(x => !x.RequireResourceIndicator || request.ResourceIndicatorsUsed)
+                     .Select(x => x.Name).Distinct())
         {
             token.Audiences.Add(aud);
         }
