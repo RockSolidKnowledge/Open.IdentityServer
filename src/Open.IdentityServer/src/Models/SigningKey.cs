@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Open.IdentityServer.Models;
 
 /// <summary>
-/// 
+/// Information about a signing credential retrieved from IdentityServer database 
 /// </summary>
 public class SigningKey
 {

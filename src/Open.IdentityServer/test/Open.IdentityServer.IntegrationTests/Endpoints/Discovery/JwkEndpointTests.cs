@@ -6,12 +6,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.IntegrationTests.Common;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
-// using Open.IdentityServer.EntityFramework.DbContexts;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Xunit;
@@ -32,7 +30,7 @@ public class JwkEndpointTests
 
         IdentityServerPipeline pipeline = new IdentityServerPipeline();
 
-        var jsonWebKeyFromECDsa = new JsonWebKey()
+        var jsonWebKeyFromEcDsa = new JsonWebKey()
         {
             Kty = JsonWebAlgorithmsKeyTypes.EllipticCurve,
             Use = "sig",
@@ -48,12 +46,12 @@ public class JwkEndpointTests
         {
             // add ECDsa as JsonWebKey
             services.AddIdentityServerBuilder()
-                .AddSigningCredential(jsonWebKeyFromECDsa, SecurityAlgorithms.EcdsaSha256);
+                .AddSigningCredential(jsonWebKeyFromEcDsa, SecurityAlgorithms.EcdsaSha256);
         };
 
         pipeline.Initialize("/ROOT");
 
-        var result = await pipeline.BackChannelClient.GetAsync(
+        var result = await pipeline.BackChannelClient!.GetAsync(
             "https://server/root/.well-known/openid-configuration/jwks", 
             TestContext.Current.CancellationToken);
 
@@ -80,7 +78,7 @@ public class JwkEndpointTests
         IdentityServerPipeline pipeline = new IdentityServerPipeline();
         pipeline.Initialize("/ROOT");
 
-        var result = await pipeline.BackChannelClient.GetAsync(
+        var result = await pipeline.BackChannelClient!.GetAsync(
             "https://server/root/.well-known/openid-configuration/jwks",
             TestContext.Current.CancellationToken);
 
@@ -116,7 +114,7 @@ public class JwkEndpointTests
         };
         pipeline.Initialize("/ROOT");
 
-        var result = await pipeline.BackChannelClient.GetAsync(
+        var result = await pipeline.BackChannelClient!.GetAsync(
             "https://server/root/.well-known/openid-configuration/jwks", 
             TestContext.Current.CancellationToken);
 
@@ -144,7 +142,7 @@ public class JwkEndpointTests
         };
         pipeline.Initialize("/ROOT");
 
-        var result = await pipeline.BackChannelClient.GetAsync(
+        var result = await pipeline.BackChannelClient!.GetAsync(
             "https://server/root/.well-known/openid-configuration/jwks", 
             TestContext.Current.CancellationToken);
 
@@ -164,18 +162,11 @@ public class JwkEndpointTests
         {
             services.AddScoped<IIdentityServerKeyStore, FakeIdentityServerKeyStore>();
             services.AddIdentityServerBuilder()
-                // .AddIdentityServerCompatibilityStore<IdentityServerCompatibilityDbContext>(opt =>
-                // {
-                //     opt.ConfigureDbContext = cnf =>
-                //     {
-                //         cnf.UseSqlite("Data Source=Database/test-keys.db");
-                //     };
-                // })
                 .AddCompatibilityKeyStores();
         };
         pipeline.Initialize("/ROOT");
 
-        var result = await pipeline.BackChannelClient.GetAsync(
+        var result = await pipeline.BackChannelClient!.GetAsync(
             "https://server/root/.well-known/openid-configuration/jwks", 
             TestContext.Current.CancellationToken);
 

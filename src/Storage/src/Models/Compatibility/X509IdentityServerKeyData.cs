@@ -9,7 +9,7 @@ namespace Open.IdentityServer.Models;
 public class X509IdentityServerKeyData: IdentityServerKeyData
 {
     /// <summary>
-    /// 
+    /// X509Cert raw pfx base64 encoded
     /// </summary>
     public string CertificateRawData { get; set; }
 }
