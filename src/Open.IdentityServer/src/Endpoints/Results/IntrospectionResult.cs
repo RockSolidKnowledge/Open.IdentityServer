@@ -39,7 +39,6 @@ public class IntrospectionResult : IEndpointResult
     /// Executes the result.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
     public Task ExecuteAsync(HttpContext context)
     {
         context.Response.SetNoCache();

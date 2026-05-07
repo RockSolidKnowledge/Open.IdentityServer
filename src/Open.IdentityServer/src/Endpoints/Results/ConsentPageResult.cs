@@ -14,7 +14,7 @@ namespace Open.IdentityServer.Endpoints.Results;
 /// <summary>
 /// Result for consent page
 /// </summary>
-/// <seealso cref="Open.IdentityServer.Hosting.ReturnUrlResult" />
+/// <seealso cref="Open.IdentityServer.Endpoints.Results.ReturnUrlResult" />
 public class ConsentPageResult : ReturnUrlResult
 {
     /// <summary>
@@ -35,7 +35,6 @@ public class ConsentPageResult : ReturnUrlResult
     /// Executes the result.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
     public override async Task ExecuteAsync(HttpContext context)
     {
         Init(context);

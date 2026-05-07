@@ -18,13 +18,13 @@ public static class ICacheExtensions
     /// Attempts to get an item from the cache. If the item is not found, the <c>get</c> function is used to
     /// obtain the item and populate the cache.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of the cached item.</typeparam>
     /// <param name="cache">The cache.</param>
     /// <param name="key">The key.</param>
     /// <param name="duration">The duration.</param>
     /// <param name="get">The get function.</param>
     /// <param name="logger">The logger.</param>
-    /// <returns></returns>
+    /// <returns>The cached item if present, the result of invoking <paramref name="get"/> if not, or <see langword="null"/> when <paramref name="key"/> is <see langword="null"/> or the get function returns <see langword="null"/>.</returns>
     /// <exception cref="System.ArgumentNullException">cache
     /// or
     /// get</exception>

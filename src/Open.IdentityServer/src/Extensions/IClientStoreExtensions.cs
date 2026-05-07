@@ -17,7 +17,7 @@ public static class IClientStoreExtensions
     /// </summary>
     /// <param name="store">The store.</param>
     /// <param name="clientId">The client identifier.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the <see cref="Client"/> with the specified <paramref name="clientId"/> if it exists and is enabled; otherwise, <see langword="null"/>.</returns>
     public static async Task<Client> FindEnabledClientByIdAsync(this IClientStore store, string clientId)
     {
         var client = await store.FindClientByIdAsync(clientId);

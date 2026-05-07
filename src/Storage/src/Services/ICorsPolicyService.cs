@@ -15,6 +15,6 @@ public interface ICorsPolicyService
     /// Determines whether origin is allowed.
     /// </summary>
     /// <param name="origin">The origin.</param>
-    /// <returns></returns>
+    /// <returns><see langword="true"/> if the origin is allowed to make cross-origin requests; otherwise, <see langword="false"/>.</returns>
     Task<bool> IsOriginAllowedAsync(string origin);
 }

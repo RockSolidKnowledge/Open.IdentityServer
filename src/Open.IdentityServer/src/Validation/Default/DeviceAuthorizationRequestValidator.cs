@@ -32,6 +32,7 @@ internal class DeviceAuthorizationRequestValidator : IDeviceAuthorizationRequest
         _logger = logger;
     }
 
+    /// <inheritdoc/>
     public async Task<DeviceAuthorizationRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClientSecretValidationResult clientValidationResult)
     {
         _logger.LogDebug("Start device authorization request validation");

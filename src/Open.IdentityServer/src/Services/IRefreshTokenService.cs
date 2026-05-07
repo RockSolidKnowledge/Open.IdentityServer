@@ -18,7 +18,7 @@ public interface IRefreshTokenService
     /// </summary>
     /// <param name="token">The refresh token.</param>
     /// <param name="client">The client.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenValidationResult"/> indicating whether the refresh token is valid for the specified client.</returns>
     Task<TokenValidationResult> ValidateRefreshTokenAsync(string token, Client client);
 
     /// <summary>

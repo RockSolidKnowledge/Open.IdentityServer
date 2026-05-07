@@ -73,7 +73,7 @@ public class PersistedGrantDbContext<TContext> : DbContext, IPersistedGrantDbCon
     /// <summary>
     /// Saves the changes.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the number of state entries written to the database.</returns>
     public virtual Task<int> SaveChangesAsync()
     {
         return base.SaveChangesAsync();

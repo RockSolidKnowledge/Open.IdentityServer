@@ -38,9 +38,11 @@ public class SecretValidator : ISecretsListValidator
     /// <summary>
     /// Validates the secret.
     /// </summary>
-    /// <param name="parsedSecret">The parsed secret.</param>
-    /// <param name="secrets">The secrets.</param>
-    /// <returns></returns>
+    /// <param name="secrets">The collection of configured secrets to validate against.</param>
+    /// <param name="parsedSecret">The parsed secret from the incoming request.</param>
+    /// <returns>
+    /// A task that resolves to a <see cref="SecretValidationResult"/> indicating whether the secret was successfully validated.
+    /// </returns>
     public async Task<SecretValidationResult> ValidateAsync(IEnumerable<Secret> secrets, ParsedSecret parsedSecret)
     {
         var secretsArray = secrets as Secret[] ?? secrets.ToArray();

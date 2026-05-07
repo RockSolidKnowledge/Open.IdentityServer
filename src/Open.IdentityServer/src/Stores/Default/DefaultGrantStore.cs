@@ -15,7 +15,7 @@ namespace Open.IdentityServer.Stores;
 /// <summary>
 /// Base class for persisting grants using the IPersistedGrantStore.
 /// </summary>
-/// <typeparam name="T"></typeparam>
+/// <typeparam name="T">The type of the grant model being persisted and retrieved.</typeparam>
 public class DefaultGrantStore<T>
 {
     /// <summary>
@@ -78,7 +78,7 @@ public class DefaultGrantStore<T>
     /// Gets the hashed key.
     /// </summary>
     /// <param name="value">The value.</param>
-    /// <returns></returns>
+    /// <returns>A SHA-256 hash of the composite key (value + separator + grant type), hex-encoded when <paramref name="value"/> ends with <see cref="HexEncodingSuffix"/>.</returns>
     protected virtual string GetHashedKey(string value) {
         string key = $"{value}{KeySeparator}{GrantType}";
         bool hexEncode = value.EndsWith(HexEncodingSuffix);
@@ -89,7 +89,7 @@ public class DefaultGrantStore<T>
     /// Gets the item.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <returns></returns>
+    /// <returns>The deserialized grant of type <typeparamref name="T"/>, or <see langword="default"/> when not found or deserialization fails.</returns>
     protected virtual async Task<T> GetItemAsync(string key)
     {
         var hashedKey = GetHashedKey(key);
@@ -124,7 +124,7 @@ public class DefaultGrantStore<T>
     /// <param name="description">The description.</param>
     /// <param name="created">The created.</param>
     /// <param name="lifetime">The lifetime.</param>
-    /// <returns></returns>
+    /// <returns>The generated handle used to identify the stored grant.</returns>
     protected virtual async Task<string> CreateItemAsync(T item, string clientId, string subjectId, string sessionId, string description, DateTime created, int lifetime)
     {
         var handle = await HandleGenerationService.GenerateAsync() + HexEncodingSuffix;
@@ -144,7 +144,6 @@ public class DefaultGrantStore<T>
     /// <param name="created">The created time.</param>
     /// <param name="expiration">The expiration.</param>
     /// <param name="consumedTime">The consumed time.</param>
-    /// <returns></returns>
     protected virtual async Task StoreItemAsync(string key, T item, string clientId, string subjectId, string sessionId, string description, DateTime created, DateTime? expiration, DateTime? consumedTime = null)
     {
         key = GetHashedKey(key);
@@ -172,7 +171,7 @@ public class DefaultGrantStore<T>
     /// Removes the item.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="Task"/> that completes once the grant has been removed from the store.</returns>
     protected virtual async Task RemoveItemAsync(string key)
     {
         key = GetHashedKey(key);
@@ -180,11 +179,11 @@ public class DefaultGrantStore<T>
     }
 
     /// <summary>
-    /// Removes all items for a subject id / cliend id combination.
+    /// Removes all items for a subject id / client id combination.
     /// </summary>
     /// <param name="subjectId">The subject identifier.</param>
     /// <param name="clientId">The client identifier.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="Task"/> that completes once all matching grants have been removed from the store.</returns>
     protected virtual async Task RemoveAllAsync(string subjectId, string clientId)
     {
         await Store.RemoveAllAsync(new PersistedGrantFilter

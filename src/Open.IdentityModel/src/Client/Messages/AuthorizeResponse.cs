@@ -191,7 +191,7 @@ public class AuthorizeResponse
     /// Tries the get a value.
     /// </summary>
     /// <param name="type">The type.</param>
-    /// <returns></returns>
+    /// <returns>The URL-decoded value for the specified <paramref name="type"/> key, or <see langword="null"/> if the key is not present in the response.</returns>
     public string? TryGet(string type)
     {
         if (Values.TryGetValue(type, out var value))

@@ -86,6 +86,5 @@ public abstract class ReturnUrlResult: IEndpointResult
     /// Executes the result.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
     public abstract Task ExecuteAsync(HttpContext context);
 }

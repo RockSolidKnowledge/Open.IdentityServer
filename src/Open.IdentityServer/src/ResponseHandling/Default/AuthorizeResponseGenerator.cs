@@ -60,7 +60,7 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
     /// <param name="clock">The clock.</param>
     /// <param name="logger">The logger.</param>
     /// <param name="tokenService">The token service.</param>
-    /// <param name="keyMaterialService"></param>
+    /// <param name="keyMaterialService">The key material service used to retrieve signing credentials.</param>
     /// <param name="authorizationCodeStore">The authorization code store.</param>
     /// <param name="events">The events.</param>
     public AuthorizeResponseGenerator(
@@ -83,7 +83,7 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
     /// Creates the response
     /// </summary>
     /// <param name="request">The request.</param>
-    /// <returns></returns>
+    /// <returns>An <see cref="AuthorizeResponse"/> generated for the appropriate grant type (code, implicit, or hybrid).</returns>
     /// <exception cref="System.InvalidOperationException">invalid grant type: " + request.GrantType</exception>
     public virtual async Task<AuthorizeResponse> CreateResponseAsync(ValidatedAuthorizeRequest request)
     {
@@ -109,8 +109,8 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
     /// <summary>
     /// Creates the response for a hybrid flow request
     /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
+    /// <param name="request">The validated authorize request for the hybrid flow.</param>
+    /// <returns>An <see cref="AuthorizeResponse"/> containing both an authorization code and the implicit flow tokens.</returns>
     protected virtual async Task<AuthorizeResponse> CreateHybridFlowResponseAsync(ValidatedAuthorizeRequest request)
     {
         Logger.LogDebug("Creating Hybrid Flow response.");
@@ -127,8 +127,8 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
     /// <summary>
     /// Creates the response for a code flow request
     /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
+    /// <param name="request">The validated authorize request for the authorization code flow.</param>
+    /// <returns>An <see cref="AuthorizeResponse"/> containing the authorization code.</returns>
     protected virtual async Task<AuthorizeResponse> CreateCodeFlowResponseAsync(ValidatedAuthorizeRequest request)
     {
         Logger.LogDebug("Creating Authorization Code Flow response.");
@@ -147,11 +147,11 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
     }
 
     /// <summary>
-    /// Creates the response for a implicit flow request
+    /// Creates the response for an implicit flow request
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="authorizationCode"></param>
-    /// <returns></returns>
+    /// <param name="request">The validated authorize request for the implicit flow.</param>
+    /// <param name="authorizationCode">An optional authorization code to hash into the identity token's <c>c_hash</c> claim; supplied when called from the hybrid flow.</param>
+    /// <returns>An <see cref="AuthorizeResponse"/> containing any requested access token and/or identity token.</returns>
     protected virtual async Task<AuthorizeResponse> CreateImplicitFlowResponseAsync(ValidatedAuthorizeRequest request, string authorizationCode = null)
     {
         Logger.LogDebug("Creating Implicit Flow response.");
@@ -226,8 +226,8 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
     /// <summary>
     /// Creates an authorization code
     /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
+    /// <param name="request">The validated authorize request from which to build the authorization code.</param>
+    /// <returns>A fully populated <see cref="AuthorizationCode"/> ready to be stored.</returns>
     protected virtual async Task<AuthorizationCode> CreateCodeAsync(ValidatedAuthorizeRequest request)
     {
         string stateHash = null;

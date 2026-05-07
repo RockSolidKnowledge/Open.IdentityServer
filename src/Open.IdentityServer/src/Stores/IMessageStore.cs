@@ -24,6 +24,6 @@ public interface IMessageStore<TModel>
     /// Reads the message.
     /// </summary>
     /// <param name="id">The identifier.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the <see cref="Message{TModel}"/> with the specified <paramref name="id"/>, or <see langword="null"/> if not found.</returns>
     Task<Message<TModel>> ReadAsync(string id);
 }

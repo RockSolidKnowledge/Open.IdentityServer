@@ -57,13 +57,16 @@ public class JwtRequestValidator
     protected readonly ILogger Logger;
         
     /// <summary>
-    /// The optione
+    /// The IdentityServer options.
     /// </summary>
     protected readonly IdentityServerOptions Options;
 
     /// <summary>
-    /// Instantiates an instance of private_key_jwt secret validator
+    /// Initializes a new instance of the <see cref="JwtRequestValidator"/> class.
     /// </summary>
+    /// <param name="contextAccessor">The HTTP context accessor used to determine the audience URI.</param>
+    /// <param name="options">The IdentityServer options.</param>
+    /// <param name="logger">The logger.</param>
     public JwtRequestValidator(IHttpContextAccessor contextAccessor, IdentityServerOptions options, ILogger<JwtRequestValidator> logger)
     {
         _httpContextAccessor = contextAccessor;
@@ -85,9 +88,11 @@ public class JwtRequestValidator
     /// <summary>
     /// Validates a JWT request object
     /// </summary>
-    /// <param name="client">The client</param>
-    /// <param name="jwtTokenString">The JWT</param>
-    /// <returns></returns>
+    /// <param name="client">The client making the authorization request.</param>
+    /// <param name="jwtTokenString">The JWT request object string to validate.</param>
+    /// <returns>
+    /// A task that resolves to a <see cref="JwtRequestValidationResult"/> indicating whether the JWT request object is valid, and containing the extracted payload if successful.
+    /// </returns>
     public virtual async Task<JwtRequestValidationResult> ValidateAsync(Client client, string jwtTokenString)
     {
         if (client == null) throw new ArgumentNullException(nameof(client));
@@ -145,8 +150,10 @@ public class JwtRequestValidator
     /// <summary>
     /// Retrieves keys for a given client
     /// </summary>
-    /// <param name="client">The client</param>
-    /// <returns></returns>
+    /// <param name="client">The client whose secrets are used to retrieve signing keys.</param>
+    /// <returns>
+    /// A task that resolves to a list of <see cref="SecurityKey"/> instances trusted for the client.
+    /// </returns>
     protected virtual Task<List<SecurityKey>> GetKeysAsync(Client client)
     {
         return client.ClientSecrets.GetKeysAsync();
@@ -155,10 +162,12 @@ public class JwtRequestValidator
     /// <summary>
     /// Validates the JWT token
     /// </summary>
-    /// <param name="jwtTokenString">JWT as a string</param>
-    /// <param name="keys">The keys</param>
-    /// <param name="client">The client</param>
-    /// <returns></returns>
+    /// <param name="jwtTokenString">The raw JWT string to validate.</param>
+    /// <param name="keys">The trusted signing keys to validate the JWT signature against.</param>
+    /// <param name="client">The client associated with the request, used to validate the issuer.</param>
+    /// <returns>
+    /// A task that resolves to the validated <see cref="JsonWebToken"/>.
+    /// </returns>
     protected virtual async Task<JsonWebToken> ValidateJwtAsync(string jwtTokenString, IEnumerable<SecurityKey> keys, Client client)
     {
         var tokenValidationParameters = new TokenValidationParameters
@@ -193,8 +202,10 @@ public class JwtRequestValidator
     /// <summary>
     /// Processes the JWT contents
     /// </summary>
-    /// <param name="token">The JWT token</param>
-    /// <returns></returns>
+    /// <param name="token">The validated JWT token whose payload is to be processed.</param>
+    /// <returns>
+    /// A task that resolves to a dictionary of claim name/value pairs extracted from the JWT payload, excluding filtered claim types.
+    /// </returns>
     protected virtual Task<Dictionary<string, string>> ProcessPayloadAsync(JsonWebToken token)
     {
         var payloadJson = Encoding.UTF8.GetString(Base64UrlEncoder.DecodeBytes(token.EncodedPayload));

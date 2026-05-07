@@ -68,7 +68,7 @@ public class TokenClient
     /// <param name="scope">The scope (space separated string).</param>
     /// <param name="parameters">Extra parameters.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued access token or error details.</returns>
     public Task<TokenResponse> RequestClientCredentialsTokenAsync(string? scope = null, Parameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var request = new ClientCredentialsTokenRequest
@@ -86,7 +86,7 @@ public class TokenClient
     /// <param name="deviceCode">The device code.</param>
     /// <param name="parameters">Extra parameters.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued token or error details, including <c>authorization_pending</c> if polling should continue.</returns>
     public Task<TokenResponse> RequestDeviceTokenAsync(string deviceCode, Parameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var request = new DeviceTokenRequest
@@ -106,7 +106,7 @@ public class TokenClient
     /// <param name="scope">The scope (space separated string).</param>
     /// <param name="parameters">Extra parameters.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued access and optional refresh token, or error details.</returns>
     public Task<TokenResponse> RequestPasswordTokenAsync(string userName, string? password = null, string? scope = null, Parameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var request = new PasswordTokenRequest
@@ -128,7 +128,7 @@ public class TokenClient
     /// <param name="codeVerifier">The code verifier.</param>
     /// <param name="parameters">The parameters.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued access and optional refresh token, or error details.</returns>
     public Task<TokenResponse> RequestAuthorizationCodeTokenAsync(string code, string redirectUri, string? codeVerifier = null, Parameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var request = new AuthorizationCodeTokenRequest
@@ -149,7 +149,7 @@ public class TokenClient
     /// <param name="scope">The scope (space separated string).</param>
     /// <param name="parameters">Extra parameters.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the refreshed access token and optionally a new refresh token, or error details.</returns>
     public Task<TokenResponse> RequestRefreshTokenAsync(string refreshToken, string? scope = null, Parameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var request = new RefreshTokenRequest
@@ -168,7 +168,7 @@ public class TokenClient
     /// <param name="grantType">Type of the grant.</param>
     /// <param name="parameters">Extra parameters.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the token issued for the specified <paramref name="grantType"/>, or error details.</returns>
     public Task<TokenResponse> RequestTokenAsync(string grantType, Parameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var request = new TokenRequest

@@ -14,7 +14,7 @@ namespace Open.IdentityServer.Endpoints.Results;
 /// <summary>
 /// Result for a custom redirect
 /// </summary>
-/// <seealso cref="Open.IdentityServer.Hosting.ReturnUrlResult" />
+/// <seealso cref="Open.IdentityServer.Endpoints.Results.ReturnUrlResult" />
 public class CustomRedirectResult : ReturnUrlResult
 {
     private readonly string _url;
@@ -51,7 +51,6 @@ public class CustomRedirectResult : ReturnUrlResult
     /// Executes the result.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
     public override async Task ExecuteAsync(HttpContext context)
     {
         Init(context);

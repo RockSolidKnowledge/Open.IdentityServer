@@ -61,7 +61,6 @@ public class EndSessionResult : IEndpointResult
     /// Executes the result.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
     public async Task ExecuteAsync(HttpContext context)
     {
         Init(context);

@@ -16,21 +16,21 @@ public interface IReferenceTokenStore
     /// Stores the reference token.
     /// </summary>
     /// <param name="token">The token.</param>
-    /// <returns></returns>
+    /// <returns>The handle under which the reference token was stored.</returns>
     Task<string> StoreReferenceTokenAsync(Token token);
 
     /// <summary>
     /// Gets the reference token.
     /// </summary>
     /// <param name="handle">The handle.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="Token"/> associated with <paramref name="handle"/>, or <see langword="null"/> when not found.</returns>
     Task<Token> GetReferenceTokenAsync(string handle);
 
     /// <summary>
     /// Removes the reference token.
     /// </summary>
     /// <param name="handle">The handle.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="Task"/> that completes once the reference token has been removed.</returns>
     Task RemoveReferenceTokenAsync(string handle);
 
     /// <summary>
@@ -38,6 +38,6 @@ public interface IReferenceTokenStore
     /// </summary>
     /// <param name="subjectId">The subject identifier.</param>
     /// <param name="clientId">The client identifier.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="Task"/> that completes once all reference tokens for the given subject and client have been removed.</returns>
     Task RemoveReferenceTokensAsync(string subjectId, string clientId);
 }

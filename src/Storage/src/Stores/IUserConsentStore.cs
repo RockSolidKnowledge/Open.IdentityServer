@@ -16,7 +16,7 @@ public interface IUserConsentStore
     /// Stores the user consent.
     /// </summary>
     /// <param name="consent">The consent.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="Task"/> that completes once the consent has been persisted.</returns>
     Task StoreUserConsentAsync(Consent consent);
 
     /// <summary>
@@ -24,7 +24,7 @@ public interface IUserConsentStore
     /// </summary>
     /// <param name="subjectId">The subject identifier.</param>
     /// <param name="clientId">The client identifier.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="Consent"/> for the given subject and client, or <see langword="null"/> when no consent record exists.</returns>
     Task<Consent> GetUserConsentAsync(string subjectId, string clientId);
 
     /// <summary>
@@ -32,6 +32,6 @@ public interface IUserConsentStore
     /// </summary>
     /// <param name="subjectId">The subject identifier.</param>
     /// <param name="clientId">The client identifier.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="Task"/> that completes once the consent record has been removed.</returns>
     Task RemoveUserConsentAsync(string subjectId, string clientId);
 }

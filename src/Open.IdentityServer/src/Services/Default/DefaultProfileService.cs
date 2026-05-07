@@ -33,7 +33,6 @@ public class DefaultProfileService : IProfileService
     /// This method is called whenever claims about the user are requested (e.g. during token creation or via the userinfo endpoint)
     /// </summary>
     /// <param name="context">The context.</param>
-    /// <returns></returns>
     public virtual Task GetProfileDataAsync(ProfileDataRequestContext context)
     {
         context.LogProfileRequest(Logger);
@@ -48,7 +47,6 @@ public class DefaultProfileService : IProfileService
     /// (e.g. during token issuance or validation).
     /// </summary>
     /// <param name="context">The context.</param>
-    /// <returns></returns>
     public virtual Task IsActiveAsync(IsActiveContext context)
     {
         Logger.LogDebug("IsActive called from: {caller}", context.Caller);

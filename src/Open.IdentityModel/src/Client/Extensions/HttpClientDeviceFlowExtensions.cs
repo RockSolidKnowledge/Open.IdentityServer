@@ -11,17 +11,17 @@ using System.Threading.Tasks;
 namespace Open.IdentityModel.Client;
 
 /// <summary>
-/// HttpClient extensions for OIDC userinfo
+/// HttpClient extensions for OAuth 2.0 device authorization
 /// </summary>
 public static class HttpClientDeviceFlowExtensions
 {
     /// <summary>
-    /// Sends a userinfo request.
+    /// Sends a device authorization request.
     /// </summary>
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="DeviceAuthorizationResponse"/> containing the device code, user code, and verification URI, or error details if the request failed.</returns>
     public static async Task<DeviceAuthorizationResponse> RequestDeviceAuthorizationAsync(this HttpMessageInvoker client, DeviceAuthorizationRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();

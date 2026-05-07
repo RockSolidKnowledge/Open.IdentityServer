@@ -28,9 +28,8 @@ public static class TokenExtensions
     /// <param name="clock">The clock.</param>
     /// <param name="options">The options</param>
     /// <param name="logger">The logger.</param>
-    /// <returns></returns>
-    /// <exception cref="Exception">
-    /// </exception>
+    /// <returns>A <see cref="JwtPayload"/> populated with the issuer, audiences, expiration, and all claims from <paramref name="token"/>, with JSON-valued claims, scope, and AMR claims handled appropriately.</returns>
+    /// <exception cref="Exception">Thrown when a JSON-valued claim cannot be parsed, two conflicting JSON claims exist for the same key, or an unsupported JSON value type is encountered.</exception>
     public static JwtPayload CreateJwtPayload(this Token token, TimeProvider clock, IdentityServerOptions options, ILogger logger)
     {
         var payload = new JwtPayload(

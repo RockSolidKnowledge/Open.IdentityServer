@@ -14,7 +14,7 @@ public static class Base64Url
     /// Encodes the specified byte array.
     /// </summary>
     /// <param name="arg">The argument.</param>
-    /// <returns></returns>
+    /// <returns>A URL-safe Base64 string representation of <paramref name="arg"/>, with padding removed and <c>+</c>/<c>/</c> replaced by <c>-</c>/<c>_</c>.</returns>
     public static string Encode(byte[] arg)
     {
         var s = Convert.ToBase64String(arg); // Standard base64 encoder
@@ -30,7 +30,7 @@ public static class Base64Url
     /// Decodes the specified string.
     /// </summary>
     /// <param name="arg">The argument.</param>
-    /// <returns></returns>
+    /// <returns>The byte array decoded from the URL-safe Base64 string <paramref name="arg"/>.</returns>
     /// <exception cref="System.Exception">Illegal base64url string!</exception>
     public static byte[] Decode(string arg)
     {

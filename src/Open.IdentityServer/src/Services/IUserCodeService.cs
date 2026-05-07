@@ -14,7 +14,9 @@ public interface IUserCodeService
     /// <summary>
     /// Gets the user code generator.
     /// </summary>
-    /// <param name="userCodeType">Type of user code.</param>
-    /// <returns></returns>
+    /// <param name="userCodeType">The type identifier of the user code generator to retrieve.</param>
+    /// <returns>
+    /// A task that resolves to the <see cref="IUserCodeGenerator"/> for the specified user code type, or <c>null</c> if no matching generator is found.
+    /// </returns>
     Task<IUserCodeGenerator> GetGenerator(string userCodeType);
 }

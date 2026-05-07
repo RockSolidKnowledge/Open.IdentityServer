@@ -14,7 +14,9 @@ public interface IHandleGenerationService
     /// <summary>
     /// Generates a handle.
     /// </summary>
-    /// <param name="length">The length.</param>
-    /// <returns></returns>
+    /// <param name="length">The desired length of the generated handle. Defaults to 32.</param>
+    /// <returns>
+    /// A task that resolves to a unique handle string of the specified length.
+    /// </returns>
     Task<string> GenerateAsync(int length = 32);
 }

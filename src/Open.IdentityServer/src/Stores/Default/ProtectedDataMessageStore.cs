@@ -15,7 +15,7 @@ namespace Open.IdentityServer.Stores;
 /// <summary>
 /// IMessageStore implementation that uses data protection to protect message.
 /// </summary>
-/// <typeparam name="TModel"></typeparam>
+/// <typeparam name="TModel">The type of the model payload carried by the protected message.</typeparam>
 public class ProtectedDataMessageStore<TModel> : IMessageStore<TModel>
 {
     private const string Purpose = "Open.IdentityServer.Stores.ProtectedDataMessageStore";
@@ -31,10 +31,10 @@ public class ProtectedDataMessageStore<TModel> : IMessageStore<TModel>
     protected readonly ILogger Logger;
 
     /// <summary>
-    /// Ctor
+    /// Initializes a new instance of the <see cref="ProtectedDataMessageStore{TModel}"/> class.
     /// </summary>
-    /// <param name="provider"></param>
-    /// <param name="logger"></param>
+    /// <param name="provider">The data protection provider used to create the protector for encrypting and decrypting message payloads.</param>
+    /// <param name="logger">The logger.</param>
     public ProtectedDataMessageStore(IDataProtectionProvider provider, ILogger<ProtectedDataMessageStore<TModel>> logger)
     {
         Protector = provider.CreateProtector(Purpose);

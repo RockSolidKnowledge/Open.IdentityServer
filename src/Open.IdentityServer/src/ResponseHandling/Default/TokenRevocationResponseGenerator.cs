@@ -55,8 +55,8 @@ public class TokenRevocationResponseGenerator : ITokenRevocationResponseGenerato
     /// <summary>
     /// Creates the revocation endpoint response and processes the revocation request.
     /// </summary>
-    /// <param name="validationResult">The userinfo request validation result.</param>
-    /// <returns></returns>
+    /// <param name="validationResult">The token revocation request validation result.</param>
+    /// <returns>A task that resolves to a <see cref="TokenRevocationResponse"/> indicating whether the token was successfully revoked.</returns>
     public virtual async Task<TokenRevocationResponse> ProcessAsync(TokenRevocationRequestValidationResult validationResult)
     {
         var response = new TokenRevocationResponse
@@ -99,6 +99,7 @@ public class TokenRevocationResponseGenerator : ITokenRevocationResponseGenerato
     /// <summary>
     /// Revoke access token only if it belongs to client doing the request.
     /// </summary>
+    /// <returns>A task that resolves to <see langword="true"/> if a matching reference token was found; otherwise <see langword="false"/>.</returns>
     protected virtual async Task<bool> RevokeAccessTokenAsync(TokenRevocationRequestValidationResult validationResult)
     {
         var token = await ReferenceTokenStore.GetReferenceTokenAsync(validationResult.Token);
@@ -124,6 +125,7 @@ public class TokenRevocationResponseGenerator : ITokenRevocationResponseGenerato
     /// <summary>
     /// Revoke refresh token only if it belongs to client doing the request
     /// </summary>
+    /// <returns>A task that resolves to <see langword="true"/> if a matching refresh token was found; otherwise <see langword="false"/>.</returns>
     protected virtual async Task<bool> RevokeRefreshTokenAsync(TokenRevocationRequestValidationResult validationResult)
     {
         var token = await RefreshTokenStore.GetRefreshTokenAsync(validationResult.Token);

@@ -22,7 +22,7 @@ public interface IDiscoveryCache
     /// <summary>
     /// Retrieves the discovery document
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the cached <see cref="DiscoveryDocumentResponse"/>, fetching from the discovery endpoint first if the cache has expired or <see cref="Refresh"/> has been called.</returns>
     Task<DiscoveryDocumentResponse> GetAsync();
 
     /// <summary>

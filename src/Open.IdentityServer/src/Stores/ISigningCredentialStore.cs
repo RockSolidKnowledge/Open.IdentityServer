@@ -15,6 +15,6 @@ public interface ISigningCredentialStore
     /// <summary>
     /// Gets the signing credentials.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the current <see cref="SigningCredentials"/>.</returns>
     Task<SigningCredentials> GetSigningCredentialsAsync();
 }

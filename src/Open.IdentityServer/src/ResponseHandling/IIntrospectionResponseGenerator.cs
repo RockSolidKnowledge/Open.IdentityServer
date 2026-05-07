@@ -17,6 +17,6 @@ public interface IIntrospectionResponseGenerator
     /// Processes the response.
     /// </summary>
     /// <param name="validationResult">The validation result.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a dictionary containing the introspection response claims, including the <c>active</c> flag and any permitted token claims.</returns>
     Task<Dictionary<string, object>> ProcessAsync(IntrospectionRequestValidationResult validationResult);
 }

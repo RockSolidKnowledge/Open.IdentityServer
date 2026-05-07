@@ -11,8 +11,8 @@ public interface IJwtRequestUriHttpClient
     /// <summary>
     /// Gets a JWT from the url.
     /// </summary>
-    /// <param name="url"></param>
-    /// <param name="client"></param>
-    /// <returns></returns>
+    /// <param name="url">The URI from which to fetch the JWT request object.</param>
+    /// <param name="client">The client making the authorization request, used to apply any client-specific HTTP settings.</param>
+    /// <returns>The raw JWT string retrieved from <paramref name="url"/>, or <see langword="null"/> when the request fails.</returns>
     Task<string> GetJwtAsync(string url, Client client);
 }

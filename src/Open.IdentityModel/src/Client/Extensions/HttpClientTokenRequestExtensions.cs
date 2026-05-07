@@ -20,7 +20,7 @@ public static class HttpClientTokenRequestExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued access token, or error details if the request failed.</returns>
     public static async Task<TokenResponse> RequestClientCredentialsTokenAsync(this HttpMessageInvoker client, ClientCredentialsTokenRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();
@@ -42,7 +42,7 @@ public static class HttpClientTokenRequestExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued token or error details, including <c>authorization_pending</c> if polling should continue.</returns>
     public static async Task<TokenResponse> RequestDeviceTokenAsync(this HttpMessageInvoker client, DeviceTokenRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();
@@ -59,7 +59,7 @@ public static class HttpClientTokenRequestExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued access and optional refresh token, or error details if the request failed.</returns>
     public static async Task<TokenResponse> RequestPasswordTokenAsync(this HttpMessageInvoker client, PasswordTokenRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();
@@ -83,7 +83,7 @@ public static class HttpClientTokenRequestExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued access and optional refresh token, or error details if the request failed.</returns>
     public static async Task<TokenResponse> RequestAuthorizationCodeTokenAsync(this HttpMessageInvoker client, AuthorizationCodeTokenRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();
@@ -107,7 +107,7 @@ public static class HttpClientTokenRequestExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued access and optional refresh token, or error details if the request failed.</returns>
     public static async Task<TokenResponse> RequestRefreshTokenAsync(this HttpMessageInvoker client, RefreshTokenRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();
@@ -130,7 +130,7 @@ public static class HttpClientTokenRequestExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the exchanged token, or error details if the request failed.</returns>
     public static async Task<TokenResponse> RequestTokenExchangeTokenAsync(this HttpMessageInvoker client, TokenExchangeTokenRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();
@@ -155,7 +155,7 @@ public static class HttpClientTokenRequestExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued token, or error details including <c>authorization_pending</c> if polling should continue.</returns>
     public static async Task<TokenResponse> RequestBackchannelAuthenticationTokenAsync(this HttpMessageInvoker client, BackchannelAuthenticationTokenRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();
@@ -177,7 +177,7 @@ public static class HttpClientTokenRequestExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> for the specified grant type, or error details if the request failed.</returns>
     public static async Task<TokenResponse> RequestTokenAsync(this HttpMessageInvoker client, TokenRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();
@@ -197,7 +197,7 @@ public static class HttpClientTokenRequestExtensions
     /// <param name="address">The address.</param>
     /// <param name="parameters">The parameters.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenResponse"/> for the raw parameter set, or error details if the request failed.</returns>
     /// <exception cref="ArgumentNullException">parameters</exception>
     public static async Task<TokenResponse> RequestTokenRawAsync(this HttpMessageInvoker client, string address, Parameters parameters, CancellationToken cancellationToken = default)
     {

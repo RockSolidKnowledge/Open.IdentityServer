@@ -23,7 +23,6 @@ public class InMemoryDeviceFlowStore : IDeviceFlowStore
     /// <param name="deviceCode">The device code.</param>
     /// <param name="userCode">The user code.</param>
     /// <param name="data">The data.</param>
-    /// <returns></returns>
     public Task StoreDeviceAuthorizationAsync(string deviceCode, string userCode, DeviceCode data)
     {
         lock (_repository)
@@ -38,6 +37,7 @@ public class InMemoryDeviceFlowStore : IDeviceFlowStore
     /// Finds device authorization by user code.
     /// </summary>
     /// <param name="userCode">The user code.</param>
+    /// <returns>A task that resolves to the <see cref="DeviceCode"/> associated with <paramref name="userCode"/>, or <see langword="null"/> if not found.</returns>
     public Task<DeviceCode> FindByUserCodeAsync(string userCode)
     {
         DeviceCode foundDeviceCode;
@@ -54,6 +54,7 @@ public class InMemoryDeviceFlowStore : IDeviceFlowStore
     /// Finds device authorization by device code.
     /// </summary>
     /// <param name="deviceCode">The device code.</param>
+    /// <returns>A task that resolves to the <see cref="DeviceCode"/> associated with <paramref name="deviceCode"/>, or <see langword="null"/> if not found.</returns>
     public Task<DeviceCode> FindByDeviceCodeAsync(string deviceCode)
     {
         DeviceCode foundDeviceCode;

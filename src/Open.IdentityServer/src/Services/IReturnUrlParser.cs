@@ -16,7 +16,9 @@ public interface IReturnUrlParser
     /// Parses a return URL.
     /// </summary>
     /// <param name="returnUrl">The return URL.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// A task that resolves to an <see cref="AuthorizationRequest"/> if the return URL is valid; otherwise, <c>null</c>.
+    /// </returns>
     Task<AuthorizationRequest> ParseAsync(string returnUrl);
 
     /// <summary>

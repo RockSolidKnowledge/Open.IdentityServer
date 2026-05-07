@@ -16,6 +16,6 @@ public interface IEndpointResult
     /// Executes the result.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
+    /// <returns>A task that completes when the result has been written to the HTTP response.</returns>
     Task ExecuteAsync(HttpContext context);
 }

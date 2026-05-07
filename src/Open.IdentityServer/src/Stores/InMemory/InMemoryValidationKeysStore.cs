@@ -30,7 +30,7 @@ public class InMemoryValidationKeysStore : IValidationKeysStore
     /// <summary>
     /// Gets all validation keys.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the collection of <see cref="SecurityKeyInfo"/> held by this store.</returns>
     public Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync()
     {
         return Task.FromResult(_keys);

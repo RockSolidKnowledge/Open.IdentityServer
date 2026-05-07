@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Open.IdentityModel.Client;
 
 /// <summary>
-/// HttpClient extentions for OIDC discovery
+/// HttpClient extensions for OIDC discovery
 /// </summary>
 public static class HttpClientDiscoveryExtensions
 {
@@ -20,7 +20,7 @@ public static class HttpClientDiscoveryExtensions
     /// <param name="client">The client.</param>
     /// <param name="address">The address.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="DiscoveryDocumentResponse"/> containing the discovery document and key set, or error details if the request failed.</returns>
     public static async Task<DiscoveryDocumentResponse> GetDiscoveryDocumentAsync(this HttpClient client, string? address = null, CancellationToken cancellationToken = default)
     {
         if (address == null && client.BaseAddress == null)
@@ -34,7 +34,7 @@ public static class HttpClientDiscoveryExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="DiscoveryDocumentResponse"/> containing the validated discovery document and populated <see cref="DiscoveryDocumentResponse.KeySet"/>, or error details if the request or policy validation failed.</returns>
     public static async Task<DiscoveryDocumentResponse> GetDiscoveryDocumentAsync(this HttpMessageInvoker client, DiscoveryDocumentRequest request, CancellationToken cancellationToken = default)
     {
         string address;

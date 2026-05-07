@@ -16,7 +16,7 @@ namespace Open.IdentityServer.Stores;
 /// <summary>
 /// Caching decorator for IResourceStore
 /// </summary>
-/// <typeparam name="T"></typeparam>
+/// <typeparam name="T">The underlying <see cref="IResourceStore"/> implementation being decorated with caching.</typeparam>
 /// <seealso cref="Open.IdentityServer.Stores.IResourceStore" />
 public class CachingResourceStore<T> : IResourceStore
     where T : IResourceStore
@@ -42,7 +42,7 @@ public class CachingResourceStore<T> : IResourceStore
     /// <param name="identityCache">The identity cache.</param>
     /// <param name="apiByScopeCache">The API by scope cache.</param>
     /// <param name="apisCache">The API cache.</param>
-    /// <param name="scopeCache"></param>
+    /// <param name="scopeCache">The cache for API scope lookups by scope name.</param>
     /// <param name="allCache">All cache.</param>
     /// <param name="logger">The logger.</param>
     public CachingResourceStore(IdentityServerOptions options, T inner, 

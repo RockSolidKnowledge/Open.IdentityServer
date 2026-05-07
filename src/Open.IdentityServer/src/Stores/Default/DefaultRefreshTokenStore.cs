@@ -35,7 +35,7 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// Stores the refresh token.
     /// </summary>
     /// <param name="refreshToken">The refresh token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the handle assigned to the stored refresh token.</returns>
     public async Task<string> StoreRefreshTokenAsync(RefreshToken refreshToken)
     {
         return await CreateItemAsync(refreshToken, refreshToken.ClientId, refreshToken.SubjectId, refreshToken.SessionId, refreshToken.Description, refreshToken.CreationTime, refreshToken.Lifetime);
@@ -46,7 +46,6 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// </summary>
     /// <param name="handle">The handle.</param>
     /// <param name="refreshToken">The refresh token.</param>
-    /// <returns></returns>
     public Task UpdateRefreshTokenAsync(string handle, RefreshToken refreshToken)
     {
         return StoreItemAsync(handle, refreshToken, refreshToken.ClientId, refreshToken.SubjectId, refreshToken.SessionId, refreshToken.Description, refreshToken.CreationTime, refreshToken.CreationTime.AddSeconds(refreshToken.Lifetime), refreshToken.ConsumedTime);
@@ -56,7 +55,7 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// Gets the refresh token.
     /// </summary>
     /// <param name="refreshTokenHandle">The refresh token handle.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the <see cref="RefreshToken"/> for the given handle, or <see langword="null"/> if not found.</returns>
     public Task<RefreshToken> GetRefreshTokenAsync(string refreshTokenHandle)
     {
         return GetItemAsync(refreshTokenHandle);
@@ -66,7 +65,6 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// Removes the refresh token.
     /// </summary>
     /// <param name="refreshTokenHandle">The refresh token handle.</param>
-    /// <returns></returns>
     public Task RemoveRefreshTokenAsync(string refreshTokenHandle)
     {
         return RemoveItemAsync(refreshTokenHandle);
@@ -77,7 +75,6 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// </summary>
     /// <param name="subjectId">The subject identifier.</param>
     /// <param name="clientId">The client identifier.</param>
-    /// <returns></returns>
     public Task RemoveRefreshTokensAsync(string subjectId, string clientId)
     {
         return RemoveAllAsync(subjectId, clientId);

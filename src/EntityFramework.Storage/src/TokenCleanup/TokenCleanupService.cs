@@ -26,10 +26,10 @@ public class TokenCleanupService
     /// <summary>
     /// Constructor for TokenCleanupService.
     /// </summary>
-    /// <param name="options"></param>
-    /// <param name="persistedGrantDbContext"></param>
-    /// <param name="operationalStoreNotification"></param>
-    /// <param name="logger"></param>
+    /// <param name="options">Operational store options controlling batch size and cleanup behavior.</param>
+    /// <param name="persistedGrantDbContext">The EF database context used to query and remove expired grants and device codes.</param>
+    /// <param name="operationalStoreNotification">Optional callback notified after each batch of records is removed; may be <see langword="null"/>.</param>
+    /// <param name="logger">The logger.</param>
     public TokenCleanupService(
         OperationalStoreOptions options,
         IPersistedGrantDbContext persistedGrantDbContext, 
@@ -48,7 +48,7 @@ public class TokenCleanupService
     /// <summary>
     /// Method to clear expired persisted grants.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A <see cref="Task"/> that completes once all expired grants and device codes have been removed.</returns>
     public async Task RemoveExpiredGrantsAsync()
     {
         try
@@ -67,7 +67,7 @@ public class TokenCleanupService
     /// <summary>
     /// Removes the stale persisted grants.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A <see cref="Task"/> that completes once all batches of expired persisted grants have been deleted.</returns>
     protected virtual async Task RemoveGrantsAsync()
     {
         var found = Int32.MaxValue;
@@ -100,7 +100,7 @@ public class TokenCleanupService
     /// <summary>
     /// Removes the stale device codes.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A <see cref="Task"/> that completes once all batches of expired device flow codes have been deleted.</returns>
     protected virtual async Task RemoveDeviceCodesAsync()
     {
         var found = Int32.MaxValue;

@@ -144,9 +144,9 @@ public class DefaultUserSession : IUserSession
     /// <summary>
     /// Creates a session identifier for the signin context and issues the session id cookie.
     /// </summary>
-    /// <param name="principal"></param>
-    /// <param name="properties"></param>
-    /// <returns></returns>
+    /// <param name="principal">The claims principal for the user signing in.</param>
+    /// <param name="properties">The authentication properties associated with the sign-in.</param>
+    /// <returns>The session identifier assigned to this session.</returns>
     /// <exception cref="ArgumentNullException">
     /// principal
     /// or
@@ -177,7 +177,7 @@ public class DefaultUserSession : IUserSession
     /// <summary>
     /// Gets the current authenticated user.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The authenticated <see cref="ClaimsPrincipal"/>, or <see langword="null"/> when no authenticated session exists.</returns>
     public virtual async Task<ClaimsPrincipal> GetUserAsync()
     {
         await AuthenticateAsync();
@@ -188,7 +188,7 @@ public class DefaultUserSession : IUserSession
     /// <summary>
     /// Gets the current session identifier.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The current session identifier, or <see langword="null"/> when the user is not authenticated or no session id is set.</returns>
     public virtual async Task<string> GetSessionIdAsync()
     {
         await AuthenticateAsync();
@@ -197,9 +197,9 @@ public class DefaultUserSession : IUserSession
     }
 
     /// <summary>
-    /// Ensures the session identifier cookie asynchronous.
+    /// Ensures the session id cookie is present and up to date, issuing it if a session exists or removing it if not.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task that completes when the cookie has been issued or removed.</returns>
     public virtual async Task EnsureSessionIdCookieAsync()
     {
         var sid = await GetSessionIdAsync();
@@ -216,7 +216,6 @@ public class DefaultUserSession : IUserSession
     /// <summary>
     /// Removes the session identifier cookie.
     /// </summary>
-    /// <returns></returns>
     public virtual Task RemoveSessionIdCookieAsync()
     {
         if (HttpContext.Request.Cookies.ContainsKey(CheckSessionCookieName))
@@ -234,6 +233,7 @@ public class DefaultUserSession : IUserSession
     /// <summary>
     /// Creates the options for the session cookie.
     /// </summary>
+    /// <returns>A <see cref="CookieOptions"/> instance configured with the correct path, security, domain, and SameSite settings for the check-session cookie.</returns>
     public virtual CookieOptions CreateSessionIdCookieOptions()
     {
         var secure = HttpContext.Request.IsHttps;
@@ -255,7 +255,7 @@ public class DefaultUserSession : IUserSession
     /// <summary>
     /// Issues the cookie that contains the session id.
     /// </summary>
-    /// <param name="sid"></param>
+    /// <param name="sid">The session identifier to write into the check-session cookie.</param>
     public virtual void IssueSessionIdCookie(string sid)
     {
         if (Options.Endpoints.EnableCheckSessionEndpoint)
@@ -274,7 +274,6 @@ public class DefaultUserSession : IUserSession
     /// Adds a client to the list of clients the user has signed into during their session.
     /// </summary>
     /// <param name="clientId">The client identifier.</param>
-    /// <returns></returns>
     /// <exception cref="ArgumentNullException">clientId</exception>
     public virtual async Task AddClientIdAsync(string clientId)
     {
@@ -295,7 +294,7 @@ public class DefaultUserSession : IUserSession
     /// <summary>
     /// Gets the list of clients the user has signed into during their session.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The client identifiers recorded for the current session, or an empty sequence when the user is not authenticated or the list cannot be decoded.</returns>
     public virtual async Task<IEnumerable<string>> GetClientListAsync()
     {
         await AuthenticateAsync();

@@ -24,7 +24,7 @@ public class DefaultResourceValidator : IResourceValidator
     /// Initializes a new instance of the <see cref="DefaultResourceValidator"/> class.
     /// </summary>
     /// <param name="store">The store.</param>
-    /// <param name="scopeParser"></param>
+    /// <param name="scopeParser">The scope parser used to parse raw scope strings into structured scope values.</param>
     /// <param name="logger">The logger.</param>
     public DefaultResourceValidator(IResourceStore store, IScopeParser scopeParser,
         ILogger<DefaultResourceValidator> logger)
@@ -102,11 +102,10 @@ public class DefaultResourceValidator : IResourceValidator
     /// <summary>
     /// Validates that the requested scopes is contained in the store, and the client is allowed to request it.
     /// </summary>
-    /// <param name="client"></param>
-    /// <param name="resourcesFromStore"></param>
-    /// <param name="requestedScope"></param>
-    /// <param name="result"></param>
-    /// <returns></returns>
+    /// <param name="client">The client making the request, used to check allowed scopes.</param>
+    /// <param name="resourcesFromStore">The resources loaded from the store for the requested scope names.</param>
+    /// <param name="requestedScope">The individual parsed scope value to validate.</param>
+    /// <param name="result">The validation result to populate with allowed scopes or invalid scope errors.</param>
     protected virtual async Task ValidateScopeAsync(
         Client client,
         Resources resourcesFromStore,
@@ -173,9 +172,9 @@ public class DefaultResourceValidator : IResourceValidator
     /// <summary>
     /// Determines if client is allowed access to the identity scope.
     /// </summary>
-    /// <param name="client"></param>
-    /// <param name="identity"></param>
-    /// <returns></returns>
+    /// <param name="client">The client requesting access.</param>
+    /// <param name="identity">The identity resource being requested.</param>
+    /// <returns><see langword="true"/> when the client's <see cref="Client.AllowedScopes"/> contains the identity resource name; otherwise <see langword="false"/>.</returns>
     protected virtual Task<bool> IsClientAllowedIdentityResourceAsync(Client client, IdentityResource identity)
     {
         var allowed = client.AllowedScopes.Contains(identity.Name);
@@ -190,9 +189,9 @@ public class DefaultResourceValidator : IResourceValidator
     /// <summary>
     /// Determines if client is allowed access to the API scope.
     /// </summary>
-    /// <param name="client"></param>
-    /// <param name="apiScope"></param>
-    /// <returns></returns>
+    /// <param name="client">The client requesting access.</param>
+    /// <param name="apiScope">The API scope being requested.</param>
+    /// <returns><see langword="true"/> when the client's <see cref="Client.AllowedScopes"/> contains the API scope name; otherwise <see langword="false"/>.</returns>
     protected virtual Task<bool> IsClientAllowedApiScopeAsync(Client client, ApiScope apiScope)
     {
         var allowed = client.AllowedScopes.Contains(apiScope.Name);
@@ -207,8 +206,8 @@ public class DefaultResourceValidator : IResourceValidator
     /// <summary>
     /// Validates if the client is allowed offline_access.
     /// </summary>
-    /// <param name="client"></param>
-    /// <returns></returns>
+    /// <param name="client">The client requesting offline access.</param>
+    /// <returns><see langword="true"/> when <see cref="Client.AllowOfflineAccess"/> is set; otherwise <see langword="false"/>.</returns>
     protected virtual Task<bool> IsClientAllowedOfflineAccessAsync(Client client)
     {
         var allowed = client.AllowOfflineAccess;

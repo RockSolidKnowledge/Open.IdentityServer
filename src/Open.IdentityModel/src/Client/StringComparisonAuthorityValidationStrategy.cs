@@ -18,7 +18,7 @@ public sealed class StringComparisonAuthorityValidationStrategy : IAuthorityVali
     /// <summary>
     /// Constructor with <see cref="StringComparison"/> argument.
     /// </summary>
-    /// <param name="stringComparison"></param>
+    /// <param name="stringComparison">The string comparison, default Ordinal.</param>
     public StringComparisonAuthorityValidationStrategy(StringComparison stringComparison = StringComparison.Ordinal)
     {
         _stringComparison = stringComparison;
@@ -27,9 +27,9 @@ public sealed class StringComparisonAuthorityValidationStrategy : IAuthorityVali
     /// <summary>
     /// String comparison between issuer and authority (trailing slash ignored).
     /// </summary>
-    /// <param name="issuerName"></param>
-    /// <param name="expectedAuthority"></param>
-    /// <returns></returns>
+    /// <param name="issuerName">The issuer name</param>
+    /// <param name="expectedAuthority">The expected authority</param>
+    /// <returns>The validation result</returns>
     public AuthorityValidationResult IsIssuerNameValid(string issuerName, string expectedAuthority)
     {
         if (string.IsNullOrWhiteSpace(issuerName)) return AuthorityValidationResult.CreateError("Issuer name is missing");
@@ -43,9 +43,9 @@ public sealed class StringComparisonAuthorityValidationStrategy : IAuthorityVali
     /// <summary>
     /// String "starts with" comparison between endpoint and allowed authorities.
     /// </summary>
-    /// <param name="endpoint"></param>
-    /// <param name="allowedAuthorities"></param>
-    /// <returns></returns>
+    /// <param name="endpoint">The endpoint</param>
+    /// <param name="allowedAuthorities">The allowed authorities</param>
+    /// <returns>The validation result</returns>
     public AuthorityValidationResult IsEndpointValid(string endpoint, IEnumerable<string> allowedAuthorities)
     {
         if (string.IsNullOrEmpty(endpoint))

@@ -40,9 +40,11 @@ public class IdentityServerTools
     /// <summary>
     /// Issues a JWT.
     /// </summary>
-    /// <param name="lifetime">The lifetime.</param>
-    /// <param name="claims">The claims.</param>
-    /// <returns></returns>
+    /// <param name="lifetime">The lifetime of the JWT in seconds.</param>
+    /// <param name="claims">The claims to include in the JWT.</param>
+    /// <returns>
+    /// A task that resolves to the signed JWT string.
+    /// </returns>
     /// <exception cref="System.ArgumentNullException">claims</exception>
     public virtual async Task<string> IssueJwtAsync(int lifetime, IEnumerable<Claim> claims)
     {
@@ -65,10 +67,12 @@ public class IdentityServerTools
     /// <summary>
     /// Issues a JWT.
     /// </summary>
-    /// <param name="lifetime">The lifetime.</param>
-    /// <param name="issuer">The issuer.</param>
-    /// <param name="claims">The claims.</param>
-    /// <returns></returns>
+    /// <param name="lifetime">The lifetime of the JWT in seconds.</param>
+    /// <param name="issuer">The issuer to include in the JWT.</param>
+    /// <param name="claims">The claims to include in the JWT.</param>
+    /// <returns>
+    /// A task that resolves to the signed JWT string.
+    /// </returns>
     /// <exception cref="System.ArgumentNullException">claims</exception>
     public virtual async Task<string> IssueJwtAsync(int lifetime, string issuer, IEnumerable<Claim> claims)
     {

@@ -7,12 +7,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-#pragma warning disable 1591
 
 namespace Open.IdentityServer.Extensions;
 
+/// <summary>
+/// Extension methods for <see cref="IEnumerable{T}"/>.
+/// </summary>
 public static class IEnumerableExtensions
 {
+    /// <summary>
+    /// Determines whether the collection is <see langword="null"/> or contains no elements.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="list">The collection to check.</param>
     [DebuggerStepThrough]
     public static bool IsNullOrEmpty<T>(this IEnumerable<T> list)
     {
@@ -29,6 +36,13 @@ public static class IEnumerableExtensions
         return false;
     }
 
+    /// <summary>
+    /// Determines whether the collection contains duplicate values for the specified property.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <typeparam name="TProp">The type of the property to check for duplicates.</typeparam>
+    /// <param name="list">The collection to check.</param>
+    /// <param name="selector">A function to extract the property value to compare from each element.</param>
     public static bool HasDuplicates<T, TProp>(this IEnumerable<T> list, Func<T, TProp> selector)
     {
         var d = new HashSet<TProp>();

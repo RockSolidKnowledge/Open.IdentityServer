@@ -47,7 +47,7 @@ public class ResourceStore : IResourceStore
     /// Finds the API resources by name.
     /// </summary>
     /// <param name="apiResourceNames">The names.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="ApiResource"/> models matching <paramref name="apiResourceNames"/>; empty when none are found.</returns>
     public virtual async Task<IEnumerable<ApiResource>> FindApiResourcesByNameAsync(IEnumerable<string> apiResourceNames)
     {
         if (apiResourceNames == null) throw new ArgumentNullException(nameof(apiResourceNames));
@@ -83,8 +83,8 @@ public class ResourceStore : IResourceStore
     /// <summary>
     /// Gets API resources by scope name.
     /// </summary>
-    /// <param name="scopeNames"></param>
-    /// <returns></returns>
+    /// <param name="scopeNames">The API scope names to find.</param>
+    /// <returns>The <see cref="ApiResource"/> models matching any of the <paramref name="scopeNames"/>; empty when none are found.</returns>
     public virtual async Task<IEnumerable<ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
     {
         var names = scopeNames.ToArray();
@@ -113,8 +113,8 @@ public class ResourceStore : IResourceStore
     /// <summary>
     /// Gets identity resources by scope name.
     /// </summary>
-    /// <param name="scopeNames"></param>
-    /// <returns></returns>
+    /// <param name="scopeNames">The identity scope names to look up.</param>
+    /// <returns>The <see cref="IdentityResource"/> models whose name matches an entry in <paramref name="scopeNames"/>; empty when none match.</returns>
     public virtual async Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
     {
         var scopes = scopeNames.ToArray();
@@ -140,8 +140,8 @@ public class ResourceStore : IResourceStore
     /// <summary>
     /// Gets scopes by scope name.
     /// </summary>
-    /// <param name="scopeNames"></param>
-    /// <returns></returns>
+    /// <param name="scopeNames">The API scope names to look up.</param>
+    /// <returns>The <see cref="ApiScope"/> models whose name matches an entry in <paramref name="scopeNames"/>; empty when none match.</returns>
     public virtual async Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
     {
         var scopes = scopeNames.ToArray();
@@ -167,7 +167,7 @@ public class ResourceStore : IResourceStore
     /// <summary>
     /// Gets all resources.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A <see cref="Resources"/> aggregate containing every identity resource, API resource, and API scope currently persisted in the configuration store.</returns>
     public virtual async Task<Resources> GetAllResourcesAsync()
     {
         var identity = Context.IdentityResources

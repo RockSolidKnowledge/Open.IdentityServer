@@ -30,6 +30,6 @@ public interface IUserCodeGenerator
     /// <summary>
     /// Generates the user code.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a newly generated user code string.</returns>
     Task<string> GenerateAsync();
 }

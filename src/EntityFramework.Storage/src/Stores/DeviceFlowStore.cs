@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 namespace Open.IdentityServer.EntityFramework.Stores;
 
 /// <summary>
-/// Implementation of IDeviceFlowStore thats uses EF.
+/// Implementation of IDeviceFlowStore that uses EF.
 /// </summary>
 /// <seealso cref="Open.IdentityServer.Stores.IDeviceFlowStore" />
 public class DeviceFlowStore : IDeviceFlowStore
@@ -59,7 +59,6 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// <param name="deviceCode">The device code.</param>
     /// <param name="userCode">The user code.</param>
     /// <param name="data">The data.</param>
-    /// <returns></returns>
     public virtual async Task StoreDeviceAuthorizationAsync(string deviceCode, string userCode, DeviceCode data)
     {
         Context.DeviceFlowCodes.Add(ToEntity(data, deviceCode, userCode));
@@ -71,7 +70,10 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// Finds device authorization by user code.
     /// </summary>
     /// <param name="userCode">The user code.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// The <see cref="DeviceCode"/> associated with <paramref name="userCode"/>,
+    /// or <see langword="null"/> when no matching record exists.
+    /// </returns>
     public virtual async Task<DeviceCode> FindByUserCodeAsync(string userCode)
     {
         var deviceFlowCodes = (await Context.DeviceFlowCodes.AsNoTracking().Where(x => x.UserCode == userCode).ToArrayAsync())
@@ -87,7 +89,10 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// Finds device authorization by device code.
     /// </summary>
     /// <param name="deviceCode">The device code.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// The <see cref="DeviceCode"/> associated with <paramref name="deviceCode"/>,
+    /// or <see langword="null"/> when no matching record exists.
+    /// </returns>
     public virtual async Task<DeviceCode> FindByDeviceCodeAsync(string deviceCode)
     {
         var deviceFlowCodes = (await Context.DeviceFlowCodes.AsNoTracking().Where(x => x.DeviceCode == deviceCode).ToArrayAsync())
@@ -104,7 +109,6 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// </summary>
     /// <param name="userCode">The user code.</param>
     /// <param name="data">The data.</param>
-    /// <returns></returns>
     public virtual async Task UpdateByUserCodeAsync(string userCode, DeviceCode data)
     {
         var existing = (await Context.DeviceFlowCodes.Where(x => x.UserCode == userCode).ToArrayAsync())
@@ -135,7 +139,6 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// Removes the device authorization, searching by device code.
     /// </summary>
     /// <param name="deviceCode">The device code.</param>
-    /// <returns></returns>
     public virtual async Task RemoveByDeviceCodeAsync(string deviceCode)
     {
         var deviceFlowCodes = (await Context.DeviceFlowCodes.Where(x => x.DeviceCode == deviceCode).ToArrayAsync())
@@ -165,10 +168,12 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// <summary>
     /// Converts a model to an entity.
     /// </summary>
-    /// <param name="model"></param>
-    /// <param name="deviceCode"></param>
-    /// <param name="userCode"></param>
-    /// <returns></returns>
+    /// <param name="model">The in-memory <see cref="DeviceCode"/> to persist; when <see langword="null"/> the method returns <see langword="null"/>.</param>
+    /// <param name="deviceCode">The device code identifying the record; when <see langword="null"/> the method returns <see langword="null"/>.</param>
+    /// <param name="userCode">The user code identifying the record; when <see langword="null"/> the method returns <see langword="null"/>.</param>
+    /// <returns>
+    /// A populated <see cref="DeviceFlowCodes"/> entity ready for EF persistence, or <see langword="null"/> when any argument is <see langword="null"/>.
+    /// </returns>
     protected DeviceFlowCodes ToEntity(DeviceCode model, string deviceCode, string userCode)
     {
         if (model == null || deviceCode == null || userCode == null) return null;
@@ -188,8 +193,8 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// <summary>
     /// Converts a serialized DeviceCode to a model.
     /// </summary>
-    /// <param name="entity"></param>
-    /// <returns></returns>
+    /// <param name="entity">The serialized <see cref="DeviceCode"/> payload read from storage; may be <see langword="null"/>.</param>
+    /// <returns>The deserialized <see cref="DeviceCode"/>, or <see langword="null"/> when <paramref name="entity"/> is <see langword="null"/>.</returns>
     protected DeviceCode ToModel(string entity)
     {
         if (entity == null) return null;

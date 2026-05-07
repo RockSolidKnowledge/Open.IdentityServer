@@ -26,7 +26,9 @@ public static class IdentityServerBuilderExtensions
     /// </summary>
     /// <typeparam name="TUser">The type of the user.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// The same <paramref name="builder"/> instance so that additional calls can be chained.
+    /// </returns>
     public static IIdentityServerBuilder AddAspNetIdentity<TUser>(this IIdentityServerBuilder builder)
         where TUser : class
     {
@@ -54,7 +56,6 @@ public static class IdentityServerBuilderExtensions
         builder.Services.ConfigureExternalCookie(options =>
         {
             options.Cookie.IsEssential = true;
-            // https://github.com/IdentityServer/IdentityServer4/issues/2595
             options.Cookie.SameSite = AspNetCore.Http.SameSiteMode.None;
         });
 

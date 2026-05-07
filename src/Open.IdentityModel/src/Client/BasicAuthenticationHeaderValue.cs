@@ -26,7 +26,7 @@ public class BasicAuthenticationHeaderValue : AuthenticationHeaderValue
     /// </summary>
     /// <param name="userName">Name of the user.</param>
     /// <param name="password">The password.</param>
-    /// <returns></returns>
+    /// <returns>A Base64-encoded string of the <paramref name="userName"/> and <paramref name="password"/> separated by a colon, suitable for use as the parameter of a Basic authentication header.</returns>
     /// <exception cref="ArgumentNullException">userName</exception>
     public static string EncodeCredential(string userName, string password)
     {

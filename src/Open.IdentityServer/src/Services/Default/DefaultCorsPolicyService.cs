@@ -49,7 +49,9 @@ public class DefaultCorsPolicyService : ICorsPolicyService
     /// Determines whether the origin allowed.
     /// </summary>
     /// <param name="origin">The origin.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// A task that resolves to <c>true</c> if the origin is allowed; otherwise, <c>false</c>.
+    /// </returns>
     public virtual Task<bool> IsOriginAllowedAsync(string origin)
     {
         if (!String.IsNullOrWhiteSpace(origin))

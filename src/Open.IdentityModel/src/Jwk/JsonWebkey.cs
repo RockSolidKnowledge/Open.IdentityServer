@@ -6,13 +6,12 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-#pragma warning disable 1591
 #nullable disable
 
 namespace Open.IdentityModel.Jwk;
 
 /// <summary>
-/// Represents a Json Web Key as defined in http://tools.ietf.org/html/rfc7517.
+/// Represents a JSON Web Key as defined in http://tools.ietf.org/html/rfc7517.
 /// </summary>
 public class JsonWebKey
 {
@@ -22,14 +21,14 @@ public class JsonWebKey
     private IList<string> _keyops = new List<string>();
 
     /// <summary>
-    /// Initializes an new instance of <see cref="JsonWebKey"/>.
+    /// Initializes a new instance of <see cref="JsonWebKey"/>.
     /// </summary>
     public JsonWebKey()
     {
     }
 
     /// <summary>
-    /// Initializes an new instance of <see cref="JsonWebKey"/> from a json string.
+    /// Initializes a new instance of <see cref="JsonWebKey"/> from a json string.
     /// </summary>
     /// <param name="json">a string that contains JSON Web Key parameters in JSON format.</param>
     public JsonWebKey(string json)
@@ -70,7 +69,7 @@ public class JsonWebKey
     }
 
     /// <summary>
-    /// Gets or sets the 'alg' (KeyType)..
+    /// Gets or sets the 'alg' (Algorithm).
     /// </summary>
     [JsonPropertyName(JsonWebKeyParameterNames.Alg)]
     public string Alg { get; set; }
@@ -214,7 +213,7 @@ public class JsonWebKey
     public string X5t { get; set; }
 
     /// <summary>
-    /// Gets or sets the 'x5t#S256' (X.509 Certificate SHA-1 thumbprint)..
+    /// Gets or sets the 'x5t#S256' (X.509 Certificate SHA-256 thumbprint).
     /// </summary>
     [JsonPropertyName(JsonWebKeyParameterNames.X5tS256)]
     public string X5tS256 { get; set; }
@@ -232,6 +231,9 @@ public class JsonWebKey
     [JsonPropertyName(JsonWebKeyParameterNames.Y)]
     public string Y { get; set; }
 
+    /// <summary>
+    /// Gets the size of the key in bits, derived from the key type and its parameters.
+    /// </summary>
     public int KeySize
     {
         get
@@ -247,6 +249,9 @@ public class JsonWebKey
         }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this key contains private key material.
+    /// </summary>
     public bool HasPrivateKey
     {
         get

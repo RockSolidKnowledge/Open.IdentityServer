@@ -37,8 +37,8 @@ public class ClientClaim
     /// <summary>
     /// ctor
     /// </summary>
-    /// <param name="type"></param>
-    /// <param name="value"></param>
+    /// <param name="type">The claim type</param>
+    /// <param name="value">The claim value</param>
     public ClientClaim(string type, string value)
     {
         Type = type;
@@ -48,9 +48,9 @@ public class ClientClaim
     /// <summary>
     /// ctor
     /// </summary>
-    /// <param name="type"></param>
-    /// <param name="value"></param>
-    /// <param name="valueType"></param>
+    /// <param name="type">The claim type</param>
+    /// <param name="value">The claim value</param>
+    /// <param name="valueType">The claim value type</param>
     public ClientClaim(string type, string value, string valueType)
     {
         Type = type;

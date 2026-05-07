@@ -21,7 +21,7 @@ public static class ProfileDataRequestContextExtensions
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="claims">The claims.</param>
-    /// <returns></returns>
+    /// <returns>A list of claims from <paramref name="claims"/> whose type is present in <see cref="ProfileDataRequestContext.RequestedClaimTypes"/>.</returns>
     public static List<Claim> FilterClaims(this ProfileDataRequestContext context, IEnumerable<Claim> claims)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));

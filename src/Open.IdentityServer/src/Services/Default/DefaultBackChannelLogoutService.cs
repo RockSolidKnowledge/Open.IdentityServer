@@ -52,11 +52,11 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="clock"></param>
-    /// <param name="tools"></param>
-    /// <param name="logoutNotificationService"></param>
-    /// <param name="backChannelLogoutHttpClient"></param>
-    /// <param name="logger"></param>
+    /// <param name="clock">The system clock used to generate issued-at timestamps in logout tokens.</param>
+    /// <param name="tools">The IdentityServer tools used to issue signed JWTs.</param>
+    /// <param name="logoutNotificationService">The service that builds the set of back-channel logout requests for a given logout context.</param>
+    /// <param name="backChannelLogoutHttpClient">The HTTP client used to POST logout tokens to client back-channel URIs.</param>
+    /// <param name="logger">The logger.</param>
     public DefaultBackChannelLogoutService(
         TimeProvider clock,
         IdentityServerTools tools,
@@ -84,8 +84,8 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
     /// <summary>
     /// Sends the logout notifications for the collection of clients.
     /// </summary>
-    /// <param name="requests"></param>
-    /// <returns></returns>
+    /// <param name="requests">The collection of back-channel logout requests to send.</param>
+    /// <returns>A <see cref="Task"/> that completes once all notifications have been dispatched.</returns>
     protected virtual Task SendLogoutNotificationsAsync(IEnumerable<BackChannelLogoutRequest> requests)
     {
         requests = requests ?? Enumerable.Empty<BackChannelLogoutRequest>();
@@ -96,7 +96,7 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
     /// <summary>
     /// Performs the back-channel logout for a single client.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="request">The back-channel logout request describing the client and session to notify.</param>
     protected virtual async Task SendLogoutNotificationAsync(BackChannelLogoutRequest request)
     {
         var data = await CreateFormPostPayloadAsync(request);
@@ -106,9 +106,8 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
     /// <summary>
     /// Performs the HTTP POST of the logout payload to the client.
     /// </summary>
-    /// <param name="client"></param>
-    /// <param name="data"></param>
-    /// <returns></returns>
+    /// <param name="client">The back-channel logout request containing the target logout URI.</param>
+    /// <param name="data">The form-URL-encoded payload to POST to the client.</param>
     protected virtual Task PostLogoutJwt(BackChannelLogoutRequest client, Dictionary<string, string> data)
     {
         return HttpClient.PostAsync(client.LogoutUri, data);
@@ -117,8 +116,8 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
     /// <summary>
     /// Creates the form-url-encoded payload (as a dictionary) to send to the client.
     /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
+    /// <param name="request">The back-channel logout request for which to build the payload.</param>
+    /// <returns>A dictionary containing the <c>logout_token</c> form parameter ready for posting.</returns>
     protected async Task<Dictionary<string, string>> CreateFormPostPayloadAsync(BackChannelLogoutRequest request)
     {
         var token = await CreateTokenAsync(request);
@@ -133,7 +132,7 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
     /// <summary>
     /// Creates the JWT used for the back-channel logout notification.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="request">The back-channel logout request supplying the claims for the token.</param>
     /// <returns>The token.</returns>
     protected virtual async Task<string> CreateTokenAsync(BackChannelLogoutRequest request)
     {
@@ -149,7 +148,7 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
     /// <summary>
     /// Create the claims to be used in the back-channel logout token.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="request">The back-channel logout request supplying subject, client, and session information for the claims.</param>
     /// <returns>The claims to include in the token.</returns>
     protected Task<IEnumerable<Claim>> CreateClaimsForTokenAsync(BackChannelLogoutRequest request)
     {

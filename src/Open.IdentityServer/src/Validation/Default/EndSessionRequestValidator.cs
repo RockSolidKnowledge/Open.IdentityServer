@@ -67,14 +67,14 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
     /// <summary>
     /// Creates a new instance of the EndSessionRequestValidator.
     /// </summary>
-    /// <param name="context"></param>
-    /// <param name="options"></param>
-    /// <param name="tokenValidator"></param>
-    /// <param name="uriValidator"></param>
-    /// <param name="userSession"></param>
-    /// <param name="logoutNotificationService"></param>
-    /// <param name="endSessionMessageStore"></param>
-    /// <param name="logger"></param>
+    /// <param name="context">The HTTP context accessor used to access the current request context.</param>
+    /// <param name="options">The IdentityServer options.</param>
+    /// <param name="tokenValidator">The token validator used to validate the <c>id_token_hint</c>.</param>
+    /// <param name="uriValidator">The redirect URI validator used to validate the post-logout redirect URI.</param>
+    /// <param name="userSession">The user session service used to retrieve the current session and client list.</param>
+    /// <param name="logoutNotificationService">The service used to build front-channel logout notification URLs.</param>
+    /// <param name="endSessionMessageStore">The message store used to read end-session callback messages.</param>
+    /// <param name="logger">The logger.</param>
     public EndSessionRequestValidator(
         IHttpContextAccessor context,
         IdentityServerOptions options,
@@ -180,9 +180,9 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
     /// <summary>
     /// Creates a result that indicates an error.
     /// </summary>
-    /// <param name="message"></param>
-    /// <param name="request"></param>
-    /// <returns></returns>
+    /// <param name="message">A description of the validation failure.</param>
+    /// <param name="request">The partially validated request to include in the log output; may be <see langword="null"/>.</param>
+    /// <returns>An <see cref="EndSessionValidationResult"/> with <see cref="ValidationResult.IsError"/> set to <see langword="true"/>.</returns>
     protected virtual EndSessionValidationResult Invalid(string message, ValidatedEndSessionRequest request = null)
     {
         message = "End session request validation failure: " + message;
@@ -207,7 +207,7 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
     /// <summary>
     /// Logs a success result.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="request">The successfully validated end-session request to include in the log output.</param>
     protected virtual void LogSuccess(ValidatedEndSessionRequest request)
     {
         var log = new EndSessionRequestValidationLog(request);

@@ -18,8 +18,8 @@ public static class ResourceExtensions
     /// <summary>
     /// Returns the collection of scope values that are required.
     /// </summary>
-    /// <param name="resourceValidationResult"></param>
-    /// <returns></returns>
+    /// <param name="resourceValidationResult">The resource validation result containing the parsed scopes and resolved resources to inspect.</param>
+    /// <returns>The raw scope values from <paramref name="resourceValidationResult"/> whose parsed names correspond to required identity resources or API scopes.</returns>
     public static IEnumerable<string> GetRequiredScopeValues(this ResourceValidationResult resourceValidationResult)
     {
         var names = resourceValidationResult.Resources.IdentityResources.Where(x => x.Required).Select(x => x.Name).ToList();
@@ -33,7 +33,7 @@ public static class ResourceExtensions
     /// Converts to scope names.
     /// </summary>
     /// <param name="resources">The resources.</param>
-    /// <returns></returns>
+    /// <returns>All scope names from the identity resources and API scopes in <paramref name="resources"/>, plus <c>offline_access</c> when <see cref="Resources.OfflineAccess"/> is <see langword="true"/>.</returns>
     public static IEnumerable<string> ToScopeNames(this Resources resources)
     {
         var names = resources.IdentityResources.Select(x => x.Name).ToList();
@@ -51,7 +51,7 @@ public static class ResourceExtensions
     /// </summary>
     /// <param name="resources">The resources.</param>
     /// <param name="name">The name.</param>
-    /// <returns></returns>
+    /// <returns>The matching <see cref="IdentityResource"/>, or <see langword="null"/> when none is found.</returns>
     public static IdentityResource FindIdentityResourcesByScope(this Resources resources, string name)
     {
         var q = from id in resources.IdentityResources
@@ -65,7 +65,7 @@ public static class ResourceExtensions
     /// </summary>
     /// <param name="resources">The resources.</param>
     /// <param name="name">The name.</param>
-    /// <returns></returns>
+    /// <returns>All <see cref="ApiResource"/> instances whose <see cref="ApiResource.Scopes"/> collection contains <paramref name="name"/>; empty when none match.</returns>
     public static IEnumerable<ApiResource> FindApiResourcesByScope(this Resources resources, string name)
     {
         var q = from api in resources.ApiResources
@@ -79,7 +79,7 @@ public static class ResourceExtensions
     /// </summary>
     /// <param name="resources">The resources.</param>
     /// <param name="name">The name.</param>
-    /// <returns></returns>
+    /// <returns>The matching <see cref="ApiScope"/>, or <see langword="null"/> when none is found.</returns>
     public static ApiScope FindApiScope(this Resources resources, string name)
     {
         var q = from scope in resources.ApiScopes

@@ -12,7 +12,8 @@ namespace Open.IdentityServer.Stores;
 /// <summary>
 /// Duende compatibility signing key store
 /// </summary>
-/// <param name="identityServerKeyStore/>
+/// <param name="identityServerKeyStore">The key store used to retrieve signing keys.</param>
+/// <param name="dataProtectedIdentityServerKeyMaterialConverter">Converter used to decrypt and convert data-protected key material into usable credentials.</param>
 public class IdentityServerSigningCredentialStore(
     IIdentityServerKeyStore identityServerKeyStore,
     DataProtectedIdentityServerKeyMaterialConverter dataProtectedIdentityServerKeyMaterialConverter): ISigningCredentialStore

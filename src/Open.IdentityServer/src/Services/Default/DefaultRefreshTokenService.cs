@@ -43,7 +43,7 @@ public class DefaultRefreshTokenService : IRefreshTokenService
     /// Initializes a new instance of the <see cref="DefaultRefreshTokenService" /> class.
     /// </summary>
     /// <param name="refreshTokenStore">The refresh token store</param>
-    /// <param name="profile"></param>
+    /// <param name="profile">The profile service used to check whether the token subject is still active.</param>
     /// <param name="clock">The clock</param>
     /// <param name="logger">The logger</param>
     public DefaultRefreshTokenService(IRefreshTokenStore refreshTokenStore, IProfileService profile,
@@ -62,7 +62,7 @@ public class DefaultRefreshTokenService : IRefreshTokenService
     /// </summary>
     /// <param name="tokenHandle">The token handle.</param>
     /// <param name="client">The client.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenValidationResult"/> indicating whether the refresh token is valid for the specified client, including the token and client if successful.</returns>
     public virtual async Task<TokenValidationResult> ValidateRefreshTokenAsync(string tokenHandle, Client client)
     {
         var invalidGrant = new TokenValidationResult
@@ -148,8 +148,9 @@ public class DefaultRefreshTokenService : IRefreshTokenService
     /// <summary>
     /// Callback to decide if an already consumed token should be accepted.
     /// </summary>
-    /// <param name="refreshToken"></param>
-    /// <returns></returns>
+    /// <param name="refreshToken">The already-consumed refresh token to evaluate.</param>
+    /// <returns><see langword="true"/> to accept the consumed token and allow the refresh to proceed;
+    /// <see langword="false"/> to reject it. The default implementation always returns <see langword="false"/>.</returns>
     protected virtual Task<bool> AcceptConsumedTokenAsync(RefreshToken refreshToken)
     {
         // by default we will not accept consumed tokens

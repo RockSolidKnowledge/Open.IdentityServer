@@ -14,8 +14,8 @@ public static class X509CertificateExtensions
     /// <summary>
     /// Create the value of a thumbprint-based cnf claim
     /// </summary>
-    /// <param name="certificate"></param>
-    /// <returns></returns>
+    /// <param name="certificate">The certificate whose SHA-256 thumbprint is used to build the confirmation claim.</param>
+    /// <returns>A JSON string representing the <c>cnf</c> claim value containing the Base64Url-encoded SHA-256 thumbprint as <c>x5t#S256</c>.</returns>
     public static string CreateThumbprintCnf(this X509Certificate2 certificate)
     {
         var hash = certificate.GetCertHash(HashAlgorithmName.SHA256);

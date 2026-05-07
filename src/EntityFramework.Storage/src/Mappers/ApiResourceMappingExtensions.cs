@@ -13,7 +13,7 @@ public static class ApiResourceMappingExtensions
     /// <summary>
     /// Mapping extension methods for <see cref="Entities.ApiResource"/>
     /// </summary>
-    /// <param name="apiResourceEntity"></param>
+    /// <param name="apiResourceEntity">The persisted <see cref="Entities.ApiResource"/> instance these extension members operate on.</param>
     extension(Entities.ApiResource apiResourceEntity)
     {
         /// <summary>
@@ -42,7 +42,7 @@ public static class ApiResourceMappingExtensions
     /// <summary>
     /// Mapping extension methods for <see cref="Models.ApiResource"/>
     /// </summary>
-    /// <param name="apiResourceModel"></param>
+    /// <param name="apiResourceModel">The in-memory <see cref="Models.ApiResource"/> instance these extension members operate on.</param>
     extension(Models.ApiResource apiResourceModel)
     {
         /// <summary>

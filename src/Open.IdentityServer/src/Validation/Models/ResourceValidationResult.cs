@@ -15,16 +15,16 @@ namespace Open.IdentityServer.Validation;
 public class ResourceValidationResult
 {
     /// <summary>
-    /// Ctor
+    /// Initializes a new, empty <see cref="ResourceValidationResult"/> instance.
     /// </summary>
     public ResourceValidationResult()
     {
     }
 
     /// <summary>
-    /// Ctor
+    /// Initializes a new instance pre-populated from the given resources, deriving parsed scopes from their scope names.
     /// </summary>
-    /// <param name="resources"></param>
+    /// <param name="resources">The resolved resources whose scope names are used to populate <see cref="ParsedScopes"/>.</param>
     public ResourceValidationResult(Resources resources)
     {
         Resources = resources;
@@ -32,10 +32,10 @@ public class ResourceValidationResult
     }
 
     /// <summary>
-    /// Ctor
+    /// Initializes a new instance with explicit resources and parsed scope values.
     /// </summary>
-    /// <param name="resources"></param>
-    /// <param name="parsedScopeValues"></param>
+    /// <param name="resources">The resolved resources represented by this result.</param>
+    /// <param name="parsedScopeValues">The pre-parsed scope values to associate with the result.</param>
     public ResourceValidationResult(Resources resources, IEnumerable<ParsedScopeValue> parsedScopeValues)
     {
         Resources = resources;
@@ -75,8 +75,8 @@ public class ResourceValidationResult
     /// <summary>
     /// Returns new result filted by the scope values.
     /// </summary>
-    /// <param name="scopeValues"></param>
-    /// <returns></returns>
+    /// <param name="scopeValues">The raw scope values to retain; scopes not in this collection are excluded from the returned result.</param>
+    /// <returns>A new <see cref="ResourceValidationResult"/> containing only the resources and parsed scopes whose raw values appear in <paramref name="scopeValues"/>.</returns>
     public ResourceValidationResult Filter(IEnumerable<string> scopeValues)
     {
         scopeValues ??= Enumerable.Empty<string>();

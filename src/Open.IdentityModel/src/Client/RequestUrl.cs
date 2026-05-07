@@ -26,7 +26,7 @@ public class RequestUrl
     /// Creates URL based on key/value input pairs.
     /// </summary>
     /// <param name="parameters">The query string parameters.</param>
-    /// <returns></returns>
+    /// <returns>The base URL with the supplied <paramref name="parameters"/> appended as a query string, or the base URL unmodified if <paramref name="parameters"/> is null or empty.</returns>
     public string Create(Parameters parameters)
     {
         if (parameters == null || !parameters.Any())

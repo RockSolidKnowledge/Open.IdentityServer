@@ -23,7 +23,7 @@ public static class HttpClientDynamicRegistrationExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="DynamicClientRegistrationResponse"/> containing the registered client's metadata and credentials, or error details if the request failed.</returns>
     public static async Task<DynamicClientRegistrationResponse> RegisterClientAsync(
         this HttpMessageInvoker client, DynamicClientRegistrationRequest request, CancellationToken cancellationToken = default)
     {

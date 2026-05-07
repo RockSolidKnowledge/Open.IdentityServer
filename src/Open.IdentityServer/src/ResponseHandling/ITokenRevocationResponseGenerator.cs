@@ -8,7 +8,7 @@ using Open.IdentityServer.Validation;
 namespace Open.IdentityServer.ResponseHandling;
 
 /// <summary>
-/// Interface for the userinfo response generator
+/// Interface for the token revocation response generator.
 /// </summary>
 public interface ITokenRevocationResponseGenerator
 {
@@ -16,6 +16,6 @@ public interface ITokenRevocationResponseGenerator
     /// Creates the revocation endpoint response and processes the revocation request.
     /// </summary>
     /// <param name="validationResult">The userinfo request validation result.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenRevocationResponse"/> indicating whether the revocation succeeded.</returns>
     Task<TokenRevocationResponse> ProcessAsync(TokenRevocationRequestValidationResult validationResult);
 }

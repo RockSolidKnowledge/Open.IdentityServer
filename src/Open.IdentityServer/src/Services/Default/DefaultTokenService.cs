@@ -71,7 +71,7 @@ public class DefaultTokenService : ITokenService
     /// <param name="creationService">The signing service.</param>
     /// <param name="contextAccessor">The HTTP context accessor.</param>
     /// <param name="clock">The clock.</param>
-    /// <param name="keyMaterialService"></param>
+    /// <param name="keyMaterialService">The key material service used to retrieve signing credentials for token creation.</param>
     /// <param name="options">The IdentityServer options</param>
     /// <param name="logger">The logger.</param>
     public DefaultTokenService(

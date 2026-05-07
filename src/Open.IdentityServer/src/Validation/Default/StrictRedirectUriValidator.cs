@@ -20,9 +20,8 @@ public class StrictRedirectUriValidator : IRedirectUriValidator
     /// <summary>
     /// Checks if a given URI string is in a collection of strings (using ordinal ignore case comparison)
     /// </summary>
-    /// <param name="uris">The uris.</param>
-    /// <param name="requestedUri">The requested URI.</param>
-    /// <returns></returns>
+    /// <param name="uris">The collection of configured URIs to check against.</param>
+    /// <param name="requestedUri">The URI to search for in the collection.</param>
     protected bool StringCollectionContainsString(IEnumerable<string> uris, string requestedUri)
     {
         if (uris.IsNullOrEmpty()) return false;

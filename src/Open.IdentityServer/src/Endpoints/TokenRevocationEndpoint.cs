@@ -55,7 +55,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
     /// Processes the request.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to an <see cref="IEndpointResult"/> representing either a successful revocation response or an error response.</returns>
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
         _logger.LogTrace("Processing revocation request.");

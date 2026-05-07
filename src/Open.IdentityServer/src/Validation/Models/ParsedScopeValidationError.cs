@@ -12,10 +12,10 @@ namespace Open.IdentityServer.Validation;
 public class ParsedScopeValidationError
 {
     /// <summary>
-    /// Ctor
+    /// Initializes a new instance of <see cref="ParsedScopeValidationError"/>.
     /// </summary>
-    /// <param name="rawValue"></param>
-    /// <param name="error"></param>
+    /// <param name="rawValue">The original, unparsed scope string that failed validation.</param>
+    /// <param name="error">A message describing why the scope value failed to parse.</param>
     public ParsedScopeValidationError(string rawValue, string error)
     {
         if (String.IsNullOrWhiteSpace(rawValue))

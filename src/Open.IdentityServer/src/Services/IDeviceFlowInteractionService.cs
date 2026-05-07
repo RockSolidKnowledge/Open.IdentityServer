@@ -8,22 +8,26 @@ using Open.IdentityServer.Models;
 namespace Open.IdentityServer.Services;
 
 /// <summary>
-///  Provide services be used by the user interface to communicate with IdentityServer.
+/// Provides services to be used by the user interface to communicate with IdentityServer during device flow authorization.
 /// </summary>
 public interface IDeviceFlowInteractionService
 {
     /// <summary>
-    /// Gets the authorization context asynchronous.
+    /// Gets the device flow authorization context for the specified user code.
     /// </summary>
     /// <param name="userCode">The user code.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// A task that resolves to a <see cref="DeviceFlowAuthorizationRequest"/> for the specified user code, or <c>null</c> if the user code is invalid.
+    /// </returns>
     Task<DeviceFlowAuthorizationRequest> GetAuthorizationContextAsync(string userCode);
 
     /// <summary>
-    /// Handles the request asynchronous.
+    /// Submits the user's consent response for the device flow authorization request.
     /// </summary>
     /// <param name="userCode">The user code.</param>
-    /// <param name="consent">The consent.</param>
-    /// <returns></returns>
+    /// <param name="consent">The user's consent response.</param>
+    /// <returns>
+    /// A task that resolves to a <see cref="DeviceFlowInteractionResult"/> indicating the outcome of the request.
+    /// </returns>
     Task<DeviceFlowInteractionResult> HandleRequestAsync(string userCode, ConsentResponse consent);
 }

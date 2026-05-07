@@ -36,7 +36,7 @@ public class DeviceFlowInteractionResult
     /// Create failure result
     /// </summary>
     /// <param name="errorDescription">The error description.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="DeviceFlowInteractionResult"/> with <see cref="IsError"/> set to <see langword="true"/> and <see cref="ErrorDescription"/> set to <paramref name="errorDescription"/>.</returns>
     public static DeviceFlowInteractionResult Failure(string errorDescription = null)
     {
         return new DeviceFlowInteractionResult

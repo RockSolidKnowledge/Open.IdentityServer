@@ -53,7 +53,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
     /// <param name="resourceValidator">The resource validator.</param>
     /// <param name="resourceStore">The resource store.</param>
     /// <param name="tokenValidator">The token validator.</param>
-    /// <param name="refreshTokenService"></param>
+    /// <param name="refreshTokenService">The refresh token service used to validate refresh tokens.</param>
     /// <param name="events">The events.</param>
     /// <param name="clock">The clock.</param>
     /// <param name="logger">The logger.</param>
@@ -93,7 +93,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
     /// </summary>
     /// <param name="parameters">The parameters.</param>
     /// <param name="clientValidationResult">The client validation result.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="TokenRequestValidationResult"/> indicating whether the token request is valid, carrying the validated request context or error details.</returns>
     /// <exception cref="System.ArgumentNullException">
     /// parameters
     /// or

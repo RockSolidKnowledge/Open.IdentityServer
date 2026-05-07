@@ -21,9 +21,9 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// <summary>
     /// Add Configuration DbContext to the DI system.
     /// </summary>
-    /// <param name="services"></param>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the context to.</param>
     /// <param name="storeOptionsAction">The store options action.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="services"/> instance so that additional calls can be chained.</returns>
     public static IServiceCollection AddConfigurationDbContext(this IServiceCollection services,
         Action<ConfigurationStoreOptions> storeOptionsAction = null)
     {
@@ -34,9 +34,9 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// Add Configuration DbContext to the DI system.
     /// </summary>
     /// <typeparam name="TContext">The IConfigurationDbContext to use.</typeparam>
-    /// <param name="services"></param>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the context to.</param>
     /// <param name="storeOptionsAction">The store options action.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="services"/> instance so that additional calls can be chained.</returns>
     public static IServiceCollection AddConfigurationDbContext<TContext>(this IServiceCollection services,
         Action<ConfigurationStoreOptions> storeOptionsAction = null)
         where TContext : DbContext, IConfigurationDbContext
@@ -64,9 +64,9 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// <summary>
     /// Adds operational DbContext to the DI system.
     /// </summary>
-    /// <param name="services"></param>
-    /// <param name="storeOptionsAction">The store options action.</param>
-    /// <returns></returns>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the context to.</param>
+    /// <param name="storeOptionsAction">The optional store options action.</param>
+    /// <returns>The same <paramref name="services"/> instance so that additional calls can be chained.</returns>
     public static IServiceCollection AddOperationalDbContext(this IServiceCollection services,
         Action<OperationalStoreOptions> storeOptionsAction = null)
     {
@@ -77,9 +77,9 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// Adds operational DbContext to the DI system.
     /// </summary>
     /// <typeparam name="TContext">The IPersistedGrantDbContext to use.</typeparam>
-    /// <param name="services"></param>
-    /// <param name="storeOptionsAction">The store options action.</param>
-    /// <returns></returns>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the context to.</param>
+    /// <param name="storeOptionsAction">The optional store options action.</param>
+    /// <returns>The same <paramref name="services"/> instance so that additional calls can be chained.</returns>
     public static IServiceCollection AddOperationalDbContext<TContext>(this IServiceCollection services,
         Action<OperationalStoreOptions> storeOptionsAction = null)
         where TContext : DbContext, IPersistedGrantDbContext
@@ -119,9 +119,9 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// <summary>
     /// Adds an implementation of the IOperationalStoreNotification to the DI system.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="services"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">The concrete <see cref="IOperationalStoreNotification"/> implementation to register as a transient service.</typeparam>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the notification handler to.</param>
+    /// <returns>The same <paramref name="services"/> instance so that additional calls can be chained.</returns>
     public static IServiceCollection AddOperationalStoreNotification<T>(this IServiceCollection services)
         where T : class, IOperationalStoreNotification
     {

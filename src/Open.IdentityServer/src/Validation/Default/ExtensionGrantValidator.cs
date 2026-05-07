@@ -41,7 +41,9 @@ public class ExtensionGrantValidator
     /// <summary>
     /// Gets the available grant types.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A collection of grant type strings supported by the registered extension grant validators.
+    /// </returns>
     public IEnumerable<string> GetAvailableGrantTypes()
     {
         return _validators.Select(v => v.GrantType);
@@ -50,8 +52,10 @@ public class ExtensionGrantValidator
     /// <summary>
     /// Validates the request.
     /// </summary>
-    /// <param name="request">The request.</param>
-    /// <returns></returns>
+    /// <param name="request">The validated token request containing the grant type and associated context to validate.</param>
+    /// <returns>
+    /// A task that resolves to a <see cref="GrantValidationResult"/> indicating whether the extension grant request is valid.
+    /// </returns>
     public async Task<GrantValidationResult> ValidateAsync(ValidatedTokenRequest request)
     {
         var validator = _validators.FirstOrDefault(v => v.GrantType.Equals(request.GrantType, StringComparison.Ordinal));

@@ -26,7 +26,7 @@ public static class IdentityServerToolsExtensions
     /// <param name="scopes">The scopes.</param>
     /// <param name="audiences">The audiences.</param>
     /// <param name="additionalClaims">Additional claims</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the signed JWT string issued for the specified client.</returns>
     public static async Task<string> IssueClientJwtAsync(this IdentityServerTools tools,
         string clientId,
         int lifetime,

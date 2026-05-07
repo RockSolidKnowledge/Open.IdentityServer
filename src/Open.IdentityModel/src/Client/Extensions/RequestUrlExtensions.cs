@@ -15,7 +15,7 @@ public static class RequestUrlExtensions
     /// </summary>
     /// <param name="request">The request.</param>
     /// <param name="parameters">The parameters.</param>
-    /// <returns></returns>
+    /// <returns>The base URL with the supplied <paramref name="parameters"/> appended as a query string.</returns>
     public static string Create(this RequestUrl request, Parameters parameters)
     {
         return request.Create(parameters);
@@ -43,7 +43,7 @@ public static class RequestUrlExtensions
     /// <param name="idTokenHint">The id_token hint.</param>
     /// <param name="requestUri">The request uri.</param>
     /// <param name="extra">Extra parameters.</param>
-    /// <returns></returns>
+    /// <returns>The authorization endpoint URL with all specified parameters appended as a query string.</returns>
     public static string CreateAuthorizeUrl(this RequestUrl request,
         string clientId,
         string? responseType = null,
@@ -104,7 +104,7 @@ public static class RequestUrlExtensions
     /// <param name="postLogoutRedirectUri">The post logout redirect URI.</param>
     /// <param name="state">The state.</param>
     /// <param name="extra">The extra parameters.</param>
-    /// <returns></returns>
+    /// <returns>The end-session endpoint URL with all specified parameters appended as a query string.</returns>
     public static string CreateEndSessionUrl(this RequestUrl request,
         string? idTokenHint = null,
         string? postLogoutRedirectUri = null,

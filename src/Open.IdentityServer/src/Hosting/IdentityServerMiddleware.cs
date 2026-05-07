@@ -38,8 +38,8 @@ public class IdentityServerMiddleware
     /// <param name="router">The router.</param>
     /// <param name="session">The user session.</param>
     /// <param name="events">The event service.</param>
-    /// <param name="backChannelLogoutService"></param>
-    /// <returns></returns>
+    /// <param name="backChannelLogoutService">The service used to send back-channel logout notifications to clients when the user signs out.</param>
+    /// /// <returns>A task that completes when the request has been handled by an IdentityServer endpoint or passed to the next middleware in the pipeline.</returns>
     public async Task Invoke(HttpContext context, IEndpointRouter router, IUserSession session, IEventService events, IBackChannelLogoutService backChannelLogoutService)
     {
         // this will check the authentication session and from it emit the check session

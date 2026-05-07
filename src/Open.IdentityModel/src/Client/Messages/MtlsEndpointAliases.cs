@@ -18,7 +18,7 @@ public class MtlsEndpointAliases
     /// <summary>
     /// ctor
     /// </summary>
-    /// <param name="json"></param>
+    /// <param name="json">The raw JSON</param>
     public MtlsEndpointAliases(JsonElement? json)
     {
         Json = json;

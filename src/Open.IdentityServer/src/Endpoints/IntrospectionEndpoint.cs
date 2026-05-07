@@ -54,7 +54,7 @@ internal class IntrospectionEndpoint : IEndpointHandler
     /// Processes the request.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to an <see cref="IEndpointResult"/> representing either an introspection response or an error response.</returns>
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
         _logger.LogTrace("Processing introspection request.");

@@ -21,7 +21,7 @@ public static class Principal
     /// </summary>
     /// <param name="authenticationType">Type of the authentication.</param>
     /// <param name="claims">The claims.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="ClaimsPrincipal"/> with a <see cref="ClaimsIdentity"/> of the specified <paramref name="authenticationType"/> containing the provided <paramref name="claims"/>.</returns>
     public static ClaimsPrincipal Create(string authenticationType, params Claim[] claims)
     {
         return new ClaimsPrincipal(Identity.Create(authenticationType, claims));
@@ -33,7 +33,7 @@ public static class Principal
     /// <param name="certificate">The certificate.</param>
     /// <param name="authenticationType">Type of the authentication.</param>
     /// <param name="includeAllClaims">if set to <c>true</c> [include all claims].</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="ClaimsPrincipal"/> with a <see cref="ClaimsIdentity"/> populated from the subject and, optionally, all claims found in the specified <paramref name="certificate"/>.</returns>
     public static ClaimsPrincipal CreateFromCertificate(X509Certificate2 certificate, string authenticationType = "X.509", bool includeAllClaims = false)
     {
         return new ClaimsPrincipal(Identity.CreateFromCertificate(certificate, authenticationType, includeAllClaims));

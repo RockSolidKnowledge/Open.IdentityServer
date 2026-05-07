@@ -3,9 +3,8 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Open.IdentityServer.Storage.Stores.DataProtection;
 
-namespace Open.IdentityServer.Stores.Serialization;
+namespace Open.IdentityServer.DataProtection;
 
 /// <summary>
 /// Custom JSON converter for <see cref="DataProtectedGrantData"/> that performs case-insensitive property matching

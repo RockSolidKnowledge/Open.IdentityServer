@@ -20,8 +20,15 @@ public class Parameters : List<KeyValuePair<string, string>>
     /// <summary>
     /// Turns anonymous type or dictionary in Parameters (mainly for backwards compatibility)
     /// </summary>
-    /// <param name="values"></param>
-    /// <returns></returns>
+    /// <param name="values">
+    /// Either an <see cref="IDictionary{TKey,TValue}"/> of <see cref="string"/>/<see cref="string"/> (copied as-is)
+    /// or an anonymous/POCO object whose public <see cref="string"/> properties are reflected into
+    /// key/value pairs (the property name becomes the key; null/empty values are skipped).
+    /// </param>
+    /// <returns>
+    /// A new <see cref="Parameters"/> populated from <paramref name="values"/>, or <see langword="null"/>
+    /// when <paramref name="values"/> is <see langword="null"/>.
+    /// </returns>
 #if NET6_0_OR_GREATER
     [RequiresUnreferencedCode("The FromObject method uses reflection in a way that is incompatible with trimming.")]
 #endif
@@ -52,15 +59,18 @@ public class Parameters : List<KeyValuePair<string, string>>
     }
         
     /// <summary>
-    /// ctor
+    /// Initializes a new <see cref="Parameters"/> instance.
     /// </summary>
     public Parameters()
     { }
 
     /// <summary>
-    /// ctor
+    /// Initializes a new <see cref="Parameters"/> instance pre-populated from the supplied key/value sequence.
     /// </summary>
-    /// <param name="values"></param>
+    /// <param name="values">
+    /// The key/value pairs to copy into the new instance. Duplicate keys are preserved (this collection
+    /// permits multiple entries with the same key).
+    /// </param>
     public Parameters(IEnumerable<KeyValuePair<string, string>> values)
         : base(values)
     { }
@@ -95,7 +105,8 @@ public class Parameters : List<KeyValuePair<string, string>>
     /// <summary>
     /// Get parameter value(s) based on name
     /// </summary>
-    /// <param name="index"></param>
+    /// <param name="index">The name of the value</param>
+    /// /// <returns>All values associated with the specified key, or an empty sequence if the key is not present.</returns>
     public IEnumerable<string> this[string index]
     {
         get { return this.Where(i => i.Key.Equals(index)).Select(i => i.Value); }
@@ -104,8 +115,8 @@ public class Parameters : List<KeyValuePair<string, string>>
     /// <summary>
     /// Get parameter values based on name
     /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
+    /// <param name="name">The name of the value</param>
+    /// /// <returns>All values associated with the specified <paramref name="name"/>, or an empty sequence if the key is not present.</returns>
     public IEnumerable<string> GetValues(string name)
     {
         return this[name];
@@ -114,8 +125,7 @@ public class Parameters : List<KeyValuePair<string, string>>
     /// <summary>
     /// Checks the existence of a parameter
     /// </summary>
-    /// <param name="key"></param>
-    /// <returns></returns>
+    /// <param name="key">The parameter to check</param>
     public bool ContainsKey(string key)
     {
         return (this.Any(k => string.Equals(k.Key, key)));
@@ -127,8 +137,8 @@ public class Parameters : List<KeyValuePair<string, string>>
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <param name="allowDuplicates">Allow multiple values of the same parameter.</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="ArgumentNullException"><paramref name="key"/> is null or empty.</exception>
+    /// <exception cref="InvalidOperationException">A duplicate entry for <paramref name="key"/> already exists and <paramref name="allowDuplicates"/> is <see langword="false"/>.</exception>
     public void AddOptional(string key, string? value, bool allowDuplicates = false)
     {
         if (key.IsMissing()) throw new ArgumentNullException(nameof(key));
@@ -188,7 +198,7 @@ public class Parameters : List<KeyValuePair<string, string>>
     /// <summary>
     /// Merge two parameter sets
     /// </summary>
-    /// <param name="additionalValues"></param>
+    /// <param name="additionalValues">The values to merge</param>
     /// <returns>Merged parameters</returns>
     public Parameters Merge(Parameters? additionalValues = null)
     {

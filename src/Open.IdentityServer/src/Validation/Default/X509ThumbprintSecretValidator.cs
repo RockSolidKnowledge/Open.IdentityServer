@@ -18,9 +18,9 @@ public class X509ThumbprintSecretValidator : ISecretValidator
     private readonly ILogger<X509ThumbprintSecretValidator> _logger;
 
     /// <summary>
-    /// ctor
+    /// Initializes a new instance of the <see cref="X509ThumbprintSecretValidator"/> class.
     /// </summary>
-    /// <param name="logger"></param>
+    /// <param name="logger">The logger.</param>
     public X509ThumbprintSecretValidator(ILogger<X509ThumbprintSecretValidator> logger)
     {
         _logger = logger;

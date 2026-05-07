@@ -15,11 +15,14 @@ namespace Open.IdentityServer.DataProtection;
 /// <summary>
 /// Deserializes <see cref="IdentityServerKeyMaterial"/> into SigningKey object
 /// </summary>
-/// <param name="dataProtectionProvider"></param>
+/// <param name="dataProtectionProvider">The data protection provider used to create a protector for unprotecting encrypted key material.</param>
 public class DataProtectedIdentityServerKeyMaterialConverter(IDataProtectionProvider dataProtectionProvider)
 {
     private IDataProtector dataProtector = dataProtectionProvider.CreateProtector("DataProtectionKeyProtector");
     
+    /// <summary>
+    /// Json serializer settings
+    /// </summary>
     public static readonly JsonSerializerOptions Settings = new()
     {
         IncludeFields = true,

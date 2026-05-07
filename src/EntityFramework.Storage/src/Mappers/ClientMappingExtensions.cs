@@ -15,7 +15,7 @@ public static class ClientMappingExtensions
     /// <summary>
     /// Mapping extension methods for <see cref="Entities.Client"/>
     /// </summary>
-    /// <param name="clientEntity"></param>
+    /// <param name="clientEntity">The persisted <see cref="Entities.Client"/> instance these extension members operate on.</param>
     extension(Entities.Client clientEntity)
     {
         /// <summary>
@@ -119,7 +119,7 @@ public static class ClientMappingExtensions
     /// <summary>
     /// Mapping extension methods for <see cref="Models.Client"/>
     /// </summary>
-    /// <param name="clientModel"></param>
+    /// <param name="clientModel">The in-memory <see cref="Models.Client"/> instance these extension members operate on.</param>
     extension(Models.Client clientModel)
     {
         /// <summary>

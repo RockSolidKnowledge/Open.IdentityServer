@@ -11,7 +11,7 @@ namespace Open.IdentityServer.Services;
 /// <summary>
 /// IMemoryCache-based implementation of the cache
 /// </summary>
-/// <typeparam name="T"></typeparam>
+/// <typeparam name="T">The type of the item being cached.</typeparam>
 /// <seealso cref="Open.IdentityServer.Services.ICache{T}" />
 public class DefaultCache<T> : ICache<T>
     where T : class
@@ -54,7 +54,6 @@ public class DefaultCache<T> : ICache<T>
     /// <param name="key">The key.</param>
     /// <param name="item">The item.</param>
     /// <param name="expiration">The expiration.</param>
-    /// <returns></returns>
     public Task SetAsync(string key, T item, TimeSpan expiration)
     {
         key = GetKey(key);

@@ -16,7 +16,7 @@ public interface IProfileService
     /// This method is called whenever claims about the user are requested (e.g. during token creation or via the userinfo endpoint)
     /// </summary>
     /// <param name="context">The context.</param>
-    /// <returns></returns>
+    /// <returns>A task that completes when the requested claims have been added to <paramref name="context"/>.</returns>
     Task GetProfileDataAsync(ProfileDataRequestContext context);
 
     /// <summary>
@@ -24,6 +24,6 @@ public interface IProfileService
     /// (e.g. during token issuance or validation).
     /// </summary>
     /// <param name="context">The context.</param>
-    /// <returns></returns>
+    /// <returns>A task that completes when the active status has been set on <paramref name="context"/>.</returns>
     Task IsActiveAsync(IsActiveContext context);
 }

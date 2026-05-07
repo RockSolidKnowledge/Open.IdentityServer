@@ -23,9 +23,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds the extension grant validator.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IExtensionGrantValidator"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddExtensionGrantValidator<T>(this IIdentityServerBuilder builder)
         where T : class, IExtensionGrantValidator
     {
@@ -37,9 +37,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds a redirect URI validator.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IRedirectUriValidator"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddRedirectUriValidator<T>(this IIdentityServerBuilder builder)
         where T : class, IRedirectUriValidator
     {
@@ -49,10 +49,10 @@ public static class IdentityServerBuilderExtensionsAdditional
     }
 
     /// <summary>
-    /// Adds a an "AppAuth" (OAuth 2.0 for Native Apps) compliant redirect URI validator (does strict validation but also allows http://127.0.0.1 with random port)
+    /// Adds an "AppAuth" (OAuth 2.0 for Native Apps) compliant redirect URI validator (does strict validation but also allows http://127.0.0.1 with random port)
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddAppAuthRedirectUriValidator(this IIdentityServerBuilder builder)
     {
         return builder.AddRedirectUriValidator<StrictRedirectUriValidatorAppAuth>();
@@ -61,9 +61,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds the resource owner validator.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IResourceOwnerPasswordValidator"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddResourceOwnerValidator<T>(this IIdentityServerBuilder builder)
         where T : class, IResourceOwnerPasswordValidator
     {
@@ -75,9 +75,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds the profile service.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IProfileService"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddProfileService<T>(this IIdentityServerBuilder builder)
         where T : class, IProfileService
     {
@@ -89,9 +89,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds a resource validator.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IResourceValidator"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddResourceValidator<T>(this IIdentityServerBuilder builder)
         where T : class, IResourceValidator
     {
@@ -103,9 +103,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds a scope parser.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IScopeParser"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddScopeParser<T>(this IIdentityServerBuilder builder)
         where T : class, IScopeParser
     {
@@ -117,9 +117,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds a client store.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IClientStore"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddClientStore<T>(this IIdentityServerBuilder builder)
         where T : class, IClientStore
     {
@@ -132,9 +132,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds a resource store.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IResourceStore"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddResourceStore<T>(this IIdentityServerBuilder builder)
         where T : class, IResourceStore
     {
@@ -146,8 +146,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds a device flow store.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IDeviceFlowStore"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddDeviceFlowStore<T>(this IIdentityServerBuilder builder)
         where T : class, IDeviceFlowStore
     {
@@ -161,7 +162,7 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// </summary>
     /// <typeparam name="T">The type of the concrete grant store that is registered in DI.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns>The builder.</returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddPersistedGrantStore<T>(this IIdentityServerBuilder builder)
         where T : class, IPersistedGrantStore
     {
@@ -175,7 +176,7 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// </summary>
     /// <typeparam name="T">The type of the concrete scope store class that is registered in DI.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddCorsPolicyService<T>(this IIdentityServerBuilder builder)
         where T : class, ICorsPolicyService
     {
@@ -188,7 +189,7 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// </summary>
     /// <typeparam name="T">The type of the concrete CORS policy service that is registered in DI.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddCorsPolicyCache<T>(this IIdentityServerBuilder builder)
         where T : class, ICorsPolicyService
     {
@@ -200,9 +201,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds the secret parser.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="ISecretParser"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddSecretParser<T>(this IIdentityServerBuilder builder)
         where T : class, ISecretParser
     {
@@ -214,9 +215,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds the secret validator.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="ISecretValidator"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddSecretValidator<T>(this IIdentityServerBuilder builder)
         where T : class, ISecretValidator
     {
@@ -230,7 +231,7 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// </summary>
     /// <typeparam name="T">The type of the concrete client store class that is registered in DI.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddClientStoreCache<T>(this IIdentityServerBuilder builder)
         where T : IClientStore
     {
@@ -242,11 +243,11 @@ public static class IdentityServerBuilderExtensionsAdditional
     }
 
     /// <summary>
-    /// Adds the client store cache.
+    /// Adds the resource store cache.
     /// </summary>
     /// <typeparam name="T">The type of the concrete scope store class that is registered in DI.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddResourceStoreCache<T>(this IIdentityServerBuilder builder)
         where T : IResourceStore
     {
@@ -258,9 +259,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds the authorize interaction response generator.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IAuthorizeInteractionResponseGenerator"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddAuthorizeInteractionResponseGenerator<T>(this IIdentityServerBuilder builder)
         where T : class, IAuthorizeInteractionResponseGenerator
     {
@@ -272,9 +273,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds the custom authorize request validator.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="ICustomAuthorizeRequestValidator"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddCustomAuthorizeRequestValidator<T>(this IIdentityServerBuilder builder)
         where T : class, ICustomAuthorizeRequestValidator
     {
@@ -284,11 +285,11 @@ public static class IdentityServerBuilderExtensionsAdditional
     }
 
     /// <summary>
-    /// Adds the custom authorize request validator.
+    /// Adds a custom token request validator.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="ICustomTokenRequestValidator"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddCustomTokenRequestValidator<T>(this IIdentityServerBuilder builder)
         where T : class, ICustomTokenRequestValidator
     {
@@ -301,7 +302,7 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// Adds support for client authentication using JWT bearer assertions.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddJwtBearerClientAuthentication(this IIdentityServerBuilder builder)
     {
         builder.Services.TryAddTransient<IReplayCache, DefaultReplayCache>();
@@ -314,9 +315,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds a client configuration validator.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IClientConfigurationValidator"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddClientConfigurationValidator<T>(this IIdentityServerBuilder builder)
         where T : class, IClientConfigurationValidator
     {
@@ -329,7 +330,7 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// Adds the X509 secret validators for mutual TLS.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddMutualTlsSecretValidators(this IIdentityServerBuilder builder)
     {
         builder.AddSecretParser<MutualTlsSecretParser>();
@@ -342,9 +343,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds a custom back-channel logout service.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IBackChannelLogoutService"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddBackChannelLogoutService<T>(this IIdentityServerBuilder builder)
         where T : class, IBackChannelLogoutService
     {
@@ -358,8 +359,8 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// Adds configuration for the HttpClient used for back-channel logout notifications.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <param name="configureClient">The configruation callback.</param>
-    /// <returns></returns>
+    /// <param name="configureClient">The configuration callback.</param>
+    /// <returns>The <see cref="IHttpClientBuilder"/> for the named HTTP client, allowing further pipeline configuration.</returns>
     public static IHttpClientBuilder AddBackChannelLogoutHttpClient(this IIdentityServerBuilder builder, Action<HttpClient> configureClient = null)
     {
         const string name = IdentityServerConstants.HttpClients.BackChannelLogoutHttpClient;
@@ -395,8 +396,8 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// Adds configuration for the HttpClient used for JWT request_uri requests.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <param name="configureClient">The configruation callback.</param>
-    /// <returns></returns>
+    /// <param name="configureClient">The configuration callback.</param>
+    /// <returns>The <see cref="IHttpClientBuilder"/> for the named HTTP client, allowing further pipeline configuration.</returns>
     public static IHttpClientBuilder AddJwtRequestUriHttpClient(this IIdentityServerBuilder builder, Action<HttpClient> configureClient = null)
     {
         const string name = IdentityServerConstants.HttpClients.JwtRequestUriHttpClient;
@@ -430,9 +431,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds a custom authorization request parameter store.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IAuthorizationParametersMessageStore"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddAuthorizationParametersMessageStore<T>(this IIdentityServerBuilder builder)
         where T : class, IAuthorizationParametersMessageStore
     {
@@ -444,9 +445,9 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds a custom user session.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IUserSession"/> implementation to register.</typeparam>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddUserSession<T>(this IIdentityServerBuilder builder)
         where T : class, IUserSession
     {

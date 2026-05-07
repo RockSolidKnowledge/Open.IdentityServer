@@ -22,7 +22,7 @@ public interface IConsentService
     /// <param name="client">The client.</param>
     /// <param name="parsedScopes">The parsed scopes.</param>
     /// <returns>
-    /// Boolean if consent is required.
+    /// A task that resolves to <c>true</c> if the user must provide consent; otherwise, <c>false</c>.
     /// </returns>
     Task<bool> RequiresConsentAsync(ClaimsPrincipal subject, Client client, IEnumerable<ParsedScopeValue> parsedScopes);
 
@@ -32,6 +32,5 @@ public interface IConsentService
     /// <param name="subject">The subject.</param>
     /// <param name="client">The client.</param>
     /// <param name="parsedScopes">The parsed scopes.</param>
-    /// <returns></returns>
     Task UpdateConsentAsync(ClaimsPrincipal subject, Client client, IEnumerable<ParsedScopeValue> parsedScopes);
 }

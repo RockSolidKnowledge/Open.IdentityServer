@@ -15,8 +15,10 @@ public interface ITokenRequestValidator
     /// <summary>
     /// Validates the request.
     /// </summary>
-    /// <param name="parameters">The parameters.</param>
-    /// <param name="clientValidationResult">The client validation result.</param>
-    /// <returns></returns>
+    /// <param name="parameters">The form parameters from the token request.</param>
+    /// <param name="clientValidationResult">The result of authenticating the client making the request.</param>
+    /// <returns>
+    /// A task that resolves to a <see cref="TokenRequestValidationResult"/> indicating whether the token request is valid and carrying the validated request context.
+    /// </returns>
     Task<TokenRequestValidationResult> ValidateRequestAsync(NameValueCollection parameters, ClientSecretValidationResult clientValidationResult);
 }

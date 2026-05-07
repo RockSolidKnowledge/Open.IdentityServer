@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 namespace Open.IdentityServer.ResponseHandling;
 
 /// <summary>
-/// The device authorizaiton response generator
+/// The device authorization response generator
 /// </summary>
 /// <seealso cref="Open.IdentityServer.ResponseHandling.IDeviceAuthorizationResponseGenerator" />
 public class DeviceAuthorizationResponseGenerator : IDeviceAuthorizationResponseGenerator
@@ -67,7 +67,7 @@ public class DeviceAuthorizationResponseGenerator : IDeviceAuthorizationResponse
     /// </summary>
     /// <param name="validationResult">The validation result.</param>
     /// <param name="baseUrl">The base URL.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="DeviceAuthorizationResponse"/> containing the device code, user code, verification URIs, and polling interval.</returns>
     /// <exception cref="ArgumentNullException">validationResult or Client</exception>
     /// <exception cref="ArgumentException">Value cannot be null or whitespace. - baseUrl</exception>
     public virtual async Task<DeviceAuthorizationResponse> ProcessAsync(DeviceAuthorizationRequestValidationResult validationResult, string baseUrl)

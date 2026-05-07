@@ -23,7 +23,7 @@ public class ProtocolResponse
     /// <param name="httpResponse">The HTTP response.</param>
     /// <param name="initializationData">The initialization data.</param>
     /// <param name="skipJson">Disables parsing of json</param>
-    /// <returns></returns>
+    /// <returns>A new instance of <typeparamref name="T"/> populated from the HTTP response and any initialization data.</returns>
     public static async Task<T> FromHttpResponseAsync<T>(HttpResponseMessage httpResponse, object? initializationData = null, bool skipJson = false) where T: ProtocolResponse, new()
     {
         var response = new T
@@ -108,10 +108,10 @@ public class ProtocolResponse
     /// <summary>
     /// Initializes a protocol response from an exception
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The specific <see cref="ProtocolResponse"/> type to instantiate.</typeparam>
     /// <param name="ex">The ex.</param>
     /// <param name="errorMessage">The error message.</param>
-    /// <returns></returns>
+    /// <returns>A new instance of <typeparamref name="T"/> with <see cref="ErrorType"/> set to <see cref="ResponseErrorType.Exception"/> and the exception and optional error message populated.</returns>
     public static T FromException<T>(Exception ex, string? errorMessage = null) where T : ProtocolResponse, new()
     {
         var response = new T
@@ -128,7 +128,7 @@ public class ProtocolResponse
     /// Allows to initialize instance specific data.
     /// </summary>
     /// <param name="initializationData">The initialization data.</param>
-    /// <returns></returns>
+    /// <returns>A task that completes when instance-specific initialization is finished.</returns>
     protected virtual Task InitializeAsync(object? initializationData = null)
     {
         return Task.CompletedTask;
@@ -186,7 +186,7 @@ public class ProtocolResponse
     /// Gets or sets an explicit error message.
     /// </summary>
     /// <value>
-    /// The type of the error.
+    /// An explicit error message that overrides the default error derived from <see cref="ErrorType"/>.
     /// </value>
     protected string? ErrorMessage { get; set; }
 
@@ -237,7 +237,7 @@ public class ProtocolResponse
     /// Tries to get a specific value from the JSON response.
     /// </summary>
     /// <param name="name">The name.</param>
-    /// <returns></returns>
+    /// <returns>The string value of the named property from the JSON response, or <see langword="null"/> if the property is absent or the response contains no JSON.</returns>
     public string? TryGet(string name) => Json?.TryGetString(name);
 
     /// <summary>

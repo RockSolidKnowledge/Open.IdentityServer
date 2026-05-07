@@ -28,23 +28,13 @@ public class PersistentGrantSerializer: IPersistentGrantSerializer
         _settings.Converters.Add(new ClaimsPrincipalConverter());
     }
 
-    /// <summary>
-    /// Serializes the specified value.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="value">The value.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public string Serialize<T>(T value)
     {
         return JsonSerializer.Serialize(value, _settings);
     }
 
-    /// <summary>
-    /// Deserializes the specified string.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="json">The json.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public T? Deserialize<T>(string json)
     {
         T? deserializedObj = JsonSerializer.Deserialize<T>(json, _settings);

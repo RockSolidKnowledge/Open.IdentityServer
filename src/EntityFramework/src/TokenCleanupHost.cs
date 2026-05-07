@@ -28,9 +28,9 @@ public class TokenCleanupHost : IHostedService
     /// <summary>
     /// Constructor for TokenCleanupHost.
     /// </summary>
-    /// <param name="serviceProvider"></param>
-    /// <param name="options"></param>
-    /// <param name="logger"></param>
+    /// <param name="serviceProvider">The application service provider used to create scopes for resolving <see cref="TokenCleanupService"/>.</param>
+    /// <param name="options">The operational store options controlling the cleanup interval and whether cleanup is enabled.</param>
+    /// <param name="logger">The logger.</param>
     public TokenCleanupHost(IServiceProvider serviceProvider, OperationalStoreOptions options, ILogger<TokenCleanupHost> logger)
     {
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));

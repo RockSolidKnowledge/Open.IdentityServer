@@ -21,10 +21,10 @@ public class MutualTlsSecretParser : ISecretParser
     private readonly ILogger<MutualTlsSecretParser> _logger;
 
     /// <summary>
-    /// ctor
+    /// Initializes a new instance of the <see cref="MutualTlsSecretParser"/> class.
     /// </summary>
-    /// <param name="options"></param>
-    /// <param name="logger"></param>
+    /// <param name="options">The IdentityServer options used to enforce input length restrictions.</param>
+    /// <param name="logger">The logger.</param>
     public MutualTlsSecretParser(IdentityServerOptions options, ILogger<MutualTlsSecretParser> logger)
     {
         _options = options;
@@ -39,8 +39,11 @@ public class MutualTlsSecretParser : ISecretParser
     /// <summary>
     /// Parses the HTTP context
     /// </summary>
-    /// <param name="context"></param>
-    /// <returns></returns>
+    /// <param name="context">The current HTTP context from which the client certificate and form body are read.</param>
+    /// <returns>
+    /// A <see cref="ParsedSecret"/> containing the client id and X.509 certificate when both are present and valid;
+    /// otherwise <see langword="null"/>.
+    /// </returns>
     public async Task<ParsedSecret> ParseAsync(HttpContext context)
     {
         _logger.LogDebug("Start parsing for client id in post body");

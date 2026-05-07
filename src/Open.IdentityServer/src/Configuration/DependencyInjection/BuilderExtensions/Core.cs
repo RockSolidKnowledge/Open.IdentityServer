@@ -40,7 +40,7 @@ public static class IdentityServerBuilderExtensionsCore
     /// Adds the required platform services.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddRequiredPlatformServices(this IIdentityServerBuilder builder)
     {
         builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();            
@@ -56,7 +56,7 @@ public static class IdentityServerBuilderExtensionsCore
     /// Adds the default cookie handlers and corresponding configuration
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddCookieAuthentication(this IIdentityServerBuilder builder)
     {
         builder.Services.AddAuthentication(IdentityServerConstants.DefaultCookieAuthenticationScheme)
@@ -75,7 +75,7 @@ public static class IdentityServerBuilderExtensionsCore
     /// Adds the default endpoints.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddDefaultEndpoints(this IIdentityServerBuilder builder)
     {
         builder.Services.AddTransient<IEndpointRouter, EndpointRouter>();
@@ -99,11 +99,11 @@ public static class IdentityServerBuilderExtensionsCore
     /// <summary>
     /// Adds the endpoint.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The concrete <see cref="IEndpointHandler"/> implementation to register for this endpoint.</typeparam>
     /// <param name="builder">The builder.</param>
     /// <param name="name">The name.</param>
     /// <param name="path">The path.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddEndpoint<T>(this IIdentityServerBuilder builder, string name, PathString path)
         where T : class, IEndpointHandler
     {
@@ -117,7 +117,7 @@ public static class IdentityServerBuilderExtensionsCore
     /// Adds the core services.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddCoreServices(this IIdentityServerBuilder builder)
     {
         builder.Services.AddTransient<ISecretsListParser, SecretParser>();
@@ -143,7 +143,7 @@ public static class IdentityServerBuilderExtensionsCore
     /// Adds the pluggable services.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddPluggableServices(this IIdentityServerBuilder builder)
     {
         builder.Services.TryAddTransient<IPersistedGrantService, DefaultPersistedGrantService>();
@@ -198,7 +198,7 @@ public static class IdentityServerBuilderExtensionsCore
     /// Adds the validators.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddValidators(this IIdentityServerBuilder builder)
     {
         // core
@@ -227,7 +227,7 @@ public static class IdentityServerBuilderExtensionsCore
     /// Adds the response generators.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddResponseGenerators(this IIdentityServerBuilder builder)
     {
         builder.Services.TryAddTransient<ITokenResponseGenerator, TokenResponseGenerator>();
@@ -246,7 +246,7 @@ public static class IdentityServerBuilderExtensionsCore
     /// Adds the default secret parsers.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddDefaultSecretParsers(this IIdentityServerBuilder builder)
     {
         builder.Services.AddTransient<ISecretParser, BasicAuthenticationSecretParser>();
@@ -259,7 +259,7 @@ public static class IdentityServerBuilderExtensionsCore
     /// Adds the default secret validators.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddDefaultSecretValidators(this IIdentityServerBuilder builder)
     {
         builder.Services.AddTransient<ISecretValidator, HashedSharedSecretValidator>();

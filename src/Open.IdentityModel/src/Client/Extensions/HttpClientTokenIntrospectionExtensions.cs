@@ -20,7 +20,7 @@ public static class HttpClientTokenIntrospectionExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="TokenIntrospectionResponse"/> describing the token's active state and associated claims, or carrying error details if the request failed.</returns>
     public static async Task<TokenIntrospectionResponse> IntrospectTokenAsync(this HttpMessageInvoker client, TokenIntrospectionRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();

@@ -20,7 +20,7 @@ public static class HttpClientUserInfoExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="UserInfoResponse"/> containing the authenticated user's claims, or error details if the request failed.</returns>
     public static async Task<UserInfoResponse> GetUserInfoAsync(this HttpMessageInvoker client, UserInfoRequest request, CancellationToken cancellationToken = default)
     {
         if (request.Token.IsMissing()) throw new ArgumentNullException(nameof(request.Token));

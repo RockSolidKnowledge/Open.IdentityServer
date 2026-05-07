@@ -24,13 +24,12 @@ public interface IAuthorizationParametersMessageStore
     /// Reads the authorization parameters.
     /// </summary>
     /// <param name="id">The identifier.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the stored <see cref="Message{T}"/> for the given <paramref name="id"/>, or <see langword="null"/> if not found.</returns>
     Task<Message<IDictionary<string, string[]>>> ReadAsync(string id);
 
     /// <summary>
     /// Deletes the authorization parameters.
     /// </summary>
     /// <param name="id">The identifier.</param>
-    /// <returns></returns>
     Task DeleteAsync(string id);
 }

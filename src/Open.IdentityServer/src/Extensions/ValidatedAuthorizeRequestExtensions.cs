@@ -10,18 +10,30 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-#pragma warning disable 1591
 
 namespace Open.IdentityServer.Validation;
 
+/// <summary>
+/// Extension methods for <see cref="ValidatedAuthorizeRequest"/>.
+/// </summary>
 public static class ValidatedAuthorizeRequestExtensions
 {
+    /// <summary>
+    /// Removes the prompt parameter from the request.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
     public static void RemovePrompt(this ValidatedAuthorizeRequest request)
     {
         request.PromptModes = Enumerable.Empty<string>();
         request.Raw.Remove(OidcConstants.AuthorizeRequest.Prompt);
     }
 
+    /// <summary>
+    /// Gets the first ACR value that starts with the specified prefix, with the prefix removed.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
+    /// <param name="prefix">The prefix to search for.</param>
+    /// <returns>The ACR value with the prefix removed, or <c>null</c> if no matching value is found.</returns>
     public static string GetPrefixedAcrValue(this ValidatedAuthorizeRequest request, string prefix)
     {
         var value = request.AuthenticationContextReferenceClasses
@@ -35,6 +47,11 @@ public static class ValidatedAuthorizeRequestExtensions
         return value;
     }
 
+    /// <summary>
+    /// Removes all ACR values that start with the specified prefix from the request.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
+    /// <param name="prefix">The prefix to match against ACR values.</param>
     public static void RemovePrefixedAcrValue(this ValidatedAuthorizeRequest request, string prefix)
     {
         request.AuthenticationContextReferenceClasses.RemoveAll(acr => acr.StartsWith(prefix, StringComparison.Ordinal));
@@ -49,21 +66,40 @@ public static class ValidatedAuthorizeRequestExtensions
         }
     }
 
+    /// <summary>
+    /// Gets the identity provider (IdP) hint from the request's ACR values.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
+    /// <returns>The IdP hint value, or <c>null</c> if not present.</returns>
     public static string GetIdP(this ValidatedAuthorizeRequest request)
     {
         return request.GetPrefixedAcrValue(Constants.KnownAcrValues.HomeRealm);
     }
 
+    /// <summary>
+    /// Removes the identity provider (IdP) hint from the request's ACR values.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
     public static void RemoveIdP(this ValidatedAuthorizeRequest request)
     {
         request.RemovePrefixedAcrValue(Constants.KnownAcrValues.HomeRealm);
     }
 
+    /// <summary>
+    /// Gets the tenant hint from the request's ACR values.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
+    /// <returns>The tenant value, or <c>null</c> if not present.</returns>
     public static string GetTenant(this ValidatedAuthorizeRequest request)
     {
         return request.GetPrefixedAcrValue(Constants.KnownAcrValues.Tenant);
     }
 
+    /// <summary>
+    /// Gets the custom ACR values from the request, excluding all well-known ACR value prefixes.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
+    /// <returns>A collection of custom ACR values.</returns>
     public static IEnumerable<string> GetAcrValues(this ValidatedAuthorizeRequest request)
     {
         return request
@@ -72,7 +108,12 @@ public static class ValidatedAuthorizeRequestExtensions
             .Distinct()
             .ToArray();
     }
-
+    
+    /// <summary>
+    /// Removes the specified ACR value from the request.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
+    /// <param name="value">The ACR value to remove.</param>
     public static void RemoveAcrValue(this ValidatedAuthorizeRequest request, string value)
     {
         request.AuthenticationContextReferenceClasses.RemoveAll(x => x.Equals(value, StringComparison.Ordinal));
@@ -87,6 +128,11 @@ public static class ValidatedAuthorizeRequestExtensions
         }
     }
 
+    /// <summary>
+    /// Adds the specified ACR value to the request.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
+    /// <param name="value">The ACR value to add.</param>
     public static void AddAcrValue(this ValidatedAuthorizeRequest request, string value)
     {
         if (String.IsNullOrWhiteSpace(value)) throw new ArgumentNullException(nameof(value));
@@ -96,6 +142,11 @@ public static class ValidatedAuthorizeRequestExtensions
         request.Raw[OidcConstants.AuthorizeRequest.AcrValues] = acr_values;
     }
 
+    /// <summary>
+    /// Generates the session state value for the OpenID Connect check session mechanism.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
+    /// <returns>A session state string derived from the client ID, origin, session ID, and a random salt; or <c>null</c> if the request is not a valid OpenID Connect request.</returns>
     public static string GenerateSessionStateValue(this ValidatedAuthorizeRequest request)
     {
         if (request == null) return null;

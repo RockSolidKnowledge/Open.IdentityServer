@@ -44,7 +44,7 @@ public class DistributedDeviceFlowThrottlingService : IDeviceFlowThrottlingServi
     /// </summary>
     /// <param name="deviceCode">The device code.</param>
     /// <param name="details">The device code details.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to <see langword="true"/> if the client is polling faster than the configured interval and should slow down; otherwise <see langword="false"/>.</returns>
     /// <exception cref="ArgumentNullException">deviceCode</exception>
     public async Task<bool> ShouldSlowDown(string deviceCode, DeviceCode details)
     {

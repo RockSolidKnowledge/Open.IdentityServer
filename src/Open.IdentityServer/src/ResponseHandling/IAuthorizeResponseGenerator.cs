@@ -16,6 +16,6 @@ public interface IAuthorizeResponseGenerator
     /// Creates the response
     /// </summary>
     /// <param name="request">The request.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to an <see cref="AuthorizeResponse"/> for the requested grant type (code, implicit, or hybrid).</returns>
     Task<AuthorizeResponse> CreateResponseAsync(ValidatedAuthorizeRequest request);
 }

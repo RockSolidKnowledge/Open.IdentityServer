@@ -49,7 +49,6 @@ public class DiscoveryDocumentResult : IEndpointResult
     /// Executes the result.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
     public Task ExecuteAsync(HttpContext context)
     {
         if (MaxAge.HasValue && MaxAge.Value >= 0)

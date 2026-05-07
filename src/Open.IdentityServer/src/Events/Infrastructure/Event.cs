@@ -36,7 +36,7 @@ public abstract class Event
     /// <summary>
     /// Allows implementing custom initialization logic.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task that completes when any custom initialization logic has finished.</returns>
     protected internal virtual Task PrepareAsync()
     {
         return Task.CompletedTask;
@@ -126,7 +126,7 @@ public abstract class Event
     /// Obfuscates a token.
     /// </summary>
     /// <param name="value">The token.</param>
-    /// <returns></returns>
+    /// <returns>A string with all but the last four characters replaced with asterisks, or <c>"********"</c> if the value is missing or four characters or fewer.</returns>
     protected static string Obfuscate(string value)
     {
         var last4Chars = "****";

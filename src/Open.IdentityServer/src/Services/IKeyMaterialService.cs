@@ -17,7 +17,9 @@ public interface IKeyMaterialService
     /// <summary>
     /// Gets all validation keys.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A task that resolves to a collection of validation keys used for token signature validation.
+    /// </returns>
     Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync();
 
     /// <summary>
@@ -25,12 +27,16 @@ public interface IKeyMaterialService
     /// </summary>
     /// <param name="allowedAlgorithms">Collection of algorithms used to filter the server supported algorithms. 
     /// A value of null or empty indicates that the server default should be returned.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// A task that resolves to the signing credentials matching the allowed algorithms, or the server default if none are specified.
+    /// </returns>
     Task<SigningCredentials> GetSigningCredentialsAsync(IEnumerable<string> allowedAlgorithms = null);
 
     /// <summary>
     /// Gets all signing credentials.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A task that resolves to a collection of all available signing credentials.
+    /// </returns>
     Task<IEnumerable<SigningCredentials>> GetAllSigningCredentialsAsync();
 }

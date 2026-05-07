@@ -17,19 +17,30 @@ public class IntrospectionClient
     private readonly IntrospectionClientOptions _options;
 
     /// <summary>
-    /// ctor
+    /// Initializes a new <see cref="IntrospectionClient"/> that reuses a single
+    /// <see cref="HttpMessageInvoker"/> instance for every request.
     /// </summary>
-    /// <param name="client"></param>
-    /// <param name="options"></param>
+    /// <param name="client">The <see cref="HttpMessageInvoker"/> (typically an
+    /// <see cref="HttpClient"/>) used to send introspection requests.</param>
+    /// <param name="options">Endpoint address and client-authentication settings
+    /// applied to every request issued by this client.</param>
     public IntrospectionClient(HttpMessageInvoker client, IntrospectionClientOptions options)
         : this(() => client, options)
     { }
 
     /// <summary>
-    /// ctor
+    /// Initializes a new <see cref="IntrospectionClient"/> that resolves its
+    /// <see cref="HttpMessageInvoker"/> on each call — use this overload when the
+    /// invoker is obtained from <c>IHttpClientFactory</c> or otherwise has a
+    /// managed lifetime.
     /// </summary>
-    /// <param name="client"></param>
-    /// <param name="options"></param>
+    /// <param name="client">Factory invoked once per introspection request to
+    /// obtain the <see cref="HttpMessageInvoker"/> used to send it.</param>
+    /// <param name="options">Endpoint address and client-authentication settings
+    /// applied to every request issued by this client.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="client"/> or <paramref name="options"/> is <see langword="null"/>.
+    /// </exception>
     public IntrospectionClient(Func<HttpMessageInvoker> client, IntrospectionClientOptions options)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
@@ -61,13 +72,22 @@ public class IntrospectionClient
     }
 
     /// <summary>
-    /// Introspects a token
+    /// Sends an RFC 7662 token-introspection request for the supplied token.
     /// </summary>
-    /// <param name="token"></param>
-    /// <param name="tokenTypeHint"></param>
-    /// <param name="parameters"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="token">The access, refresh, or reference token to introspect.</param>
+    /// <param name="tokenTypeHint">Optional hint about the token type
+    /// (e.g. <c>access_token</c> or <c>refresh_token</c>) sent as the
+    /// <c>token_type_hint</c> form parameter.</param>
+    /// <param name="parameters">Optional additional form parameters merged into
+    /// the request on top of any defaults supplied via
+    /// <see cref="ClientOptions.Parameters"/>.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation
+    /// should be canceled.</param>
+    /// <returns>
+    /// A <see cref="TokenIntrospectionResponse"/> describing the token's active
+    /// state and associated claims, or carrying protocol/transport error details
+    /// if the request failed.
+    /// </returns>
     public Task<TokenIntrospectionResponse> Introspect(string token, string? tokenTypeHint = null, Parameters? parameters = null, CancellationToken cancellationToken = default)
     {
         var request = new TokenIntrospectionRequest

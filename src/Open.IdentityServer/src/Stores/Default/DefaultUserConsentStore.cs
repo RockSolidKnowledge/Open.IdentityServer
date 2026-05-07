@@ -41,7 +41,6 @@ public class DefaultUserConsentStore : DefaultGrantStore<Consent>, IUserConsentS
     /// Stores the user consent asynchronous.
     /// </summary>
     /// <param name="consent">The consent.</param>
-    /// <returns></returns>
     public Task StoreUserConsentAsync(Consent consent)
     {
         var key = GetConsentKey(consent.SubjectId, consent.ClientId);
@@ -53,7 +52,7 @@ public class DefaultUserConsentStore : DefaultGrantStore<Consent>, IUserConsentS
     /// </summary>
     /// <param name="subjectId">The subject identifier.</param>
     /// <param name="clientId">The client identifier.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the <see cref="Consent"/> record for the specified subject and client, or <see langword="null"/> if not found.</returns>
     public async Task<Consent> GetUserConsentAsync(string subjectId, string clientId)
     {
         var key = GetConsentKey(subjectId, clientId);
@@ -74,8 +73,7 @@ public class DefaultUserConsentStore : DefaultGrantStore<Consent>, IUserConsentS
     /// Removes the user consent asynchronous.
     /// </summary>
     /// <param name="subjectId">The subject identifier.</param>
-    /// <param name="clientId">The client identifier.</param>
-    /// <returns></returns>
+    /// <param name="clientId">The client identifier.</param>/// <returns>A task that resolves to the <see cref="Consent"/> record for the specified subject and client, or <see langword="null"/> if not found.</returns>
     public Task RemoveUserConsentAsync(string subjectId, string clientId)
     {
         var key = GetConsentKey(subjectId, clientId);

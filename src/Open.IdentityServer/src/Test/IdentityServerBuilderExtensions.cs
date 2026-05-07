@@ -17,7 +17,7 @@ public static class IdentityServerBuilderExtensions
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="users">The users.</param>
-    /// <returns></returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddTestUsers(this IIdentityServerBuilder builder, List<TestUser> users)
     {
         builder.Services.AddSingleton(new TestUserStore(users));

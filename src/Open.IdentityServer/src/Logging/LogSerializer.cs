@@ -27,7 +27,7 @@ internal static class LogSerializer
     /// Serializes the specified object.
     /// </summary>
     /// <param name="logObject">The object.</param>
-    /// <returns></returns>
+    /// <returns>A formatted JSON string representation of <paramref name="logObject"/>, with null properties omitted and enum values serialized as strings.</returns>
     public static string Serialize(object logObject)
     {
         return JsonSerializer.Serialize(logObject, Options);

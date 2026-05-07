@@ -42,7 +42,7 @@ public class CachingCorsPolicyService<T> : ICorsPolicyService
     private readonly ILogger Logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CachingResourceStore{T}"/> class.
+    /// Initializes a new instance of the <see cref="CachingCorsPolicyService{T}"/> class.
     /// </summary>
     /// <param name="options">The options.</param>
     /// <param name="inner">The inner.</param>
@@ -63,7 +63,7 @@ public class CachingCorsPolicyService<T> : ICorsPolicyService
     /// Determines whether origin is allowed.
     /// </summary>
     /// <param name="origin">The origin.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to <see langword="true"/> if the origin is allowed; otherwise <see langword="false"/>. The result is cached for the duration configured in <see cref="IdentityServerOptions.Caching"/>.</returns>
     public virtual async Task<bool> IsOriginAllowedAsync(string origin)
     {
         var entry = await CorsCache.GetAsync(origin,

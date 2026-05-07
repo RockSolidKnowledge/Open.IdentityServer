@@ -18,11 +18,11 @@ public class MutualTlsEndpointMiddleware
     private readonly IdentityServerOptions _options;
 
     /// <summary>
-    ///     ctor
+    /// Initializes a new instance of the <see cref="MutualTlsEndpointMiddleware"/> class.
     /// </summary>
-    /// <param name="next"></param>
-    /// <param name="options"></param>
-    /// <param name="logger"></param>
+    /// <param name="next">The next middleware in the pipeline.</param>
+    /// <param name="options">The IdentityServer options used to determine MTLS configuration.</param>
+    /// <param name="logger">The logger.</param>
     public MutualTlsEndpointMiddleware(RequestDelegate next, IdentityServerOptions options,
         ILogger<MutualTlsEndpointMiddleware> logger)
     {
@@ -31,7 +31,14 @@ public class MutualTlsEndpointMiddleware
         _logger = logger;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Processes the incoming request, triggering mutual TLS certificate authentication for
+    /// MTLS-mapped paths or domains before passing the (potentially rewritten) request to
+    /// the next middleware.
+    /// </summary>
+    /// <param name="context">The current HTTP context.</param>
+    /// <param name="schemes">The authentication scheme provider, used to resolve available schemes.</param>
+    /// <returns>A <see cref="Task"/> that completes once the request has been handled or forwarded.</returns>
     public async Task Invoke(HttpContext context, IAuthenticationSchemeProvider schemes)
     {
         if (_options.MutualTls.Enabled)

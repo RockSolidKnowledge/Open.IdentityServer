@@ -17,7 +17,9 @@ public class DefaultHandleGenerationService : IHandleGenerationService
     /// Generates a handle.
     /// </summary>
     /// <param name="length">The length.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// A task that resolves to a unique handle string of the specified length, encoded in hexadecimal format.
+    /// </returns>
     public Task<string> GenerateAsync(int length)
     {
         return Task.FromResult(CryptoRandom.CreateUniqueId(length, CryptoRandom.OutputFormat.Hex));

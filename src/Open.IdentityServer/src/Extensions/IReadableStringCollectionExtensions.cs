@@ -8,12 +8,19 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 
-#pragma warning disable 1591
 
 namespace Open.IdentityServer.Extensions;
 
+/// <summary>
+/// Extension methods for converting string collections to <see cref="NameValueCollection"/>.
+/// </summary>
 public static class IReadableStringCollectionExtensions
 {
+    /// <summary>
+    /// Converts an enumerable of key/value pairs with <see cref="StringValues"/> to a <see cref="NameValueCollection"/>.
+    /// </summary>
+    /// <param name="collection">The collection of key/value pairs to convert.</param>
+    /// <returns>A <see cref="NameValueCollection"/> containing all key/value pairs from the source collection.</returns>
     [DebuggerStepThrough]
     public static NameValueCollection AsNameValueCollection(this IEnumerable<KeyValuePair<string, StringValues>> collection)
     {
@@ -27,6 +34,11 @@ public static class IReadableStringCollectionExtensions
         return nv;
     }
 
+    /// <summary>
+    /// Converts a dictionary with <see cref="StringValues"/> to a <see cref="NameValueCollection"/>.
+    /// </summary>
+    /// <param name="collection">The dictionary to convert.</param>
+    /// <returns>A <see cref="NameValueCollection"/> containing all key/value pairs from the source dictionary.</returns>
     [DebuggerStepThrough]
     public static NameValueCollection AsNameValueCollection(this IDictionary<string, StringValues> collection)
     {

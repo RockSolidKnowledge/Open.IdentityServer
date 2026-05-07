@@ -32,7 +32,7 @@ public class TestUserStore
     /// </summary>
     /// <param name="username">The username.</param>
     /// <param name="password">The password.</param>
-    /// <returns></returns>
+    /// <returns><see langword="true"/> if a user with the specified <paramref name="username"/> exists and the <paramref name="password"/> matches; otherwise, <see langword="false"/>.</returns>
     public bool ValidateCredentials(string username, string password)
     {
         var user = FindByUsername(username);
@@ -54,7 +54,7 @@ public class TestUserStore
     /// Finds the user by subject identifier.
     /// </summary>
     /// <param name="subjectId">The subject identifier.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="TestUser"/> with the matching subject identifier, or <see langword="null"/> if not found.</returns>
     public TestUser FindBySubjectId(string subjectId)
     {
         return _users.FirstOrDefault(x => x.SubjectId == subjectId);
@@ -64,7 +64,7 @@ public class TestUserStore
     /// Finds the user by username.
     /// </summary>
     /// <param name="username">The username.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="TestUser"/> with the matching username (case-insensitive), or <see langword="null"/> if not found.</returns>
     public TestUser FindByUsername(string username)
     {
         return _users.FirstOrDefault(x => x.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
@@ -75,7 +75,7 @@ public class TestUserStore
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="userId">The user identifier.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="TestUser"/> registered with the specified <paramref name="provider"/> and <paramref name="userId"/>, or <see langword="null"/> if not found.</returns>
     public TestUser FindByExternalProvider(string provider, string userId)
     {
         return _users.FirstOrDefault(x =>
@@ -89,7 +89,7 @@ public class TestUserStore
     /// <param name="provider">The provider.</param>
     /// <param name="userId">The user identifier.</param>
     /// <param name="claims">The claims.</param>
-    /// <returns></returns>
+    /// <returns>The newly created and stored <see cref="TestUser"/>, provisioned with a unique subject ID and the filtered and mapped <paramref name="claims"/>.</returns>
     public TestUser AutoProvisionUser(string provider, string userId, List<Claim> claims)
     {
         // create a list of claims that we want to transfer into our store

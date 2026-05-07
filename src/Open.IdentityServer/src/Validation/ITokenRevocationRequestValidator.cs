@@ -16,8 +16,10 @@ public interface ITokenRevocationRequestValidator
     /// <summary>
     /// Validates the request.
     /// </summary>
-    /// <param name="parameters">The parameters.</param>
-    /// <param name="client">The client.</param>
-    /// <returns></returns>
+    /// <param name="parameters">The form parameters from the token revocation request.</param>
+    /// <param name="client">The authenticated client making the revocation request.</param>
+    /// <returns>
+    /// A task that resolves to a <see cref="TokenRevocationRequestValidationResult"/> indicating whether the revocation request is valid.
+    /// </returns>
     Task<TokenRevocationRequestValidationResult> ValidateRequestAsync(NameValueCollection parameters, Client client);
 }

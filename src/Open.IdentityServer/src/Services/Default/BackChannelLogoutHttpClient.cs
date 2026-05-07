@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace Open.IdentityServer.Services;
 
 /// <summary>
-/// Models making HTTP requests for back-channel logout notification.
+/// Provides functionality for sending HTTP POST requests to back-channel logout endpoints.
 /// </summary>
 public class DefaultBackChannelLogoutHttpClient : IBackChannelLogoutHttpClient
 {
@@ -21,8 +21,8 @@ public class DefaultBackChannelLogoutHttpClient : IBackChannelLogoutHttpClient
     /// <summary>
     /// Constructor for BackChannelLogoutHttpClient.
     /// </summary>
-    /// <param name="client"></param>
-    /// <param name="loggerFactory"></param>
+    /// <param name="client">The <see cref="HttpClient"/> used to send back-channel logout POST requests.</param>
+    /// <param name="loggerFactory">The logger factory used to create a logger for this class.</param>
     public DefaultBackChannelLogoutHttpClient(HttpClient client, ILoggerFactory loggerFactory)
     {
         _client = client;
@@ -32,9 +32,8 @@ public class DefaultBackChannelLogoutHttpClient : IBackChannelLogoutHttpClient
     /// <summary>
     /// Posts the payload to the url.
     /// </summary>
-    /// <param name="url"></param>
-    /// <param name="payload"></param>
-    /// <returns></returns>
+    /// <param name="url">The back-channel logout endpoint URL to POST to.</param>
+    /// <param name="payload">The form-URL-encoded key/value pairs to include in the request body.</param>
     public async Task PostAsync(string url, Dictionary<string, string> payload)
     {
         try

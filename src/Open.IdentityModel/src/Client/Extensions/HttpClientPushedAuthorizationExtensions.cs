@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Open.IdentityModel.Client;
 
 /// <summary>
-/// HttpClient extensions for OIDC discovery
+/// HttpClient extensions for OAuth 2.0 Pushed Authorization Requests (PAR).
 /// </summary>
 public static class HttpClientPushedAuthorizationExtensions
 {
@@ -18,9 +18,9 @@ public static class HttpClientPushedAuthorizationExtensions
     /// Sends a pushed authorization request
     /// </summary>
     /// <param name="client">The HTTP client.</param>
-    /// <param name="request"></param>
+    /// <param name="request">The request</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="PushedAuthorizationResponse"/> containing the <c>request_uri</c> and expiry, or error details if the request failed.</returns>
     public static Task<PushedAuthorizationResponse> PushAuthorizationAsync(this HttpClient client, PushedAuthorizationRequest request, CancellationToken cancellationToken = default)
     {
         if(request.Parameters.ContainsKey(OidcConstants.AuthorizeRequest.RequestUri))

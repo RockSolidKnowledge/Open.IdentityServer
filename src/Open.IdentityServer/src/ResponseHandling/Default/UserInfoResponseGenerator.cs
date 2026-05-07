@@ -55,7 +55,7 @@ public class UserInfoResponseGenerator : IUserInfoResponseGenerator
     /// Creates the response.
     /// </summary>
     /// <param name="validationResult">The userinfo request validation result.</param>
-    /// <returns></returns>
+    /// <returns>A dictionary of claim type/value pairs to be included in the UserInfo response.</returns>
     /// <exception cref="System.InvalidOperationException">Profile service returned incorrect subject value</exception>
     public virtual async Task<Dictionary<string, object>> ProcessAsync(UserInfoRequestValidationResult validationResult)
     {
@@ -110,8 +110,8 @@ public class UserInfoResponseGenerator : IUserInfoResponseGenerator
     /// <summary>
     ///  Gets the identity resources from the scopes.
     /// </summary>
-    /// <param name="scopes"></param>
-    /// <returns></returns>
+    /// <param name="scopes">The scope values from the access token used to determine which identity resources to load.</param>
+    /// <returns>A <see cref="ResourceValidationResult"/> containing the matching identity resources, or <see langword="null"/> when no scopes are provided.</returns>
     protected internal virtual async Task<ResourceValidationResult> GetRequestedResourcesAsync(IEnumerable<string> scopes)
     {
         if (scopes == null || !scopes.Any())
@@ -134,8 +134,8 @@ public class UserInfoResponseGenerator : IUserInfoResponseGenerator
     /// <summary>
     /// Gets the requested claim types.
     /// </summary>
-    /// <param name="resourceValidationResult"></param>
-    /// <returns></returns>
+    /// <param name="resourceValidationResult">The resource validation result containing the identity resources whose user claims should be returned.</param>
+    /// <returns>The distinct set of claim types requested by the resolved identity resources, or an empty sequence when <paramref name="resourceValidationResult"/> is <see langword="null"/>.</returns>
     protected internal virtual Task<IEnumerable<string>> GetRequestedClaimTypesAsync(ResourceValidationResult resourceValidationResult)
     {
         IEnumerable<string> result = null;

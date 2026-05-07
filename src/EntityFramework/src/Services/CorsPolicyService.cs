@@ -24,7 +24,7 @@ public class CorsPolicyService : ICorsPolicyService
     /// <summary>
     /// Initializes a new instance of the <see cref="CorsPolicyService"/> class.
     /// </summary>
-    /// <param name="context">The context.</param>
+    /// <param name="context">The HTTP context accessor used to resolve the configuration database context per request.</param>
     /// <param name="logger">The logger.</param>
     /// <exception cref="ArgumentNullException">context</exception>
     public CorsPolicyService(IHttpContextAccessor context, ILogger<CorsPolicyService> logger)
@@ -34,10 +34,9 @@ public class CorsPolicyService : ICorsPolicyService
     }
 
     /// <summary>
-    /// Determines whether origin is allowed.
+    /// Determines whether the specified origin is allowed based on the client CORS origins configured in the database.
     /// </summary>
     /// <param name="origin">The origin.</param>
-    /// <returns></returns>
     public async Task<bool> IsOriginAllowedAsync(string origin)
     {
         origin = origin.ToLowerInvariant();

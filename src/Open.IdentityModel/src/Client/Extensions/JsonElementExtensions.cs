@@ -9,7 +9,7 @@ using System.Text.Json;
 namespace Open.IdentityModel.Client;
 
 /// <summary>
-/// Extensions for JObject
+/// Extensions for <see cref="System.Text.Json.JsonElement"/>
 /// </summary>
 public static class JsonElementExtensions
 {
@@ -19,8 +19,7 @@ public static class JsonElementExtensions
     /// <param name="json">The json.</param>
     /// <param name="issuer">Optional issuer name to add to claims.</param>
     /// <param name="excludeKeys">Claims that should be excluded.</param>
-    /// <returns></returns>
-
+    /// <returns>A sequence of <see cref="Claim"/> objects parsed from the JSON properties, optionally scoped to the specified <paramref name="issuer"/> and with the specified keys excluded.</returns>
     public static IEnumerable<Claim> ToClaims(this JsonElement json, string? issuer = null, params string[] excludeKeys)
     {
         var claims = new List<Claim>();
@@ -62,7 +61,7 @@ public static class JsonElementExtensions
     /// </summary>
     /// <param name="json">The json.</param>
     /// <param name="name">The name.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="JsonElement"/> for the named property, or a default (undefined) element if the property is not present.</returns>
     public static JsonElement TryGetValue(this JsonElement json, string name)
     {
         if (json.ValueKind == JsonValueKind.Undefined)
@@ -78,7 +77,7 @@ public static class JsonElementExtensions
     /// </summary>
     /// <param name="json">The json.</param>
     /// <param name="name">The name.</param>
-    /// <returns></returns>
+    /// <returns>The integer value of the named property, or <see langword="null"/> if the property is absent or cannot be parsed as an integer.</returns>
     public static int? TryGetInt(this JsonElement json, string name)
     {
         var value = json.TryGetString(name);
@@ -99,7 +98,7 @@ public static class JsonElementExtensions
     /// </summary>
     /// <param name="json">The json.</param>
     /// <param name="name">The name.</param>
-    /// <returns></returns>
+    /// <returns>The string value of the named property, or <see langword="null"/> if the property is absent.</returns>
     public static string? TryGetString(this JsonElement json, string name)
     {
         JsonElement value = json.TryGetValue(name);
@@ -111,7 +110,7 @@ public static class JsonElementExtensions
     /// </summary>
     /// <param name="json">The json.</param>
     /// <param name="name">The name.</param>
-    /// <returns></returns>
+    /// <returns>The boolean value of the named property, or <see langword="null"/> if the property is absent or cannot be parsed as a boolean.</returns>
     public static bool? TryGetBoolean(this JsonElement json, string name)
     {
         var value = json.TryGetString(name);
@@ -129,7 +128,7 @@ public static class JsonElementExtensions
     /// </summary>
     /// <param name="json">The json.</param>
     /// <param name="name">The name.</param>
-    /// <returns></returns>
+    /// <returns>A sequence of strings from the named JSON array property, or an empty sequence if the property is absent or not an array.</returns>
     public static IEnumerable<string> TryGetStringArray(this JsonElement json, string name)
     {
         var values = new List<string>();

@@ -14,9 +14,9 @@ public class DefaultReplayCache : IReplayCache
     private readonly IDistributedCache _cache;
         
     /// <summary>
-    /// ctor
+    /// Initializes a new instance of the <see cref="DefaultReplayCache"/> class.
     /// </summary>
-    /// <param name="cache"></param>
+    /// <param name="cache">The distributed cache used to store and look up replay-detection entries.</param>
     public DefaultReplayCache(IDistributedCache cache)
     {
         _cache = cache;

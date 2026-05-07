@@ -7,14 +7,13 @@ using System.Threading.Tasks;
 namespace Open.IdentityServer.Validation;
 
 /// <summary>
-/// Validator for handling client authentication
+/// Validator for client configuration.
 /// </summary>
 public interface IClientConfigurationValidator
 {
     /// <summary>
     /// Determines whether the configuration of a client is valid.
     /// </summary>
-    /// <param name="context">The context.</param>
-    /// <returns></returns>
+    /// <param name="context">The client configuration validation context containing the client to validate.</param>
     Task ValidateAsync(ClientConfigurationValidationContext context);
 }

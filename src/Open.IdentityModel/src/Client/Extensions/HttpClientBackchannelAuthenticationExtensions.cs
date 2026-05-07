@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Open.IdentityModel.Client;
 
 /// <summary>
-/// HttpClient extensions CIBA backchannel authentication
+/// HttpClient extensions for CIBA backchannel authentication
 /// </summary>
 public static class HttpClientBackchannelAuthenticationExtensions
 {
@@ -20,7 +20,7 @@ public static class HttpClientBackchannelAuthenticationExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="BackchannelAuthenticationResponse"/> containing the authentication request ID and polling interval, or error details if the request failed.</returns>
     public static async Task<BackchannelAuthenticationResponse> RequestBackchannelAuthenticationAsync(this HttpMessageInvoker client, BackchannelAuthenticationRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();

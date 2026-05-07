@@ -18,6 +18,6 @@ public interface IAuthorizeInteractionResponseGenerator
     /// </summary>
     /// <param name="request">The request.</param>
     /// <param name="consent">The consent.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to an <see cref="InteractionResponse"/> indicating whether the user must log in, consent, or can proceed with the authorization request.</returns>
     Task<InteractionResponse> ProcessInteractionAsync(ValidatedAuthorizeRequest request, ConsentResponse consent = null);
 }

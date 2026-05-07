@@ -5,7 +5,8 @@
 namespace Open.IdentityServer.Configuration;
 
 /// <summary>
-/// 
+/// Maximum input length (in characters) that IdentityServer will accept for each well-known protocol parameter.
+/// Requests carrying a parameter longer than the configured limit are rejected as invalid.
 /// </summary>
 public class InputLengthRestrictions
 {

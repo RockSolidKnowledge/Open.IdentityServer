@@ -34,8 +34,10 @@ public class SecretParser : ISecretsListParser
     /// <summary>
     /// Checks the context to find a secret.
     /// </summary>
-    /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
+    /// <param name="context">The HTTP context containing the incoming request to parse for a secret.</param>
+    /// <returns>
+    /// A task that resolves to the best <see cref="ParsedSecret"/> found by the registered parsers, or <c>null</c> if no secret was found.
+    /// </returns>
     public async Task<ParsedSecret> ParseAsync(HttpContext context)
     {
         // see if a registered parser finds a secret on the request
@@ -69,7 +71,9 @@ public class SecretParser : ISecretsListParser
     /// <summary>
     /// Gets all available authentication methods.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A collection of authentication method strings supported by the registered secret parsers, excluding blank entries.
+    /// </returns>
     public IEnumerable<string> GetAvailableAuthenticationMethods()
     {
         return _parsers.Select(p => p.AuthenticationMethod).Where(p => !String.IsNullOrWhiteSpace(p));

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
@@ -26,7 +26,7 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="storeOptionsAction">The store options action.</param>
-    /// <returns>reference to the <see cref="IIdentityServerBuilder"/> passed in</returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddConfigurationStore(
         this IIdentityServerBuilder builder,
         Action<ConfigurationStoreOptions> storeOptionsAction = null)
@@ -40,7 +40,7 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// <typeparam name="TContext">The IConfigurationDbContext to use.</typeparam>
     /// <param name="builder">The builder.</param>
     /// <param name="storeOptionsAction">The store options action.</param>
-    /// <returns>reference to the <see cref="IIdentityServerBuilder"/> passed in</returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddConfigurationStore<TContext>(
         this IIdentityServerBuilder builder,
         Action<ConfigurationStoreOptions> storeOptionsAction = null)
@@ -59,7 +59,7 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// Configures caching for IClientStore, IResourceStore, and ICorsPolicyService with IdentityServer.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns>reference to the <see cref="IIdentityServerBuilder"/> passed in</returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddConfigurationStoreCache(
         this IIdentityServerBuilder builder)
     {
@@ -78,7 +78,7 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="storeOptionsAction">The store options action.</param>
-    /// <returns>reference to the <see cref="IIdentityServerBuilder"/> passed in</returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddOperationalStore(
         this IIdentityServerBuilder builder,
         Action<OperationalStoreOptions> storeOptionsAction = null)
@@ -92,7 +92,7 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// <typeparam name="TContext">The IPersistedGrantDbContext to use.</typeparam>
     /// <param name="builder">The builder.</param>
     /// <param name="storeOptionsAction">The store options action.</param>
-    /// <returns>reference to the <see cref="IIdentityServerBuilder"/> passed in</returns>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddOperationalStore<TContext>(
         this IIdentityServerBuilder builder,
         Action<OperationalStoreOptions> storeOptionsAction = null)
@@ -110,9 +110,9 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     /// <summary>
     /// Adds an implementation of the IOperationalStoreNotification to IdentityServer.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="builder"></param>
-    /// <returns>reference to the <see cref="IIdentityServerBuilder"/> passed in</returns>
+    /// <typeparam name="T">The concrete <see cref="IOperationalStoreNotification"/> implementation to register.</typeparam>
+    /// <param name="builder">The <see cref="IIdentityServerBuilder"/> to add the notification handler to.</param>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddOperationalStoreNotification<T>(
         this IIdentityServerBuilder builder)
         where T : class, IOperationalStoreNotification

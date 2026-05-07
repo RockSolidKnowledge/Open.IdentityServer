@@ -19,9 +19,9 @@ public static class HttpClientJsonWebKeySetExtensions
     /// Sends a JSON web key set document request
     /// </summary>
     /// <param name="client">The client.</param>
-    /// <param name="address"></param>
+    /// <param name="address">The JWKS endpoint URL. When <see langword="null"/>, the <see cref="HttpMessageInvoker"/>'s base address is used.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>The response from the JWK endpoint</returns>
     public static async Task<JsonWebKeySetResponse> GetJsonWebKeySetAsync(this HttpMessageInvoker client, string? address = null, CancellationToken cancellationToken = default)
     {
         return await client.GetJsonWebKeySetAsync(new JsonWebKeySetRequest
@@ -36,7 +36,7 @@ public static class HttpClientJsonWebKeySetExtensions
     /// <param name="client">The client.</param>
     /// <param name="request">The request</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
+    /// <returns>The response from the JWK endpoint</returns>
     public static async Task<JsonWebKeySetResponse> GetJsonWebKeySetAsync(this HttpMessageInvoker client, JsonWebKeySetRequest request, CancellationToken cancellationToken = default)
     {
         var clone = request.Clone();

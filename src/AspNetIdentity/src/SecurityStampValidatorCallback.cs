@@ -17,8 +17,7 @@ public class SecurityStampValidatorCallback
     /// Maintains the claims captured at login time that are not being created by ASP.NET Identity.
     /// This is needed to preserve claims such as idp, auth_time, amr.
     /// </summary>
-    /// <param name="context">The context.</param>
-    /// <returns></returns>
+    /// <param name="context">The context containing the current and new principals whose claims are to be merged.</param>
     public static Task UpdatePrincipal(SecurityStampRefreshingPrincipalContext context)
     {
         var newClaimTypes = context.NewPrincipal.Claims.Select(x => x.Type).ToArray();

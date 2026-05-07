@@ -27,7 +27,7 @@ public class InMemorySigningCredentialsStore : ISigningCredentialStore
     /// <summary>
     /// Gets the signing credentials.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the <see cref="SigningCredentials"/> held by this store.</returns>
     public Task<SigningCredentials> GetSigningCredentialsAsync()
     {
         return Task.FromResult(_credential);

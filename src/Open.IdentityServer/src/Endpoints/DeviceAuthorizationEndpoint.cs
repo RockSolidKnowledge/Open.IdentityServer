@@ -29,6 +29,14 @@ internal class DeviceAuthorizationEndpoint : IEndpointHandler
     private readonly IEventService _events;
     private readonly ILogger<DeviceAuthorizationEndpoint> _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DeviceAuthorizationEndpoint"/> class.
+    /// </summary>
+    /// <param name="clientValidator">The client validator.</param>
+    /// <param name="requestValidator">The request validator.</param>
+    /// <param name="responseGenerator">The response generator.</param>
+    /// <param name="events">The events service.</param>
+    /// <param name="logger">The logger.</param>
     public DeviceAuthorizationEndpoint(
         IClientSecretValidator clientValidator,
         IDeviceAuthorizationRequestValidator requestValidator,
@@ -47,8 +55,7 @@ internal class DeviceAuthorizationEndpoint : IEndpointHandler
     /// Processes the request.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
-    /// <exception cref="System.NotImplementedException"></exception>
+    /// <returns>A task that resolves to an <see cref="IEndpointResult"/> representing either a device authorization response or an error response.</returns>
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
         _logger.LogTrace("Processing device authorize request.");

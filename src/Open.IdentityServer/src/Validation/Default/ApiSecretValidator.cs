@@ -43,8 +43,10 @@ public class ApiSecretValidator : IApiSecretValidator
     /// <summary>
     /// Validates the secret on the current request.
     /// </summary>
-    /// <param name="context">The context.</param>
-    /// <returns></returns>
+    /// <param name="context">The HTTP context containing the incoming request from which the API credentials are parsed.</param>
+    /// <returns>
+    /// A task that resolves to an <see cref="ApiSecretValidationResult"/> indicating whether the API resource was successfully authenticated.
+    /// </returns>
     public async Task<ApiSecretValidationResult> ValidateAsync(HttpContext context)
     {
         _logger.LogTrace("Start API validation");

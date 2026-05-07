@@ -16,7 +16,7 @@ public static class CryptoHelper
     /// <summary>
     /// Creates a new RSA security key.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A new <see cref="RsaSecurityKey"/> with a randomly generated key ID.</returns>
     public static RsaSecurityKey CreateRsaSecurityKey(int keySize = 2048)
     {
         return new RsaSecurityKey(RSA.Create(keySize))
@@ -30,7 +30,7 @@ public static class CryptoHelper
     /// </summary>
     /// <param name="curve">The name of the curve as defined in
     /// https://tools.ietf.org/html/rfc7518#section-6.2.1.1.</param>
-    /// <returns></returns>
+    /// <returns>A new <see cref="ECDsaSecurityKey"/> for the specified curve with a randomly generated key ID.</returns>
     public static ECDsaSecurityKey CreateECDsaSecurityKey(string curve = JsonWebKeyECTypes.P256)
     {
         return new ECDsaSecurityKey(ECDsa.Create(GetCurveFromCrvValue(curve)))
@@ -44,7 +44,7 @@ public static class CryptoHelper
     /// </summary>
     /// <param name="parameters">The parameters.</param>
     /// <param name="id">The identifier.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="RsaSecurityKey"/> initialised from <paramref name="parameters"/> with <see cref="Microsoft.IdentityModel.Tokens.SecurityKey.KeyId"/> set to <paramref name="id"/>.</returns>
     public static RsaSecurityKey CreateRsaSecurityKey(RSAParameters parameters, string id)
     {
         var key = new RsaSecurityKey(parameters)
@@ -60,7 +60,7 @@ public static class CryptoHelper
     /// </summary>
     /// <param name="value">The value to hash.</param>
     /// <param name="tokenSigningAlgorithm">The token signing algorithm</param>
-    /// <returns></returns>
+    /// <returns>The Base64Url-encoded left-half hash of <paramref name="value"/> using the hash algorithm that corresponds to <paramref name="tokenSigningAlgorithm"/>.</returns>
     public static string CreateHashClaimValue(string value, string tokenSigningAlgorithm)
     {
         using (var sha = GetHashAlgorithmForSigningAlgorithm(tokenSigningAlgorithm))
@@ -79,7 +79,7 @@ public static class CryptoHelper
     /// Returns the matching hashing algorithm for a token signing algorithm
     /// </summary>
     /// <param name="signingAlgorithm">The signing algorithm</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="HashAlgorithm"/> instance (SHA-256, SHA-384, or SHA-512) matching the bit size suffix of <paramref name="signingAlgorithm"/>.</returns>
     public static HashAlgorithm GetHashAlgorithmForSigningAlgorithm(string signingAlgorithm)
     {
         var signingAlgorithmBits = int.Parse(signingAlgorithm.Substring(signingAlgorithm.Length - 3));

@@ -13,16 +13,16 @@ public interface IAuthorityValidationStrategy
     /// <summary>
     /// Validate issuer name found in Discovery Document.
     /// </summary>
-    /// <param name="expectedAuthority">Authority expected.</param>
     /// <param name="issuerName">Authority declared in Discovery Document.</param>
-    /// <returns></returns>
+    /// <param name="expectedAuthority">Authority expected.</param>
+    /// <returns>An <see cref="AuthorityValidationResult"/> indicating whether the issuer name is valid.</returns>
     AuthorityValidationResult IsIssuerNameValid(string issuerName, string expectedAuthority);
 
     /// <summary>
     /// Validate end point found in Discovery Document.
     /// </summary>
-    /// <param name="expectedAuthority">Authority expected.</param>
     /// <param name="endpoint">Endpoint declared in Discovery Document.</param>
-    /// <returns></returns>
+    /// <param name="expectedAuthority">Authority expected.</param>
+    /// <returns>An <see cref="AuthorityValidationResult"/> indicating whether the endpoint is valid.</returns>
     AuthorityValidationResult IsEndpointValid(string endpoint, IEnumerable<string> expectedAuthority);
 }

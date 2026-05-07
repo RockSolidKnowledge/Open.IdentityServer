@@ -34,6 +34,6 @@ public interface IPersistedGrantDbContext : IDisposable
     /// <summary>
     /// Saves the changes.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the number of state entries written to the database.</returns>
     Task<int> SaveChangesAsync();
 }

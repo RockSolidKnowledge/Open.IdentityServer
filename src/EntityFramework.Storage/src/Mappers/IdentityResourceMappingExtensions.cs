@@ -10,7 +10,7 @@ public static class IdentityResourceMappingExtensions
     /// <summary>
     /// Mapping extension methods for <see cref="Entities.IdentityResource"/>
     /// </summary>
-    /// <param name="identityResourceEntity"></param>
+    /// <param name="identityResourceEntity">The persisted <see cref="Entities.IdentityResource"/> instance these extension members operate on.</param>
     extension(Entities.IdentityResource identityResourceEntity)
     {
         /// <summary>
@@ -37,7 +37,7 @@ public static class IdentityResourceMappingExtensions
     /// <summary>
     /// Mapping extension methods for <see cref="Models.IdentityResource"/>
     /// </summary>
-    /// <param name="identityResourceModel"></param>
+    /// <param name="identityResourceModel">The in-memory <see cref="Models.IdentityResource"/> instance these extension members operate on.</param>
     extension(Models.IdentityResource identityResourceModel)
     {
         /// <summary>

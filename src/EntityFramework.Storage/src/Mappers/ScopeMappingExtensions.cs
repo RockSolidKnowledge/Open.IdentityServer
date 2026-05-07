@@ -10,7 +10,7 @@ public static class ScopeMappingExtensions
     /// <summary>
     /// Mapping extension methods for <see cref="Entities.ApiScope"/>
     /// </summary>
-    /// <param name="apiScopeEntity"></param>
+    /// <param name="apiScopeEntity">The persisted <see cref="Entities.ApiScope"/> instance these extension members operate on.</param>
     extension(Entities.ApiScope apiScopeEntity)
     {
         /// <summary>
@@ -37,7 +37,7 @@ public static class ScopeMappingExtensions
     /// <summary>
     /// Mapping extension methods for <see cref="Models.ApiScope"/>
     /// </summary>
-    /// <param name="apiScopeModel"></param>
+    /// <param name="apiScopeModel">The in-memory <see cref="Models.ApiScope"/> instance these extension members operate on.</param>
     extension(Models.ApiScope apiScopeModel)
     {
         /// <summary>

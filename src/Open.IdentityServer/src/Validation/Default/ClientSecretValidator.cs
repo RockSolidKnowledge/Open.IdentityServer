@@ -43,8 +43,10 @@ public class ClientSecretValidator : IClientSecretValidator
     /// <summary>
     /// Validates the current request.
     /// </summary>
-    /// <param name="context">The context.</param>
-    /// <returns></returns>
+    /// <param name="context">The HTTP context containing the incoming request from which the client credentials are parsed.</param>
+    /// <returns>
+    /// A task that resolves to a <see cref="ClientSecretValidationResult"/> indicating whether the client was successfully authenticated.
+    /// </returns>
     public async Task<ClientSecretValidationResult> ValidateAsync(HttpContext context)
     {
         _logger.LogDebug("Start client validation");

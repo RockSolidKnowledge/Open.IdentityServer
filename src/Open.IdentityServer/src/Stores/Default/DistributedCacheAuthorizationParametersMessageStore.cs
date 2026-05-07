@@ -18,8 +18,8 @@ public class DistributedCacheAuthorizationParametersMessageStore : IAuthorizatio
     /// <summary>
     /// Ctor.
     /// </summary>
-    /// <param name="distributedCache"></param>
-    /// <param name="handleGenerationService"></param>
+    /// <param name="distributedCache">The distributed cache used to store and retrieve serialized authorization parameter messages.</param>
+    /// <param name="handleGenerationService">The service used to generate unique cache keys for stored messages.</param>
     public DistributedCacheAuthorizationParametersMessageStore(IDistributedCache distributedCache, IHandleGenerationService handleGenerationService)
     {
         _distributedCache = distributedCache;

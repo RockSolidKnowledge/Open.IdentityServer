@@ -16,9 +16,9 @@ public class DefaultScopeParser : IScopeParser
     private readonly ILogger<DefaultScopeParser> _logger;
 
     /// <summary>
-    /// Ctor.
+    /// Initializes a new instance of the <see cref="DefaultScopeParser"/> class.
     /// </summary>
-    /// <param name="logger"></param>
+    /// <param name="logger">The logger.</param>
     public DefaultScopeParser(ILogger<DefaultScopeParser> logger)
     {
         _logger = logger;
@@ -60,8 +60,7 @@ public class DefaultScopeParser : IScopeParser
     /// <summary>
     /// Parses a scope value.
     /// </summary>
-    /// <param name="scopeContext"></param>
-    /// <returns></returns>
+    /// <param name="scopeContext">The context for the scope value being parsed; update this to record the parsed name, parameter, error, or ignore flag.</param>
     public virtual void ParseScopeValue(ParseScopeContext scopeContext)
     {
         // nop leaves the raw scope value as a success result.
@@ -104,8 +103,9 @@ public class DefaultScopeParser : IScopeParser
 
 
         /// <summary>
-        /// Ctor. Indicates success, but the scope should not be included in result.
+        /// Initializes a new instance of the <see cref="ParseScopeContext"/> class with the raw scope value.
         /// </summary>
+        /// <param name="rawScopeValue">The original raw scope value to parse.</param>
         internal ParseScopeContext(string rawScopeValue)
         {
             RawValue = rawScopeValue;
@@ -114,8 +114,8 @@ public class DefaultScopeParser : IScopeParser
         /// <summary>
         /// Sets the parsed name and parsed parameter value for the scope.
         /// </summary>
-        /// <param name="parsedName"></param>
-        /// <param name="parsedParameter"></param>
+        /// <param name="parsedName">The logical name of the scope, excluding any parameter suffix.</param>
+        /// <param name="parsedParameter">The parameter portion of the scope value.</param>
         public void SetParsedValues(string parsedName, string parsedParameter)
         {
             if (String.IsNullOrWhiteSpace(parsedName))
@@ -136,7 +136,7 @@ public class DefaultScopeParser : IScopeParser
         /// <summary>
         /// Set the error encountered parsing the scope.
         /// </summary>
-        /// <param name="error"></param>
+        /// <param name="error">A message describing why the scope value failed to parse.</param>
         public void SetError(string error)
         {
             ParsedName = null;
@@ -146,7 +146,7 @@ public class DefaultScopeParser : IScopeParser
         }
 
         /// <summary>
-        /// Sets that the scope is to be ignore/excluded from the parsed results.
+        /// Sets that the scope is to be ignored/excluded from the parsed results.
         /// </summary>
         public void SetIgnore()
         {

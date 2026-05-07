@@ -15,7 +15,7 @@ public static class JsonWebKeyExtensions
     /// Converts a JSON web key to a URL safe string.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <returns></returns>
+    /// <returns>A URL-safe Base64 string containing the JSON serialization of <paramref name="key"/>.</returns>
     public static string ToJwkString(this JsonWebKey key)
     {
         var json = JsonSerializer.Serialize(key, JwkSourceGenerationContext.Default.JsonWebKey);

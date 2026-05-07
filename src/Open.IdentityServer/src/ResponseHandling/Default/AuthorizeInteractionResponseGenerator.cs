@@ -64,7 +64,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
     /// </summary>
     /// <param name="request">The request.</param>
     /// <param name="consent">The consent.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to an <see cref="InteractionResponse"/> indicating whether the user must log in, consent, or can proceed.</returns>
     public virtual async Task<InteractionResponse> ProcessInteractionAsync(ValidatedAuthorizeRequest request, ConsentResponse consent = null)
     {
         Logger.LogTrace("ProcessInteractionAsync");
@@ -118,7 +118,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
     /// Processes the login logic.
     /// </summary>
     /// <param name="request">The request.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to an <see cref="InteractionResponse"/> indicating whether the user must log in, or an empty response if login is not required.</returns>
     protected internal virtual async Task<InteractionResponse> ProcessLoginAsync(ValidatedAuthorizeRequest request)
     {
         if (request.PromptModes.Contains(OidcConstants.PromptModes.Login) ||
@@ -227,9 +227,9 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
     /// </summary>
     /// <param name="request">The request.</param>
     /// <param name="consent">The consent.</param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="ArgumentException">Invalid PromptMode</exception>
+    /// <returns>A task that resolves to an <see cref="InteractionResponse"/> indicating whether consent is required, was denied, or was granted.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="request"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">An unsupported prompt mode other than <c>none</c> or <c>consent</c> was specified.</exception>
     protected internal virtual async Task<InteractionResponse> ProcessConsentAsync(ValidatedAuthorizeRequest request, ConsentResponse consent = null)
     {
         if (request == null) throw new ArgumentNullException(nameof(request));

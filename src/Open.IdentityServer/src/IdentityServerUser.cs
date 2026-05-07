@@ -60,7 +60,7 @@ public class IdentityServerUser
     /// <summary>
     /// Creates an IdentityServer claims principal
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A <see cref="ClaimsPrincipal"/> populated with the subject, display name, identity provider, authentication time, authentication methods, and any additional claims.</returns>
     /// <exception cref="ArgumentNullException"></exception>
     public ClaimsPrincipal CreatePrincipal()
     {

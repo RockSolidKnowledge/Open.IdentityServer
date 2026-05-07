@@ -25,10 +25,10 @@ public class RefreshToken
     public DateTime CreationTime { get; set; }
 
     /// <summary>
-    /// Gets or sets the life time.
+    /// Gets or sets the lifetime.
     /// </summary>
     /// <value>
-    /// The life time.
+    /// The lifetime.
     /// </value>
     public int Lifetime { get; set; }
 

@@ -36,7 +36,7 @@ public class DefaultAuthorizationCodeStore : DefaultGrantStore<AuthorizationCode
     /// Stores the authorization code asynchronous.
     /// </summary>
     /// <param name="code">The code.</param>
-    /// <returns></returns>
+    /// <returns>A task that completes when the consent record has been stored.</returns>
     public Task<string> StoreAuthorizationCodeAsync(AuthorizationCode code)
     {
         return CreateItemAsync(code, code.ClientId, code.Subject.GetSubjectId(), code.SessionId, code.Description, code.CreationTime, code.Lifetime);
@@ -46,7 +46,7 @@ public class DefaultAuthorizationCodeStore : DefaultGrantStore<AuthorizationCode
     /// Gets the authorization code asynchronous.
     /// </summary>
     /// <param name="code">The code.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the <see cref="Consent"/> record for the specified subject and client, or <see langword="null"/> if not found.</returns>
     public Task<AuthorizationCode> GetAuthorizationCodeAsync(string code)
     {
         return GetItemAsync(code);
@@ -56,7 +56,6 @@ public class DefaultAuthorizationCodeStore : DefaultGrantStore<AuthorizationCode
     /// Removes the authorization code asynchronous.
     /// </summary>
     /// <param name="code">The code.</param>
-    /// <returns></returns>
     public Task RemoveAuthorizationCodeAsync(string code)
     {
         return RemoveItemAsync(code);

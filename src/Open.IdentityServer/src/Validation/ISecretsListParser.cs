@@ -14,15 +14,17 @@ public interface ISecretsListParser
     /// <summary>
     /// Tries to find the best secret on the context that can be used for authentication
     /// </summary>
-    /// <param name="context">The HTTP context.</param>
+    /// <param name="context">The HTTP context containing the incoming request to parse for a secret.</param>
     /// <returns>
-    /// A parsed secret
+    /// A task that resolves to the best <see cref="ParsedSecret"/> found on the request, or <c>null</c> if no secret was found.
     /// </returns>
     Task<ParsedSecret> ParseAsync(HttpContext context);
 
     /// <summary>
     /// Gets all available authentication methods.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A collection of authentication method strings supported by the registered secret parsers.
+    /// </returns>
     IEnumerable<string> GetAvailableAuthenticationMethods();
 }

@@ -18,9 +18,9 @@ public class X509NameSecretValidator : ISecretValidator
     private readonly ILogger<X509NameSecretValidator> _logger;
 
     /// <summary>
-    /// ctor
+    /// Initializes a new instance of the <see cref="X509NameSecretValidator"/> class.
     /// </summary>
-    /// <param name="logger"></param>
+    /// <param name="logger">The logger.</param>
     public X509NameSecretValidator(ILogger<X509NameSecretValidator> logger)
     {
         _logger = logger;

@@ -48,7 +48,7 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
     /// Processes the response.
     /// </summary>
     /// <param name="validationResult">The validation result.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a dictionary containing the introspection response claims, with <c>active</c> set to <see langword="true"/> and scopes filtered to those the calling API is permitted to see, or a minimal inactive response if the token is invalid or the API has no matching scopes.</returns>
     public virtual async Task<Dictionary<string, object>> ProcessAsync(IntrospectionRequestValidationResult validationResult)
     {
         Logger.LogTrace("Creating introspection response");
@@ -96,7 +96,7 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
     /// Checks if the API resource is allowed to introspect the scopes.
     /// </summary>
     /// <param name="validationResult">The validation result.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to <see langword="true"/> if at least one scope supported by the API is present in the token; otherwise <see langword="false"/>.</returns>
     protected virtual async Task<bool> AreExpectedScopesPresentAsync(IntrospectionRequestValidationResult validationResult)
     {
         var apiScopes = validationResult.Api.Scopes;

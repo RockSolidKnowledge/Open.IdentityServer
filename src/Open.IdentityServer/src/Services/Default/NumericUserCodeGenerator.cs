@@ -33,7 +33,6 @@ public class NumericUserCodeGenerator : IUserCodeGenerator
     /// <summary>
     /// Generates the user code.
     /// </summary>
-    /// <returns></returns>
     public Task<string> GenerateAsync()
     {
         var next = Next(100000000, 999999999);

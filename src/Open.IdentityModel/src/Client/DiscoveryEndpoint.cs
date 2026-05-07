@@ -16,7 +16,7 @@ public class DiscoveryEndpoint
     /// </summary>
     /// <param name="input">The input.</param>
     /// <param name="path">The path to the discovery document. If not specified this defaults to .well-known/open-id-configuration</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="DiscoveryEndpoint"/> containing the parsed authority and the fully-qualified discovery document URL.</returns>
     /// <exception cref="System.InvalidOperationException">
     /// Malformed URL
     /// </exception>

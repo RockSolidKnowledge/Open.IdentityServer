@@ -13,16 +13,16 @@ public interface IPersistentGrantSerializer
     /// <summary>
     /// Serializes the specified value.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of the value to serialize.</typeparam>
     /// <param name="value">The value.</param>
-    /// <returns></returns>
+    /// <returns>A JSON string representation of <paramref name="value"/>.</returns>
     string Serialize<T>(T value);
 
     /// <summary>
     /// Deserializes the specified string.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type to deserialize into.</typeparam>
     /// <param name="json">The json.</param>
-    /// <returns></returns>
+    /// <returns>The deserialized instance of <typeparamref name="T"/>, or <see langword="null"/> when <paramref name="json"/> cannot be deserialized.</returns>
     T? Deserialize<T>(string json);
 }

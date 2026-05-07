@@ -57,7 +57,6 @@ public class DefaultEventService : IEventService
     /// Raises the specified event.
     /// </summary>
     /// <param name="evt">The event.</param>
-    /// <returns></returns>
     /// <exception cref="System.ArgumentNullException">evt</exception>
     public async Task RaiseAsync(Event evt)
     {
@@ -73,8 +72,7 @@ public class DefaultEventService : IEventService
     /// <summary>
     /// Indicates if the type of event will be persisted.
     /// </summary>
-    /// <param name="evtType"></param>
-    /// <returns></returns>
+    /// <param name="evtType">The event type to check against the current options.</param>
     /// <exception cref="System.ArgumentOutOfRangeException"></exception>
     public bool CanRaiseEventType(EventTypes evtType)
     {
@@ -109,7 +107,6 @@ public class DefaultEventService : IEventService
     /// Prepares the event.
     /// </summary>
     /// <param name="evt">The evt.</param>
-    /// <returns></returns>
     protected virtual async Task PrepareEventAsync(Event evt)
     {
         evt.ActivityId = Context.HttpContext.TraceIdentifier;

@@ -20,7 +20,6 @@ public class TokenIntrospectionResponse : ProtocolResponse
     /// Allows to initialize instance specific data.
     /// </summary>
     /// <param name="initializationData">The initialization data.</param>
-    /// <returns></returns>
     protected override Task InitializeAsync(object? initializationData = null)
     {
         if (!IsError)

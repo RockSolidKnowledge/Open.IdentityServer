@@ -53,7 +53,7 @@ public class DiscoveryCache : IDiscoveryCache
     /// <summary>
     /// Get the DiscoveryResponse either from cache or from discovery endpoint.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the cached <see cref="DiscoveryDocumentResponse"/>, refreshing from the discovery endpoint if the cache has expired.</returns>
     public Task<DiscoveryDocumentResponse> GetAsync()
     {
         if (_nextReload <= DateTime.UtcNow)

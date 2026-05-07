@@ -15,8 +15,8 @@ public interface IDeviceAuthorizationRequestValidator
     /// <summary>
     ///  Validates authorize request parameters.
     /// </summary>
-    /// <param name="parameters"></param>
-    /// <param name="clientValidationResult"></param>
-    /// <returns></returns>
+    /// <param name="parameters">The form parameters from the device authorization request.</param>
+    /// <param name="clientValidationResult">The result of authenticating the client making the request.</param>
+    /// <returns>A <see cref="DeviceAuthorizationRequestValidationResult"/> indicating whether the request is valid and carrying the validated context.</returns>
     Task<DeviceAuthorizationRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClientSecretValidationResult clientValidationResult);
 }

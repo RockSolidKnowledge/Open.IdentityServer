@@ -2,7 +2,6 @@
 
 using System;
 using System.Text.Json;
-using Open.IdentityServer.Storage.Stores.DataProtection;
 using Open.IdentityServer.Stores.Serialization;
 using Microsoft.AspNetCore.DataProtection;
 
@@ -11,7 +10,9 @@ namespace Open.IdentityServer.DataProtection;
 /// <summary>
 /// Decorator for IPersistentGrantSerializer that protects to serialized persisted grant data 
 /// </summary>
-/// <seealso cref="IdentityServer4.Stores.Serialization.IPersistentGrantSerializer" />
+/// <seealso cref="Open.IdentityServer.Stores.Serialization.IPersistentGrantSerializer" />
+/// <param name="decoratedSerializer">The inner serializer used to perform the actual grant serialization and deserialization.</param>
+/// <param name="dataProtectionProvider">The data protection provider used to create the protector for encrypting and decrypting grant payloads.</param>
 public class PersistentGrantSerializerDataProtectionDecorator(
     IPersistentGrantSerializer decoratedSerializer,
     IDataProtectionProvider dataProtectionProvider): IPersistentGrantSerializer
@@ -31,7 +32,7 @@ public class PersistentGrantSerializerDataProtectionDecorator(
     /// </summary>
     /// <typeparam name="TGrant">type of grant to be serialized</typeparam>
     /// <param name="value">The value.</param>
-    /// <returns></returns>
+    /// <returns>A JSON string containing the data-protected grant payload.</returns>
     public string Serialize<TGrant>(TGrant value)
     {
         string data = decoratedSerializer.Serialize(value);
@@ -50,7 +51,7 @@ public class PersistentGrantSerializerDataProtectionDecorator(
     /// </summary>
     /// <typeparam name="TGrant">type of grant to be deserialized</typeparam>
     /// <param name="json">The json.</param>
-    /// <returns></returns>
+    /// <returns>The deserialized grant of type <typeparamref name="TGrant"/>, or <see langword="null"/> when the JSON cannot be deserialized.</returns>
     public TGrant? Deserialize<TGrant>(string json)
     {
         DataProtectedGrantData? wrappedData = JsonSerializer.Deserialize<DataProtectedGrantData>(json, serializerOptions);

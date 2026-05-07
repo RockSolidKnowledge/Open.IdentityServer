@@ -22,8 +22,8 @@ public static class AuthenticationPropertiesExtensions
     /// <summary>
     /// Gets the user's session identifier.
     /// </summary>
-    /// <param name="properties"></param>
-    /// <returns></returns>
+    /// <param name="properties">The authentication properties to read from.</param>
+    /// <returns>The session identifier stored in <paramref name="properties"/>, or <see langword="null"/> when not present.</returns>
     public static string GetSessionId(this AuthenticationProperties properties)
     {
         if (properties?.Items.ContainsKey(SessionIdKey) == true)
@@ -37,9 +37,8 @@ public static class AuthenticationPropertiesExtensions
     /// <summary>
     /// Sets the user's session identifier.
     /// </summary>
-    /// <param name="properties"></param>
+    /// <param name="properties">The authentication properties to update.</param>
     /// <param name="sid">The session id</param>
-    /// <returns></returns>
     public static void SetSessionId(this AuthenticationProperties properties, string sid)
     {
         properties.Items[SessionIdKey] = sid;
@@ -48,8 +47,8 @@ public static class AuthenticationPropertiesExtensions
     /// <summary>
     /// Gets the list of client ids the user has signed into during their session.
     /// </summary>
-    /// <param name="properties"></param>
-    /// <returns></returns>
+    /// <param name="properties">The authentication properties to read from.</param>
+    /// <returns>The client ids recorded in <paramref name="properties"/>, or an empty sequence when none are present.</returns>
     public static IEnumerable<string> GetClientList(this AuthenticationProperties properties)
     {
         if (properties?.Items.ContainsKey(ClientListKey) == true)
@@ -64,7 +63,7 @@ public static class AuthenticationPropertiesExtensions
     /// <summary>
     /// Removes the list of client ids.
     /// </summary>
-    /// <param name="properties"></param>
+    /// <param name="properties">The authentication properties from which to remove the client list.</param>
     public static void RemoveClientList(this AuthenticationProperties properties)
     {
         properties?.Items.Remove(ClientListKey);
@@ -73,8 +72,8 @@ public static class AuthenticationPropertiesExtensions
     /// <summary>
     /// Adds a client to the list of clients the user has signed into during their session.
     /// </summary>
-    /// <param name="properties"></param>
-    /// <param name="clientId"></param>
+    /// <param name="properties">The authentication properties to update.</param>
+    /// <param name="clientId">The client identifier to add to the session's client list.</param>
     public static void AddClientId(this AuthenticationProperties properties, string clientId)
     {
         if (clientId == null) throw new ArgumentNullException(nameof(clientId));

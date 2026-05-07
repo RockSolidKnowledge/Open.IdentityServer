@@ -37,7 +37,7 @@ public static class Identity
     /// </summary>
     /// <param name="authenticationType">Type of the authentication.</param>
     /// <param name="claims">The claims.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="ClaimsIdentity"/> of the specified <paramref name="authenticationType"/> containing the provided <paramref name="claims"/>, with name and role claim types set to the JWT standard claim types.</returns>
     public static ClaimsIdentity Create(string authenticationType, params Claim[] claims)
     {
         return new ClaimsIdentity(claims, authenticationType, JwtClaimTypes.Name, JwtClaimTypes.Role);
@@ -49,7 +49,7 @@ public static class Identity
     /// <param name="certificate">The certificate.</param>
     /// <param name="authenticationType">Type of the authentication.</param>
     /// <param name="includeAllClaims">if set to <c>true</c> [include all claims].</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="ClaimsIdentity"/> of the specified <paramref name="authenticationType"/> populated with the issuer, thumbprint, and distinguished name from the <paramref name="certificate"/>, and optionally serial number, DNS, simple name, email, UPN, and URL claims if <paramref name="includeAllClaims"/> is <see langword="true"/>.</returns>
     public static ClaimsIdentity CreateFromCertificate(X509Certificate2 certificate, string authenticationType = "X.509", bool includeAllClaims = false)
     {
         var claims = new List<Claim>();

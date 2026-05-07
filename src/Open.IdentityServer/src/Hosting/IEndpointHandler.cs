@@ -16,6 +16,6 @@ public interface IEndpointHandler
     /// Processes the request.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to an <see cref="IEndpointResult"/> representing the response, or <see langword="null"/> if no result is produced.</returns>
     Task<IEndpointResult> ProcessAsync(HttpContext context);
 }

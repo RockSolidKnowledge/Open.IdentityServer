@@ -15,8 +15,10 @@ public class JsonWebKeySetResponse : ProtocolResponse
     /// <summary>
     /// Initializes the key set
     /// </summary>
-    /// <param name="initializationData"></param>
-    /// <returns></returns>
+    /// <param name="initializationData">
+    /// Optional payload from the caller. On a non-success HTTP response it is treated as a
+    /// <see cref="string"/> error message; otherwise ignored.
+    /// </param>
     protected override Task InitializeAsync(object? initializationData = null)
     {
         if (HttpResponse?.IsSuccessStatusCode != true)

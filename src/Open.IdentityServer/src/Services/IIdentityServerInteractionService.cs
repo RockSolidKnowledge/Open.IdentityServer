@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Open.IdentityServer.Services;
 
 /// <summary>
-///  Provide services be used by the user interface to communicate with IdentityServer.
+/// Provides services to be used by the user interface to communicate with IdentityServer.
 /// </summary>
 public interface IIdentityServerInteractionService
 {
@@ -17,6 +17,9 @@ public interface IIdentityServerInteractionService
     /// Gets the authorization context.
     /// </summary>
     /// <param name="returnUrl">The return URL.</param>
+    /// <returns>
+    /// A task that resolves to an <see cref="AuthorizationRequest"/> if the return URL is valid; otherwise, <c>null</c>.
+    /// </returns>
     Task<AuthorizationRequest> GetAuthorizationContextAsync(string returnUrl);
 
     /// <summary>
@@ -29,18 +32,24 @@ public interface IIdentityServerInteractionService
     /// Gets the error context.
     /// </summary>
     /// <param name="errorId">The error identifier.</param>
+    /// <returns>
+    /// A task that resolves to an <see cref="ErrorMessage"/> for the specified error identifier.
+    /// </returns>
     Task<ErrorMessage> GetErrorContextAsync(string errorId);
 
     /// <summary>
     /// Gets the logout context.
     /// </summary>
     /// <param name="logoutId">The logout identifier.</param>
+    /// <returns>
+    /// A task that resolves to a <see cref="LogoutRequest"/> for the specified logout identifier.
+    /// </returns>
     Task<LogoutRequest> GetLogoutContextAsync(string logoutId);
 
     /// <summary>
     /// Used to create a logoutId if there is not one presently.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The logout identifier that can be passed to <see cref="GetLogoutContextAsync"/> to retrieve logout context information.</returns>
     Task<string> CreateLogoutContextAsync();
 
     /// <summary>
@@ -56,13 +65,16 @@ public interface IIdentityServerInteractionService
     /// This API is a simpler helper on top of GrantConsentAsync.
     /// </summary>
     /// <param name="request">The request.</param>
-    /// <param name="error"></param>
-    /// <param name="errorDescription"></param>
+    /// <param name="error">The OAuth/OIDC error code to return to the client (e.g. <c>access_denied</c>).</param>
+    /// <param name="errorDescription">An optional human-readable description of the error to include in the response.</param>
     Task DenyAuthorizationAsync(AuthorizationRequest request, AuthorizationError error, string errorDescription = null);
 
     /// <summary>
     /// Returns a collection representing all of the user's consents and grants.
     /// </summary>
+    /// <returns>
+    /// A task that resolves to a collection of all grants and consents for the current user.
+    /// </returns>
     Task<IEnumerable<Grant>> GetAllUserGrantsAsync();
 
     /// <summary>

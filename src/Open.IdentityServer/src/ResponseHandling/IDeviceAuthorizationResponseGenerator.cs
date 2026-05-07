@@ -17,6 +17,6 @@ public interface IDeviceAuthorizationResponseGenerator
     /// </summary>
     /// <param name="validationResult">The validation result.</param>
     /// <param name="baseUrl">The base URL.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to a <see cref="DeviceAuthorizationResponse"/> containing the device code, user code, verification URIs, and polling interval.</returns>
     Task<DeviceAuthorizationResponse> ProcessAsync(DeviceAuthorizationRequestValidationResult validationResult, string baseUrl);
 }

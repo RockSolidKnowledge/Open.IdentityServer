@@ -37,7 +37,7 @@ public class CryptoRandom : Random
     /// Creates a random key byte array.
     /// </summary>
     /// <param name="length">The length.</param>
-    /// <returns></returns>
+    /// <returns>A byte array of the specified <paramref name="length"/> filled with cryptographically strong random values.</returns>
     public static byte[] CreateRandomKey(int length)
     {
         var bytes = new byte[length];
@@ -51,7 +51,7 @@ public class CryptoRandom : Random
     /// </summary>
     /// <param name="length">The length.</param>
     /// <param name="format">The output format</param>
-    /// <returns></returns>
+    /// <returns>A cryptographically strong random string of the specified <paramref name="length"/> encoded using the specified <paramref name="format"/>.</returns>
     public static string CreateUniqueId(int length = 32, OutputFormat format = OutputFormat.Base64Url)
     {
         var bytes = CreateRandomKey(length);

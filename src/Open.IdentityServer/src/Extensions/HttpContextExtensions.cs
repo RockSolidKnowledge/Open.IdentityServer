@@ -13,12 +13,19 @@ using Open.IdentityServer.Stores;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 
-#pragma warning disable 1591
-
 namespace Open.IdentityServer.Extensions;
 
+/// <summary>
+/// Extension methods for <see cref="HttpContext"/> used by IdentityServer.
+/// </summary>
 public static class HttpContextExtensions
 {
+    /// <summary>
+    /// Determines whether the specified authentication scheme supports sign-out.
+    /// </summary>
+    /// <param name="context">The HTTP context.</param>
+    /// <param name="scheme">The authentication scheme name.</param>
+    /// <returns>A task that resolves to <see langword="true"/> if the scheme's handler implements <see cref="IAuthenticationSignOutHandler"/>; otherwise <see langword="false"/>.</returns>
     public static async Task<bool> GetSchemeSupportsSignOutAsync(this HttpContext context, string scheme)
     {
         var provider = context.RequestServices.GetRequiredService<IAuthenticationHandlerProvider>();
@@ -26,6 +33,12 @@ public static class HttpContextExtensions
         return (handler is IAuthenticationSignOutHandler);
     }
 
+    /// <summary>
+    /// Sets the scheme and host on the current request to match the supplied origin value.
+    /// </summary>
+    /// <param name="context">The HTTP context.</param>
+    /// <param name="value">The origin value in the form <c>scheme://host</c>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="value"/> is <see langword="null"/>.</exception>
     public static void SetIdentityServerOrigin(this HttpContext context, string value)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
@@ -38,6 +51,12 @@ public static class HttpContextExtensions
         request.Host = new HostString(split.Last());
     }
 
+    /// <summary>
+    /// Sets the IdentityServer base path on the current HTTP context.
+    /// </summary>
+    /// <param name="context">The HTTP context.</param>
+    /// <param name="value">The base path to set.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     public static void SetIdentityServerBasePath(this HttpContext context, string value)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
@@ -45,6 +64,11 @@ public static class HttpContextExtensions
         context.Items[Constants.EnvironmentKeys.IdentityServerBasePath] = value;
     }
 
+    /// <summary>
+    /// Gets the origin (scheme and host) for IdentityServer, accounting for mutual TLS subdomain configuration.
+    /// </summary>
+    /// <param name="context">The HTTP context.</param>
+    /// <returns>The origin string in the form <c>scheme://host</c>.</returns>
     public static string GetIdentityServerOrigin(this HttpContext context)
     {
         var options = context.RequestServices.GetRequiredService<IdentityServerOptions>();
@@ -81,7 +105,7 @@ public static class HttpContextExtensions
     /// Gets the host name of IdentityServer.
     /// </summary>
     /// <param name="context">The context.</param>
-    /// <returns></returns>
+    /// <returns>The scheme and host of the current request (e.g. <c>https://example.com</c>).</returns>
     public static string GetIdentityServerHost(this HttpContext context)
     {
         var request = context.Request;
@@ -102,7 +126,7 @@ public static class HttpContextExtensions
     /// Gets the public base URL for IdentityServer.
     /// </summary>
     /// <param name="context">The context.</param>
-    /// <returns></returns>
+    /// <returns>The base path configured for IdentityServer, or <see langword="null"/> if not set.</returns>
     public static string GetIdentityServerBaseUrl(this HttpContext context)
     {
         return context.GetIdentityServerHost() + context.GetIdentityServerBasePath();
@@ -113,7 +137,7 @@ public static class HttpContextExtensions
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="path">The path.</param>
-    /// <returns></returns>
+    /// <returns>The absolute URL formed by combining the IdentityServer base URL with <paramref name="path"/>, or <see langword="null"/> if <paramref name="path"/> is not a local URL.</returns>
     public static string GetIdentityServerRelativeUrl(this HttpContext context, string path)
     {
         if (!path.IsLocalUrl())
@@ -130,7 +154,7 @@ public static class HttpContextExtensions
     /// Gets the identity server issuer URI.
     /// </summary>
     /// <param name="context">The context.</param>
-    /// <returns></returns>
+    /// <returns>The explicitly configured issuer URI, or a dynamically constructed one from the current request origin and base path.</returns>
     /// <exception cref="System.ArgumentNullException">context</exception>
     public static string GetIdentityServerIssuerUri(this HttpContext context)
     {

@@ -13,19 +13,21 @@ public interface IDeviceFlowCodeService
     /// </summary>
     /// <param name="userCode">The user code.</param>
     /// <param name="data">The data.</param>
+    /// <returns>A task that resolves to the device code handle assigned to the stored authorization.</returns>
     Task<string> StoreDeviceAuthorizationAsync(string userCode, DeviceCode data);
 
     /// <summary>
     /// Finds device authorization by user code.
     /// </summary>
     /// <param name="userCode">The user code.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the <see cref="DeviceCode"/> associated with <paramref name="userCode"/>, or <see langword="null"/> if not found.</returns>
     Task<DeviceCode> FindByUserCodeAsync(string userCode);
 
     /// <summary>
     /// Finds device authorization by device code.
     /// </summary>
     /// <param name="deviceCode">The device code.</param>
+    /// <returns>A task that resolves to the <see cref="DeviceCode"/> associated with <paramref name="deviceCode"/>, or <see langword="null"/> if not found.</returns>
     Task<DeviceCode> FindByDeviceCodeAsync(string deviceCode);
 
     /// <summary>

@@ -12,20 +12,20 @@ namespace Open.IdentityServer.Validation;
 public class ParsedScopeValue
 {
     /// <summary>
-    /// Ctor
+    /// Initializes a new instance of <see cref="ParsedScopeValue"/> where the parsed name equals the raw value and there is no parameter.
     /// </summary>
-    /// <param name="rawValue"></param>
+    /// <param name="rawValue">The original, unparsed scope string.</param>
     public ParsedScopeValue(string rawValue)
         : this(rawValue, rawValue, null)
     {
     }
 
     /// <summary>
-    /// Ctor
+    /// Initializes a new instance of <see cref="ParsedScopeValue"/> with explicit parsed name and parameter values.
     /// </summary>
-    /// <param name="rawValue"></param>
-    /// <param name="parsedName"></param>
-    /// <param name="parsedParameter"></param>
+    /// <param name="rawValue">The original, unparsed scope string.</param>
+    /// <param name="parsedName">The logical name of the scope, excluding any parameter suffix.</param>
+    /// <param name="parsedParameter">The parameter portion of the scope value, or <see langword="null"/> when there is no parameter.</param>
     public ParsedScopeValue(string rawValue, string parsedName, string parsedParameter)
     {
         if (String.IsNullOrWhiteSpace(rawValue))

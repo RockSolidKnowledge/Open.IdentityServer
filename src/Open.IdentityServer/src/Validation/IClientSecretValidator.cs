@@ -15,7 +15,9 @@ public interface IClientSecretValidator
     /// <summary>
     /// Tries to authenticate a client based on the incoming request
     /// </summary>
-    /// <param name="context">The context.</param>
-    /// <returns></returns>
+    /// <param name="context">The HTTP context containing the incoming request to authenticate.</param>
+    /// <returns>
+    /// A task that resolves to a <see cref="ClientSecretValidationResult"/> indicating whether the client was successfully authenticated.
+    /// </returns>
     Task<ClientSecretValidationResult> ValidateAsync(HttpContext context);
 }

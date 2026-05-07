@@ -10,12 +10,13 @@ namespace Open.IdentityServer.Models;
 /// <summary>
 /// Base class for data that needs to be written out as cookies.
 /// </summary>
+/// <typeparam name="TModel">The type of the model payload carried by this message.</typeparam>
 public class Message<TModel>
 {
     /// <summary>
     /// Should only be used from unit tests
     /// </summary>
-    /// <param name="data"></param>
+    /// <param name="data">The model payload to store in the message, created at <see cref="DateTime.UtcNow"/>.</param>
     internal Message(TModel data) : this(data, DateTime.UtcNow)
     {
     }

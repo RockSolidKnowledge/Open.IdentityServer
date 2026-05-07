@@ -35,7 +35,7 @@ public class DefaultReferenceTokenStore : DefaultGrantStore<Token>, IReferenceTo
     /// Stores the reference token asynchronous.
     /// </summary>
     /// <param name="token">The token.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the handle assigned to the stored reference token.</returns>
     public Task<string> StoreReferenceTokenAsync(Token token)
     {
         return CreateItemAsync(token, token.ClientId, token.SubjectId, token.SessionId, token.Description, token.CreationTime, token.Lifetime);
@@ -45,7 +45,7 @@ public class DefaultReferenceTokenStore : DefaultGrantStore<Token>, IReferenceTo
     /// Gets the reference token asynchronous.
     /// </summary>
     /// <param name="handle">The handle.</param>
-    /// <returns></returns>
+    /// <returns>A task that resolves to the <see cref="Token"/> for the given handle, or <see langword="null"/> if not found.</returns>
     public Task<Token> GetReferenceTokenAsync(string handle)
     {
         return GetItemAsync(handle);
@@ -55,7 +55,6 @@ public class DefaultReferenceTokenStore : DefaultGrantStore<Token>, IReferenceTo
     /// Removes the reference token asynchronous.
     /// </summary>
     /// <param name="handle">The handle.</param>
-    /// <returns></returns>
     public Task RemoveReferenceTokenAsync(string handle)
     {
         return RemoveItemAsync(handle);
@@ -66,7 +65,6 @@ public class DefaultReferenceTokenStore : DefaultGrantStore<Token>, IReferenceTo
     /// </summary>
     /// <param name="subjectId">The subject identifier.</param>
     /// <param name="clientId">The client identifier.</param>
-    /// <returns></returns>
     public Task RemoveReferenceTokensAsync(string subjectId, string clientId)
     {
         return RemoveAllAsync(subjectId, clientId);
