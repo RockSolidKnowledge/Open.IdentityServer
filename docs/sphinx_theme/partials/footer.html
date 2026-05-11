@@ -1,6 +1,6 @@
 <footer class="bg-grey-darkest text-grey-lighter p-6 relative z-20 no-print">
     <div class="container text-sm text-center mx-auto flex-wrap flex items-center justify-center">
         <span class="w-full mb-2">{{ copyright|safe }}{% if theme_show_version and theme_show_version != 'false' and theme_version %}<span class="mx-2">&bull;</span>v{{ theme_version }}{% endif %}</span>
-        <span class="text-xs">Last updated {{ last_updated|default(today|default('')) }}</span>
+        <span class="text-xs">Last updated {{ last_updated }}</span>
     </div>
 </footer>

@@ -1,9 +1,8 @@
-# IdentityServer4 documentation
+# Open IdentityServer documentation
 
-The folder contains the documentation for identityserver4.
+The folder contains the documentation for Open.IdentityServer.
 
-We are using [Read the docs](https://readthedocs.org/) to host the documentation and the rendered version
-can be found [here](https://identityserver4.readthedocs.io).
+We host the documentation on identityserver.com and the rendered version can be found [here](https://docs.identityserver.com/openidentityserver/).
 
 Doc pages are authored in ReStructuredText (RST) - you can find a primer [here](http://www.sphinx-doc.org/en/stable/rest.html).
 

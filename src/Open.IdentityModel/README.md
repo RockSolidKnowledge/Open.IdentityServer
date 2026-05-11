@@ -1,12 +1,6 @@
-## About IdentityModel
+## About Open IdentityModel
 
-IdentityModel is a .NET library for claims-based identity, OAuth 2.0 and OpenID Connect. 
-
-> [!IMPORTANT]  
-> `IdentityModel` is being rebranded to `Duende.IdentityModel` and henceforth will be managed 
-> in our [FOSS repository](https://github.com/DuendeSoftware/foss) under the same Apache2 licence.
->  - Please update your nuget package references to the [new package](https://www.nuget.org/packages/Duende.IdentityModel).
->  - Outstanding pull requests and issues will be ported or closed.
+Open IdentityModel is a .NET library for claims-based identity, OAuth 2.0 and OpenID Connect. 
 
 It provides an object model to interact with the endpoints defined in the various OAuth
 and OpenId Connect specifications in the form of:
@@ -15,21 +9,6 @@ and OpenId Connect specifications in the form of:
 - constants defined in the specifications, such as standard scope, claim, and parameter names
 - other convenience methods for performing common identity related operations
 
-IdentityModel targets [.NET Standard 2.0](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0), 
-making it suitable for .NET and .NET Framework.
+The Open IdentityModel project is an independent fork of [IdentityModel](https://github.com/DuendeArchive/IdentityModel). Open IdentityModel is led by Rock Solid Knowledge, based on the Apache 2.0‑licensed IdentityModel codebase. It is not affiliated with or endorsed by Duende Software or the original IdentityModel authors.
 
-For more documentation, please visit [readthedocs](https://identitymodel.readthedocs.io).
-
-## Related Packages
-
-- Certified OIDC client library for native apps: [IdentityModel.OidcClient](https://www.nuget.org/packages/IdentityModel.OidcClient)
-- Id token validator for IdentityModel.OidcClient based on the Microsoft JWT handler: [IdentityModel.OidcClient.IdentityTokenValidator](https://www.nuget.org/packages/IdentityModel.OidcClient.IdentityTokenValidator)
-- [DPoP](https://datatracker.ietf.org/doc/html/rfc9449) extensions for IdentityModel.OidcClient: [IdentityModel.OidcClient.DPoP ](https://www.nuget.org/packages/IdentityModel.OidcClient.DPoP)
-- Authentication handler for introspection tokens: [IdentityModel.AspNetCore.OAuth2Introspection](https://www.nuget.org/packages/IdentityModel.AspNetCore.OAuth2Introspection)
-
-## Feedback
-
-IdentityModel is released as open source under the 
-[Apache 2.0 license](https://github.com/identitymodel/identitymodel/blob/main/LICENSE). 
-Bug reports and contributions are welcome at 
-[the GitHub repository](https://github.com/identitymodel/identitymodel).
+For more documentation, please visit [IdentityServer.com](https://docs.identityserver.com/openidentitymodel/).
