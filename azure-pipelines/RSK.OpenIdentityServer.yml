@@ -130,7 +130,7 @@ stages:
       - deployment: Publish
         environment: 'nuget-staging'
         pool:
-          vmImage: 'macos-latest'
+          vmImage: 'windows-latest'
         strategy:
           runOnce:
             deploy:
