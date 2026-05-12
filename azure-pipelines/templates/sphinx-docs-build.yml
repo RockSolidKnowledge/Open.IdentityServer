@@ -1,0 +1,39 @@
+parameters:
+  - name: documentationOutputDir
+    type: string
+    default: 'component'
+  - name: documentationDir
+    type: string
+    default: 'documentation'
+
+steps:
+- checkout: self
+  clean: true
+
+- task: Bash@3
+  displayName: 'Prepare the documentation for Open.IdentityServer'
+  inputs:
+    arguments: ''
+    targetType: 'filePath'
+    filePath: "$(Build.SourcesDirectory)/${{ parameters.documentationDir }}/buildDocs.sh"
+    failOnStderr: false
+    workingDirectory: "$(Build.SourcesDirectory)/${{ parameters.documentationDir }}"
+
+- task: CopyFiles@2
+  displayName: 'Copy the output files to the staging directory'
+  inputs:
+    SourceFolder: '${{ parameters.documentationDir }}/_build/html'
+    Contents: |
+      **
+      !**/package*.json
+      !**/gulpfile.js
+      !**/mkdocs_theme.yml
+      !**/config/**/*
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/${{ parameters.documentationOutputDir }}'
+    CleanTargetFolder: false
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish documentation artifacts'
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'mkdocs'

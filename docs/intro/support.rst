@@ -32,17 +32,20 @@ We try to get back to you ASAP.
 Commercial support
 ^^^^^^^^^^^^^^^^^^
 
-We offer `commercial support<https://www.identityserver.com/services>`_ for Open IdentityServer in various forms. This includes:
+We offer `commercial support <https://www.identityserver.com/services>`_ for Open IdentityServer in various forms. This includes:
+
 * Production support contracts, with guaranteed SLAs, vulnerability scanning, and regular four times a year patching.
 * Bespoke development - Own your SSO. Built by trusted IdentityServer specialists. Rock Solid Knowledge delivers secure, scalable, and fully bespoke solutions tailored to your infrastructure with fixed pricing and full source code delivery.
 * Consultancy packages
 * Health checks for your SSO architecture and implementation
 
-We have a range of available `products<https://www.identityserver.com/products>`_ compatible with Open IdentityServer, including:
+We have a range of available `products <https://www.identityserver.com/products>`_ compatible with Open IdentityServer, including:
+
 * AdminUI - The most trusted and advanced management portal for IdentityServer. Secure, intuitive, built for extensibility and scale. Take the complexity out of identity.
 * SAML2P - The only SAML plugin offering full IdentityProvider (IdP) and Service Prover(SP) support. With seamless IdentityServer integration and trusted for secure enterprise SSO across any platform.
 * WS-Federation - The best way to integrate WS-Fed supported applications (SharePoint) with IdentityServer. Perfect for Microsoft ecosystem and cross-protocol SSO (OIDC and WSFED)
 * FIDO2 - Industry leading Passkey authentication for ASP.NET. FIDO2 certified, phishing-resistant, and ready for passwordless login. Passwordless, effortless and secure in only a few lines of code.
 * SCIM - SCIM 2.0-powered identity automation. Provision users and sync identities effortlessly across your enterprise. Fully integrated with IdentityServer for streamlined IAM and HR workflows.
+* Dynamic Authentication Providers - Ideal for adding and configuring external identity providers in ASP.NET Core.
 
 For any of the above, or if you have other needs, please `get in touch <mailto:sales@identityserver.com>`_ to discuss how we can help you.

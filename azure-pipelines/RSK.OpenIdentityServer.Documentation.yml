@@ -1,0 +1,23 @@
+trigger:
+  branches:
+    include:
+    - master
+    - develop
+  paths:
+    include:
+    - docs/*
+    - azure-pipelines/RSK.OpenIdentityServer.Documentation.yml
+    - azure-pipelines/templates/sphinx-docs-build.yml
+
+jobs:
+  - job: 
+    
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+
+      - template: templates/sphinx-docs-build.yml
+        parameters:
+          documentationDir: 'docs'
+          documentationOutputDir: openidentityserver 
