@@ -18,7 +18,7 @@ These items will be part of the next major release.
 
 - Key Management (Component)
 - Server side sessions (Core)
-- Dynamic Authentication Providers (Component)
+- Dynamic Authentication Providers (Component compatability)
 - AdminUI support for Open IdentityServer (Component)
 
 ## Future
@@ -32,7 +32,6 @@ The team is committed to delivering these items in future releases.
 - OAuth 2.0 Authorization Server Metadata (RFC 8414) (Core)
 - Dotnet project templates (Core)
 - Passkeys/FIDO sample (Core)
-- Proof of Posession - MTLS (RFC 8705)
 - OAuth 2.0 Pushed Authorization Requests (RFC 9126)
 - Optional strict validation of `private_key_jwt` audiences. (RFC 7523)
 
@@ -54,4 +53,4 @@ We welcome community input on the roadmap. If you'd like to propose a feature or
 
 ## Disclaimer
 
-This roadmap represents current intentions and is subject to change.
+This roadmap represents current intentions and is subject to change. Rock solid knowledge will have the final say on contributions.
