@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Open.IdentityServer.EntityFramework.Options;
 
 /// <summary>
-/// Options for configuring the identity server compatibility context.
+/// Base store options class
 /// </summary>
-public class IdentityServerCompatibilityStoreOptions
+public class StoreOptions
 {
     /// <summary>
     /// Callback to configure the EF DbContext.
@@ -26,7 +26,7 @@ public class IdentityServerCompatibilityStoreOptions
     /// The configure database context.
     /// </value>
     public Action<IServiceProvider, DbContextOptionsBuilder> ResolveDbContextOptions { get; set; }
-
+    
     /// <summary>
     /// Gets or sets the default schema.
     /// </summary>
@@ -34,12 +34,4 @@ public class IdentityServerCompatibilityStoreOptions
     /// The default schema.
     /// </value>
     public string DefaultSchema { get; set; } = null;
-
-    /// <summary>
-    /// Gets or sets the identity resource table configuration.
-    /// </summary>
-    /// <value>
-    /// The identity resource.
-    /// </value>
-    public TableConfiguration Keys { get; set; } = new("Keys");
 }

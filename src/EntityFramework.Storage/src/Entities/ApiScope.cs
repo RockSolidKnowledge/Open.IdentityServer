@@ -24,6 +24,6 @@ public class ApiScope
     //Unused Compatibility Properties
     public bool NonEditable { get; set; }
     public DateTime Created { get; set; }
-    public DateTime LastAccessed { get; set; }
-    public DateTime Updated { get; set; }
+    public DateTime? LastAccessed { get; set; }
+    public DateTime? Updated { get; set; }
 }

@@ -1,3 +1,5 @@
+#nullable enable
+
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
@@ -13,7 +15,7 @@ public class IdentityServerKeyMaterial
     /// <summary>
     /// Get or set unique identifier
     /// </summary>
-    public required string Id { get; set; }
+    public string Id { get; set; }
     
     /// <summary>
     /// Get or set version of key material
@@ -23,7 +25,7 @@ public class IdentityServerKeyMaterial
     /// <summary>
     /// Get or set key use value
     /// </summary>
-    public required string Use { get; set; }
+    public string? Use { get; set; }
     
     /// <summary>
     /// Get or set data protected value
@@ -33,7 +35,7 @@ public class IdentityServerKeyMaterial
     /// <summary>
     /// Get or set key algorithm value
     /// </summary>
-    public required string Algorithm { get; set; }
+    public string Algorithm { get; set; }
     
     /// <summary>
     /// Get or set is x509 certificate value
@@ -43,7 +45,7 @@ public class IdentityServerKeyMaterial
     /// <summary>
     /// Get or set data value
     /// </summary>
-    public required string Data { get; set; }
+    public string Data { get; set; }
 
     /// <summary>
     /// Get or set created value

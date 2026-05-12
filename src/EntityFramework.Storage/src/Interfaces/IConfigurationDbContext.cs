@@ -12,7 +12,7 @@ namespace Open.IdentityServer.EntityFramework.Interfaces;
 /// Abstraction for the configuration context.
 /// </summary>
 /// <seealso cref="System.IDisposable" />
-public interface IConfigurationDbContext : IDisposable
+public interface IConfigurationDbContext : IDisposable, IConfigurationCompatibilityDbContext
 {
     /// <summary>
     /// Gets or sets the clients.

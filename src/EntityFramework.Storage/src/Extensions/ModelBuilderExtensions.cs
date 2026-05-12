@@ -345,17 +345,66 @@ public static class ModelBuilderExtensions
         }
 
         /// <summary>
-        /// Configures the identity server compatibility db context
+        /// Configures the identity server persisted compatibility db context
         /// </summary>
         /// <param name="storeOptions"></param>
-        public void ConfigureIdentityServerCompatibilityContext(IdentityServerCompatibilityStoreOptions storeOptions)
+        public void ConfigureConfigurationCompatibilityContext(ConfigurationStoreOptions storeOptions)
         {
             if (!string.IsNullOrWhiteSpace(storeOptions.DefaultSchema))
                 modelBuilder.HasDefaultSchema(storeOptions.DefaultSchema);
 
-            modelBuilder.Entity<IdentityServerKeyMaterial>(keyMaterial =>
+            modelBuilder.Entity<IdentityServerIdentityProvider>(builder =>
             {
-                keyMaterial.ToTable(storeOptions.Keys).HasKey(x => x.Id);
+                builder.ToTable(storeOptions.IdentityProviders).HasKey(x => x.Id);
+
+                builder.Property(x => x.Scheme).HasMaxLength(200).IsRequired();
+                builder.Property(x => x.DisplayName).HasMaxLength(200);
+                builder.Property(x => x.Type).HasMaxLength(20).IsRequired();
+                builder.Property(x => x.Properties).HasMaxLength(-1);
+            });
+        }
+
+        /// <summary>
+        /// Configures the identity server persisted compatibility db context
+        /// </summary>
+        /// <param name="storeOptions"></param>
+        public void ConfigurePersistedGrantCompatibilityContext(OperationalStoreOptions storeOptions)
+        {
+            if (!string.IsNullOrWhiteSpace(storeOptions.DefaultSchema))
+                modelBuilder.HasDefaultSchema(storeOptions.DefaultSchema);
+
+            modelBuilder.Entity<IdentityServerKeyMaterial>(builder =>
+            {
+                builder.ToTable(storeOptions.Keys).HasKey(x => x.Id);
+                
+                builder.Property(x => x.Version).IsRequired();
+                builder.Property(x => x.Created).IsRequired();
+                builder.Property(x => x.Algorithm).HasMaxLength(100).IsRequired();
+                builder.Property(x => x.IsX509Certificate).IsRequired();
+                builder.Property(x => x.DataProtected).IsRequired();
+                builder.Property(x => x.Data).HasMaxLength(-1).IsRequired();
+            });
+
+            modelBuilder.Entity<IdentityServerServerSideSessions>(builder =>
+            {
+                builder.ToTable(storeOptions.ServerSideSessions).HasKey(x => x.Id);
+                
+                builder.Property(x => x.Key).HasMaxLength(100).IsRequired();
+                builder.Property(x => x.Scheme).HasMaxLength(100).IsRequired();
+                builder.Property(x => x.SubjectId).HasMaxLength(100).IsRequired();
+                builder.Property(x => x.SessionId).HasMaxLength(100);
+                builder.Property(x => x.DisplayName).HasMaxLength(100);
+                builder.Property(x => x.Created).IsRequired();
+                builder.Property(x => x.Renewed).IsRequired();
+                builder.Property(x => x.Data).HasMaxLength(-1);
+            });
+
+            modelBuilder.Entity<IdentityServerPushedAuthorizationRequests>(builder =>
+            {
+                builder.ToTable(storeOptions.PushedAuthorizationRequests).HasKey(x => x.Id);
+                
+                builder.Property(x => x.ReferenceHashValue).HasMaxLength(64);
+                builder.Property(x => x.Parameters).HasMaxLength(-1);
             });
         }
     }

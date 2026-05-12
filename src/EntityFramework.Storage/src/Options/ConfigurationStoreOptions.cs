@@ -186,5 +186,14 @@ public class ConfigurationStoreOptions
     /// The client property.
     /// </value>
     public TableConfiguration ApiScopeProperty { get; set; } = new TableConfiguration("ApiScopeProperties");
-
+    
+    //Schema compatibility, placeholders unused
+    
+    /// <summary>
+    /// Gets or sets the identity providers table configuration.
+    /// </summary>
+    /// <value>
+    /// The keys table config.
+    /// </value>
+    public TableConfiguration IdentityProviders { get; set; } = new("IdentityProviders");
 }

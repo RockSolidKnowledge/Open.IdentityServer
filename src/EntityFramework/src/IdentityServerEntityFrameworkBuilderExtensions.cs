@@ -1,4 +1,4 @@
-// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
@@ -103,6 +103,8 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
         builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
         builder.Services.AddTransient<IDeviceFlowStore, DeviceFlowStore>();
         builder.Services.AddSingleton<IHostedService, TokenCleanupHost>();
+        
+        builder.Services.AddScoped<IIdentityServerKeyStore, IdentityServerKeyStore>();
 
         return builder;
     }
@@ -118,25 +120,6 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
         where T : class, IOperationalStoreNotification
     {
         builder.Services.AddOperationalStoreNotification<T>();
-        return builder;
-    }
-    
-    /// <summary>
-    /// Adds IdentityServer compatibility db context and stores that use it.
-    /// </summary>
-    /// <param name="builder"></param>
-    /// <param name="storeOptionsAction"></param>
-    /// <typeparam name="TContext"></typeparam>
-    /// <returns>reference to the <see cref="IIdentityServerBuilder"/> passed in</returns>
-    public static IIdentityServerBuilder AddIdentityServerCompatibilityStore<TContext>(
-        this IIdentityServerBuilder builder,
-        Action<IdentityServerCompatibilityStoreOptions> storeOptionsAction = null)
-        where TContext : DbContext, IIdentityServerCompatibilityDbContext
-    {
-        builder.Services.AddIdentityServerCompatibilityDbContext<TContext>(storeOptionsAction);
-
-        builder.Services.AddScoped<IIdentityServerKeyStore, IdentityServerKeyStore>();
-
         return builder;
     }
 }

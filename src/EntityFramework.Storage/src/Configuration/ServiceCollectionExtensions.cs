@@ -103,16 +103,6 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
         services.AddScoped<IPersistedGrantDbContext, TContext>();
         services.AddTransient<TokenCleanupService>();
 
-        if (storeOptions.EnableIdentityServerCompatibility)
-        {
-            services.AddIdentityServerCompatibilityDbContext(compatibilityOptions =>
-            {
-                compatibilityOptions.ConfigureDbContext = storeOptions.ConfigureDbContext;
-                compatibilityOptions.ResolveDbContextOptions = storeOptions.ResolveDbContextOptions;
-            });
-            services.AddScoped<IIdentityServerKeyStore, IdentityServerKeyStore>();
-        }
-
         return services;
     }
 
@@ -128,31 +118,25 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
         services.AddTransient<IOperationalStoreNotification, T>();
         return services;
     }
-    
-    /// <summary>
-    /// Adds IdentityServer compatibility DbContext to the DI system.
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="storeOptionsAction">The store options action.</param>
-    /// <returns></returns>
-    public static IServiceCollection AddIdentityServerCompatibilityDbContext(this IServiceCollection services,
-        Action<IdentityServerCompatibilityStoreOptions> storeOptionsAction = null)
-    {
-        return services.AddIdentityServerCompatibilityDbContext<IdentityServerCompatibilityDbContext>(storeOptionsAction);
-    }
 
     /// <summary>
     /// Adds IdentityServer compatibility DbContext to the DI system.
     /// </summary>
-    /// <typeparam name="TContext">The IIdentityServerCompatibilityDbContext to use.</typeparam>
     /// <param name="services"></param>
-    /// <param name="storeOptionsAction">The store options action.</param>
+    /// <param name="storeOptionsAction"></param>
+    /// <typeparam name="TInterfaceContext"></typeparam>
+    /// <typeparam name="TContext"></typeparam>
+    /// <typeparam name="TOptions"></typeparam>
     /// <returns></returns>
-    public static IServiceCollection AddIdentityServerCompatibilityDbContext<TContext>(this IServiceCollection services,
-        Action<IdentityServerCompatibilityStoreOptions> storeOptionsAction = null)
-        where TContext : DbContext, IIdentityServerCompatibilityDbContext
+    public static IServiceCollection AddIdentityServerCompatibilityDbContext<TInterfaceContext, TContext, TOptions>(
+        this IServiceCollection services,
+        Action<TOptions> storeOptionsAction = null)
+        where TInterfaceContext: class
+        where TContext: DbContext, TInterfaceContext
+        where TOptions: StoreOptions, new()
+    
     {
-        var storeOptions = new IdentityServerCompatibilityStoreOptions();
+        var storeOptions = new TOptions();
         services.AddSingleton(storeOptions);
         storeOptionsAction?.Invoke(storeOptions);
         
@@ -168,8 +152,7 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
             });
         }
 
-        services.AddScoped<IIdentityServerCompatibilityDbContext, TContext>();
-        services.AddTransient<TokenCleanupService>();
+        services.AddScoped<TInterfaceContext, TContext>();
 
         return services;
     }

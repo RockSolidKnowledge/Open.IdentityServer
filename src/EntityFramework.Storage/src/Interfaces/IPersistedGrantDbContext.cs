@@ -13,7 +13,7 @@ namespace Open.IdentityServer.EntityFramework.Interfaces;
 /// Abstraction for the operational data context.
 /// </summary>
 /// <seealso cref="System.IDisposable" />
-public interface IPersistedGrantDbContext : IDisposable
+public interface IPersistedGrantDbContext: IDisposable, IPersistedGrantCompatibilityDbContext
 {
     /// <summary>
     /// Gets or sets the persisted grants.
