@@ -142,7 +142,7 @@ stages:
                   displayName: 'Push packages to RSKTools feed'
                   inputs:
                     command: 'push'
-                    arguments: '-SkipDuplicate'
+                    allowPackageConflicts: true # Package with same version will be ignored.
                     packagesToPush: '$(Pipeline.Workspace)/Open.IdentityServer nupkg/Staging/*.nupkg'
                     nuGetFeedType: 'internal'
                     publishVstsFeed: 'RSKTools'
