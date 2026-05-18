@@ -1,3 +1,5 @@
+rm -r ./_build
+
 docker build -t identityserver-docs .
 docker create --name docs-build identityserver-docs
 mkdir -p ./_build

@@ -59,6 +59,8 @@ This process typically involves authentication of the end-user and optionally co
         ``idp:name_of_idp`` bypasses the login/home realm screen and forwards the user directly to the selected identity provider (if allowed per client configuration)
         
         ``tenant:name_of_tenant`` can be used to pass a tenant name to the login UI
+``resource``
+    resource indicator(s) for authorise request. Must be a valid URI.
 
 **Example**
 

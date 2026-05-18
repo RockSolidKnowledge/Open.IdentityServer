@@ -103,6 +103,7 @@ It enables the following features in your applications:
    topics/refresh_tokens
    topics/reference_tokens
    topics/persisted_grants
+   topics/resource_indicators
    topics/pop
    topics/mtls
    topics/request_object
