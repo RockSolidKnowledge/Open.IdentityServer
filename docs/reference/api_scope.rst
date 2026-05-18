@@ -52,3 +52,10 @@ Then pass the configuration section to the ``AddInMemoryApiScopes`` method
 .. code-block:: csharp
 
     AddInMemoryApiScopes(configuration.GetSection("IdentityServer:ApiScopes"))
+
+Unused Compatibility Properties
+^^^^^^^^^^^
+``NonEditable``
+``Created``
+``LastAccessed``
+``Updated``

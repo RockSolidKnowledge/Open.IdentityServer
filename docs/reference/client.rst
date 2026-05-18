@@ -118,3 +118,15 @@ Device flow
     Specifies the type of user code to use for the client. Otherwise falls back to default.
 ``DeviceCodeLifetime``
     Lifetime to device code in seconds (defaults to 300 seconds / 5 minutes)
+
+Unused Compatibility Properties
+^^^^^^^^^^^
+``CibaLifetime``
+``PollingInterval``
+``CoordinateLifetimeWithUserSession``
+``InitiateLoginUri``
+``DPoPClockSkew``
+``DPoPValidationMode``
+``RequireDPoP``
+``PushedAuthorizationLifetime``
+``RequirePushedAuthorization``

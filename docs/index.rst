@@ -81,6 +81,7 @@ It enables the following features in your applications:
    :caption: Topics
 
    topics/startup
+   topics/compatibility
    topics/resources
    topics/clients
    topics/signin

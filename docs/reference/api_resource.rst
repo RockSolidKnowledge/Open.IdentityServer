@@ -19,6 +19,8 @@ This class models an API resource.
     List of associated user claim types that should be included in the access token.
 ``Scopes``
     List of API scope names.
+``RequireResourceIndicator``
+    If true resource indicators need to be used for this resource to be present in the token ``aud`` claim.
 
 Defining API resources in appsettings.json
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
