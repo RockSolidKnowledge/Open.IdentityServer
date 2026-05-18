@@ -63,6 +63,14 @@ It enables the following features in your applications:
    quickstarts/4_javascript_client
    quickstarts/5_entityframework
    quickstarts/6_aspnet_identity
+
+.. toctree::
+   :maxdepth: 3
+   :hidden:
+   :caption: Migrating
+
+   migrating/duendeidentityserver
+   migrating/identityserver4
    
 .. toctree::
    :maxdepth: 3
