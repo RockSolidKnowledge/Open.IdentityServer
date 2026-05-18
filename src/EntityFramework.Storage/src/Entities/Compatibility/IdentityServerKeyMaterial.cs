@@ -1,14 +1,14 @@
-#nullable enable
-
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+#nullable enable
 
 using System;
 
 namespace Open.IdentityServer.EntityFramework.Entities;
 
 /// <summary>
-/// An entity for the Key Material stored in a Duende IdentityServer database
+/// Class included for compatibility, and to retrieve legacy key data from existing databases
 /// </summary>
 public class IdentityServerKeyMaterial
 {

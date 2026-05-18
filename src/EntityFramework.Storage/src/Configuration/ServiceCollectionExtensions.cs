@@ -8,8 +8,6 @@ using System;
 using Open.IdentityServer.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Open.IdentityServer.EntityFramework.Stores;
-using Open.IdentityServer.Stores;
 
 namespace Open.IdentityServer.EntityFramework.Storage;
 
@@ -41,23 +39,7 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
         Action<ConfigurationStoreOptions> storeOptionsAction = null)
         where TContext : DbContext, IConfigurationDbContext
     {
-        var options = new ConfigurationStoreOptions();
-        services.AddSingleton(options);
-        storeOptionsAction?.Invoke(options);
-
-        if (options.ResolveDbContextOptions != null)
-        {
-            services.AddDbContext<TContext>(options.ResolveDbContextOptions);
-        }
-        else
-        {
-            services.AddDbContext<TContext>(dbCtxBuilder =>
-            {
-                options.ConfigureDbContext?.Invoke(dbCtxBuilder);
-            });
-        }
-        services.AddScoped<IConfigurationDbContext, TContext>();
-
+        services.AddIdentityServerDbContext<IConfigurationDbContext, TContext, ConfigurationStoreOptions>(storeOptionsAction);
         return services;
     }
 
@@ -84,23 +66,7 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
         Action<OperationalStoreOptions> storeOptionsAction = null)
         where TContext : DbContext, IPersistedGrantDbContext
     {
-        var storeOptions = new OperationalStoreOptions();
-        services.AddSingleton(storeOptions);
-        storeOptionsAction?.Invoke(storeOptions);
-
-        if (storeOptions.ResolveDbContextOptions != null)
-        {
-            services.AddDbContext<TContext>(storeOptions.ResolveDbContextOptions);
-        }
-        else
-        {
-            services.AddDbContext<TContext>(dbCtxBuilder =>
-            {
-                storeOptions.ConfigureDbContext?.Invoke(dbCtxBuilder);
-            });
-        }
-
-        services.AddScoped<IPersistedGrantDbContext, TContext>();
+        services.AddIdentityServerDbContext<IPersistedGrantDbContext, TContext, OperationalStoreOptions>(storeOptionsAction);
         services.AddTransient<TokenCleanupService>();
 
         return services;
@@ -120,15 +86,15 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
     }
 
     /// <summary>
-    /// Adds IdentityServer compatibility DbContext to the DI system.
+    /// Adds IdentityServer DbContext to the DI system.
     /// </summary>
-    /// <param name="services"></param>
-    /// <param name="storeOptionsAction"></param>
-    /// <typeparam name="TInterfaceContext"></typeparam>
-    /// <typeparam name="TContext"></typeparam>
-    /// <typeparam name="TOptions"></typeparam>
+    /// <param name="services">The service collection to register the context in</param>
+    /// <param name="storeOptionsAction">action to modify store options</param>
+    /// <typeparam name="TInterfaceContext">interface for the db context</typeparam>
+    /// <typeparam name="TContext">type of the db context</typeparam>
+    /// <typeparam name="TOptions">options type</typeparam>
     /// <returns></returns>
-    public static IServiceCollection AddIdentityServerCompatibilityDbContext<TInterfaceContext, TContext, TOptions>(
+    public static IServiceCollection AddIdentityServerDbContext<TInterfaceContext, TContext, TOptions>(
         this IServiceCollection services,
         Action<TOptions> storeOptionsAction = null)
         where TInterfaceContext: class

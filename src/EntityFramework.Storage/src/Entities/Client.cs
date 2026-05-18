@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 #pragma warning disable 1591
 
@@ -72,7 +72,7 @@ public class Client
     public bool? CoordinateLifetimeWithUserSession { get; set; }
     public string InitiateLoginUri { get; set; }
     public TimeSpan DPoPClockSkew { get; set; }
-    public DPoPTokenExpirationValidationMode DPoPValidationMode { get; set; }
+    public int DPoPValidationMode { get; set; }
     public bool RequireDPoP { get; set; }
     public int? PushedAuthorizationLifetime { get; set; }
     public bool RequirePushedAuthorization { get; set; }

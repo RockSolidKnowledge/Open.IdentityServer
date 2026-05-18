@@ -6,8 +6,6 @@ using Open.IdentityServer.EntityFramework.Entities;
 using Open.IdentityServer.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Open.IdentityServer.EntityFramework.DbContexts;
-using Open.IdentityServer.Models;
 using ApiResource = Open.IdentityServer.EntityFramework.Entities.ApiResource;
 using ApiScope = Open.IdentityServer.EntityFramework.Entities.ApiScope;
 using Client = Open.IdentityServer.EntityFramework.Entities.Client;
@@ -347,7 +345,7 @@ public static class ModelBuilderExtensions
         /// <summary>
         /// Configures the identity server persisted compatibility db context
         /// </summary>
-        /// <param name="storeOptions"></param>
+        /// <param name="storeOptions">The store options</param>
         public void ConfigureConfigurationCompatibilityContext(ConfigurationStoreOptions storeOptions)
         {
             if (!string.IsNullOrWhiteSpace(storeOptions.DefaultSchema))
@@ -367,7 +365,7 @@ public static class ModelBuilderExtensions
         /// <summary>
         /// Configures the identity server persisted compatibility db context
         /// </summary>
-        /// <param name="storeOptions"></param>
+        /// <param name="storeOptions">The store options</param>
         public void ConfigurePersistedGrantCompatibilityContext(OperationalStoreOptions storeOptions)
         {
             if (!string.IsNullOrWhiteSpace(storeOptions.DefaultSchema))
