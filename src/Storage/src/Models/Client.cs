@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System.Collections.Generic;
 using System.Linq;
@@ -310,6 +310,7 @@ public class Client
     /// The properties.
     /// </value>
     public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+    
 
     /// <summary>
     /// Validates the grant types.
@@ -429,4 +430,51 @@ public class Client
             return _inner.GetEnumerator();
         }
     }
+    
+    //Unused Compatibility Properties
+    
+    /// <summary>
+    /// Gets or sets CIBA lifetime (Unused, added for compatibility)
+    /// </summary>
+    public int? CibaLifetime { get; set; }
+    
+    /// <summary>
+    /// Gets or sets polling interval (Unused, added for compatibility)
+    /// </summary>
+    public int? PollingInterval { get; set; }
+    
+    /// <summary>
+    /// Gets or sets coordinate lifetime with user session (Unused, added for compatibility)
+    /// </summary>
+    public bool? CoordinateLifetimeWithUserSession { get; set; }
+    
+    /// <summary>
+    /// Gets or sets initiate login URI (Unused, added for compatibility)
+    /// </summary>
+    public string? InitiateLoginUri { get; set; }
+    
+    /// <summary>
+    /// Gets or sets DPoP clock skew (Unused, added for compatibility)
+    /// </summary>
+    public TimeSpan DPoPClockSkew { get; set; } = TimeSpan.FromMinutes(5);
+    
+    /// <summary>
+    /// Gets or sets DPoP validation mode (Unused, added for compatibility)
+    /// </summary>
+    public int DPoPValidationMode { get; set; } = 0;
+    
+    /// <summary>
+    /// Gets or sets require DPoP (Unused, added for compatibility)
+    /// </summary>
+    public bool RequireDPoP { get; set; }
+    
+    /// <summary>
+    /// Gets or sets pushed authorization lifetime (Unused, added for compatibility)
+    /// </summary>
+    public int? PushedAuthorizationLifetime { get; set; }
+    
+    /// <summary>
+    /// Gets or sets require pushed authorization (Unused, added for compatibility)
+    /// </summary>
+    public bool RequirePushedAuthorization { get; set; }
 }

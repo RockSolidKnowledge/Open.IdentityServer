@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System;
 using Open.IdentityServer.EntityFramework.Entities;
@@ -108,7 +108,18 @@ public class ConfigurationDbContext<TContext> : DbContext, IConfigurationDbConte
     {
         modelBuilder.ConfigureClientContext(storeOptions);
         modelBuilder.ConfigureResourcesContext(storeOptions);
+        modelBuilder.ConfigureConfigurationCompatibilityContext(storeOptions);
 
         base.OnModelCreating(modelBuilder);
     }
+    
+    //Schema compatibility, placeholders unused
+    
+    /// <summary>
+    /// Gets or sets the identity providers.
+    /// </summary>
+    /// <value>
+    /// The identity providers.
+    /// </value>
+    public DbSet<IdentityServerIdentityProvider> IdentityProviders { get; set; }
 }

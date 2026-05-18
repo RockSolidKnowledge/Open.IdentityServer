@@ -6,14 +6,13 @@ using Open.IdentityServer.EntityFramework.Entities;
 using Open.IdentityServer.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Open.IdentityServer.EntityFramework.DbContexts;
-using Open.IdentityServer.Models;
 using ApiResource = Open.IdentityServer.EntityFramework.Entities.ApiResource;
 using ApiScope = Open.IdentityServer.EntityFramework.Entities.ApiScope;
 using Client = Open.IdentityServer.EntityFramework.Entities.Client;
 using ClientClaim = Open.IdentityServer.EntityFramework.Entities.ClientClaim;
 using IdentityResource = Open.IdentityServer.EntityFramework.Entities.IdentityResource;
 using PersistedGrant = Open.IdentityServer.EntityFramework.Entities.PersistedGrant;
+using IdentityServerKeyMaterial = Open.IdentityServer.EntityFramework.Entities.IdentityServerKeyMaterial;
 
 namespace Open.IdentityServer.EntityFramework.Extensions;
 
@@ -90,18 +89,24 @@ public static class ModelBuilderExtensions
             {
                 grantType.ToTable(storeOptions.ClientGrantType);
                 grantType.Property(x => x.GrantType).HasMaxLength(250).IsRequired();
+                
+                grantType.HasIndex(x => new { x.ClientId, x.GrantType }).IsUnique();
             });
 
             modelBuilder.Entity<ClientRedirectUri>(redirectUri =>
             {
                 redirectUri.ToTable(storeOptions.ClientRedirectUri);
-                redirectUri.Property(x => x.RedirectUri).HasMaxLength(2000).IsRequired();
+                redirectUri.Property(x => x.RedirectUri).HasMaxLength(400).IsRequired();
+                
+                redirectUri.HasIndex(x => new { x.ClientId, x.RedirectUri }).IsUnique();
             });
 
             modelBuilder.Entity<ClientPostLogoutRedirectUri>(postLogoutRedirectUri =>
             {
                 postLogoutRedirectUri.ToTable(storeOptions.ClientPostLogoutRedirectUri);
-                postLogoutRedirectUri.Property(x => x.PostLogoutRedirectUri).HasMaxLength(2000).IsRequired();
+                postLogoutRedirectUri.Property(x => x.PostLogoutRedirectUri).HasMaxLength(400).IsRequired();
+                
+                postLogoutRedirectUri.HasIndex(x => new { x.ClientId, x.PostLogoutRedirectUri }).IsUnique();
             });
 
             modelBuilder.Entity<ClientScope>(scope =>
@@ -123,18 +128,24 @@ public static class ModelBuilderExtensions
                 claim.ToTable(storeOptions.ClientClaim);
                 claim.Property(x => x.Type).HasMaxLength(250).IsRequired();
                 claim.Property(x => x.Value).HasMaxLength(250).IsRequired();
+                
+                claim.HasIndex(x => new { x.ClientId, x.Type, x.Value }).IsUnique();
             });
 
             modelBuilder.Entity<ClientIdPRestriction>(idPRestriction =>
             {
                 idPRestriction.ToTable(storeOptions.ClientIdPRestriction);
                 idPRestriction.Property(x => x.Provider).HasMaxLength(200).IsRequired();
+                
+                idPRestriction.HasIndex(x => new { x.ClientId, x.Provider }).IsUnique();
             });
 
             modelBuilder.Entity<ClientCorsOrigin>(corsOrigin =>
             {
                 corsOrigin.ToTable(storeOptions.ClientCorsOrigin);
                 corsOrigin.Property(x => x.Origin).HasMaxLength(150).IsRequired();
+                
+                corsOrigin.HasIndex(x => new { x.ClientId, x.Origin }).IsUnique();
             });
 
             modelBuilder.Entity<ClientProperty>(property =>
@@ -174,6 +185,7 @@ public static class ModelBuilderExtensions
                 grant.HasIndex(x => new { x.SubjectId, x.SessionId, x.Type });
                 grant.HasIndex(x => x.Expiration);
                 grant.HasIndex(x => x.Key).IsUnique();
+                grant.HasIndex(x => x.ConsumedTime);
             });
 
             modelBuilder.Entity<DeviceFlowCodes>(codes =>
@@ -229,6 +241,8 @@ public static class ModelBuilderExtensions
                 claim.ToTable(storeOptions.IdentityResourceClaim).HasKey(x => x.Id);
 
                 claim.Property(x => x.Type).HasMaxLength(200).IsRequired();
+                
+                claim.HasIndex(x => new { x.IdentityResourceId, x.Type }).IsUnique();
             });
 
             modelBuilder.Entity<IdentityResourceProperty>(property =>
@@ -236,6 +250,8 @@ public static class ModelBuilderExtensions
                 property.ToTable(storeOptions.IdentityResourceProperty);
                 property.Property(x => x.Key).HasMaxLength(250).IsRequired();
                 property.Property(x => x.Value).HasMaxLength(2000).IsRequired();
+
+                property.HasIndex(x => new { x.IdentityResourceId, x.Key }).IsUnique();
             });
 
             modelBuilder.Entity<ApiResource>(apiResource =>
@@ -273,6 +289,8 @@ public static class ModelBuilderExtensions
                 apiClaim.ToTable(storeOptions.ApiResourceClaim).HasKey(x => x.Id);
 
                 apiClaim.Property(x => x.Type).HasMaxLength(200).IsRequired();
+                
+                apiClaim.HasIndex(x => new { x.ApiResourceId, x.Type }).IsUnique();
             });
 
             modelBuilder.Entity<ApiResourceScope>(apiScope =>
@@ -280,6 +298,8 @@ public static class ModelBuilderExtensions
                 apiScope.ToTable(storeOptions.ApiResourceScope).HasKey(x => x.Id);
 
                 apiScope.Property(x => x.Scope).HasMaxLength(200).IsRequired();
+                
+                apiScope.HasIndex(x => new { x.ApiResourceId, x.Scope }).IsUnique();
             });
 
             modelBuilder.Entity<ApiResourceProperty>(property =>
@@ -287,6 +307,8 @@ public static class ModelBuilderExtensions
                 property.ToTable(storeOptions.ApiResourceProperty);
                 property.Property(x => x.Key).HasMaxLength(250).IsRequired();
                 property.Property(x => x.Value).HasMaxLength(2000).IsRequired();
+                
+                property.HasIndex(x => new { x.ApiResourceId, x.Key }).IsUnique();
             });
 
             modelBuilder.Entity<ApiScope>(scope =>
@@ -307,27 +329,80 @@ public static class ModelBuilderExtensions
                 scopeClaim.ToTable(storeOptions.ApiScopeClaim).HasKey(x => x.Id);
 
                 scopeClaim.Property(x => x.Type).HasMaxLength(200).IsRequired();
+                
+                scopeClaim.HasIndex(x => new { x.ScopeId, x.Type }).IsUnique();
             });
             modelBuilder.Entity<ApiScopeProperty>(property =>
             {
                 property.ToTable(storeOptions.ApiScopeProperty).HasKey(x => x.Id);
                 property.Property(x => x.Key).HasMaxLength(250).IsRequired();
                 property.Property(x => x.Value).HasMaxLength(2000).IsRequired();
+                
+                property.HasIndex(x => new { x.ScopeId, x.Key }).IsUnique();
             });
         }
 
         /// <summary>
-        /// Configures the identity server compatibility db context
+        /// Configures the identity server persisted compatibility db context
         /// </summary>
-        /// <param name="storeOptions"></param>
-        public void ConfigureIdentityServerCompatibilityContext(IdentityServerCompatibilityStoreOptions storeOptions)
+        /// <param name="storeOptions">The store options</param>
+        public void ConfigureConfigurationCompatibilityContext(ConfigurationStoreOptions storeOptions)
         {
             if (!string.IsNullOrWhiteSpace(storeOptions.DefaultSchema))
                 modelBuilder.HasDefaultSchema(storeOptions.DefaultSchema);
 
-            modelBuilder.Entity<IdentityServerKeyMaterial>(keyMaterial =>
+            modelBuilder.Entity<IdentityServerIdentityProvider>(builder =>
             {
-                keyMaterial.ToTable(storeOptions.Keys).HasKey(x => x.Id);
+                builder.ToTable(storeOptions.IdentityProviders).HasKey(x => x.Id);
+
+                builder.Property(x => x.Scheme).HasMaxLength(200).IsRequired();
+                builder.Property(x => x.DisplayName).HasMaxLength(200);
+                builder.Property(x => x.Type).HasMaxLength(20).IsRequired();
+                builder.Property(x => x.Properties).HasMaxLength(-1);
+            });
+        }
+
+        /// <summary>
+        /// Configures the identity server persisted compatibility db context
+        /// </summary>
+        /// <param name="storeOptions">The store options</param>
+        public void ConfigurePersistedGrantCompatibilityContext(OperationalStoreOptions storeOptions)
+        {
+            if (!string.IsNullOrWhiteSpace(storeOptions.DefaultSchema))
+                modelBuilder.HasDefaultSchema(storeOptions.DefaultSchema);
+
+            modelBuilder.Entity<IdentityServerKeyMaterial>(builder =>
+            {
+                builder.ToTable(storeOptions.Keys).HasKey(x => x.Id);
+                
+                builder.Property(x => x.Version).IsRequired();
+                builder.Property(x => x.Created).IsRequired();
+                builder.Property(x => x.Algorithm).HasMaxLength(100).IsRequired();
+                builder.Property(x => x.IsX509Certificate).IsRequired();
+                builder.Property(x => x.DataProtected).IsRequired();
+                builder.Property(x => x.Data).HasMaxLength(-1).IsRequired();
+            });
+
+            modelBuilder.Entity<IdentityServerServerSideSessions>(builder =>
+            {
+                builder.ToTable(storeOptions.ServerSideSessions).HasKey(x => x.Id);
+                
+                builder.Property(x => x.Key).HasMaxLength(100).IsRequired();
+                builder.Property(x => x.Scheme).HasMaxLength(100).IsRequired();
+                builder.Property(x => x.SubjectId).HasMaxLength(100).IsRequired();
+                builder.Property(x => x.SessionId).HasMaxLength(100);
+                builder.Property(x => x.DisplayName).HasMaxLength(100);
+                builder.Property(x => x.Created).IsRequired();
+                builder.Property(x => x.Renewed).IsRequired();
+                builder.Property(x => x.Data).HasMaxLength(-1);
+            });
+
+            modelBuilder.Entity<IdentityServerPushedAuthorizationRequests>(builder =>
+            {
+                builder.ToTable(storeOptions.PushedAuthorizationRequests).HasKey(x => x.Id);
+                
+                builder.Property(x => x.ReferenceHashValue).HasMaxLength(64);
+                builder.Property(x => x.Parameters).HasMaxLength(-1);
             });
         }
     }

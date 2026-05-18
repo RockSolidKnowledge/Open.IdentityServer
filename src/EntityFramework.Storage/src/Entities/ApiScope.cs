@@ -3,6 +3,7 @@
 
 #pragma warning disable 1591
 
+using System;
 using System.Collections.Generic;
 
 namespace Open.IdentityServer.EntityFramework.Entities;
@@ -19,4 +20,10 @@ public class ApiScope
     public bool ShowInDiscoveryDocument { get; set; } = true;
     public List<ApiScopeClaim> UserClaims { get; set; }
     public List<ApiScopeProperty> Properties { get; set; }
+    
+    //Unused Compatibility Properties
+    public bool NonEditable { get; set; }
+    public DateTime Created { get; set; }
+    public DateTime? LastAccessed { get; set; }
+    public DateTime? Updated { get; set; }
 }

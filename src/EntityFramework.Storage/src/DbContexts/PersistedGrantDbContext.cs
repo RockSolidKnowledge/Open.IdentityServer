@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System;
 using System.Threading.Tasks;
@@ -69,6 +69,14 @@ public class PersistedGrantDbContext<TContext> : DbContext, IPersistedGrantDbCon
     /// The device codes.
     /// </value>
     public DbSet<DeviceFlowCodes> DeviceFlowCodes { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the keys.
+    /// </summary>
+    /// <value>
+    /// The keys.
+    /// </value>
+    public DbSet<IdentityServerKeyMaterial> Keys { get; set; }
 
     /// <summary>
     /// Saves the changes.
@@ -94,7 +102,26 @@ public class PersistedGrantDbContext<TContext> : DbContext, IPersistedGrantDbCon
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ConfigurePersistedGrantContext(storeOptions);
+        modelBuilder.ConfigurePersistedGrantCompatibilityContext(storeOptions);
 
         base.OnModelCreating(modelBuilder);
     }
+    
+    //Schema compatibility, placeholders unused
+    
+    /// <summary>
+    /// Gets or sets the server side sessions.
+    /// </summary>
+    /// <value>
+    /// The server side sessions.
+    /// </value>
+    public DbSet<IdentityServerServerSideSessions> ServerSideSessions { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the pushed authorization requests.
+    /// </summary>
+    /// <value>
+    /// The pushed authorization requests.
+    /// </value>
+    public DbSet<IdentityServerPushedAuthorizationRequests> PushedAuthorizationRequests { get; set; }
 }

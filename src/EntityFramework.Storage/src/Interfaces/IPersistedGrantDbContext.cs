@@ -1,8 +1,7 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
-using System;
 using System.Threading.Tasks;
 using Open.IdentityServer.EntityFramework.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +12,7 @@ namespace Open.IdentityServer.EntityFramework.Interfaces;
 /// Abstraction for the operational data context.
 /// </summary>
 /// <seealso cref="System.IDisposable" />
-public interface IPersistedGrantDbContext : IDisposable
+public interface IPersistedGrantDbContext: IPersistedGrantCompatibilityDbContext
 {
     /// <summary>
     /// Gets or sets the persisted grants.

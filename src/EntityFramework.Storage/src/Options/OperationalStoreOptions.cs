@@ -2,40 +2,13 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-using System;
-using Microsoft.EntityFrameworkCore;
-
 namespace Open.IdentityServer.EntityFramework.Options;
 
 /// <summary>
 /// Options for configuring the operational context.
 /// </summary>
-public class OperationalStoreOptions
+public class OperationalStoreOptions: StoreOptions
 {
-    /// <summary>
-    /// Callback to configure the EF DbContext.
-    /// </summary>
-    /// <value>
-    /// The configure database context.
-    /// </value>
-    public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
-
-    /// <summary>
-    /// Callback in DI resolve the EF DbContextOptions. If set, ConfigureDbContext will not be used.
-    /// </summary>
-    /// <value>
-    /// The configure database context.
-    /// </value>
-    public Action<IServiceProvider, DbContextOptionsBuilder> ResolveDbContextOptions { get; set; }
-
-    /// <summary>
-    /// Gets or sets the default schema.
-    /// </summary>
-    /// <value>
-    /// The default schema.
-    /// </value>
-    public string DefaultSchema { get; set; } = null;
-
     /// <summary>
     /// Gets or sets the persisted grants table configuration.
     /// </summary>
@@ -77,12 +50,30 @@ public class OperationalStoreOptions
     /// The size of the token cleanup batch.
     /// </value>
     public int TokenCleanupBatchSize { get; set; } = 100;
-
+    
+    //Schema compatibility, placeholders unused
+    
     /// <summary>
-    /// Gets or sets the value indicating if identity server compatibility should be enabled. Defaults to <c>true</c>.
+    /// Gets or sets the keys table configuration.
     /// </summary>
     /// <value>
-    /// <c>true</c> if [compatibility enables]; otherwise, <c>false</c>.
+    /// The keys table config.
     /// </value>
-    public bool EnableIdentityServerCompatibility { get; set; } = true;
+    public TableConfiguration Keys { get; set; } = new("Keys");
+
+    /// <summary>
+    /// Gets or sets the server-side sessions table configuration.
+    /// </summary>
+    /// <value>
+    /// The server-side sessions' config.
+    /// </value>
+    public TableConfiguration ServerSideSessions { get; set; } = new("ServerSideSessions");
+
+    /// <summary>
+    /// Gets or sets the pushed authorization requests table configuration.
+    /// </summary>
+    /// <value>
+    /// The pushed authorization requests config.
+    /// </value>
+    public TableConfiguration PushedAuthorizationRequests { get; set; } = new("PushedAuthorizationRequests");
 }

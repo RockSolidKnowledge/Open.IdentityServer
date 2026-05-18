@@ -3,20 +3,20 @@
 
 using System;
 using Microsoft.EntityFrameworkCore;
-using Open.IdentityServer.Models;
+using Open.IdentityServer.EntityFramework.Entities;
 
 namespace Open.IdentityServer.EntityFramework.Interfaces;
 
 /// <summary>
-/// Abstraction for the identity server compatibility context.
+/// Abstraction for the identity server configuration compatibility context.
 /// </summary>
-public interface IIdentityServerCompatibilityDbContext: IDisposable
+public interface IConfigurationCompatibilityDbContext: IDisposable
 {
     /// <summary>
-    /// Gets or sets the keys.
+    /// Gets or sets the identity providers.
     /// </summary>
     /// <value>
-    /// The keys.
+    /// The identity providers.
     /// </value>
-    DbSet<IdentityServerKeyMaterial> Keys { get; set; }
+    DbSet<IdentityServerIdentityProvider> IdentityProviders { get; set; }
 }
