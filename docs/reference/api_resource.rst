@@ -20,7 +20,7 @@ This class models an API resource.
 ``Scopes``
     List of API scope names.
 ``RequireResourceIndicator``
-    If true resource indicators need to be used for this resource to be present in the token ``aud`` claim.
+    If true, resource indicators need to be used for this resource to be present in the token ``aud`` claim.
 
 Defining API resources in appsettings.json
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

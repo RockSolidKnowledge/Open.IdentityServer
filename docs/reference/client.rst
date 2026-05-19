@@ -119,7 +119,7 @@ Device flow
 ``DeviceCodeLifetime``
     Lifetime to device code in seconds (defaults to 300 seconds / 5 minutes)
 
-Unused Compatibility Properties
+Unused :ref:`Compatibility <refCompatibility>` Properties
 ^^^^^^^^^^^
 ``CibaLifetime``
 ``PollingInterval``

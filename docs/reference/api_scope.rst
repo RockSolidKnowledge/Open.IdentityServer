@@ -53,7 +53,7 @@ Then pass the configuration section to the ``AddInMemoryApiScopes`` method
 
     AddInMemoryApiScopes(configuration.GetSection("IdentityServer:ApiScopes"))
 
-Unused Compatibility Properties
+Unused :ref:`Compatibility <refCompatibility>` Properties
 ^^^^^^^^^^^
 ``NonEditable``
 ``Created``
