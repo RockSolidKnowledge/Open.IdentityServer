@@ -5,7 +5,7 @@ Entity Framework Support
 An EntityFramework-based implementation is provided for the configuration and operational data extensibility points in IdentityServer.
 The use of EntityFramework allows any EF-supported database to be used with this library.
 
-The code for this library is located `here <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/src/EntityFramework>`_ (with the underlying storage code `here <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/src/EntityFramework.Storage>`_) and the NuGet package is `here <https://www.nuget.org/packages/IdentityServer4.EntityFramework>`_.
+The code for this library is located `here <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/src/EntityFramework>`_ (with the underlying storage code `here <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/src/EntityFramework.Storage>`_) and the NuGet package is `here <https://www.nuget.org/packages/Open.IdentityServer.EntityFramework>`_.
 
 The features provided by this library are broken down into two main areas: configuration store and operational store support.
 These two different areas can be used independently or together, based upon the needs of the hosting application.
@@ -24,7 +24,7 @@ To use the configuration store support, use the ``AddConfigurationStore`` extens
 
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
-        const string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=IdentityServer4.EntityFramework-2.0.0;trusted_connection=yes;";
+        const string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=Open.IdentityServer.EntityFramework-2.0.0;trusted_connection=yes;";
         var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
         
         services.AddIdentityServer()
@@ -72,7 +72,7 @@ To use the operational store support, use the ``AddOperationalStore`` extension 
 
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
-        const string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=IdentityServer4.EntityFramework-2.0.0;trusted_connection=yes;";
+        const string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;database=Open.IdentityServer.EntityFramework-2.0.0;trusted_connection=yes;";
         var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
         
         services.AddIdentityServer()

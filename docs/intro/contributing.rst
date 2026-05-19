@@ -34,10 +34,10 @@ We generally don't want to take ownership of those contribution libraries, we ar
 
 **Naming conventions**
 
-As of October 2017, the IdentityServer4.* nuget namespace is reserved for our packages. Please use the following naming conventions:
+As of June 2026, the Open.IdentityServer.* nuget namespace is reserved for our packages. Please use the following naming conventions:
 
-``YourProjectName.IdentityServer4``
+``YourProjectName.Open.IdentityServer``
 
 or
 
-``IdentityServer4.Contrib.YourProjectName``
+``Open.IdentityServer.Contrib.YourProjectName``

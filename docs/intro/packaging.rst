@@ -3,7 +3,7 @@ Packaging and Builds
 
 IdentityServer consists of a number of nuget packages.
 
-IdentityServer4 main repo
+Open.IdentityServer main repo
 ^^^^^^^^^^^^^^^
 `github <https://github.com/RockSolidKnowledge/Open.IdentityServer>`_
 
@@ -11,9 +11,9 @@ Contains the core IdentityServer object model, services and middleware as well a
 
 nugets:
 
-* `IdentityServer4 <https://www.nuget.org/packages/IdentityServer4/>`_
-* `IdentityServer4.EntityFramework <https://www.nuget.org/packages/IdentityServer4.EntityFramework>`_
-* `IdentityServer4.AspNetIdentity <https://www.nuget.org/packages/IdentityServer4.AspNetIdentity>`_
+* `Open.IdentityServer <https://www.nuget.org/packages/Open.IdentityServer/>`_
+* `Open.IdentityServer.EntityFramework <https://www.nuget.org/packages/Open.IdentityServer.EntityFramework>`_
+* `Open.IdentityServer.AspNetIdentity <https://www.nuget.org/packages/Open.IdentityServer.AspNetIdentity>`_
 
 Quickstart UI
 ^^^^^^^^^^^^^
@@ -23,9 +23,10 @@ Contains a simple starter UI including login, logout and consent pages.
 
 Templates
 ^^^^^^^^^
-`nuget <https://www.nuget.org/packages/IdentityServer4.Templates>`_ | `github <https://github.com/RockSolidKnowledge/Open.IdentityServer.Templates>`_
+`nuget <https://www.nuget.org/packages/Open.IdentityServer.Templates>`_
 
-Contains templates for the dotnet CLI.
+Contains templates for the original IdentityServer4, can be used for Open.IdenityServer with little work to replce the refrences to old packages and
+update framework used to net10.0. In the future we will create some update templates.
 
 Dev builds
 ^^^^^^^^^^

@@ -1,7 +1,7 @@
 Adding new Protocols
 ====================
 
-IdentityServer4 allows adding support for other protocols besides the built-in 
+Open.IdentityServer allows adding support for other protocols besides the built-in 
 support for OpenID Connect and OAuth 2.0.
 
 You can add those additional protocol endpoints either as middleware or using e.g. MVC controllers.
