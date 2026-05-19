@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using Open.IdentityModel;
+using Open.IdentityServer.Utility;
 
 namespace Open.IdentityServer.Models;
 
@@ -80,7 +80,7 @@ public class Token
     /// <value>
     /// The type.
     /// </value>
-    public string Type { get; set; } = OidcConstants.TokenTypes.AccessToken;
+    public string Type { get; set; } = Constants.TokenTypes.AccessToken;
 
     /// <summary>
     /// Gets or sets the ID of the client.
@@ -128,7 +128,7 @@ public class Token
     /// <value>
     /// The subject identifier.
     /// </value>
-    public string SubjectId => Claims.Where(x => x.Type == JwtClaimTypes.Subject).Select(x => x.Value).SingleOrDefault();
+    public string SubjectId => Claims.Where(x => x.Type == Constants.JwtClaimTypes.Subject).Select(x => x.Value).SingleOrDefault();
 
     /// <summary>
     /// Gets the session identifier.
@@ -136,7 +136,7 @@ public class Token
     /// <value>
     /// The session identifier.
     /// </value>
-    public string SessionId => Claims.Where(x => x.Type == JwtClaimTypes.SessionId).Select(x => x.Value).SingleOrDefault();
+    public string SessionId => Claims.Where(x => x.Type == Constants.JwtClaimTypes.SessionId).Select(x => x.Value).SingleOrDefault();
 
     /// <summary>
     /// Gets the scopes.
@@ -144,7 +144,7 @@ public class Token
     /// <value>
     /// The scopes.
     /// </value>
-    public IEnumerable<string> Scopes => Claims.Where(x => x.Type == JwtClaimTypes.Scope).Select(x => x.Value);
+    public IEnumerable<string> Scopes => Claims.Where(x => x.Type == Constants.JwtClaimTypes.Scope).Select(x => x.Value);
 
 
     /// <summary>

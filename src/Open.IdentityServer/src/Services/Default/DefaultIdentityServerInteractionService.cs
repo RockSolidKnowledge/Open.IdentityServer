@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using System.Linq;
-using Microsoft.AspNetCore.Authentication;
 
 namespace Open.IdentityServer.Services;
 

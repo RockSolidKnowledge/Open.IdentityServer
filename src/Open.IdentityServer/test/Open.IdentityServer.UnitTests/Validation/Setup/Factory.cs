@@ -14,7 +14,6 @@ using Open.IdentityServer.Services.Default;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
 using Open.IdentityServer.Validation;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 
 namespace IdentityServer.UnitTests.Validation.Setup;

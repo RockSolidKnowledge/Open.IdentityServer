@@ -4,7 +4,6 @@
 using System.Text.Json;
 using AwesomeAssertions;
 using Open.IdentityServer.DataProtection;
-using Open.IdentityServer.Stores.Serialization;
 using Xunit;
 
 namespace IdentityServer.UnitTests.DataProtection;

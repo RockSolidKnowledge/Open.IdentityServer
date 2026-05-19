@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
-using Open.IdentityModel;
+using Open.IdentityServer.Utility;
 
 namespace Open.IdentityServer.Extensions;
 

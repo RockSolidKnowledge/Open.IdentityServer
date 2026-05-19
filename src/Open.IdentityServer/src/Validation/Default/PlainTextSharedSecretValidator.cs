@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
-using Open.IdentityModel;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Microsoft.Extensions.Logging;
@@ -10,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Open.IdentityServer.Utility;
 
 namespace Open.IdentityServer.Validation;
 

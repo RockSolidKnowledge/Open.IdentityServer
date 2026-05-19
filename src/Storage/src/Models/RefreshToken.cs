@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using Open.IdentityModel;
 
 namespace Open.IdentityServer.Models;
 
@@ -79,7 +78,7 @@ public class RefreshToken
     /// <value>
     /// The subject identifier.
     /// </value>
-    public string? SubjectId => Subject?.FindFirst(JwtClaimTypes.Subject)?.Value;
+    public string? SubjectId => Subject?.FindFirst(Constants.JwtClaimTypes.Subject)?.Value;
 
     /// <summary>
     /// Gets the session identifier.

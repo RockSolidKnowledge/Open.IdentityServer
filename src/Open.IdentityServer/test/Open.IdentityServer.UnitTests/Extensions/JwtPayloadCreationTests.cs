@@ -7,14 +7,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Time.Testing;
 using Microsoft.IdentityModel.Tokens;
+using Open.IdentityServer;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Extensions;

@@ -11,8 +11,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
-using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Clients.Setup;
 using IdentityServer.IntegrationTests.Common;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +18,9 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
+using IdentityServer.IntegrationTests.Utility;
+using Open.IdentityServer;
+using Open.IdentityServer.Utility;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients;

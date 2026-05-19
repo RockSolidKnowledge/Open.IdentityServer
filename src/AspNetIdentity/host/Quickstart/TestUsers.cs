@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using Open.IdentityModel;
 using Open.IdentityServer.Test;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Open.IdentityServer;
 
 namespace IdentityServerHost.Quickstart.UI;
 

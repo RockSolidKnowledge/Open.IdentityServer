@@ -9,7 +9,6 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using Open.IdentityModel;
 using Open.IdentityServer.Validation;
 
 namespace Open.IdentityServer.Services;

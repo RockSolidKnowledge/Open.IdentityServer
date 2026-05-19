@@ -7,11 +7,11 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Utility;
 using Open.IdentityServer.Validation;
 using Xunit;
 

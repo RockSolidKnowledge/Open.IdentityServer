@@ -12,14 +12,16 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.IntegrationTests.Common;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Test;
-using Microsoft.AspNetCore.WebUtilities;
 using System.Text.Json;
+using IdentityServer.IntegrationTests.Utility;
+using Open.IdentityServer;
+using Open.IdentityServer.Utility;
 using Xunit;
 using static Open.IdentityServer.IdentityServerConstants;
+using QueryHelpers = Microsoft.AspNetCore.WebUtilities.QueryHelpers;
 
 namespace IdentityServer.IntegrationTests.Endpoints.EndSession;
 
@@ -141,7 +143,7 @@ public class EndSessionTests
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         var id_token = authorization.IdentityToken;
 
         response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.EndSessionEndpoint +
@@ -231,7 +233,7 @@ public class EndSessionTests
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         var id_token = authorization.IdentityToken;
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = true;
@@ -284,7 +286,7 @@ public class EndSessionTests
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         var id_token = authorization.IdentityToken;
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = true;
@@ -318,7 +320,7 @@ public class EndSessionTests
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         var id_token = authorization.IdentityToken;
 
         await _mockPipeline.LoginAsync("alice");
@@ -449,7 +451,7 @@ public class EndSessionTests
             state: "123_state",
             nonce: "123_nonce");
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         var id_token = authorization.IdentityToken;
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = true;
@@ -475,7 +477,7 @@ public class EndSessionTests
             state: "123_state",
             nonce: "123_nonce");
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         var id_token = authorization.IdentityToken;
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = true;

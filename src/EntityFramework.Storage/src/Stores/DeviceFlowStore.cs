@@ -5,7 +5,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Open.IdentityModel;
 using Open.IdentityServer.EntityFramework.Entities;
 using Open.IdentityServer.EntityFramework.Interfaces;
 using Open.IdentityServer.Models;
@@ -122,7 +121,7 @@ public class DeviceFlowStore : IDeviceFlowStore
         var entity = ToEntity(data, existing.DeviceCode, userCode);
         Logger.LogDebug("{userCode} found in database", userCode);
 
-        existing.SubjectId = data.Subject?.FindFirst(JwtClaimTypes.Subject).Value;
+        existing.SubjectId = data.Subject?.FindFirst(Constants.JwtClaimTypes.Subject).Value;
         existing.Data = entity.Data;
 
         try
@@ -183,7 +182,7 @@ public class DeviceFlowStore : IDeviceFlowStore
             DeviceCode = deviceCode,
             UserCode = userCode,
             ClientId = model.ClientId,
-            SubjectId = model.Subject?.FindFirst(JwtClaimTypes.Subject).Value,
+            SubjectId = model.Subject?.FindFirst(Constants.JwtClaimTypes.Subject).Value,
             CreationTime = model.CreationTime,
             Expiration = model.CreationTime.AddSeconds(model.Lifetime),
             Data = Serializer.Serialize(model)

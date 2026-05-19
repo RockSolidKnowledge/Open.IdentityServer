@@ -7,7 +7,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Open.IdentityModel;
 
 
 namespace Open.IdentityServer.Stores.Serialization;
@@ -30,7 +29,7 @@ public class ClaimsPrincipalConverter: JsonConverter<ClaimsPrincipal>
         if (source == null) return null;
 
         var claims = source.Claims.Select(x => new Claim(x.Type, x.Value, x.ValueType));
-        var id = new ClaimsIdentity(claims, source.AuthenticationType, JwtClaimTypes.Name, JwtClaimTypes.Role);
+        var id = new ClaimsIdentity(claims, source.AuthenticationType, Constants.JwtClaimTypes.Name, Constants.JwtClaimTypes.Role);
         var target = new ClaimsPrincipal(id);
         return target;
     }

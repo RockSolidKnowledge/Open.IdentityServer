@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using Open.IdentityModel;
+using Open.IdentityServer.Utility;
 
 namespace Open.IdentityServer;
 
@@ -64,34 +64,34 @@ internal class IdentityServerUser
     public ClaimsPrincipal CreatePrincipal()
     {
         if (SubjectId.IsMissing()) throw new ArgumentException("SubjectId is mandatory", nameof(SubjectId));
-        var claims = new List<Claim> { new Claim(JwtClaimTypes.Subject, SubjectId) };
+        var claims = new List<Claim> { new Claim(Constants.JwtClaimTypes.Subject, SubjectId) };
 
         if (DisplayName.IsPresent())
         {
-            claims.Add(new Claim(JwtClaimTypes.Name, DisplayName));
+            claims.Add(new Claim(Constants.JwtClaimTypes.Name, DisplayName));
         }
 
         if (IdentityProvider.IsPresent())
         {
-            claims.Add(new Claim(JwtClaimTypes.IdentityProvider, IdentityProvider));
+            claims.Add(new Claim(Constants.JwtClaimTypes.IdentityProvider, IdentityProvider));
         }
 
         if (AuthenticationTime.HasValue)
         {
-            claims.Add(new Claim(JwtClaimTypes.AuthenticationTime, new DateTimeOffset(AuthenticationTime.Value).ToUnixTimeSeconds().ToString()));
+            claims.Add(new Claim(Constants.JwtClaimTypes.AuthenticationTime, new DateTimeOffset(AuthenticationTime.Value).ToUnixTimeSeconds().ToString()));
         }
 
         if (AuthenticationMethods.Any())
         {
             foreach (var amr in AuthenticationMethods)
             {
-                claims.Add(new Claim(JwtClaimTypes.AuthenticationMethod, amr));
+                claims.Add(new Claim(Constants.JwtClaimTypes.AuthenticationMethod, amr));
             }
         }
 
         claims.AddRange(AdditionalClaims);
 
-        var id = new ClaimsIdentity(claims.Distinct(new ClaimComparer()), Constants.IdentityServerAuthenticationType, JwtClaimTypes.Name, JwtClaimTypes.Role);
+        var id = new ClaimsIdentity(claims.Distinct(new ClaimComparer()), Constants.IdentityServerAuthenticationType, Constants.JwtClaimTypes.Name, Constants.JwtClaimTypes.Role);
         return new ClaimsPrincipal(id);
     }
 }

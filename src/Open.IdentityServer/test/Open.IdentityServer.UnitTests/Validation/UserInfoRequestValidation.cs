@@ -3,7 +3,6 @@
 
 
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
@@ -11,6 +10,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer.UnitTests.Common;
+using Open.IdentityServer;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Validation;

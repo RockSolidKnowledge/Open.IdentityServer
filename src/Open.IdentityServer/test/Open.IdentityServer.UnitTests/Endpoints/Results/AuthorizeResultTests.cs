@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Endpoints.Results;
@@ -18,8 +17,8 @@ using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Open.IdentityServer;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Endpoints.Results;

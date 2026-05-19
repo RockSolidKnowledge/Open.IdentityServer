@@ -3,7 +3,6 @@
 
 
 using System;
-using System.Linq;
 using Open.IdentityServer.Infrastructure;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;

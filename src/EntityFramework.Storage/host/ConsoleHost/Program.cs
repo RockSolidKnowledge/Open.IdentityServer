@@ -3,7 +3,6 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using Open.IdentityServer.EntityFramework.Storage;
 using Microsoft.EntityFrameworkCore;
 using Open.IdentityServer.EntityFramework;

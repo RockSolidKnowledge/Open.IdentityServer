@@ -5,7 +5,6 @@ using System;
 using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Open.IdentityModel;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Events;

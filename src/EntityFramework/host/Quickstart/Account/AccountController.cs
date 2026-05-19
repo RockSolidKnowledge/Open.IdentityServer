@@ -2,13 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using Open.IdentityModel;
 using Open.IdentityServer;
 using Open.IdentityServer.Events;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
-using Open.IdentityServer.Stores;
 using Open.IdentityServer.Test;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -17,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Open.IdentityServer.Stores;
 
 namespace IdentityServerHost.Quickstart.UI;
 

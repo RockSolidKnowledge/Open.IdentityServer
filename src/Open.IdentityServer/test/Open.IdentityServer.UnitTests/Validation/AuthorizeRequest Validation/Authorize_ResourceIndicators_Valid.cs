@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.UnitTests.Validation.Setup;
-using Open.IdentityModel;
+using Open.IdentityServer;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;

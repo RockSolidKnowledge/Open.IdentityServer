@@ -10,7 +10,6 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
-using Open.IdentityModel;
 using Microsoft.AspNetCore.Http;
 
 namespace Open.IdentityServer.Validation;

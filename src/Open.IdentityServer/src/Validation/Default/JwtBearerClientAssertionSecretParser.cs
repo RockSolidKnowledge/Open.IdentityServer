@@ -6,7 +6,6 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IdentityModel.Tokens.Jwt;
-using Open.IdentityModel;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;

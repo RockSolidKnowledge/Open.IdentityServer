@@ -10,13 +10,13 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
-using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Clients.Setup;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using System.Text.Json;
+using IdentityServer.IntegrationTests.Utility;
 using Microsoft.Extensions.Hosting;
+using Open.IdentityServer.Utility;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients;
@@ -209,7 +209,7 @@ public class UserInfoEndpointClient : IDisposable
             Token = response.AccessToken
         }, TestContext.Current.CancellationToken);
 
-        roles = userInfo.Json?.GetProperty("role")
+        roles = userInfo.Json.GetProperty("role")
             .EnumerateArray()
             .Select(x => x.GetString()!)
             .ToArray();

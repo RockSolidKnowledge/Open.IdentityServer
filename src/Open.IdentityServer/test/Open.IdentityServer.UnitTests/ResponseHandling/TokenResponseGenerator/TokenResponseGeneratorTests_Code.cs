@@ -4,7 +4,6 @@
 using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;

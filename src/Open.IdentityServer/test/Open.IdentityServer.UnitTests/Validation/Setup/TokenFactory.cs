@@ -6,8 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Common;
+using Open.IdentityServer;
 using Open.IdentityServer.Models;
 
 namespace IdentityServer.UnitTests.Validation.Setup;

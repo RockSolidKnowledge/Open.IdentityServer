@@ -8,7 +8,6 @@ using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Common;
 using IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer;

@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.IntegrationTests.Common;
+using IdentityServer.IntegrationTests.Utility;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Test;
@@ -101,7 +102,7 @@ public class RestrictAccessTokenViaBrowserTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client1/callback");
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
         authorization.AccessToken.Should().BeNull();
     }
@@ -120,7 +121,7 @@ public class RestrictAccessTokenViaBrowserTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client1/callback");
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
         authorization.AccessToken.Should().NotBeNull();
     }
@@ -139,7 +140,7 @@ public class RestrictAccessTokenViaBrowserTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client2/callback");
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
         authorization.AccessToken.Should().BeNull();
     }
@@ -172,7 +173,7 @@ public class RestrictAccessTokenViaBrowserTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client3/callback");
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
         authorization.AccessToken.Should().BeNull();
         authorization.Code.Should().NotBeNull();
@@ -192,7 +193,7 @@ public class RestrictAccessTokenViaBrowserTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client3/callback");
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
         authorization.AccessToken.Should().NotBeNull();
         authorization.Code.Should().NotBeNull();
@@ -213,7 +214,7 @@ public class RestrictAccessTokenViaBrowserTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client4/callback");
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
         authorization.AccessToken.Should().BeNull();
         authorization.Code.Should().NotBeNull();

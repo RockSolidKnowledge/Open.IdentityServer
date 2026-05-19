@@ -9,7 +9,6 @@ using Microsoft.Extensions.Primitives;
 using Open.IdentityServer.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
-using Open.IdentityModel;
 
 namespace Open.IdentityServer.Endpoints.Results;
 

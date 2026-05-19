@@ -7,13 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Open.IdentityModel;
 using Open.IdentityServer.EntityFramework.DbContexts;
-using Open.IdentityServer.EntityFramework.Mappers;
 using Open.IdentityServer.EntityFramework.Options;
 using Open.IdentityServer.EntityFramework.Stores;
 using Open.IdentityServer.Models;
 using Microsoft.EntityFrameworkCore;
+using Open.IdentityServer.EntityFramework.Mappers;
+using Open.IdentityServer.Utility;
 using Xunit;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores;

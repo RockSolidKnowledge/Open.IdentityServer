@@ -8,7 +8,6 @@ using Open.IdentityServer.Models;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Linq;
-using Open.IdentityModel;
 using Microsoft.AspNetCore.Http;
 
 namespace Open.IdentityServer.Validation;

@@ -3,7 +3,6 @@
 
 
 using System;
-using Microsoft.AspNetCore.Authentication;
 
 namespace IdentityServer.UnitTests.Common;
 

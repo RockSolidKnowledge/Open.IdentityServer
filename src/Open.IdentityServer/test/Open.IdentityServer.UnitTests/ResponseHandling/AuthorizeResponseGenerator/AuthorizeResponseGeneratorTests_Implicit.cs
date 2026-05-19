@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Moq;
-using Open.IdentityModel;
+using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 using Xunit;

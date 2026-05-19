@@ -5,8 +5,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
 using IdentityServerHost.Quickstart.UI;
+using Microsoft.EntityFrameworkCore;
 
 namespace IdentityServerHost;
 

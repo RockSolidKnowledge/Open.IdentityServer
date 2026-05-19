@@ -8,8 +8,8 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Common;
+using IdentityServer.IntegrationTests.Utility;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Default;
@@ -199,7 +199,7 @@ public class ConsentTests
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
         response.Headers.Location.ToString().Should().StartWith("https://client2/callback");
 
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IsError.Should().BeFalse();
         authorization.IdentityToken.Should().NotBeNull();
         authorization.State.Should().Be("123_state");
@@ -268,7 +268,7 @@ public class ConsentTests
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
         response.Headers.Location.ToString().Should().StartWith("https://client2/callback");
 
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IsError.Should().BeTrue();
         authorization.Error.Should().Be("access_denied");
         authorization.State.Should().Be("123_state");

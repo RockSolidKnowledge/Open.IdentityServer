@@ -8,7 +8,6 @@ using Open.IdentityServer.ResponseHandling;
 using Microsoft.Extensions.Logging;
 using Open.IdentityServer.Hosting;
 using Open.IdentityServer.Endpoints.Results;
-using Open.IdentityModel;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 

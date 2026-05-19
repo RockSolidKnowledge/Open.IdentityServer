@@ -9,7 +9,6 @@ using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 
 namespace Open.IdentityServer.ResponseHandling;

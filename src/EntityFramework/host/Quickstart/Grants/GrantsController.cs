@@ -3,7 +3,6 @@
 
 
 using Open.IdentityServer.Services;
-using Open.IdentityServer.Stores;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Open.IdentityServer.Events;
 using Open.IdentityServer.Extensions;
+using Open.IdentityServer.Stores;
 
 namespace IdentityServerHost.Quickstart.UI;
 

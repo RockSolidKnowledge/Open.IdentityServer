@@ -8,8 +8,8 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Clients.Setup;
+using IdentityServer.IntegrationTests.Utility;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
@@ -134,13 +134,13 @@ public class CustomTokenRequestValidatorClient : IDisposable
 
     private Dictionary<string, object> GetFields(TokenResponse response)
     {
-        var dictionary = new Dictionary<string, object>();
-
-        if (response.Json.HasValue)
+        if (response.Json.ValueKind == JsonValueKind.Undefined ||
+            response.Json.ValueKind == JsonValueKind.Null)
         {
-            dictionary = response.Json.Value.Deserialize<Dictionary<string, object>>();
+            return new Dictionary<string, object>();
         }
 
-        return dictionary;
+        return response.Json.Deserialize<Dictionary<string, object>>()
+               ?? new Dictionary<string, object>();
     }
 }

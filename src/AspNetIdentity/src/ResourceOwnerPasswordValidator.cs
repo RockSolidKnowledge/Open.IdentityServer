@@ -7,9 +7,6 @@ using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using static Open.IdentityModel.OidcConstants;
-using Open.IdentityServer.Services;
-using Open.IdentityServer.Events;
 
 namespace Open.IdentityServer.AspNetIdentity;
 
@@ -57,7 +54,7 @@ public class ResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValid
 
                 _logger.LogInformation("Credentials validated for username: {username}", context.UserName);
 
-                context.Result = new GrantValidationResult(sub, AuthenticationMethods.Password);
+                context.Result = new GrantValidationResult(sub, OidcConstants.AuthenticationMethods.Password);
                 return;
             }
             else if (result.IsLockedOut)

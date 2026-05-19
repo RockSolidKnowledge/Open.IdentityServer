@@ -41,4 +41,8 @@
         <ProjectReference Include="..\..\src\Open.IdentityServer.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Utility\" />
+    </ItemGroup>
+
 </Project>

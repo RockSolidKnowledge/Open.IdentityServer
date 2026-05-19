@@ -12,7 +12,6 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 using Xunit;
-using static Open.IdentityModel.OidcConstants;
 
 namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponseGenerator;
 
@@ -51,7 +50,7 @@ public class AuthorizeInteractionResponseGeneratorTests
                     "some_idp"
                 }
             },
-            PromptModes = new[] { PromptModes.None },
+            PromptModes = new[] { OidcConstants.PromptModes.None },
         };
 
         var result = await _subject.ProcessInteractionAsync(request);
@@ -77,7 +76,7 @@ public class AuthorizeInteractionResponseGeneratorTests
             {
                 EnableLocalLogin = true,
             },
-            PromptModes = new[] { PromptModes.None },
+            PromptModes = new[] { OidcConstants.PromptModes.None },
             MaxAge = 3600
         };
 
@@ -101,7 +100,7 @@ public class AuthorizeInteractionResponseGeneratorTests
             {
                 IdentityProvider = IdentityServerConstants.LocalIdentityProvider
             }.CreatePrincipal(),
-            PromptModes = new[] { PromptModes.None }
+            PromptModes = new[] { OidcConstants.PromptModes.None }
         };
 
         var result = await _subject.ProcessInteractionAsync(request);
@@ -125,7 +124,7 @@ public class AuthorizeInteractionResponseGeneratorTests
                 IdentityProvider = "local",
                 AuthenticationTime = _clock.GetUtcNow().UtcDateTime.Subtract(TimeSpan.FromSeconds(3700))
             }.CreatePrincipal(),
-            PromptModes = new[] { PromptModes.None }
+            PromptModes = new[] { OidcConstants.PromptModes.None }
         };
 
         var result = await _subject.ProcessInteractionAsync(request);
@@ -148,7 +147,7 @@ public class AuthorizeInteractionResponseGeneratorTests
             {
                 IdentityProvider = IdentityServerConstants.LocalIdentityProvider
             }.CreatePrincipal(),
-            PromptModes = new[] { PromptModes.None }
+            PromptModes = new[] { OidcConstants.PromptModes.None }
         };
 
         var result = await _subject.ProcessInteractionAsync(request);

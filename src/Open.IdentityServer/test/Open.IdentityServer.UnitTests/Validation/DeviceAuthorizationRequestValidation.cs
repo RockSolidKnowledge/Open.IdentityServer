@@ -7,7 +7,6 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;

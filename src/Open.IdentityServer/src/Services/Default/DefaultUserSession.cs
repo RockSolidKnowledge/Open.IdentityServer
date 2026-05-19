@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Open.IdentityModel;
+using Open.IdentityServer.Utility;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Http;

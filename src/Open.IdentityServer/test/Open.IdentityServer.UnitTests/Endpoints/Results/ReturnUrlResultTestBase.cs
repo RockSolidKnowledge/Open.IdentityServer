@@ -14,7 +14,6 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using Xunit;
 

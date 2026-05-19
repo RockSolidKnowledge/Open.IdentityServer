@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.IntegrationTests.Common;
+using IdentityServer.IntegrationTests.Utility;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Test;
 using Xunit;
@@ -83,7 +84,7 @@ public class ResponseTypeResponseModeTests
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Found);
 
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IsError.Should().BeFalse();
         authorization.Code.Should().NotBeNull();
         authorization.State.Should().Be(state);

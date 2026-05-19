@@ -4,10 +4,10 @@
 
 using System;
 using Open.IdentityServer.EntityFramework.Entities;
-using Open.IdentityServer.EntityFramework.Extensions;
 using Open.IdentityServer.EntityFramework.Interfaces;
 using Open.IdentityServer.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
+using Open.IdentityServer.EntityFramework.Extensions;
 
 namespace Open.IdentityServer.EntityFramework.DbContexts;
 

@@ -6,7 +6,6 @@ using System;
 using System.Threading.Tasks;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace Open.IdentityServer.Services;

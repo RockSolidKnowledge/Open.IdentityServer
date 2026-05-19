@@ -12,7 +12,6 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Extensions;
 using System;
-using Microsoft.AspNetCore.Authentication;
 
 namespace Open.IdentityServer.Endpoints.Results;
 

@@ -2,17 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using Open.IdentityModel;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
+using Open.IdentityServer.Utility;
 using static Open.IdentityServer.IdentityServerConstants;
 
 namespace Open.IdentityServer.Services;

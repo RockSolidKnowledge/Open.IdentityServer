@@ -3,11 +3,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Collections.Specialized;
-using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Validation.Setup;
+using Open.IdentityServer;
 using Open.IdentityServer.Stores;
 using Xunit;
 

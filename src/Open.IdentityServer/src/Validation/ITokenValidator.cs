@@ -3,7 +3,6 @@
 
 
 using System.Threading.Tasks;
-using Open.IdentityServer.Models;
 
 namespace Open.IdentityServer.Validation;
 

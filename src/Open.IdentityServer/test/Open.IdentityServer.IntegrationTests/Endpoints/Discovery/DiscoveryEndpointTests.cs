@@ -3,18 +3,15 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using AwesomeAssertions;
-using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Common;
-using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
-using Open.IdentityServer.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityServer.IntegrationTests.Utility;
 using Xunit;
-using JsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
 
 namespace IdentityServer.IntegrationTests.Endpoints.Discovery;
 

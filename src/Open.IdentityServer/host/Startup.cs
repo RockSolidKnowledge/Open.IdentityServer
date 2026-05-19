@@ -4,7 +4,6 @@
 
 using System;
 using IdentityServerHost.Configuration;
-using Open.IdentityModel;
 using Open.IdentityServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +20,7 @@ using IdentityServerHost.Extensions;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.HttpOverrides;
 using IdentityServerHost.Quickstart.UI;
+using Open.IdentityServer.Utility;
 
 namespace IdentityServerHost;
 

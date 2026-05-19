@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Open.IdentityModel;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Validation;
 

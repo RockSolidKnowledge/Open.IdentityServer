@@ -11,9 +11,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
-using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Common;
+using IdentityServer.IntegrationTests.Utility;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
@@ -21,6 +20,7 @@ using Open.IdentityServer.Test;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Open.IdentityServer.Utility;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Endpoints.Authorize;

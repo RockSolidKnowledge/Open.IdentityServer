@@ -8,15 +8,14 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
-using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Clients.Setup;
+using IdentityServer.IntegrationTests.Utility;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
+using Open.IdentityServer.Utility;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Clients;
@@ -294,14 +293,14 @@ public class CustomTokenResponseClients : IDisposable
 
     private Dictionary<string, object> GetFields(TokenResponse response)
     {
-        var dictionary = new Dictionary<string, object>();
-
-        if (response.Json.HasValue)
+        if (response.Json.ValueKind == JsonValueKind.Undefined ||
+            response.Json.ValueKind == JsonValueKind.Null)
         {
-            dictionary = response.Json.Value.Deserialize<Dictionary<string, object>>();
+            return new Dictionary<string, object>();
         }
 
-        return dictionary;
+        return response.Json.Deserialize<Dictionary<string, object>>()
+               ?? new Dictionary<string, object>();
     }
 
     private Dictionary<string, object> GetPayload(TokenResponse response)

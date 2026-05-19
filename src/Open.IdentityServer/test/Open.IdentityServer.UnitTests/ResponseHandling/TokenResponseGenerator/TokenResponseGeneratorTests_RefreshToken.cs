@@ -3,14 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Moq;
-using Open.IdentityModel;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Utility;
 using Open.IdentityServer.Validation;
 using Xunit;
 

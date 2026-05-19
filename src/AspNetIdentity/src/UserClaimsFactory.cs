@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using Open.IdentityModel;
 
 namespace Open.IdentityServer.AspNetIdentity;
 

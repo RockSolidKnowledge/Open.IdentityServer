@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using Open.IdentityModel;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
@@ -16,6 +15,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Open.IdentityServer.Logging.Models;
+using Open.IdentityServer.Utility;
 
 namespace Open.IdentityServer.Validation;
 

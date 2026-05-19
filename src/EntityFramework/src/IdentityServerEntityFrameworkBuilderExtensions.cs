@@ -1,18 +1,18 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-using Open.IdentityServer.EntityFramework.DbContexts;
-using Open.IdentityServer.EntityFramework.Interfaces;
 using Open.IdentityServer.EntityFramework.Services;
-using Open.IdentityServer.EntityFramework.Stores;
-using Open.IdentityServer.Stores;
 using System;
-using Open.IdentityServer.EntityFramework.Options;
-using Open.IdentityServer.EntityFramework;
-using Open.IdentityServer.EntityFramework.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Open.IdentityServer.EntityFramework;
+using Open.IdentityServer.EntityFramework.DbContexts;
+using Open.IdentityServer.EntityFramework.Interfaces;
+using Open.IdentityServer.EntityFramework.Options;
+using Open.IdentityServer.EntityFramework.Storage;
+using Open.IdentityServer.EntityFramework.Stores;
+using Open.IdentityServer.Stores;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

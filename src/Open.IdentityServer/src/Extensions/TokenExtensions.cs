@@ -3,9 +3,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using Open.IdentityModel;
 using Open.IdentityServer.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -14,6 +12,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using Open.IdentityServer.Configuration;
+using Open.IdentityServer.Utility;
 
 namespace Open.IdentityServer.Extensions;
 

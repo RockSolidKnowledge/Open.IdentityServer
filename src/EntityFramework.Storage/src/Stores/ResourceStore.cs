@@ -7,11 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Open.IdentityServer.EntityFramework.Interfaces;
-using Open.IdentityServer.EntityFramework.Mappers;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.EntityFramework.Mappers;
 
 namespace Open.IdentityServer.EntityFramework.Stores;
 

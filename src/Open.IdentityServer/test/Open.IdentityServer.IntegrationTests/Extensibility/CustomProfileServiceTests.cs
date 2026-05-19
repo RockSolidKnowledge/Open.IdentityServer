@@ -6,12 +6,13 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.IntegrationTests.Common;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using IdentityServer.IntegrationTests.Utility;
+using Open.IdentityServer.Utility;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Extensibility;
@@ -70,7 +71,7 @@ public class CustomProfileServiceTests
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
         response.Headers.Location.ToString().Should().StartWith("https://client/callback");
 
-        var authorization = new Open.IdentityModel.Client.AuthorizeResponse(response.Headers.Location.ToString());
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IsError.Should().BeFalse();
         authorization.IdentityToken.Should().NotBeNull();
 

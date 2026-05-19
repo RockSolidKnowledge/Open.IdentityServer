@@ -7,7 +7,6 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using System.Collections.Specialized;
 using System.Security.Claims;
-using Open.IdentityModel;
 using System.Linq;
 using System;
 using Open.IdentityServer.Extensions;

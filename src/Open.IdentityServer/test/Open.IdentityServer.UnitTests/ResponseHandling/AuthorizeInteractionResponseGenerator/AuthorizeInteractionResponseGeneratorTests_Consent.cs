@@ -6,14 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
-using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Utility;
 using Open.IdentityServer.Validation;
 using Xunit;
 

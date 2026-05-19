@@ -5,8 +5,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Validation.Setup;
+using Open.IdentityServer;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Validation;

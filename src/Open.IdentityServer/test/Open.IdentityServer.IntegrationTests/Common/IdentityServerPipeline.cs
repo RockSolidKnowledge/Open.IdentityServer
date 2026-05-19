@@ -12,7 +12,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel.Client;
+using IdentityServer.IntegrationTests.Utility;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;

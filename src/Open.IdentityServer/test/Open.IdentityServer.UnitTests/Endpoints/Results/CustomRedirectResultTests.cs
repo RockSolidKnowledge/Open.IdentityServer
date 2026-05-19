@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Endpoints.Results;
-using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Moq;

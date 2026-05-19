@@ -5,11 +5,11 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Open.IdentityServer.EntityFramework.Interfaces;
-using Open.IdentityServer.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.EntityFramework.Interfaces;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.EntityFramework.Services;
 

@@ -1,21 +1,20 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
 using System;
 using System.Collections.Generic;
-using Open.IdentityServer.EntityFramework.DbContexts;
-using Open.IdentityServer.EntityFramework.Mappers;
-using Open.IdentityServer.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using System.Linq;
 using System.Threading.Tasks;
-using Open.IdentityServer.EntityFramework.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Open.IdentityServer.EntityFramework.DbContexts;
 using Open.IdentityServer.EntityFramework.Interfaces;
+using Open.IdentityServer.EntityFramework.Mappers;
+using Open.IdentityServer.EntityFramework.Options;
 using Open.IdentityServer.EntityFramework.Services;
+using Open.IdentityServer.Models;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Services;
 

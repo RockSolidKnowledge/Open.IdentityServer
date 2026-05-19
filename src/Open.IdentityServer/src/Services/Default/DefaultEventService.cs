@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Http;
 using Open.IdentityServer.Configuration;
 using System.Threading.Tasks;
 using Open.IdentityServer.Services;
-using Microsoft.AspNetCore.Authentication;
 
 namespace Open.IdentityServer.Events;
 

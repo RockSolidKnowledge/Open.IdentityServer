@@ -5,7 +5,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
@@ -13,6 +12,7 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Open.IdentityServer;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Services.Default;

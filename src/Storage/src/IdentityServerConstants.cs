@@ -17,3 +17,4 @@ internal static class IdentityServerConstants
         public const string SharedSecret = "SharedSecret";
     }
 }
+

@@ -6,7 +6,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
-using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Stores.Serialization;
 using Microsoft.AspNetCore.DataProtection;

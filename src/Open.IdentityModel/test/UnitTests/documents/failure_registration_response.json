@@ -1,5 +1,0 @@
-{
-    "error": "invalid_redirect_uri",
-    "error_description": "One or more redirect_uri values are invalid",
-    "custom": "custom"
-}

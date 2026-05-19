@@ -12,10 +12,8 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using static Open.IdentityModel.OidcConstants;
 
 namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponseGenerator;
 
@@ -106,7 +104,7 @@ public class AuthorizeInteractionResponseGeneratorTests_Custom
             Client = new Client
             {
             },
-            PromptModes = new[] { PromptModes.None },
+            PromptModes = new[] { OidcConstants.PromptModes.None },
         };
 
         _subject.ProcessLoginResponse = new InteractionResponse
@@ -133,7 +131,7 @@ public class AuthorizeInteractionResponseGeneratorTests_Custom
             Client = new Client
             {
             },
-            PromptModes = new[] { PromptModes.None },
+            PromptModes = new[] { OidcConstants.PromptModes.None },
         };
 
         _subject.ProcessLoginResponse = new InteractionResponse
@@ -161,7 +159,7 @@ public class AuthorizeInteractionResponseGeneratorTests_Custom
             Client = new Client
             {
             },
-            PromptModes = new[] { PromptModes.None },
+            PromptModes = new[] { OidcConstants.PromptModes.None },
         };
 
         _subject.ProcessConsentResponse = new InteractionResponse

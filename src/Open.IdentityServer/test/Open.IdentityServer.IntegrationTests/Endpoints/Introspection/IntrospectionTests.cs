@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
+#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -11,8 +11,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel.Client;
 using IdentityServer.IntegrationTests.Endpoints.Introspection.Setup;
+using IdentityServer.IntegrationTests.Utility;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
@@ -209,7 +209,7 @@ public class IntrospectionTests : IDisposable
             Token = tokenResponse.AccessToken
         }, TestContext.Current.CancellationToken);
 
-        var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
+        var values = introspectionResponse.Json.Deserialize<Dictionary<string, object>>();
             
         ((JsonElement)values["aud"]).ValueKind.Should().Be(JsonValueKind.String);
         ((JsonElement)values["iss"]).ValueKind.Should().Be(JsonValueKind.String);
@@ -248,7 +248,7 @@ public class IntrospectionTests : IDisposable
             Token = tokenResponse.AccessToken
         }, TestContext.Current.CancellationToken);
 
-        var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
+        var values = introspectionResponse.Json.Deserialize<Dictionary<string, object>>();
             
         ((JsonElement)values["aud"]).ValueKind.Should().Be(JsonValueKind.String);
         ((JsonElement)values["iss"]).ValueKind.Should().Be(JsonValueKind.String);
@@ -287,7 +287,7 @@ public class IntrospectionTests : IDisposable
             Token = tokenResponse.AccessToken
         }, TestContext.Current.CancellationToken);
 
-        var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
+        var values = introspectionResponse.Json.Deserialize<Dictionary<string, object>>();
 
         values["aud"].GetType().Name.Should().Be("JsonElement");
 
@@ -332,7 +332,7 @@ public class IntrospectionTests : IDisposable
             Token = tokenResponse.AccessToken
         }, TestContext.Current.CancellationToken);
 
-        var values = introspectionResponse.Json?.Deserialize<Dictionary<string, object>>();
+        var values = introspectionResponse.Json.Deserialize<Dictionary<string, object>>();
             
         ((JsonElement)values["aud"]).ValueKind.Should().Be(JsonValueKind.String);
         ((JsonElement)values["iss"]).ValueKind.Should().Be(JsonValueKind.String);

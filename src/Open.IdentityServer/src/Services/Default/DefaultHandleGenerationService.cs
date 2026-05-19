@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using Open.IdentityModel;
 using System.Threading.Tasks;
+using Open.IdentityServer.Utility;
 
 namespace Open.IdentityServer.Services;
 

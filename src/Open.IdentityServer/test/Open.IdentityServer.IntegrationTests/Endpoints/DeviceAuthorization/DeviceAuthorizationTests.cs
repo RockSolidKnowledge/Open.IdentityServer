@@ -9,10 +9,10 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.IntegrationTests.Common;
 using Open.IdentityServer.Models;
 using System.Text.Json;
+using Open.IdentityServer;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Endpoints.DeviceAuthorization;

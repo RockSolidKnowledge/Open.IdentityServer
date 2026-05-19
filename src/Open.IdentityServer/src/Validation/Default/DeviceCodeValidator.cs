@@ -5,11 +5,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Open.IdentityModel;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 
 namespace Open.IdentityServer.Validation;

@@ -2,7 +2,6 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-using Open.IdentityModel;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Events;
 using Open.IdentityServer.Extensions;
@@ -17,7 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Open.IdentityServer.Logging.Models;
-using Microsoft.AspNetCore.Authentication;
+using Open.IdentityServer.Utility;
 
 namespace Open.IdentityServer.Validation;
 

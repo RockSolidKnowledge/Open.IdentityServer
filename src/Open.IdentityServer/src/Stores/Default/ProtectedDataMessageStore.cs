@@ -5,10 +5,10 @@
 using Open.IdentityServer.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
-using Open.IdentityModel;
 using System.Text;
 using System;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Utility;
 
 namespace Open.IdentityServer.Stores;
 

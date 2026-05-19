@@ -3,7 +3,6 @@
 
 
 using System.Collections.Generic;
-using Open.IdentityModel;
 
 namespace Open.IdentityServer.Configuration;
 

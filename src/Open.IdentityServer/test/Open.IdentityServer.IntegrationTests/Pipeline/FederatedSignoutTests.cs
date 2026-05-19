@@ -9,7 +9,6 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Open.IdentityModel;
 using IdentityServer.IntegrationTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;

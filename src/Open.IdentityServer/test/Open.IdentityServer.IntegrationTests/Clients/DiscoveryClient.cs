@@ -3,14 +3,14 @@
 
 
 using System;
-using AwesomeAssertions;
-using Open.IdentityModel.Client;
+using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using IdentityServer.IntegrationTests.Clients.Setup;
+using IdentityServer.IntegrationTests.Utility;
 using Microsoft.Extensions.Hosting;
 using Xunit;
 
