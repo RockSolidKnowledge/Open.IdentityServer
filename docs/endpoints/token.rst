@@ -36,7 +36,7 @@ Furthermore the token endpoint can be extended to support extension grant types.
 ``device_code``
     the device code (required for ``urn:ietf:params:oauth:grant-type:device_code`` grant type)
 ``resource``
-    resource indicator for token request. Must be a valid URI. If follwing an authorize request, must also be a resource originally granted in that authorize request.
+    resource indicator for the token request. Must be a valid URI. If follwing an authorize request, must also be a resource originally granted in that authorize request.
 
 Example
 ^^^^^^^
