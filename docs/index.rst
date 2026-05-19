@@ -1,7 +1,7 @@
 Welcome to Open IdentityServer
 =============================================
 
-.. image:: images/logo.png
+.. image:: images/OpenIdentityServer.png
    :align: center
 
 Open IdentityServer is an OpenID Connect and OAuth 2.0 framework for ASP.NET.

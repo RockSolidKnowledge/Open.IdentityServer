@@ -1,5 +1,7 @@
 ## About Open.IdentityServer
 
+![Open.IdentityServer](./docs/images/OpenIdentityServer.png)
+
 Open.IdentityServer is a free, open source [OpenID Connect](http://openid.net/connect/) and [OAuth 2.0](https://tools.ietf.org/html/rfc6749) framework for .NET.
 
 Open.IdentityServer is an independent open‑source project led by [Rock Solid Knowledge](https://www.identityserver.com/), based on the Apache 2.0‑licensed IdentityServer4 codebase. It is not affiliated with or endorsed by Duende Software or the original IdentityServer4 authors.
