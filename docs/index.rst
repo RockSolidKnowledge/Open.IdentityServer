@@ -148,5 +148,5 @@ It enables the following features in your applications:
    :hidden:
    :caption: Misc
 
-   misc/blogs
+   misc/articles
    misc/videos
