@@ -58,7 +58,7 @@ source_suffix = ['.rst']
 master_doc = 'index'
 
 # General information about the project.
-project = 'Open IdentityServer'
+project = 'Open.IdentityServer'
 copyright = 'Copyright 2020, Brock Allen & Dominick Baier. Copyright in modifications 2026, Rock Solid Knowledge.'
 author = 'Brock Allen & Dominick Baier. Modifications by Rock Solid Knowledge.'
 
@@ -150,8 +150,8 @@ html_theme_options = {
     'analytics': True,
     'gtm_key': '',
     'show_back_btn': True,
-    'back_btn_link': 'https://identityserver.com',
-    'back_btn_text': 'Back to IdentityServer',
+    'back_btn_link': 'https://www.identityserver.com/documentation',
+    'back_btn_text': 'Documentation',
     'show_version': True,
     'version': '1.0.0',
     'custom_colour_mode': 'default',
