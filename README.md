@@ -15,8 +15,8 @@ For project documentation, please visit [IdentityServer.com](https://docs.identi
 We have quick-start guides for new projects and for migrating from other versions of IdentityServer.
 
 * [New projects](https://docs.identityserver.com/openidentityserver/quickstarts/0_overview)
-* [Migrating from IdentityServer4](https://docs.identityserver.com/openidentityserver/migrating/duendeidentityserver)
-* [Migrating from Duende IdentityServer](https://docs.identityserver.com/openidentityserver/migrating/identityserver4)
+* [Migrating from IdentityServer4](https://docs.identityserver.com/openidentityserver/migrating/from_ids4)
+* [Migrating from Duende IdentityServer](https://docs.identityserver.com/openidentityserver/migrating/from_duende)
 
 ## Branch structure
 Active development happens on the main branch. This always contains the latest version. Each (pre-) release is tagged with the corresponding version.

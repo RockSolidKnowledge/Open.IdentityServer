@@ -69,9 +69,9 @@ It enables the following features in your applications:
    :hidden:
    :caption: Migrating
 
-   migrating/duendeidentityserver
-   migrating/identityserver4
-   
+   migrating/from_ids4
+   migrating/from_duende
+
 .. toctree::
    :maxdepth: 3
    :hidden:
@@ -153,6 +153,7 @@ It enables the following features in your applications:
    reference/deviceflow_interactionservice
    reference/ef
    reference/aspnet_identity
+   reference/internalised_identitymodel
 
 .. toctree::
    :maxdepth: 3
