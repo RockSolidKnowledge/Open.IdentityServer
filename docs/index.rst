@@ -74,17 +74,6 @@ It enables the following features in your applications:
 .. toctree::
    :maxdepth: 3
    :hidden:
-   :caption: Configuration
-
-   configuration/startup
-   configuration/resources
-   configuration/clients
-   configuration/mvc
-   configuration/apis
-
-.. toctree::
-   :maxdepth: 3
-   :hidden:
    :caption: Topics
 
    topics/startup
