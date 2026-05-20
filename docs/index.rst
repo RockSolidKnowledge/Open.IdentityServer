@@ -43,7 +43,6 @@ It enables the following features in your applications:
    :caption: Introduction
 
    intro/big_picture
-   intro/architecture
    intro/terminology
    intro/specs
    intro/packaging
