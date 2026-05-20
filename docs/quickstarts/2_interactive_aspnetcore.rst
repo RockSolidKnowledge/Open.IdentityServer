@@ -18,7 +18,7 @@ You need to provide the necessary UI parts for login, logout, consent and error.
 While the look & feel as well as the exact workflows will probably always differ in every
 IdentityServer implementation, we provide an MVC-based sample UI that you can use as a starting point.
 
-This UI can be found in the `Quickstart UI repo <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/tree/main>`_.
+This UI can be found in the `Quickstart UI repo <https://github.com/RockSolidKnowledge/Open.IdentityServer.Quickstart.UI/tree/main>`_.
 You can clone or download this repo and drop the controllers, views, models and CSS into your IdentityServer web application.
 
 Alternatively you can use the .NET CLI (run from within the ``src/IdentityServer`` folder)
@@ -319,7 +319,7 @@ The process for defining an identity resource is as follows:
 
 It is also noteworthy, that the retrieval of claims for tokens is an extensibility point - ``IProfileService``.
 Since we are using ``AddTestUsers``, the ``TestUserProfileService`` is used by default.
-You can inspect the source code `here <https://github.com/IdentityServer/IdentityServer4/blob/main/src/IdentityServer4/src/Test/TestUserProfileService.cs>`_
+You can inspect the source code `here <https://github.com/RockSolidKnowledge/Open.IdentityServer/blob/main/src/IdentityServer4/src/Test/TestUserProfileService.cs>`_
 to see how it works.
 
 .. _refExternalAuthenticationQuickstart:
@@ -402,4 +402,4 @@ Add the OpenId Connect handler to DI
 
 And now a user should be able to use the cloud-hosted demo identity provider.
 
-.. note:: The quickstart UI auto-provisions external users. As an external user logs in for the first time, a new local user is created, and all the external claims are copied over and associated with the new user. The way you deal with such a situation is completely up to you though. Maybe you want to show some sort of registration UI first. The source code for the default quickstart can be found `here <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI>`_. The controller where auto-provisioning is executed can be found `here <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI/blob/main/Quickstart/Account/ExternalController.cs>`_.
+.. note:: The quickstart UI auto-provisions external users. As an external user logs in for the first time, a new local user is created, and all the external claims are copied over and associated with the new user. The way you deal with such a situation is completely up to you though. Maybe you want to show some sort of registration UI first. The source code for the default quickstart can be found `here <https://github.com/RockSolidKnowledge/Open.IdentityServer.Quickstart.UI>`_. The controller where auto-provisioning is executed can be found `here <https://github.com/RockSolidKnowledge/Open.IdentityServer.Quickstart.UI/blob/main/Quickstart/Account/ExternalController.cs>`_.

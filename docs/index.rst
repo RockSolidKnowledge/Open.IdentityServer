@@ -159,6 +159,5 @@ It enables the following features in your applications:
    :hidden:
    :caption: Misc
 
-   misc/training
    misc/blogs
    misc/videos

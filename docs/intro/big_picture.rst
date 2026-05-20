@@ -59,10 +59,10 @@ OpenID Connect and OAuth 2.0 are very similar – in fact OpenID Connect is an e
 The two fundamental security concerns, authentication and API access, are combined into a  single protocol - often with a single round trip to the security token service. 
 
 We believe that the combination of OpenID Connect and OAuth 2.0 is the best approach to secure modern
-applications for the foreseeable future. IdentityServer4 is an implementation of these two protocols and is
+applications for the foreseeable future. Open.IdentityServer is an implementation of these two protocols and is
 highly optimized to solve the typical security problems of today’s mobile, native and web applications.
 
-How IdentityServer4 can help
+How Open.IdentityServer can help
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 IdentityServer is middleware that adds the spec compliant OpenID Connect and OAuth 2.0 endpoints to an arbitrary ASP.NET Core application.
 

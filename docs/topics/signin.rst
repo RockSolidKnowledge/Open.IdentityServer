@@ -45,7 +45,7 @@ IdentityServer does not provide any user-interface or user database for user aut
 These are things you are expected to provide or develop yourself.
 
 If you need a starting point for a basic UI (login, logout, consent and manage grants), 
-you can use our `quickstart UI <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI>`_.
+you can use our `quickstart UI <https://github.com/RockSolidKnowledge/Open.IdentityServer.Quickstart.UI>`_.
 
 The quickstart UI authenticates users against an in-memory database. You would replace those bits with access to your real user store.
 We have samples that use :ref:`ASP.NET Identity <refAspNetIdentityQuickstart>`.
