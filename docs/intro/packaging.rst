@@ -1,7 +1,7 @@
 Packaging and Builds
 ====================
 
-IdentityServer consists of a number of nuget packages.
+Open.IdentityServer consists of a number of nuget packages.
 
 Open.IdentityServer main repo
 ^^^^^^^^^^^^^^^
@@ -15,14 +15,8 @@ nugets:
 * `Open.IdentityServer.EntityFramework <https://www.nuget.org/packages/Open.IdentityServer.EntityFramework>`_
 * `Open.IdentityServer.AspNetIdentity <https://www.nuget.org/packages/Open.IdentityServer.AspNetIdentity>`_
 
-Quickstart UI
-^^^^^^^^^^^^^
-`github <https://github.com/IdentityServer/IdentityServer4.Quickstart.UI>`_
-Contains a simple starter UI including login, logout and consent pages.
-
 Templates
 ^^^^^^^^^
-`nuget <https://www.nuget.org/packages/IdentityServer4.Templates>`_
+Currently there are no starter templates available for Open.IdentityServer, they are on the roadmap for a future realease. 
 
-Contains templates for the original IdentityServer4, can be used for Open.IdenityServer with little work to replce the refrences to old packages and
-update framework used to net10.0. In the future we will create some update templates.
+In the meantime, we recommend using the samples provided in the `samples <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/samples>`_ directory of the main repo as a starting point for your own implementation. These samples cover a variety of scenarios and can be easily adapted to fit your specific needs.
