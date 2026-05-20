@@ -60,7 +60,7 @@ This process typically involves authentication of the end-user and optionally co
         
         ``tenant:name_of_tenant`` can be used to pass a tenant name to the login UI
 ``resource``
-    resource indicator(s) for the authorise request. Must be a valid URI.
+    :ref:`resource indicator(s) <_refResourceIndicators>` for the authorise request. Must be a valid URI.
 
 **Example**
 
@@ -75,5 +75,3 @@ This process typically involves authentication of the end-user and optionally co
         nonce=xyz 
 
 (URL encoding removed, and line breaks added for readability)
-
-.. Note:: You can use the `IdentityModel <https://github.com/IdentityModel/IdentityModel2>`_ client library to programmatically create authorize requests .NET code. For more information check the IdentityModel `docs <https://identitymodel.readthedocs.io/en/latest/client/authorize.html>`_.

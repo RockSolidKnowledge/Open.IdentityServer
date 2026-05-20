@@ -25,5 +25,3 @@ Example
         scope=openid api1
 
 (Form-encoding removed and line breaks added for readability)
-
-.. Note:: You can use the `IdentityModel <https://github.com/IdentityModel/IdentityModel2>`_ client library to programmatically access the device authorization endpoint from .NET code. For more information check the IdentityModel `docs <https://identitymodel.readthedocs.io/en/latest/client/device_authorize.html>`_.

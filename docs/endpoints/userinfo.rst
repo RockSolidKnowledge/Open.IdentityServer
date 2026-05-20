@@ -29,5 +29,3 @@ Example
             "admin"
         ]
     }
-
-.. Note:: You can use the `IdentityModel <https://github.com/IdentityModel/IdentityModel2>`_ client library to programmatically access the userinfo endpoint from .NET code. For more information check the IdentityModel `docs <https://identitymodel.readthedocs.io/en/latest/client/userinfo.html>`_.
