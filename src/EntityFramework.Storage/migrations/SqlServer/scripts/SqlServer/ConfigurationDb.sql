@@ -34,6 +34,10 @@ CREATE TABLE [ApiScopes] (
     [Required] bit NOT NULL,
     [Emphasize] bit NOT NULL,
     [ShowInDiscoveryDocument] bit NOT NULL,
+    [NonEditable] bit NOT NULL,
+    [Created] datetime2 NOT NULL,
+    [LastAccessed] datetime2 NULL,
+    [Updated] datetime2 NULL,
     CONSTRAINT [PK_ApiScopes] PRIMARY KEY ([Id])
 );
 
@@ -82,7 +86,30 @@ CREATE TABLE [Clients] (
     [UserCodeType] nvarchar(100) NULL,
     [DeviceCodeLifetime] int NOT NULL,
     [NonEditable] bit NOT NULL,
+    [CibaLifetime] int NULL,
+    [PollingInterval] int NULL,
+    [CoordinateLifetimeWithUserSession] bit NULL,
+    [InitiateLoginUri] nvarchar(max) NULL,
+    [DPoPClockSkew] time NOT NULL,
+    [DPoPValidationMode] int NOT NULL,
+    [RequireDPoP] bit NOT NULL,
+    [PushedAuthorizationLifetime] int NULL,
+    [RequirePushedAuthorization] bit NOT NULL,
     CONSTRAINT [PK_Clients] PRIMARY KEY ([Id])
+);
+
+CREATE TABLE [IdentityProviders] (
+    [Id] int NOT NULL IDENTITY,
+    [Scheme] nvarchar(200) NOT NULL,
+    [DisplayName] nvarchar(200) NULL,
+    [Enabled] bit NOT NULL,
+    [Type] nvarchar(20) NOT NULL,
+    [Properties] nvarchar(max) NULL,
+    [Created] datetime2 NOT NULL,
+    [LastAccessed] datetime2 NULL,
+    [NonEditable] bit NOT NULL,
+    [Updated] datetime2 NULL,
+    CONSTRAINT [PK_IdentityProviders] PRIMARY KEY ([Id])
 );
 
 CREATE TABLE [IdentityResources] (
@@ -189,7 +216,7 @@ CREATE TABLE [ClientIdPRestrictions] (
 
 CREATE TABLE [ClientPostLogoutRedirectUris] (
     [Id] int NOT NULL IDENTITY,
-    [PostLogoutRedirectUri] nvarchar(2000) NOT NULL,
+    [PostLogoutRedirectUri] nvarchar(400) NOT NULL,
     [ClientId] int NOT NULL,
     CONSTRAINT [PK_ClientPostLogoutRedirectUris] PRIMARY KEY ([Id]),
     CONSTRAINT [FK_ClientPostLogoutRedirectUris_Clients_ClientId] FOREIGN KEY ([ClientId]) REFERENCES [Clients] ([Id]) ON DELETE CASCADE
@@ -206,7 +233,7 @@ CREATE TABLE [ClientProperties] (
 
 CREATE TABLE [ClientRedirectUris] (
     [Id] int NOT NULL IDENTITY,
-    [RedirectUri] nvarchar(2000) NOT NULL,
+    [RedirectUri] nvarchar(400) NOT NULL,
     [ClientId] int NOT NULL,
     CONSTRAINT [PK_ClientRedirectUris] PRIMARY KEY ([Id]),
     CONSTRAINT [FK_ClientRedirectUris_Clients_ClientId] FOREIGN KEY ([ClientId]) REFERENCES [Clients] ([Id]) ON DELETE CASCADE
@@ -249,35 +276,35 @@ CREATE TABLE [IdentityResourceProperties] (
     CONSTRAINT [FK_IdentityResourceProperties_IdentityResources_IdentityResourceId] FOREIGN KEY ([IdentityResourceId]) REFERENCES [IdentityResources] ([Id]) ON DELETE CASCADE
 );
 
-CREATE INDEX [IX_ApiResourceClaims_ApiResourceId] ON [ApiResourceClaims] ([ApiResourceId]);
+CREATE UNIQUE INDEX [IX_ApiResourceClaims_ApiResourceId_Type] ON [ApiResourceClaims] ([ApiResourceId], [Type]);
 
-CREATE INDEX [IX_ApiResourceProperties_ApiResourceId] ON [ApiResourceProperties] ([ApiResourceId]);
+CREATE UNIQUE INDEX [IX_ApiResourceProperties_ApiResourceId_Key] ON [ApiResourceProperties] ([ApiResourceId], [Key]);
 
 CREATE UNIQUE INDEX [IX_ApiResources_Name] ON [ApiResources] ([Name]);
 
-CREATE INDEX [IX_ApiResourceScopes_ApiResourceId] ON [ApiResourceScopes] ([ApiResourceId]);
+CREATE UNIQUE INDEX [IX_ApiResourceScopes_ApiResourceId_Scope] ON [ApiResourceScopes] ([ApiResourceId], [Scope]);
 
 CREATE INDEX [IX_ApiResourceSecrets_ApiResourceId] ON [ApiResourceSecrets] ([ApiResourceId]);
 
-CREATE INDEX [IX_ApiScopeClaims_ScopeId] ON [ApiScopeClaims] ([ScopeId]);
+CREATE UNIQUE INDEX [IX_ApiScopeClaims_ScopeId_Type] ON [ApiScopeClaims] ([ScopeId], [Type]);
 
-CREATE INDEX [IX_ApiScopeProperties_ScopeId] ON [ApiScopeProperties] ([ScopeId]);
+CREATE UNIQUE INDEX [IX_ApiScopeProperties_ScopeId_Key] ON [ApiScopeProperties] ([ScopeId], [Key]);
 
 CREATE UNIQUE INDEX [IX_ApiScopes_Name] ON [ApiScopes] ([Name]);
 
-CREATE INDEX [IX_ClientClaims_ClientId] ON [ClientClaims] ([ClientId]);
+CREATE UNIQUE INDEX [IX_ClientClaims_ClientId_Type_Value] ON [ClientClaims] ([ClientId], [Type], [Value]);
 
-CREATE INDEX [IX_ClientCorsOrigins_ClientId] ON [ClientCorsOrigins] ([ClientId]);
+CREATE UNIQUE INDEX [IX_ClientCorsOrigins_ClientId_Origin] ON [ClientCorsOrigins] ([ClientId], [Origin]);
 
-CREATE INDEX [IX_ClientGrantTypes_ClientId] ON [ClientGrantTypes] ([ClientId]);
+CREATE UNIQUE INDEX [IX_ClientGrantTypes_ClientId_GrantType] ON [ClientGrantTypes] ([ClientId], [GrantType]);
 
-CREATE INDEX [IX_ClientIdPRestrictions_ClientId] ON [ClientIdPRestrictions] ([ClientId]);
+CREATE UNIQUE INDEX [IX_ClientIdPRestrictions_ClientId_Provider] ON [ClientIdPRestrictions] ([ClientId], [Provider]);
 
-CREATE INDEX [IX_ClientPostLogoutRedirectUris_ClientId] ON [ClientPostLogoutRedirectUris] ([ClientId]);
+CREATE UNIQUE INDEX [IX_ClientPostLogoutRedirectUris_ClientId_PostLogoutRedirectUri] ON [ClientPostLogoutRedirectUris] ([ClientId], [PostLogoutRedirectUri]);
 
 CREATE INDEX [IX_ClientProperties_ClientId] ON [ClientProperties] ([ClientId]);
 
-CREATE INDEX [IX_ClientRedirectUris_ClientId] ON [ClientRedirectUris] ([ClientId]);
+CREATE UNIQUE INDEX [IX_ClientRedirectUris_ClientId_RedirectUri] ON [ClientRedirectUris] ([ClientId], [RedirectUri]);
 
 CREATE UNIQUE INDEX [IX_Clients_ClientId] ON [Clients] ([ClientId]);
 
@@ -285,14 +312,14 @@ CREATE INDEX [IX_ClientScopes_ClientId] ON [ClientScopes] ([ClientId]);
 
 CREATE INDEX [IX_ClientSecrets_ClientId] ON [ClientSecrets] ([ClientId]);
 
-CREATE INDEX [IX_IdentityResourceClaims_IdentityResourceId] ON [IdentityResourceClaims] ([IdentityResourceId]);
+CREATE UNIQUE INDEX [IX_IdentityResourceClaims_IdentityResourceId_Type] ON [IdentityResourceClaims] ([IdentityResourceId], [Type]);
 
-CREATE INDEX [IX_IdentityResourceProperties_IdentityResourceId] ON [IdentityResourceProperties] ([IdentityResourceId]);
+CREATE UNIQUE INDEX [IX_IdentityResourceProperties_IdentityResourceId_Key] ON [IdentityResourceProperties] ([IdentityResourceId], [Key]);
 
 CREATE UNIQUE INDEX [IX_IdentityResources_Name] ON [IdentityResources] ([Name]);
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260417104132_Configuration', N'10.0.5');
+VALUES (N'20260521090055_Configuration', N'10.0.7');
 
 COMMIT;
 GO

@@ -22,6 +22,18 @@ CREATE TABLE [DeviceCodes] (
     CONSTRAINT [PK_DeviceCodes] PRIMARY KEY ([UserCode])
 );
 
+CREATE TABLE [Keys] (
+    [Id] nvarchar(450) NOT NULL,
+    [Version] int NOT NULL,
+    [Use] nvarchar(max) NULL,
+    [DataProtected] bit NOT NULL,
+    [Algorithm] nvarchar(100) NOT NULL,
+    [IsX509Certificate] bit NOT NULL,
+    [Data] nvarchar(max) NOT NULL,
+    [Created] datetime2 NOT NULL,
+    CONSTRAINT [PK_Keys] PRIMARY KEY ([Id])
+);
+
 CREATE TABLE [PersistedGrants] (
     [Id] bigint NOT NULL IDENTITY,
     [Key] nvarchar(200) NULL,
@@ -37,9 +49,33 @@ CREATE TABLE [PersistedGrants] (
     CONSTRAINT [PK_PersistedGrants] PRIMARY KEY ([Id])
 );
 
+CREATE TABLE [PushedAuthorizationRequests] (
+    [Id] int NOT NULL IDENTITY,
+    [ReferenceHashValue] nvarchar(64) NOT NULL,
+    [Created] datetime2 NOT NULL,
+    [Parameters] nvarchar(max) NOT NULL,
+    CONSTRAINT [PK_PushedAuthorizationRequests] PRIMARY KEY ([Id])
+);
+
+CREATE TABLE [ServerSideSessions] (
+    [Id] int NOT NULL IDENTITY,
+    [Key] nvarchar(100) NOT NULL,
+    [Scheme] nvarchar(100) NOT NULL,
+    [SubjectId] nvarchar(100) NOT NULL,
+    [SessionId] nvarchar(100) NULL,
+    [DisplayName] nvarchar(100) NULL,
+    [Created] datetime2 NOT NULL,
+    [Renewed] datetime2 NOT NULL,
+    [Expires] datetime2 NULL,
+    [Data] nvarchar(max) NOT NULL,
+    CONSTRAINT [PK_ServerSideSessions] PRIMARY KEY ([Id])
+);
+
 CREATE UNIQUE INDEX [IX_DeviceCodes_DeviceCode] ON [DeviceCodes] ([DeviceCode]);
 
 CREATE INDEX [IX_DeviceCodes_Expiration] ON [DeviceCodes] ([Expiration]);
+
+CREATE INDEX [IX_PersistedGrants_ConsumedTime] ON [PersistedGrants] ([ConsumedTime]);
 
 CREATE INDEX [IX_PersistedGrants_Expiration] ON [PersistedGrants] ([Expiration]);
 
@@ -50,7 +86,7 @@ CREATE INDEX [IX_PersistedGrants_SubjectId_ClientId_Type] ON [PersistedGrants] (
 CREATE INDEX [IX_PersistedGrants_SubjectId_SessionId_Type] ON [PersistedGrants] ([SubjectId], [SessionId], [Type]);
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260417104126_Grants', N'10.0.5');
+VALUES (N'20260521090048_Grants', N'10.0.7');
 
 COMMIT;
 GO
