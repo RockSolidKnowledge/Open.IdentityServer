@@ -50,7 +50,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.EntityF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "migrations", "migrations", "{0C2CD5F0-DD45-4B19-AA3C-692906F09F8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServer", "src\EntityFramework.Storage\migrations\SqlServer\SqlServer.csproj", "{8A79C30C-AF8F-44F6-A5A0-3AC8B7ED6E2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrator", "src\EntityFramework.Storage\migrations\Migrator\Migrator.csproj", "{8A79C30C-AF8F-44F6-A5A0-3AC8B7ED6E2D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{29CDFD29-58BB-43BE-AD70-ECF0DA8D9486}"
 EndProject

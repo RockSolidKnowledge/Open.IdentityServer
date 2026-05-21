@@ -5,7 +5,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace SqlServer;
+namespace Migrator;
 
 class Program
 {

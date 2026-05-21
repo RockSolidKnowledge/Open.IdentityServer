@@ -3,24 +3,21 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Open.IdentityServer.EntityFramework.DbContexts;
 
 #nullable disable
 
-namespace SqlServer.Migrations.ConfigurationDb
+namespace Migrator.Migrations.ConfigurationDb
 {
     [DbContext(typeof(ConfigurationDbContext))]
-    [Migration("20260417104132_Configuration")]
-    partial class Configuration
+    partial class ConfigurationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -97,7 +94,8 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApiResourceId");
+                    b.HasIndex("ApiResourceId", "Type")
+                        .IsUnique();
 
                     b.ToTable("ApiResourceClaims", (string)null);
                 });
@@ -125,7 +123,8 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApiResourceId");
+                    b.HasIndex("ApiResourceId", "Key")
+                        .IsUnique();
 
                     b.ToTable("ApiResourceProperties", (string)null);
                 });
@@ -148,7 +147,8 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApiResourceId");
+                    b.HasIndex("ApiResourceId", "Scope")
+                        .IsUnique();
 
                     b.ToTable("ApiResourceScopes", (string)null);
                 });
@@ -199,6 +199,9 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -213,16 +216,25 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.Property<bool>("Enabled")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("LastAccessed")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("NonEditable")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("Required")
                         .HasColumnType("bit");
 
                     b.Property<bool>("ShowInDiscoveryDocument")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -250,7 +262,8 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ScopeId");
+                    b.HasIndex("ScopeId", "Type")
+                        .IsUnique();
 
                     b.ToTable("ApiScopeClaims", (string)null);
                 });
@@ -278,7 +291,8 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ScopeId");
+                    b.HasIndex("ScopeId", "Key")
+                        .IsUnique();
 
                     b.ToTable("ApiScopeProperties", (string)null);
                 });
@@ -332,6 +346,9 @@ namespace SqlServer.Migrations.ConfigurationDb
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<int?>("CibaLifetime")
+                        .HasColumnType("int");
+
                     b.Property<string>("ClientClaimsPrefix")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -352,8 +369,17 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.Property<int?>("ConsentLifetime")
                         .HasColumnType("int");
 
+                    b.Property<bool?>("CoordinateLifetimeWithUserSession")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("DPoPClockSkew")
+                        .HasColumnType("time");
+
+                    b.Property<int>("DPoPValidationMode")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
@@ -381,6 +407,9 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.Property<bool>("IncludeJwtId")
                         .HasColumnType("bit");
 
+                    b.Property<string>("InitiateLoginUri")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("LastAccessed")
                         .HasColumnType("datetime2");
 
@@ -395,10 +424,16 @@ namespace SqlServer.Migrations.ConfigurationDb
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<int?>("PollingInterval")
+                        .HasColumnType("int");
+
                     b.Property<string>("ProtocolType")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("PushedAuthorizationLifetime")
+                        .HasColumnType("int");
 
                     b.Property<int>("RefreshTokenExpiration")
                         .HasColumnType("int");
@@ -412,7 +447,13 @@ namespace SqlServer.Migrations.ConfigurationDb
                     b.Property<bool>("RequireConsent")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("RequireDPoP")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("RequirePkce")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RequirePushedAuthorization")
                         .HasColumnType("bit");
 
                     b.Property<bool>("RequireRequestObject")
@@ -465,7 +506,8 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("ClientId", "Type", "Value")
+                        .IsUnique();
 
                     b.ToTable("ClientClaims", (string)null);
                 });
@@ -488,7 +530,8 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("ClientId", "Origin")
+                        .IsUnique();
 
                     b.ToTable("ClientCorsOrigins", (string)null);
                 });
@@ -511,7 +554,8 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("ClientId", "GrantType")
+                        .IsUnique();
 
                     b.ToTable("ClientGrantTypes", (string)null);
                 });
@@ -534,7 +578,8 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("ClientId", "Provider")
+                        .IsUnique();
 
                     b.ToTable("ClientIdPRestrictions", (string)null);
                 });
@@ -552,12 +597,13 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.Property<string>("PostLogoutRedirectUri")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("ClientId", "PostLogoutRedirectUri")
+                        .IsUnique();
 
                     b.ToTable("ClientPostLogoutRedirectUris", (string)null);
                 });
@@ -603,12 +649,13 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.Property<string>("RedirectUri")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("ClientId", "RedirectUri")
+                        .IsUnique();
 
                     b.ToTable("ClientRedirectUris", (string)null);
                 });
@@ -742,7 +789,8 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdentityResourceId");
+                    b.HasIndex("IdentityResourceId", "Type")
+                        .IsUnique();
 
                     b.ToTable("IdentityResourceClaims", (string)null);
                 });
@@ -770,9 +818,56 @@ namespace SqlServer.Migrations.ConfigurationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdentityResourceId");
+                    b.HasIndex("IdentityResourceId", "Key")
+                        .IsUnique();
 
                     b.ToTable("IdentityResourceProperties", (string)null);
+                });
+
+            modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.IdentityServerIdentityProvider", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastAccessed")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("NonEditable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Properties")
+                        .HasMaxLength(-1)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Scheme")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IdentityProviders", (string)null);
                 });
 
             modelBuilder.Entity("Open.IdentityServer.EntityFramework.Entities.ApiResourceClaim", b =>
