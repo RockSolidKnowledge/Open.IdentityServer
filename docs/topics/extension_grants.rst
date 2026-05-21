@@ -51,7 +51,7 @@ In other words, the middle tier API (API 1) needs an access token containing the
 
 **Implementing the extension grant**
 
-The front end would send the token to API 1, and now this token needs to be exchanged at IdentityServer with a new token for API 2.
+The front end would send the token to API 1, and now this token needs to be exchanged at Open.IdentityServer with a new token for API 2.
 
 On the wire the call to token service for the exchange could look like this
 
@@ -109,7 +109,7 @@ Don't forget to register the validator with DI.
 
 **Registering the delegation client**
 
-You need a client registration in IdentityServer that allows a client to use this new extension grant, e.g.
+You need a client registration in Open.IdentityServer that allows a client to use this new extension grant, e.g.
 
 .. code-block:: csharp
 
@@ -131,7 +131,7 @@ You need a client registration in IdentityServer that allows a client to use thi
 
 **Calling the token endpoint**
 
-In API 1 you can now construct the HTTP payload yourself, or use the *IdentityModel* helper library
+In API 1 you can now construct the HTTP payload yourself, or use helper libraries
 
 .. code-block:: csharp
 

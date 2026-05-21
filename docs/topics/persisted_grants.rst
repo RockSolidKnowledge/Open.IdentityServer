@@ -1,9 +1,9 @@
 .. _refPersistedGrants:
 Persisted Grants
 ================
-Many grant types require persistence in IdentityServer.
+Many grant types require persistence in Open.IdentityServer.
 These include authorization codes, refresh tokens, reference tokens, and remembered user consents.
-Internally in IdentityServer, the default storage for these grants is in a common store called the persisted grants store.
+Internally in Open.IdentityServer, the default storage for these grants is in a common store called the persisted grants store.
 
 Persisted Grant
 ^^^^^^^^^^^^^^^
@@ -29,7 +29,7 @@ It has these properties:
 ``Data``
     The grant specific serialized data.
 
-.. note:: The ``Data`` property contains a copy of all of the values (and more) and is considered authoritative by IdentityServer, thus the above values, by default, are considered informational and read-only.
+.. note:: The ``Data`` property contains a copy of all of the values (and more) and is considered authoritative by Open.IdentityServer, thus the above values, by default, are considered informational and read-only.
 
 The presence of the record in the store without a ``ConsumedTime`` and while still within the ``Expiration`` represents the validity of the grant.
 Setting either of these two values, or removing the record from the store effectively revokes the grant.

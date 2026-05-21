@@ -25,7 +25,7 @@ You can also specify the grant types list manually
         "my_custom_grant_type" 
     };
 
-While IdentityServer supports all standard grant types, you really only need to know two of them for common application scenarios.
+While Open.IdentityServer supports all standard grant types, you really only need to know two of them for common application scenarios.
 
 Machine to Machine Communication
 ================================
