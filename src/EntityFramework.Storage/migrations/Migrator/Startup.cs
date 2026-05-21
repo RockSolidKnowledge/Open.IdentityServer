@@ -41,6 +41,9 @@ public class Startup(IConfiguration config)
             case "PostgreSql":
                 optBuilder.UseNpgsql(cn, options => options.MigrationsAssembly(migrationAssembly));
                 break;
+            case "Sqlite":
+                optBuilder.UseSqlite(cn, options => options.MigrationsAssembly(migrationAssembly));
+                break;
             default:
                 throw new NotSupportedException($"{dbProvider} is not a supported database provider.");
         }
