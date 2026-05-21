@@ -2,7 +2,7 @@ Tools
 =====
 
 The ``IdentityServerTools`` class is a collection of useful internal tools that you might need when writing extensibility code
-for IdentityServer. To use it, inject it into your code, e.g. a controller
+for Open.IdentityServer. To use it, inject it into your code, e.g. a controller
 
 .. code-block:: csharp
 
@@ -11,8 +11,8 @@ for IdentityServer. To use it, inject it into your code, e.g. a controller
         _tools = tools;
     }
 
-The ``IssueJwtAsync`` method allows creating JWT tokens using the IdentityServer token creation engine. The ``IssueClientJwtAsync`` is an easier
-version of that for creating tokens for server-to-server communication (e.g. when you have to call an IdentityServer protected API from your code)
+The ``IssueJwtAsync`` method allows creating JWT tokens using the Open.IdentityServer token creation engine. The ``IssueClientJwtAsync`` is an easier
+version of that for creating tokens for server-to-server communication (e.g. when you have to call an Open.IdentityServer protected API from your code)
 
 .. code-block:: csharp
 
