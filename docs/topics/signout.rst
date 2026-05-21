@@ -2,7 +2,7 @@
 Sign-out
 ========
 
-Signing out of IdentityServer is as simple as removing the authentication cookie, 
+Signing out of Open.IdentityServer is as simple as removing the authentication cookie, 
 but for doing a complete federated sign-out, we must consider signing the user out of the client applications (and maybe even up-stream identity providers) as well.
 
 Removing the authentication cookie
@@ -15,7 +15,7 @@ You will need to pass the scheme used (which is provided by ``IdentityServerCons
 
     await HttpContext.SignOutAsync(IdentityServerConstants.DefaultCookieAuthenticationScheme);
 
-Or you can use the convenience extension method that is provided by IdentityServer
+Or you can use the convenience extension method that is provided by Open.IdentityServer
 
 .. code-block:: csharp
 
@@ -27,27 +27,27 @@ Notifying clients that the user has signed-out
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 As part of the signout process you will want to ensure client applications are informed that the user has signed out.
-IdentityServer supports the `front-channel <https://openid.net/specs/openid-connect-frontchannel-1_0.html>`_ specification for server-side clients (e.g. MVC),
+Open.IdentityServer supports the `front-channel <https://openid.net/specs/openid-connect-frontchannel-1_0.html>`_ specification for server-side clients (e.g. MVC),
 the `back-channel <https://openid.net/specs/openid-connect-backchannel-1_0.html>`_  specification for server-side clients (e.g. MVC),
 and the `session management <https://openid.net/specs/openid-connect-session-1_0.html>`_ specification for browser-based JavaScript clients (e.g. SPA, React, Angular, etc.).
 
 **Front-channel server-side clients**
 
-To signout the user from the server-side client applications via the front-channel spec, the "logged out" page in IdentityServer must render an ``<iframe>`` to notify the clients that the user has signed out.
+To signout the user from the server-side client applications via the front-channel spec, the "logged out" page in Open.IdentityServer must render an ``<iframe>`` to notify the clients that the user has signed out.
 Clients that wish to be notified must have the ``FrontChannelLogoutUri`` configuration value set.
-IdentityServer tracks which clients the user has signed into, and provides an API called ``GetLogoutContextAsync`` on the ``IIdentityServerInteractionService`` (:ref:`details <refInteractionService>`). 
+Open.IdentityServer tracks which clients the user has signed into, and provides an API called ``GetLogoutContextAsync`` on the ``IIdentityServerInteractionService`` (:ref:`details <refInteractionService>`). 
 This API returns a ``LogoutRequest`` object with a ``SignOutIFrameUrl`` property that your logged out page must render into an ``<iframe>``.
 
 **Back-channel server-side clients**
 
 To signout the user from the server-side client applications via the back-channel spec the ``IBackChannelLogoutService`` service can be used. 
-IdentityServer will automatically use this service when your logout page removes the user's authentication cookie via a call to ``HttpContext.SignOutAsync``.
+Open.IdentityServer will automatically use this service when your logout page removes the user's authentication cookie via a call to ``HttpContext.SignOutAsync``.
 Clients that wish to be notified must have the ``BackChannelLogoutUri`` configuration value set.
 
 **Browser-based JavaScript clients**
 
-Given how the `session management <https://openid.net/specs/openid-connect-session-1_0.html>`_ specification is designed, there is nothing special in IdentityServer that you need to do to notify these clients that the user has signed out.
-The clients, though, must perform monitoring on the `check_session_iframe`, and this is implemented by the `oidc-client JavaScript library <https://github.com/IdentityModel/oidc-client-js/>`_.
+Given how the `session management <https://openid.net/specs/openid-connect-session-1_0.html>`_ specification is designed, there is nothing special in Open.IdentityServer that you need to do to notify these clients that the user has signed out.
+The clients, though, must perform monitoring on the `check_session_iframe`, and you can find 3rd party libraries out there that have implemented this.
 
 Sign-out initiated by a client application
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
