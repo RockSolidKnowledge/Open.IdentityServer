@@ -335,12 +335,3 @@ Let's have a look at some example access tokens for the above resource configura
         "aud": [ "invoice", "customer" ]
         "scope": "manage"
     }
-
-Migration steps to v4
-^^^^^^^^^^^^^^^^^^^^^
-As described above, starting with v4, scopes have their own definition and can optionally be referenced by resources. 
-Before v4, scopes were always contained within a resource.
-
-To migrate to v4 you need to split up scope and resource registration, typically by first registering all your scopes
-(e.g. using the ``AddInMemoryApiScopes`` method), and then register the API resources (if any) afterwards.
-The API resources will then reference the prior registered scopes by name.
