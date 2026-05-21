@@ -118,4 +118,38 @@ manage the database creation, schema changes, and data migration in any way your
 Using EF migrations is one possible approach to this. 
 If you do wish to use migrations, then see the :ref:`EF quickstart <refEntityFrameworkQuickstart>` for samples on how to get started, or consult the Microsoft `documentation on EF migrations <https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/index>`_.
 
-We also publish `sample SQL scripts <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/src/EntityFramework.Storage/migrations/SqlServer>`_ for the current version of the database schema.
+We also publish `sample SQL scripts <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/src/EntityFramework.Storage/migrations/SqlServer/scripts>`_ for the current version of the database schema.
+
+Generating Delta Scripts
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is possible with some manual configuration to use our `Migrator Project <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/src/EntityFramework.Storage/migrations/SqlServer>`_ to generate scripts for migrating the schema from one version to another.
+
+.. note:: The connection string used in these steps only needs to be valid in format — it does not need to connect to a real database. EF migrations tooling uses it to determine the provider, not to execute against a live database.
+
+1. In the Migrator project's ``.csproj`` file, change the project reference to a package reference for your **current** version of Open.IdentityServer:
+
+.. code-block:: xml
+
+    <!-- Remove/comment the following line -->
+    <ProjectReference Include="..\..\src\Open.IdentityServer.EntityFramework.Storage.csproj"/>
+
+    <!-- Add the following line, where x.x.x is your current version -->
+    <PackageReference Include="Open.IdentityServer.EntityFramework.Storage" Version="x.x.x"/>
+
+2. Run the ``buildschema.sh`` bash script. This takes ``DbProvider`` (SqlServer, PostgreSql, or MySql) and a ``ConnectionString`` as arguments in that order. Once complete, you should have a migration for each ``DbContext`` that matches the referenced version of ``Open.IdentityServer.EntityFramework.Storage``.
+
+3. Update the ``Open.IdentityServer.EntityFramework.Storage`` package reference in the ``.csproj`` file to the **new** version you are migrating to.
+
+4. Generate new migrations for each ``DbContext``, then use the two migrations to produce delta SQL scripts. For example:
+
+.. code-block:: bash
+
+    export DbProvider=MySql
+    export ConnectionStrings__db='Server=myServerAddress;Database=myDataBase;'
+
+    dotnet ef migrations add Grants_to_XXX -c PersistedGrantDbContext -o Migrations/PersistedGrantDb
+    dotnet ef migrations add Configuration_to_XXX -c ConfigurationDbContext -o Migrations/ConfigurationDb
+
+    dotnet ef migrations script Grants Grants_to_XXX -c PersistedGrantDbContext -o PersistedGrantDb_vxxx_to_vxxx.sql
+    dotnet ef migrations script Configuration Configuration_to_XXX -c ConfigurationDbContext -o ConfigurationDb_vxxx_to_vxxx.sql
