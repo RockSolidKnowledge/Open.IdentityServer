@@ -18,7 +18,7 @@ Prerequisites
 Migration Steps
 ---------------
 
-#. **Replace NuGet packages**
+1. **Replace NuGet packages**
 
    Remove the Duende.IdentityServer packages and install the Open.IdentityServer equivalents:
 
@@ -32,7 +32,7 @@ Migration Steps
        dotnet add package Open.IdentityServer.EntityFramework
        dotnet add package Open.IdentityServer.AspNetIdentity
 
-#. **Update namespaces**
+2. **Update namespaces**
 
    Replace all ``Duende.IdentityServer`` namespaces with ``Open.IdentityServer`` throughout your project:
 
@@ -56,9 +56,9 @@ Migration Steps
 
    After replacing, attempt a build. Any remaining references will surface as compile errors, making them easy to locate and fix.
 
+3. **Remove unsupported features**
 
-.. _refUnsupportedFeatures:
-#. **Remove unsupported features**
+   .. _refUnsupportedFeatures:
 
    Some Duende-specific features are not yet supported in Open.IdentityServer. If your project uses any of the following, you will need to remove or replace them:
 
@@ -82,7 +82,7 @@ Migration Steps
 
        If your application relies heavily on any of these features, evaluate the impact before proceeding with migration. You may need to implement alternative solutions.
 
-#. **Update service registration**
+4. **Update service registration**
 
    The service registration should remain largely the same. Verify your ``Program.cs`` or ``Startup.cs`` configuration:
 
@@ -100,6 +100,8 @@ Migration Steps
                    b.UseSqlServer(connectionString);
            });
 
+   .. _refReadOnlyKeyStore:
+
    If you were using automatic key management, you will now need to register read-only key store or add a signing key explicitly:
 
    .. code-block:: c#
@@ -112,11 +114,11 @@ Migration Steps
        builder.Services.AddIdentityServer()
            .AddSigningCredential(certificate);
 
-#. **Migrate the database schema (if applicable)**
+5. **Migrate the database schema (if applicable)**
 
    The Entity Framework schema for Open.IdentityServer is compatible with Duende.IdentityServer. In most cases no database migration is required. However, if your Duende version included tables for unsupported features (e.g. server-side sessions or dynamic providers), those tables can be safely left in place — they will simply be unused.
 
-#. **Test your application**
+6. **Test your application**
 
    Run your application and verify:
 
