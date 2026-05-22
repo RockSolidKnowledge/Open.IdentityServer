@@ -1,7 +1,7 @@
 Federation Gateway
 ==================
 
-A common architecture is the so-called federation gateway. In this approach IdentityServer acts as a gateway to one or more external identity providers.
+A common architecture is the so-called federation gateway. In this approach Open.IdentityServer acts as a gateway to one or more external identity providers.
 
 .. image:: images/federation_gateway.png
 
@@ -19,10 +19,9 @@ In other words - owning your federation gateway gives you a lot of control over 
 
 Implementation
 ^^^^^^^^^^^^^^
-Our `quick start UI <https://github.com/RockSolidKnowledge/Open.IdentityServer.Quickstart.UI>`_ utilizes some of the below features. Also check out the :ref:`external authentication quickstart <refExternalAuthenticationQuickstart>` and the 
-docs about :ref:`external providers <refExternalIdentityProviders>`.
+Check out the :ref:`external authentication quickstart <refExternalAuthenticationQuickstart>` and the docs about :ref:`external providers <refExternalIdentityProviders>`.
 
-* You can add support for external identity providers by adding authentication handlers to your IdentityServer application.
+* You can add support for external identity providers by adding authentication handlers to your Open.IdentityServer application.
 * You can programmatically query those external providers by calling ``IAuthenticationSchemeProvider``. This allows to dynamically render your login page based on the registered external providers.
 * Our client configuration model allows restricting the available providers on a per client basis (use the ``IdentityProviderRestrictions`` property).
 * You can also use the ``EnableLocalLogin`` property on the client to tell your UI whether the username/password input should be rendered.

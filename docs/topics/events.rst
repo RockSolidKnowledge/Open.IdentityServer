@@ -1,7 +1,7 @@
 .. _refEvents:
 Events
 ======
-While logging is more low level "printf" style - events represent higher level information about certain operations in IdentityServer.
+While logging is more low level "printf" style - events represent higher level information about certain operations in Open.IdentityServer.
 Events are structured data and include event IDs, success/failure information, categories and details.
 This makes it easy to query and analyze them and extract useful information that can be used for further processing.
 
@@ -84,7 +84,7 @@ Add the ``Serilog.Sinks.Seq`` package to your host to make the above code work.
 
 Built-in events
 ^^^^^^^^^^^^^^^
-The following events are defined in IdentityServer:
+The following events are defined in Open.IdentityServer:
 
 ``ApiAuthenticationFailureEvent`` & ``ApiAuthenticationSuccessEvent``
     Gets raised for successful/failed API authentication at the introspection endpoint.

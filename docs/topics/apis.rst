@@ -1,7 +1,7 @@
 .. _refProtectingApis:
 Protecting APIs
 ===============
-IdentityServer issues access tokens in the `JWT <https://tools.ietf.org/html/rfc7519>`_ (JSON Web Token) format by default.
+Open.IdentityServer issues access tokens in the `JWT <https://tools.ietf.org/html/rfc7519>`_ (JSON Web Token) format by default.
 
 Every relevant platform today has support for validating JWT tokens, a good list of JWT libraries can be found `here <https://jwt.io>`_.
 Popular libraries are e.g.:
@@ -20,13 +20,13 @@ Protecting an ASP.NET Core-based API is only a matter of adding the JWT bearer a
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    // base-address of your identityserver
+                    // base-address of your Open.IdentityServer
                     options.Authority = "https://demo.identityserver.io";
 
                     // if you are using API resources, you can specify the name here
                     options.Audience = "resource1";
 
-                    // IdentityServer emits a typ header by default, recommended extra check
+                    // Open.IdentityServer emits a typ header by default, recommended extra check
                     options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
                 });
         }
@@ -37,7 +37,7 @@ Protecting an ASP.NET Core-based API is only a matter of adding the JWT bearer a
 Validating reference tokens
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you are using reference tokens, you need an authentication handler that implements `OAuth 2.0 token introspection <https://tools.ietf.org/html/rfc7662>`_, 
-e.g. `this one <https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection>`_
+e.g. `this one <https://github.com/DuendeSoftware/foss/tree/main/introspection>`_
 
 .. code-block:: csharp
 
@@ -53,8 +53,7 @@ e.g. `this one <https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2
 
 Supporting both JWTs and reference tokens
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-You can setup ASP.NET Core to dispatch to the right handler based on the incoming token, see `this <https://leastprivilege.com/2020/07/06/flexible-access-token-validation-in-asp-net-core/>`_ blog post for more information.
-In this case you setup one default handler, and some forwarding logic, e.g.
+You can setup ASP.NET Core to dispatch to the right handler based on the incoming token. In this case you setup one default handler, and some forwarding logic, e.g.
 
 .. code-block:: csharp
 
