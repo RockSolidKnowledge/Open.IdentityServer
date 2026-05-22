@@ -23,13 +23,13 @@ An authentication request typically works like this:
     * redirect back to protocol endpoint
 * creation of protocol response (token creation and redirect back to client)
 
-Useful IdentityServer services
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-To achieve the above workflow, some interaction points with IdentityServer are needed.
+Useful Open.IdentityServer services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To achieve the above workflow, some interaction points with Open.IdentityServer are needed.
 
 **Access to configuration and redirecting to the login page**
 
-You can get access to the IdentityServer configuration by injecting the ``IdentityServerOptions``
+You can get access to the Open.IdentityServer configuration by injecting the ``IdentityServerOptions``
 class into your code. This, e.g. has the configured path to the login page
 
 .. code-block:: csharp

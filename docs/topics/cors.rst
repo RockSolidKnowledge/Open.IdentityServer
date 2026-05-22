@@ -2,14 +2,14 @@
 CORS
 ====
 
-Many endpoints in IdentityServer will be accessed via Ajax calls from JavaScript-based clients.
-Given that IdentityServer will most likely be hosted on a different origin than these clients, this implies that `Cross-Origin Resource Sharing <http://www.html5rocks.com/en/tutorials/cors/>`_ (CORS) will need to be configured.
+Many endpoints in Open.IdentityServer will be accessed via Ajax calls from JavaScript-based clients.
+Given that Open.IdentityServer will most likely be hosted on a different origin than these clients, this implies that `Cross-Origin Resource Sharing <http://www.html5rocks.com/en/tutorials/cors/>`_ (CORS) will need to be configured.
 
 Client-based CORS Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 One approach to configuring CORS is to use the ``AllowedCorsOrigins`` collection on the :ref:`client configuration <refClient>`.
-Simply add the origin of the client to the collection and the default configuration in IdentityServer will consult these values to allow cross-origin calls from the origins.
+Simply add the origin of the client to the collection and the default configuration in Open.IdentityServer will consult these values to allow cross-origin calls from the origins.
 
 .. Note:: Be sure to use an origin (not a URL) when configuring CORS. For example: ``https://foo:123/`` is a URL, whereas ``https://foo:123`` is an origin.
 
@@ -19,12 +19,12 @@ If you define your own ``IClientStore``, then you will need to implement your ow
 Custom Cors Policy Service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-IdentityServer allows the hosting application to implement the ``ICorsPolicyService`` to completely control the CORS policy.
+Open.IdentityServer allows the hosting application to implement the ``ICorsPolicyService`` to completely control the CORS policy.
 
 The single method to implement is: ``Task<bool> IsOriginAllowedAsync(string origin)``. 
 Return ``true`` if the `origin` is allowed, ``false`` otherwise.
 
-Once implemented, simply register the implementation in DI and IdentityServer will then use your custom implementation.
+Once implemented, simply register the implementation in DI and Open.IdentityServer will then use your custom implementation.
 
 **DefaultCorsPolicyService**
 
@@ -44,19 +44,19 @@ For example, in ``ConfigureServices``
 .. Note:: Use ``AllowAll`` with caution.
 
 
-Mixing IdentityServer's CORS policy with ASP.NET Core's CORS policies
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Mixing Open.IdentityServer's CORS policy with ASP.NET Core's CORS policies
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-IdentityServer uses the CORS middleware from ASP.NET Core to provide its CORS implementation.
-It is possible that your application that hosts IdentityServer might also require CORS for its own custom endpoints.
+Open.IdentityServer uses the CORS middleware from ASP.NET Core to provide its CORS implementation.
+It is possible that your application that hosts Open.IdentityServer might also require CORS for its own custom endpoints.
 In general, both should work together in the same application.
 
-Your code should use the documented CORS features from ASP.NET Core without regard to IdentityServer.
+Your code should use the documented CORS features from ASP.NET Core without regard to Open.IdentityServer.
 This means you should define policies and register the middleware as normal.
 If your application defines policies in ``ConfigureServices``, then those should continue to work in the same places you are using them (either where you configure the CORS middleware or where you use the MVC ``EnableCors`` attributes in your controller code).
 If instead you define an inline policy in the use of the CORS middleware (via the policy builder callback), then that too should continue to work normally.
 
-The one scenario where there might be a conflict between your use of the ASP.NET Core CORS services and IdentityServer is if you decide to create a custom ``ICorsPolicyProvider``.
-Given the design of the ASP.NET Core's CORS services and middleware, IdentityServer implements its own custom ``ICorsPolicyProvider`` and registers it in the DI system.
-Fortunately, the IdentityServer implementation is designed to use the decorator pattern to wrap any existing  ``ICorsPolicyProvider`` that is already registered in DI.
-What this means is that you can also implement the ``ICorsPolicyProvider``, but it simply needs to be registered prior to IdentityServer in DI (e.g. in ``ConfigureServices``).
+The one scenario where there might be a conflict between your use of the ASP.NET Core CORS services and Open.IdentityServer is if you decide to create a custom ``ICorsPolicyProvider``.
+Given the design of the ASP.NET Core's CORS services and middleware, Open.IdentityServer implements its own custom ``ICorsPolicyProvider`` and registers it in the DI system.
+Fortunately, the Open.IdentityServer implementation is designed to use the decorator pattern to wrap any existing  ``ICorsPolicyProvider`` that is already registered in DI.
+What this means is that you can also implement the ``ICorsPolicyProvider``, but it simply needs to be registered prior to Open.IdentityServer in DI (e.g. in ``ConfigureServices``).

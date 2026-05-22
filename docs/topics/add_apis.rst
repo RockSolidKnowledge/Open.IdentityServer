@@ -1,7 +1,7 @@
 Adding more API Endpoints
 =========================
-It's a common scenario to add additional API endpoints to the application hosting IdentityServer.
-These endpoints are typically protected by IdentityServer itself.
+It's a common scenario to add additional API endpoints to the application hosting Open.IdentityServer.
+These endpoints are typically protected by Open.IdentityServer itself.
 
 For simple scenarios, we give you some helpers. See the advanced section to understand more of the internal plumbing.
 
@@ -29,7 +29,7 @@ Start by registering your API as an ``ApiResource``, e.g.
 
 .. note:: The value of ``IdentityServerConstants.LocalApi.ScopeName`` is ``IdentityServerApi``.
 
-To enable token validation for local APIs, add the following to your IdentityServer startup
+To enable token validation for local APIs, add the following to your Open.IdentityServer startup
 
 .. code-block:: csharp
 
@@ -66,14 +66,14 @@ Advanced
 ^^^^^^^^
 Under the covers, the ``AddLocalApiAuthentication`` helper does a couple of things:
 
-* adds an authentication handler that validates incoming tokens using IdentityServer's built-in token validation engine (the name of this handler is ``IdentityServerAccessToken`` or ``IdentityServerConstants.LocalApi.AuthenticationScheme``
+* adds an authentication handler that validates incoming tokens using Open.IdentityServer's built-in token validation engine (the name of this handler is ``IdentityServerAccessToken`` or ``IdentityServerConstants.LocalApi.AuthenticationScheme``
 * configures the authentication handler to require a scope claim inside the access token of value ``IdentityServerApi``
 * sets up an authorization policy that checks for a scope claim of value ``IdentityServerApi``
 
 This covers the most common scenarios. You can customize this behavior in the following ways:
 
 * Add the authentication handler yourself by calling ``services.AddAuthentication().AddLocalApi(...)``
-    * this way you can specify the required scope name yourself, or (by specifying no scope at all) accept any token from the current IdentityServer instance
+    * this way you can specify the required scope name yourself, or (by specifying no scope at all) accept any token from the current Open.IdentityServer instance
 * Do your own scope validation/authorization in your controllers using custom policies or code, e.g.
 
 .. code-block:: csharp

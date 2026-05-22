@@ -2,7 +2,7 @@ Discovery
 =========
 
 The discovery document can be found at *https://baseaddress/.well-known/openid-configuration*. 
-It contains information about the endpoints, key material and features of your IdentityServer.
+It contains information about the endpoints, key material and features of your Open.IdentityServer.
 
 By default all information is included in the discovery document, but by using configuration options, you can hide
 individual sections, e.g.
@@ -34,7 +34,7 @@ You can add custom entries to the discovery document, e.g
             });
     });
 
-When you add a custom value that starts with ~/ it will be expanded to an absolute path below the IdentityServer base address, e.g.
+When you add a custom value that starts with ~/ it will be expanded to an absolute path below the Open.IdentityServer base address, e.g.
 
 .. code-block:: csharp
 
