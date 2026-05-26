@@ -39,8 +39,12 @@ In a nutshell, a rollover typically works like this:
 This requires that clients and APIs use the discovery document, and also have a feature to periodically refresh their configuration.
 
 This process is also commonly referred to as key rotation. There are many ways that you could implement key rotation in your Open.IdentityServer:
-manually updating them, writing some logic to automatically manage them, or using a 3rd party tool to do it for you. We at Rock Solid Knowledge have
-a Key Rotation comercial product on our roadmap to be released soon after v1 of Open.IdentityServer.
+
+- manually update them
+- write some logic to automatically manage them
+- use a 3rd party tool to do it for you
+
+A commercial key rotation component for Open.IdentityServer is planned from Rock Solid Knowledge and is on the roadmap.
 
 .. Note:: With v1 of Open.IdentityServer you will be able to get :ref:`read-only access <refReadOnlyKeyStore>` to the keys managed by Duende IdentityServer but rotation will be disabled
 
