@@ -1,9 +1,9 @@
-# IdentityServer4.AspNetIdentity
+# Open.IdentityServer.AspNetIdentity
 
-ASP.NET Core Identity integration support for IdentityServer4.
+ASP.NET Core Identity integration support for Open.IdentityServer.
 
-You can find a detailed walk-through for ASP.NET Core Identity integration [here](https://identityserver4.readthedocs.io/en/latest/quickstarts/6_aspnet_identity.html).
+You can find a detailed walk-through for ASP.NET Core Identity integration [here](https://docs.identityserver.com/openidentityserver/quickstarts/6_aspnet_identity).
 
 ## Issues
 
-For issues, use the [consolidated IdentityServer4 issue tracker](https://github.com/IdentityServer/IdentityServer4/issues).
+For issues, use the [consolidated issue tracker](https://github.com/RockSolidKnowledge/Open.IdentityServer/issues).

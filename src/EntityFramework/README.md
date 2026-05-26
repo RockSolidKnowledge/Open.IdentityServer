@@ -1,7 +1,7 @@
-# IdentityServer4.EntityFramework
+# Open.IdentityServer.EntityFramework
 
-IdentityServer4.EntityFramework is a package that provides the configuration APIs to add persistence for IdentityServer 4 configuration data that uses EntityFramework as its database abstraction.
+Open.IdentityServer.EntityFramework is a package that provides the configuration APIs to add persistence for Open.IdentityServer configuration data that uses EntityFramework as its database abstraction.
 
 ## Issues
 
-For issues, use the [consolidated IdentityServer4 issue tracker](https://github.com/IdentityServer/IdentityServer4/issues).
+For issues, use the [consolidated issue tracker](https://github.com/RockSolidKnowledge/Open.IdentityServer/issues).
