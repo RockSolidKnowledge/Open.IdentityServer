@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace Open.IdentityServer.Utility;
+namespace Open.IdentityServer;
 
 /// <summary>
 /// Compares two instances of Claim
 /// </summary>
-internal class ClaimComparer : EqualityComparer<Claim>
+public class ClaimComparer : EqualityComparer<Claim>
 {
     /// <summary>
     /// Claim comparison options
