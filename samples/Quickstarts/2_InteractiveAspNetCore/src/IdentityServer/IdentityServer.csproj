@@ -9,7 +9,7 @@
 
     <PackageReference Include="Serilog.AspNetCore" />
     
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.8" />
   </ItemGroup>
     
 </Project>

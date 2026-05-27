@@ -189,7 +189,7 @@ public static class ServiceExtensions
                 options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                 options.SignOutScheme = IdentityServerConstants.SignoutScheme;
 
-                options.Authority = "https://demo.identityserver.io/";
+                options.Authority = "";
                 options.ClientId = "login";
                 options.ResponseType = "id_token";
                 options.SaveTokens = true;

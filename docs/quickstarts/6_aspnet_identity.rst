@@ -1,35 +1,31 @@
 .. _refAspNetIdentityQuickstart:
-Using ASP.NET Core Identity
+Using ASP.NET Identity
 ===========================
 
-.. note:: For any pre-requisites (like e.g. templates) have a look at the :ref:`overview <refQuickstartOverview>` first.
+.. note:: For any pre-requisites (like e.g. samples) have a look at the :ref:`overview <refQuickstartOverview>` first.
 
 IdentityServer is designed for flexibility and part of that is allowing you to use any database you want for your users and their data (including passwords).
-If you are starting with a new user database, then ASP.NET Core Identity is one option you could choose.
-This quickstart shows how to use ASP.NET Core Identity with IdentityServer.
+If you are starting with a new user database, then ASP.NET Identity is one option you could choose.
+This quickstart shows how to use ASP.NET Identity with IdentityServer.
 
-The approach this quickstart takes to using ASP.NET Core Identity is to create a new project for the IdentityServer host.
+The approach this quickstart takes to using ASP.NET Identity is to create a new project for the IdentityServer host.
 This new project will replace the prior IdentityServer project we built up in the previous quickstarts.
 The reason for this new project is due to the differences in UI assets when using ASP.NET Core Identity (mainly around the differences in login and logout).
 All the other projects in this solution (for the clients and the API) will remain the same.
 
-.. Note:: This quickstart assumes you are familiar with how ASP.NET Core Identity works. If you are not, it is recommended that you first `learn about it <https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity>`_.
+.. Note:: This quickstart assumes you are familiar with how ASP.NET Identity works. If you are not, it is recommended that you first `learn about it <https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity>`_.
 
 New Project for ASP.NET Core Identity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The first step is to add a new project for ASP.NET Core Identity to your solution.
-We provide a template that contains the minimal UI assets needed to ASP.NET Core Identity with IdentityServer.
+We provide a sample that contains the minimal UI assets needed to ASP.NET Identity with IdentityServer.
 You will eventually delete the old project for IdentityServer, but there are some items that you will need to migrate over.
 
 Start by creating a new IdentityServer project that will use ASP.NET Core Identity
 
-.. code-block:: console
-    
-    cd quickstart/src
-    dotnet new is4aspid -n IdentityServerAspNetIdentity
+The AspNetIdentity sample in the repository is a template project that contains the necessary code to use ASP.NET Core Identity with IdentityServer.
 
-When prompted to "seed" the user database, choose "Y" for "yes".
 This populates the user database with our "alice" and "bob" users. 
 Their passwords are "Pass123$".
 
@@ -44,7 +40,7 @@ Be sure to look at:
 IdentityServerAspNetIdentity.csproj
 -----------------------------------
 
-Notice the reference to `IdentityServer4.AspNetIdentity`. 
+Notice the reference to `Open.IdentityServer.AspNetIdentity`. 
 This NuGet package contains the ASP.NET Core Identity integration components for IdentityServer.
 
 Startup.cs
@@ -147,7 +143,6 @@ Logging in with the MVC client
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 At this point, you should be able to run all of the existing clients and samples.
-One exception is the `ResourceOwnerClient` -- the password will need to be updated to ``Pass123$`` from ``password``.
 
 Launch the MVC client application, and you should be able to click the "Secure" link to get logged in.
 
@@ -175,6 +170,6 @@ What's Missing?
 Much of the rest of the code in this template is similar to the other quickstart and templates we provide.
 The one thing you will notice that is missing from this template is UI code for user registration, password reset, and the other things you might expect from the Visual Studio ASP.NET Core Identity template.
 
-Given the variety of requirements and different approaches to using ASP.NET Core Identity, our template deliberately does not provide those features.
+Given the variety of requirements and different approaches to using ASP.NET Identity, our template deliberately does not provide those features.
 You are expected to know how ASP.NET Core Identity works sufficiently well to add those features to your project.
-Alternatively, you can create a new project based on the Visual Studio ASP.NET Core Identity template and add the IdentityServer features you have learned about in these quickstarts to that project.
+Alternatively, you can create a new project based on the Visual Studio ASP.NET Identity template and add the IdentityServer features you have learned about in these quickstarts to that project.

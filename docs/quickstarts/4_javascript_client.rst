@@ -2,7 +2,7 @@
 Adding a JavaScript client
 ==========================
 
-.. note:: For any pre-requisites (like e.g. templates) have a look at the :ref:`overview <refQuickstartOverview>` first.
+.. note:: For any pre-requisites (like e.g. samples) have a look at the :ref:`overview <refQuickstartOverview>` first.
 
 This quickstart will show how to build a browser-based JavaScript client application (sometimes referred to as a "Single Page Application" or "`SPA`").
 
@@ -42,23 +42,21 @@ Add the static file middleware
 Given that this project is designed to run client-side, all we need ASP.NET Core to do is to serve up the static HTML and JavaScript files that will make up our application.
 The static file middleware is designed to do this.
 
-Register the static file middleware in `Startup.cs` in the ``Configure`` method (and at the same time remove everything else)
+Register the static file middleware in ``Program.cs`` or ``Startup.cs`` in the ``Configure`` method (and at the same time remove everything else)
 
 .. code-block:: csharp
 
-    public void Configure(IApplicationBuilder app)
-    {
-        app.UseDefaultFiles();
-        app.UseStaticFiles();
-    }
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+
 
 This middleware will now serve up static files from the application's `~/wwwroot` folder.
 This is where we will put our HTML and JavaScript files.
 If that folder does not exist in your project, create it now.
 
 Reference oidc-client
-^^^^^^^^^^^^^^^^^^^^^
 
+^^^^^^^^^^^^^^^^^^^^^
 In one of the previous quickstarts in the ASP.NET Core MVC-based client project we used a library to handle the OpenID Connect protocol. 
 In this quickstart in the `JavaScriptClient` project we need a similar library, except one that works in JavaScript and is designed to run in the browser.
 The `oidc-client library <https://github.com/IdentityModel/oidc-client-js>`_ is one such library. 
@@ -80,10 +78,12 @@ This downloads the latest `oidc-client` package locally, and then copies the rel
 If you want to simply download the `oidc-client` JavaScript files manually, browse to `the GitHub repository <https://github.com/IdentityModel/oidc-client-js/tree/release/dist>`_  and download the JavaScript files. Once downloaded, copy them into `~/wwwroot` so they can be served up by your application.
 
 Add your HTML and JavaScript files
+
+.. note:: oidc-client-js is no longer supported and has been replaced by `oidc-client-ts https://github.com/authts/oidc-client-ts`. The instructions above are for oidc-client-js, but you can use the same approach to get the oidc-client-ts library however that require typescript compilation, which is out of scope of this quickstart
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Next is to add your HTML and JavaScript files to `~/wwwroot`.
-We will have two HTML files and one application-specific JavaScript file (in addition to the `oidc-client.js` library).
+We will have two HTML files and one application-specific JavaScript file (in addition to the `oidc-client.ts` library).
 In `~/wwwroot`, add a HTML file named `index.html` and `callback.html`, and add a JavaScript file called `app.js`.
 
 **index.html**
@@ -144,7 +144,7 @@ Next, add code to register ``click`` event handlers to the three buttons
     document.getElementById("api").addEventListener("click", api, false);
     document.getElementById("logout").addEventListener("click", logout, false);
 
-Next, we can use the ``UserManager`` class from the `oidc-client` library to manage the OpenID Connect protocol. 
+Next, we can use the ``UserManager`` class from the `oidc-client-ts` library to manage the OpenID Connect protocol. 
 It requires similar configuration that was necessary in the MVC Client (albeit with different values). 
 Add this code to configure and instantiate the ``UserManager``
 

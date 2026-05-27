@@ -32,7 +32,7 @@ namespace MvcClient.Controllers
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var content = await client.GetStringAsync("https://localhost:6001/identity");
 
-            ViewBag.Json = JsonArray.Parse(content).ToString();
+            ViewBag.Json = JsonNode.Parse(content).ToString();
             return View("json");
         }
 

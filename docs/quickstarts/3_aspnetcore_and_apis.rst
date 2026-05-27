@@ -89,7 +89,7 @@ For accessing the API using the access token, all you need to do is retrieve the
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var content = await client.GetStringAsync("https://localhost:6001/identity");
 
-        ViewBag.Json = JArray.Parse(content).ToString();
+        ViewBag.Json = JsonNode .Parse(content).ToString();
         return View("json");
     }
 
@@ -113,5 +113,7 @@ By far the most complex task for a typical client is to manage the access token.
 
 ASP.NET Core has many built-in facility that can help you with those tasks (like caching or sessions), 
 but there is still quite some work left to do. 
-Feel free to have a look at `this <https://github.com/IdentityModel/IdentityModel.AspNetCore>`_ library, which can automate 
+
+
+Open.IdentityServer doesn't currently contain any Client side code, another package is required, such as the `Duende Identity Model <https://github.com/DuendeSoftware/foss/tree/main/identity-model>`_ library, which can automate 
 many of the boilerplate tasks.
