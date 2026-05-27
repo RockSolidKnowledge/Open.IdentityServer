@@ -36,7 +36,7 @@ Please use the [issue tracker](https://github.com/RockSolidKnowledge/Open.Identi
 
 ## Commercial and Community Support
 
-We have a range of commercial products and services for Open.IdentityServer, which help to fund ongoing development. See [here](https://docs.identityserver.com/openidentityserver/latest/intro/support.html) for more details.
+We have a range of commercial products and services for Open.IdentityServer, which help to fund ongoing development. See [here](https://docs.identityserver.com/openidentityserver/intro/support.html) for more details.
 
 ## Sponsorship
 If you are a fan of the project or a company that relies on Open.IdentityServer, you might want to consider sponsoring.  We also welcome sponsored development if you have a particular feature that you would like to see implemented.  In either case, reach out to us at [sales@identityserver.com](mailto:sales@identityserver.com).
