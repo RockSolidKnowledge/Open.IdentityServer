@@ -1,32 +1,31 @@
 .. _refEntityFrameworkQuickstart:
-Using EntityFramework Core for configuration and operational data
-=================================================================
+Using Entity Framework Core for configuration and operational data
+==================================================================
 
 In the previous quickstarts, we created our client and scope data in code.
-On startup, IdentityServer loaded this configuration data into memory.
-If we wanted to modify this configuration data, we had to stop and start IdentityServer.
+On startup, Open.IdentityServer loaded this configuration data into memory.
+If we wanted to modify this configuration data, we had to stop and start Open.IdentityServer.
 
-IdentityServer also generates temporary data, such as authorization codes, consent choices, and refresh tokens.
+Open.IdentityServer also generates temporary data, such as authorization codes, consent choices, and refresh tokens.
 By default, these are also stored in-memory.
 
-To move this data into a database that is persistent between restarts and across multiple IdentityServer instances, we can use the Open IdentityServer Entity Framework library.
-
-.. Note:: In addition to manually configuring EF support, there is also an IdentityServer template to create a new project with EF support, using ``dotnet new is4ef``.
+To move this data into a database that is persistent between restarts and across multiple Open.IdentityServer instances, we can use the Open.IdentityServer Entity Framework library.
 
 Open.IdentityServer.EntityFramework
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ``Open.IdentityServer.EntityFramework`` implements the required stores and services using the following DbContexts:
 
-    * ConfigurationDbContext - used for configuration data such as clients, resources, and scopes
-    * PersistedGrantDbContext - used for temporary operational data such as authorization codes, and refresh tokens
+* ConfigurationDbContext - used for configuration data such as clients, resources, and scopes
+* PersistedGrantDbContext - used for temporary operational data such as authorization codes, and refresh tokens
 
 These contexts are suitable for any Entity Framework Core compatible relational database.
 
 You can find these contexts, their entities, and the Open.IdentityServer stores that use them in the ``Open.IdentityServer.EntityFramework.Storage`` nuget package.
 
-You can find the extension methods to register them in your IdentityServer in ``Open.IdentityServer.EntityFramework``, which we will do now
+You can find the extension methods to register them in your Open.IdentityServer in ``Open.IdentityServer.EntityFramework``, which we will do now
 
-From the IdentityServer project root run
+From the Open.IdentityServer project root run
+
 .. code-block:: console
 
     dotnet add package Open.IdentityServer.EntityFramework

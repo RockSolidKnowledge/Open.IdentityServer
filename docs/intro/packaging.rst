@@ -17,6 +17,6 @@ nugets:
 
 Templates
 ^^^^^^^^^
-Currently there are no starter templates available for Open.IdentityServer, they are on the roadmap for a future realease. 
+Currently there are no starter templates available for Open.IdentityServer, they are on the roadmap for a future release. 
 
 In the meantime, we recommend using the samples provided in the `samples <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/samples>`_ directory of the main repo as a starting point for your own implementation. These samples cover a variety of scenarios and can be easily adapted to fit your specific needs.

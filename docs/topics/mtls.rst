@@ -15,7 +15,7 @@ Server setup
 It's the hosting layer's responsibility to do the actual validation of the client certificate.
 Open.IdentityServer will then use that information to associate the certificate with a client and embed the certificate information in the access tokens.
 
-Depending which server you are using, those steps are different. Consult documntation for the type of server you are using for guidance on setting up this.
+Depending which server you are using, those steps are different. Consult documentation for the type of server you are using for guidance on setting up this.
 
 .. Note:: `mkcert <https://github.com/FiloSottile/mkcert>`_ is a nice utility for creating certificates for development purposes.
 

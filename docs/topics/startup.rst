@@ -154,4 +154,4 @@ You need to add Open.IdentityServer to the pipeline by calling
 There is no additional configuration for the middleware.
 
 Be aware that order matters in the pipeline. 
-For example, you will want to add IdentitySever before the UI framework that implements the login screen.
+For example, you will want to add Open.IdentityServer before the UI framework that implements the login screen.

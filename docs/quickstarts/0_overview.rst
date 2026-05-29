@@ -1,12 +1,12 @@
 .. _refQuickstartOverview:
 Overview
 ========
-The quickstarts provide step by step instructions for various common IdentityServer scenarios.
+The quickstarts provide step by step instructions for various common Open.IdentityServer scenarios.
 They start with the absolute basics and become more complex - 
 it is recommended you do them in order.
 
-* adding IdentityServer to an ASP.NET Core application
-* configuring IdentityServer
+* adding Open.IdentityServer to an ASP.NET Core application
+* configuring Open.IdentityServer
 * issuing tokens for various clients
 * securing web applications and APIs
 * adding support for EntityFramework based configuration
@@ -23,4 +23,4 @@ The first thing you should do is clone the repository and pick the quickstart yo
 
 OK - let's get started!
 
-.. note:: The quickstarts target the Open.IdentityServer 1.x and .NET 10.0 and use Asp.NET MVC.
+.. note:: The quickstarts target the Open.IdentityServer 1.x and .NET 10.0 and use ASP.NET MVC.

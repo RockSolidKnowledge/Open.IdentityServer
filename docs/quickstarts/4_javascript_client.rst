@@ -6,7 +6,7 @@ Adding a JavaScript client
 
 This quickstart will show how to build a browser-based JavaScript client application (sometimes referred to as a "Single Page Application" or "`SPA`").
 
-The user will login to IdentityServer, invoke the web API with an access token issued by IdentityServer, and logout of IdentityServer. 
+The user will login to Open.IdentityServer, invoke the web API with an access token issued by Open.IdentityServer, and logout of Open.IdentityServer. 
 All of this will be driven from the JavaScript running in the browser.
 
 New Project for the JavaScript client
@@ -62,6 +62,8 @@ In this quickstart in the `JavaScriptClient` project we need a similar library, 
 The `oidc-client library <https://github.com/IdentityModel/oidc-client-js>`_ is one such library. 
 It is available via `NPM <https://github.com/IdentityModel/oidc-client-js>`_, `Bower <https://bower.io/search/?q=oidc-client>`_,  as well as a `direct download <https://github.com/IdentityModel/oidc-client-js/tree/release/dist>`_ from github.
 
+.. note:: oidc-client-js is no longer supported and has been replaced by `oidc-client-ts <https://github.com/authts/oidc-client-ts>`_. The instructions above are for oidc-client-js, but you can use the same approach to get the oidc-client-ts library however that require typescript compilation, which is out of scope of this quickstart
+
 **NPM**
 
 If you want to use NPM to download `oidc-client`, then run these commands from your `JavaScriptClient` project directory
@@ -79,11 +81,10 @@ If you want to simply download the `oidc-client` JavaScript files manually, brow
 
 Add your HTML and JavaScript files
 
-.. note:: oidc-client-js is no longer supported and has been replaced by `oidc-client-ts https://github.com/authts/oidc-client-ts`. The instructions above are for oidc-client-js, but you can use the same approach to get the oidc-client-ts library however that require typescript compilation, which is out of scope of this quickstart
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Next is to add your HTML and JavaScript files to `~/wwwroot`.
-We will have two HTML files and one application-specific JavaScript file (in addition to the `oidc-client.ts` library).
+We will have two HTML files and one application-specific JavaScript file (in addition to the `oidc-client` library).
 In `~/wwwroot`, add a HTML file named `index.html` and `callback.html`, and add a JavaScript file called `app.js`.
 
 **index.html**
@@ -236,11 +237,11 @@ Add this code to complete the signin process
     </body>
     </html>
 
-Add a client registration to IdentityServer for the JavaScript client
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Add a client registration to Open.IdentityServer for the JavaScript client
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Now that the client application is ready to go, we need to define a configuration entry in IdentityServer for this new JavaScript client.
-In the IdentityServer project locate the client configuration (in `Config.cs`).
+Now that the client application is ready to go, we need to define a configuration entry in Open.IdentityServer for this new JavaScript client.
+In the Open.IdentityServer project locate the client configuration (in `Config.cs`).
 Add a new `Client` to the list for our new JavaScript application.
 It should have the configuration listed below
 

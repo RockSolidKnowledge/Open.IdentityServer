@@ -2,12 +2,12 @@
 
 Protecting an API using Client Credentials
 ==========================================
-The following Open.IdentityServer quickstart provides step by step instructions for various common IdentityServer scenarios. 
+The following Open.IdentityServer quickstart provides step by step instructions for various common Open.IdentityServer scenarios. 
 These start with the absolute basics and become more complex as they progress. We recommend that you follow them in sequence.  
 
-To see the full list, please go to `Open.IdentityServer Quickstarts Overview <https://docs.identityserver.com/OpenIdentityServer/quickstarts/0_overview.html>`_
+To see the full list, please go to :ref:`Open.IdentityServer Quickstarts Overview <_refQuickstartOverview>`
 
-This first quickstart is the most basic scenario for protecting APIs using IdentityServer. 
+This first quickstart is the most basic scenario for protecting APIs using Open.IdentityServer. 
 In this quickstart you define an API and a Client with which to access it. 
 The client will request an access token from the Identity Server using its client ID and secret and then use the token to gain access to the API.
 
@@ -32,7 +32,7 @@ The 0_IsEmpty sample contains the following files:
 * ``Program.cs`` and ``Startup.cs`` - the main application entry point
 * ``Config.cs`` - IdentityServer resources and clients configuration file
 
-The sample already has, the basic IdentityServer DI methods, logging and the appropriate nuget packages configured.
+The sample already has, the basic Open.IdentityServer DI methods, logging and the appropriate nuget packages configured.
 
 You can now use your favorite text editor to edit or view the files. 
 
@@ -206,18 +206,20 @@ Update `Startup` or your `Program.cs` by adding the JWT Bearer authentication ha
             };
         });
   
- Then update your middleware pipeline to add the authentication and authorization middleware. This will be in your Configure method, or after builder.Build() in your Program.cs depending on which method you are using.
+Then update your middleware pipeline to add the authentication and authorization middleware. This will be in your Configure method, or after builder.Build() in your Program.cs depending on which method you are using.
  
- Minial API
- -----------
+Minial API
+-----------
+
 .. code-block:: csharp
 
     app.UseAuthentication();
     app.UseAuthorization();
     app.run()
  
- Middleware Controllers
---------------
+Middleware Controllers
+----------------------
+
 .. code-block:: csharp
     public void Configure(IApplicationBuilder app)
     {
@@ -257,8 +259,8 @@ Then as before, add it to your solution using:
     cd ..
     dotnet sln add .\src\Client\Client.csproj
 
-The token endpoint at IdentityServer implements the OAuth 2.0 protocol, and you could use raw HTTP to access it. 
-However, it's more convienient to use a library such as Duende.IdentityModel, that encapsulates the protocol interaction in an easy to use API.
+The token endpoint implements the OAuth 2.0 protocol, and you could use raw HTTP to access it. 
+However, it's more convenient to use a library such as Duende.IdentityModel, that encapsulates the protocol interaction in an easy to use API.
 
 Add the ``Duende.IdentityModel`` NuGet package to your client. 
 This can be done either via Visual Studio's Nuget Package manager or dotnet CLI:
@@ -269,7 +271,7 @@ This can be done either via Visual Studio's Nuget Package manager or dotnet CLI:
     cd client
     dotnet add package Duende.IdentityModel
 
-Duende.IdentityModel includes a client library to use with the discovery endpoint. This way you only need to know the base-address of IdentityServer - the actual endpoint addresses can be read from the metadata:
+Duende.IdentityModel includes a client library to use with the discovery endpoint. This way you only need to know the base-address of Open.IdentityServer - the actual endpoint addresses can be read from the metadata:
 
 .. code-block:: csharp
 

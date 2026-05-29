@@ -4,12 +4,12 @@ Using ASP.NET Identity
 
 .. note:: For any pre-requisites (like e.g. samples) have a look at the :ref:`overview <refQuickstartOverview>` first.
 
-IdentityServer is designed for flexibility and part of that is allowing you to use any database you want for your users and their data (including passwords).
+Open.IdentityServer is designed for flexibility and part of that is allowing you to use any database you want for your users and their data (including passwords).
 If you are starting with a new user database, then ASP.NET Identity is one option you could choose.
-This quickstart shows how to use ASP.NET Identity with IdentityServer.
+This quickstart shows how to use ASP.NET Identity with Open.IdentityServer.
 
-The approach this quickstart takes to using ASP.NET Identity is to create a new project for the IdentityServer host.
-This new project will replace the prior IdentityServer project we built up in the previous quickstarts.
+The approach this quickstart takes to using ASP.NET Identity is to create a new project for the Open.IdentityServer host.
+This new project will replace the prior Open.IdentityServer project we built up in the previous quickstarts.
 The reason for this new project is due to the differences in UI assets when using ASP.NET Core Identity (mainly around the differences in login and logout).
 All the other projects in this solution (for the clients and the API) will remain the same.
 
@@ -19,12 +19,12 @@ New Project for ASP.NET Core Identity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The first step is to add a new project for ASP.NET Core Identity to your solution.
-We provide a sample that contains the minimal UI assets needed to ASP.NET Identity with IdentityServer.
-You will eventually delete the old project for IdentityServer, but there are some items that you will need to migrate over.
+We provide a sample that contains the minimal UI assets needed to ASP.NET Identity with Open.IdentityServer.
+You will eventually delete the old project for Open.IdentityServer, but there are some items that you will need to migrate over.
 
-Start by creating a new IdentityServer project that will use ASP.NET Core Identity
+Start by creating a new Open.IdentityServer project that will use ASP.NET Core Identity
 
-The AspNetIdentity sample in the repository is a template project that contains the necessary code to use ASP.NET Core Identity with IdentityServer.
+The AspNetIdentity sample in the repository is a template project that contains the necessary code to use ASP.NET Core Identity with Open.IdentityServer.
 
 This populates the user database with our "alice" and "bob" users. 
 Their passwords are "Pass123$".
@@ -41,19 +41,19 @@ IdentityServerAspNetIdentity.csproj
 -----------------------------------
 
 Notice the reference to `Open.IdentityServer.AspNetIdentity`. 
-This NuGet package contains the ASP.NET Core Identity integration components for IdentityServer.
+This NuGet package contains the ASP.NET Core Identity integration components for Open.IdentityServer.
 
 Startup.cs
 ----------
 
 In `ConfigureServices` notice the necessary ``AddDbContext<ApplicationDbContext>`` and ``AddIdentity<ApplicationUser, IdentityRole>`` calls are done to configure ASP.NET Core Identity.
 
-Also notice that much of the same IdentityServer configuration you did in the previous quickstarts is already done.
+Also notice that much of the same Open.IdentityServer configuration you did in the previous quickstarts is already done.
 The template uses the in-memory style for clients and resources, and those are sourced from `Config.cs`.
 
 Finally, notice the addition of the new call to ``AddAspNetIdentity<ApplicationUser>``.
-``AddAspNetIdentity`` adds the integration layer to allow IdentityServer to access the user data for the ASP.NET Core Identity user database.
-This is needed when IdentityServer must add claims for the users into tokens.
+``AddAspNetIdentity`` adds the integration layer to allow Open.IdentityServer to access the user data for the ASP.NET Core Identity user database.
+This is needed when Open.IdentityServer must add claims for the users into tokens.
 
 Note that ``AddIdentity<ApplicationUser, IdentityRole>`` must be invoked before ``AddIdentityServer``.
 
@@ -61,7 +61,7 @@ Config.cs
 -----------
 
 `Config.cs` contains the hard-coded in-memory clients and resource definitions.
-To keep the same clients and API working as the prior quickstarts, we need to copy over the configuration data from the old IdentityServer project into this one.
+To keep the same clients and API working as the prior quickstarts, we need to copy over the configuration data from the old Open.IdentityServer project into this one.
 Do that now, and afterwards `Config.cs` should look like this
 
 .. code-block:: csharp
@@ -120,7 +120,7 @@ Do that now, and afterwards `Config.cs` should look like this
     }
 
 
-At this point, you no longer need the old IdentityServer project.
+At this point, you no longer need the old Open.IdentityServer project.
 
 Program.cs and SeedData.cs
 --------------------------
@@ -162,7 +162,7 @@ You should also be able to click "Call API using application identity" to invoke
 
 .. image:: images/aspid_api_claims.png
 
-And now you're using users from ASP.NET Core Identity in IdentityServer.
+And now you're using users from ASP.NET Core Identity in Open.IdentityServer.
 
 What's Missing?
 ^^^^^^^^^^^^^^^
@@ -172,4 +172,4 @@ The one thing you will notice that is missing from this template is UI code for 
 
 Given the variety of requirements and different approaches to using ASP.NET Identity, our template deliberately does not provide those features.
 You are expected to know how ASP.NET Core Identity works sufficiently well to add those features to your project.
-Alternatively, you can create a new project based on the Visual Studio ASP.NET Identity template and add the IdentityServer features you have learned about in these quickstarts to that project.
+Alternatively, you can create a new project based on the Visual Studio ASP.NET Identity template and add the Open.IdentityServer features you have learned about in these quickstarts to that project.

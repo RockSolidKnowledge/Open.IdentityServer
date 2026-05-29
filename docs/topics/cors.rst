@@ -3,7 +3,7 @@ CORS
 ====
 
 Many endpoints in Open.IdentityServer will be accessed via Ajax calls from JavaScript-based clients.
-Given that Open.IdentityServer will most likely be hosted on a different origin than these clients, this implies that `Cross-Origin Resource Sharing <http://www.html5rocks.com/en/tutorials/cors/>`_ (CORS) will need to be configured.
+Given that Open.IdentityServer will most likely be hosted on a different origin than these clients, this implies that `Cross-Origin Resource Sharing <https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS>`_ (CORS) will need to be configured.
 
 Client-based CORS Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

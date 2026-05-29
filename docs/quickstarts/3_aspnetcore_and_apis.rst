@@ -6,12 +6,12 @@ Now we want to bring the two parts together.
 
 The beauty of the OpenID Connect & OAuth 2.0 combination is, that you can achieve both with a single protocol and a single exchange with the token service.
 
-So far we only asked for identity resources during the token request, once we start also including API resources, IdentityServer will return two tokens:
+So far we only asked for identity resources during the token request, once we start also including API resources, Open.IdentityServer will return two tokens:
 the identity token containing the information about the authentication and session, and the access token to access APIs on behalf of the logged on user.
 
 Modifying the client configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Updating the client configuration in IdentityServer is straightforward - we simply need to add the ``api1`` resource to the allowed scopes list.
+Updating the client configuration in Open.IdentityServer is straightforward - we simply need to add the ``api1`` resource to the allowed scopes list.
 In addition we enable support for refresh tokens via the ``AllowOfflineAccess`` property
 
 .. code-block:: csharp
@@ -89,7 +89,7 @@ For accessing the API using the access token, all you need to do is retrieve the
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var content = await client.GetStringAsync("https://localhost:6001/identity");
 
-        ViewBag.Json = JsonNode .Parse(content).ToString();
+        ViewBag.Json = JsonNode.Parse(content).ToString();
         return View("json");
     }
 
@@ -115,5 +115,4 @@ ASP.NET Core has many built-in facility that can help you with those tasks (like
 but there is still quite some work left to do. 
 
 
-Open.IdentityServer doesn't currently contain any Client side code, another package is required, such as the `Duende Identity Model <https://github.com/DuendeSoftware/foss/tree/main/identity-model>`_ library, which can automate 
-many of the boilerplate tasks.
+Open.IdentityServer doesn't currently contain any client-side code, another package is required, such as the `Duende Identity Model <https://github.com/DuendeSoftware/foss/tree/main/identity-model>`_ library, which can automate many of the boilerplate tasks.

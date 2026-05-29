@@ -18,7 +18,7 @@ Additional client settings
 ``RefreshTokenExpiration``
     ``Absolute`` the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime). This is the default.
     
-    ``Sliding`` when refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in SlidingRefreshTokenLifetime). The lifetime will not exceed `AbsoluteRefreshTokenLifetime`.
+    ``Sliding`` when refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in SlidingRefreshTokenLifetime). The lifetime will not exceed ``AbsoluteRefreshTokenLifetime``.
 ``UpdateAccessTokenClaimsOnRefresh``
     Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.
 

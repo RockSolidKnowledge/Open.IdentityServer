@@ -6,7 +6,7 @@ This guide is intended for users of Duende.IdentityServer that wish to migrate t
 
 .. note::
 
-    Open.IdentityServer is API-compatible with Duende.IdentityServer for core functionality. However, some :ref:`Duende-specific commercial <refUnsupportedFeatures>` features are not yet available.
+    Open.IdentityServer is API-compatible with Duende.IdentityServer for core functionality. However, some :ref:`Duende-specific commercial features <refUnsupportedFeatures>` are not yet available.
 
 Prerequisites
 -------------

@@ -3,7 +3,7 @@ Defining Resources
 ==================
 The ultimate job of an OpenID Connect/OAuth token service is to control access to resources.
 
-The two fundamental resource types in IdentityServer are:
+The two fundamental resource types in Open.IdentityServer are:
 
 * **identity resources:** represent claims about a user like user ID, display name, email address etc…
 * **API resources:** represent functionality a client wants to access. Typically, they are HTTP-based endpoints (aka APIs), but could be also message queuing endpoints or similar.
@@ -150,7 +150,7 @@ the value of that scope will be included in the resulting access token as a clai
 
 The consumer of the access token can use that data to make sure that the client is actually allowed to invoke the corresponding functionality.
 
-.. note:: Be aware, that scopes are purely for authorizing clients - not users. IOW - the *write* scope allows the client to invoke the functionality associated with that. Still that client can most probably only write the data the belongs to the current user. This additional user centric authorization is application logic and not covered by OAuth.
+.. note:: Be aware, that scopes are purely for authorizing clients - not users. IOW - the *write* scope allows the client to invoke the functionality associated with that. Still that client can most probably only write the data that belongs to the current user. This additional user centric authorization is application logic and not covered by OAuth.
 
 You can add more identity information about the user by deriving additional claims from the scope request. The following scope definition tells the configuration system,
 that when a *write* scope gets granted, the *user_level* claim should be added to the access token
@@ -254,7 +254,7 @@ In IdentityServer, the ``ApiResource`` class allows some additional organization
             new ApiScope(name: "invoice.pay",    displayName: "Pays your invoices."),
 
             // customer API specific scopes
-            new ApiScope(name: "customer.read",    displayName: "Reads you customers information."),
+            new ApiScope(name: "customer.read",    displayName: "Reads you customer's information."),
             new ApiScope(name: "customer.contact", displayName: "Allows contacting one of your customers."),
 
             // shared scope
@@ -317,7 +317,7 @@ Let's have a look at some example access tokens for the above resource configura
         "client_id": "client",
         "sub": "123",
 
-        "aud": [ "invoice", "customer" ]
+        "aud": [ "invoice", "customer" ],
         "scope": "invoice.read customer.read"
     }
 
@@ -332,6 +332,6 @@ Let's have a look at some example access tokens for the above resource configura
         "client_id": "client",
         "sub": "123",
 
-        "aud": [ "invoice", "customer" ]
+        "aud": [ "invoice", "customer" ],
         "scope": "manage"
     }

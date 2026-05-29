@@ -1,6 +1,6 @@
 Deployment
 ==========
-Your identity server is `just` a standard ASP.NET Core application including the Open.IdentityServer middleware.
+Your identity server is *just* a standard ASP.NET Core application including the Open.IdentityServer middleware.
 Read the official Microsoft `documentation <https://docs.microsoft.com/en-us/aspnet/core/publishing>`_ on publishing and deployment first
 (and especially the `section <https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-2.2#scenarios-and-use-cases>`_ about load balancers and proxies).
 
@@ -25,7 +25,7 @@ The way you store that data depends on your environment. In situations where con
 In highly dynamic environments (e.g. Saas) we recommend using a database or configuration service to load configuration dynamically.
 
 Open.IdentityServer supports code configuration and configuration files (see `here <https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration>`_) out of the box.
-For databases we provide support for `Entity Framework Core <https://github.com/RockSolidKnowledge/Open.IdentityServer.EntityFramework>`_ based databases.
+For databases we provide support for `Entity Framework Core <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/src/EntityFramework>`_ based databases.
 
 You can also build your own configuration stores by implementing ``IResourceStore`` and ``IClientStore``.
 

@@ -31,7 +31,7 @@ Migration Steps
 
    The Open.IdentityServer schema includes additional columns and tables compared to IdentityServer4. Migration scripts are available for common database providers:
 
-   - `Migration scripts on GitHub <https://github.com/RockSolidKnowledge/Open.IdentityServer/src/EntityFramework.Storage/migrations/scripts>`_
+   - `Migration scripts on GitHub <https://github.com/RockSolidKnowledge/Open.IdentityServer/tree/main/src/EntityFramework.Storage/migrations/Migrator/scripts>`_
 
    Select the script appropriate for your database provider (SQL Server, PostgreSQL, MySQL, etc.) and run it against your database:
 
@@ -70,7 +70,7 @@ Migration Steps
     
    .. note::
 
-       Open.IdentityServer has no IdentityModel or AccessTokenValidator packages. :ref:`Here is a guide <refInternalisedIdentityModel>` on what is still available within the Open.IdenttiyServer packages
+       Open.IdentityServer has no IdentityModel or AccessTokenValidator packages. :ref:`Here is a guide <refInternalisedIdentityModel>` on what is still available within the Open.IdentityServer packages
        and alternatives you can use where needed.
 
 #. **Update namespaces**

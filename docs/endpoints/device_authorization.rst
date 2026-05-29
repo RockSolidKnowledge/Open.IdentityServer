@@ -4,7 +4,7 @@ Device Authorization Endpoint
 The device authorization endpoint can be used to request device and user codes.
 This endpoint is used to start the device flow authorization process.
 
-.. Note:: The URL for the end session endpoint is available via the :ref:`discovery endpoint <refDiscovery>`.
+.. Note:: The URL for the device authorization endpoint is available via the :ref:`discovery endpoint <refDiscovery>`.
 
 ``client_id``
     client identifier (required)

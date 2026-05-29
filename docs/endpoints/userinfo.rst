@@ -1,3 +1,4 @@
+.. _refEndpointUserInfo:
 UserInfo Endpoint
 =================
 

@@ -5,7 +5,7 @@ The token endpoint can be used to programmatically request tokens.
 It supports the ``password``, ``authorization_code``, ``client_credentials``, ``refresh_token`` and ``urn:ietf:params:oauth:grant-type:device_code`` grant types.
 Furthermore the token endpoint can be extended to support extension grant types.
 
-.. Note:: IdentityServer supports a subset of the OpenID Connect and OAuth 2.0 token request parameters. For a full list, see `here <http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest>`_.
+.. Note:: Open.IdentityServer supports a subset of the OpenID Connect and OAuth 2.0 token request parameters. For a full list, see `here <http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest>`_.
 
 ``client_id``
     client identifier (required – Either in the body or as part of the authorization header.)
@@ -26,11 +26,11 @@ Furthermore the token endpoint can be extended to support extension grant types.
 ``password``
     resource owner password (required for ``password`` grant type)
 ``acr_values``
-   allows passing in additional authentication related information for the ``password`` grant type - identityserver special cases the following proprietary acr_values:
-        
-        ``idp:name_of_idp`` bypasses the login/home realm screen and forwards the user directly to the selected identity provider (if allowed per client configuration)
-        
-        ``tenant:name_of_tenant`` can be used to pass a tenant name to the token endpoint
+   allows passing in additional authentication related information for the ``password`` grant type - Open.IdentityServer special cases the following proprietary acr_values:
+``idp:name_of_idp`` 
+    bypasses the login/home realm screen and forwards the user directly to the selected identity provider (if allowed per client configuration)
+``tenant:name_of_tenant`` 
+    can be used to pass a tenant name to the token endpoint
 ``refresh_token``
     the refresh token (required for ``refresh_token`` grant type)
 ``device_code``

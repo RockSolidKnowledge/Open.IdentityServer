@@ -112,7 +112,7 @@ Database creation and schema changes across different versions of IdentityServer
 
 It is very likely that across different versions of IdentityServer (and the EF support) that the database schema will change to accommodate new and changing features.
 
-If your looking for support in creating your database or migrating data please get in touch with our `sales team <mailto:sales@identityserver.com>`_. You can also 
+If you're looking for support in creating your database or migrating data please get in touch with our `sales team <mailto:sales@identityserver.com>`_. You can also 
 manage the database creation, schema changes, and data migration in any way your organization sees fit.
 
 Using EF migrations is one possible approach to this. 

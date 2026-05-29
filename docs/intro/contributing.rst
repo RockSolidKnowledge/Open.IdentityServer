@@ -6,7 +6,7 @@ How to contribute?
 ^^^^^^^^^^^^^^^^^^
 The easiest way to contribute is to open an issue and start a discussion. Then we can decide if and how a feature or a change could be implemented. 
 If you should submit a pull request with code changes, start with a description, only make the minimal changes to start with and provide tests that cover those changes.
-Submitted code should be human-authored and not originate from any other proprietary souce.
+Submitted code should be human-authored and not originate from any other proprietary source.
 
 Also read this first: `Being a good open source citizen <https://hackernoon.com/being-a-good-open-source-citizen-9060d0ab9732#.x3hocgw85>`_
 

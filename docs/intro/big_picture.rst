@@ -64,10 +64,10 @@ highly optimized to solve the typical security problems of today’s mobile, nat
 
 How Open.IdentityServer can help
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-IdentityServer is middleware that adds the spec compliant OpenID Connect and OAuth 2.0 endpoints to an arbitrary ASP.NET Core application.
+Open.IdentityServer is middleware that adds the spec compliant OpenID Connect and OAuth 2.0 endpoints to an arbitrary ASP.NET Core application.
 
 Typically, you build (or re-use) an application that contains a login and logout page (and maybe consent - depending on your needs),
-and the IdentityServer middleware adds the necessary protocol heads to it, so that client applications can talk to it using those standard protocols.
+and the Open.IdentityServer middleware adds the necessary protocol heads to it, so that client applications can talk to it using those standard protocols.
 
 .. image:: images/middleware.png
 

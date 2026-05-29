@@ -2,12 +2,12 @@
 Using Resource Indicators
 =========================
 
-By default IdentityServer access tokens are geneated with an **aud** claim that includes all API resources that a client is permitted to access based on the requested scope. This can create tokens that have broad access
-and violate the principle of least privilege. Tokens generated to be used by one API resource could be used by other API resources that are within the requested scope and the client is permited to access.
+By default Open.IdentityServer access tokens are generated with an **aud** claim that includes all API resources that a client is permitted to access based on the requested scope. This can create tokens that have broad access
+and violate the principle of least privilege. Tokens generated to be used by one API resource could be used by other API resources that are within the requested scope and the client is permitted to access.
 
 In Open.IdentityServer we have implemented Resource Indicators, as defined in `RFC 8707 <https://datatracker.ietf.org/doc/html/rfc8707>`_.
 
-This feature allows a client application to specifically specify which resources it wants an acccess token for, clients do this by specifying a ``resource`` parameter on the authorize and token endpoints. This provides:
+This feature allows a client application to specifically specify which resources it wants an access token for, clients do this by specifying a ``resource`` parameter on the authorize and token endpoints. This provides:
 
 - **Reduced token privilege** — tokens are only valid for the intended API, limiting the exposure if a token is compromised.
 - **Token isolation** — different APIs receive different tokens, preventing token replay across services.
