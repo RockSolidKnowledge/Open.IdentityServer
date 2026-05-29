@@ -36,9 +36,6 @@ public class Startup(IConfiguration config)
             case "SqlServer":
                 optBuilder.UseSqlServer(cn, options => options.MigrationsAssembly(migrationAssembly));
                 break;
-            case "MySql":
-                optBuilder.UseMySQL(cn, options => options.MigrationsAssembly(migrationAssembly));
-                break;
             case "PostgreSql":
                 optBuilder.UseNpgsql(cn, options => options.MigrationsAssembly(migrationAssembly));
                 break;
