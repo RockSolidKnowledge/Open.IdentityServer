@@ -7,7 +7,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
-        <PackageReference Include="MySql.EntityFrameworkCore" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
         <ProjectReference Include="..\..\src\Open.IdentityServer.EntityFramework.Storage.csproj"/>

@@ -61,7 +61,6 @@
         <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkVersion)" PrivateAssets="All"/>
         
         <!--other entity framework-->
-        <PackageReference Update="MySql.EntityFrameworkCore" Version="10.0.7" />
         <PackageReference Update="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
         <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
     </ItemGroup>

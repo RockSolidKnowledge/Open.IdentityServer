@@ -1,32 +1,34 @@
 ﻿CREATE TABLE IF NOT EXISTS `__EFMigrationsHistory` (
-    `MigrationId` varchar(150) NOT NULL,
-    `ProductVersion` varchar(32) NOT NULL,
-    PRIMARY KEY (`MigrationId`)
-);
+    `MigrationId` varchar(150) CHARACTER SET utf8mb4 NOT NULL,
+    `ProductVersion` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK___EFMigrationsHistory` PRIMARY KEY (`MigrationId`)
+) CHARACTER SET=utf8mb4;
 
 START TRANSACTION;
+ALTER DATABASE CHARACTER SET utf8mb4;
+
 CREATE TABLE `ApiResources` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `Enabled` tinyint(1) NOT NULL,
-    `Name` varchar(200) NOT NULL,
-    `DisplayName` varchar(200) NULL,
-    `Description` varchar(1000) NULL,
-    `AllowedAccessTokenSigningAlgorithms` varchar(100) NULL,
+    `Name` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
+    `DisplayName` varchar(200) CHARACTER SET utf8mb4 NULL,
+    `Description` varchar(1000) CHARACTER SET utf8mb4 NULL,
+    `AllowedAccessTokenSigningAlgorithms` varchar(100) CHARACTER SET utf8mb4 NULL,
     `ShowInDiscoveryDocument` tinyint(1) NOT NULL,
     `Created` datetime(6) NOT NULL,
     `Updated` datetime(6) NULL,
     `LastAccessed` datetime(6) NULL,
     `NonEditable` tinyint(1) NOT NULL,
     `RequireResourceIndicator` tinyint(1) NOT NULL,
-    PRIMARY KEY (`Id`)
-);
+    CONSTRAINT `PK_ApiResources` PRIMARY KEY (`Id`)
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ApiScopes` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `Enabled` tinyint(1) NOT NULL,
-    `Name` varchar(200) NOT NULL,
-    `DisplayName` varchar(200) NULL,
-    `Description` varchar(1000) NULL,
+    `Name` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
+    `DisplayName` varchar(200) CHARACTER SET utf8mb4 NULL,
+    `Description` varchar(1000) CHARACTER SET utf8mb4 NULL,
     `Required` tinyint(1) NOT NULL,
     `Emphasize` tinyint(1) NOT NULL,
     `ShowInDiscoveryDocument` tinyint(1) NOT NULL,
@@ -34,19 +36,19 @@ CREATE TABLE `ApiScopes` (
     `Created` datetime(6) NOT NULL,
     `LastAccessed` datetime(6) NULL,
     `Updated` datetime(6) NULL,
-    PRIMARY KEY (`Id`)
-);
+    CONSTRAINT `PK_ApiScopes` PRIMARY KEY (`Id`)
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `Clients` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `Enabled` tinyint(1) NOT NULL,
-    `ClientId` varchar(200) NOT NULL,
-    `ProtocolType` varchar(200) NOT NULL,
+    `ClientId` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
+    `ProtocolType` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
     `RequireClientSecret` tinyint(1) NOT NULL,
-    `ClientName` varchar(200) NULL,
-    `Description` varchar(1000) NULL,
-    `ClientUri` varchar(2000) NULL,
-    `LogoUri` varchar(2000) NULL,
+    `ClientName` varchar(200) CHARACTER SET utf8mb4 NULL,
+    `Description` varchar(1000) CHARACTER SET utf8mb4 NULL,
+    `ClientUri` varchar(2000) CHARACTER SET utf8mb4 NULL,
+    `LogoUri` varchar(2000) CHARACTER SET utf8mb4 NULL,
     `RequireConsent` tinyint(1) NOT NULL,
     `AllowRememberConsent` tinyint(1) NOT NULL,
     `AlwaysIncludeUserClaimsInIdToken` tinyint(1) NOT NULL,
@@ -54,13 +56,13 @@ CREATE TABLE `Clients` (
     `AllowPlainTextPkce` tinyint(1) NOT NULL,
     `RequireRequestObject` tinyint(1) NOT NULL,
     `AllowAccessTokensViaBrowser` tinyint(1) NOT NULL,
-    `FrontChannelLogoutUri` varchar(2000) NULL,
+    `FrontChannelLogoutUri` varchar(2000) CHARACTER SET utf8mb4 NULL,
     `FrontChannelLogoutSessionRequired` tinyint(1) NOT NULL,
-    `BackChannelLogoutUri` varchar(2000) NULL,
+    `BackChannelLogoutUri` varchar(2000) CHARACTER SET utf8mb4 NULL,
     `BackChannelLogoutSessionRequired` tinyint(1) NOT NULL,
     `AllowOfflineAccess` tinyint(1) NOT NULL,
     `IdentityTokenLifetime` int NOT NULL,
-    `AllowedIdentityTokenSigningAlgorithms` varchar(100) NULL,
+    `AllowedIdentityTokenSigningAlgorithms` varchar(100) CHARACTER SET utf8mb4 NULL,
     `AccessTokenLifetime` int NOT NULL,
     `AuthorizationCodeLifetime` int NOT NULL,
     `ConsentLifetime` int NULL,
@@ -73,204 +75,204 @@ CREATE TABLE `Clients` (
     `EnableLocalLogin` tinyint(1) NOT NULL,
     `IncludeJwtId` tinyint(1) NOT NULL,
     `AlwaysSendClientClaims` tinyint(1) NOT NULL,
-    `ClientClaimsPrefix` varchar(200) NULL,
-    `PairWiseSubjectSalt` varchar(200) NULL,
+    `ClientClaimsPrefix` varchar(200) CHARACTER SET utf8mb4 NULL,
+    `PairWiseSubjectSalt` varchar(200) CHARACTER SET utf8mb4 NULL,
     `Created` datetime(6) NOT NULL,
     `Updated` datetime(6) NULL,
     `LastAccessed` datetime(6) NULL,
     `UserSsoLifetime` int NULL,
-    `UserCodeType` varchar(100) NULL,
+    `UserCodeType` varchar(100) CHARACTER SET utf8mb4 NULL,
     `DeviceCodeLifetime` int NOT NULL,
     `NonEditable` tinyint(1) NOT NULL,
     `CibaLifetime` int NULL,
     `PollingInterval` int NULL,
     `CoordinateLifetimeWithUserSession` tinyint(1) NULL,
-    `InitiateLoginUri` longtext NULL,
+    `InitiateLoginUri` longtext CHARACTER SET utf8mb4 NULL,
     `DPoPClockSkew` time(6) NOT NULL,
     `DPoPValidationMode` int NOT NULL,
     `RequireDPoP` tinyint(1) NOT NULL,
     `PushedAuthorizationLifetime` int NULL,
     `RequirePushedAuthorization` tinyint(1) NOT NULL,
-    PRIMARY KEY (`Id`)
-);
+    CONSTRAINT `PK_Clients` PRIMARY KEY (`Id`)
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `IdentityProviders` (
     `Id` int NOT NULL AUTO_INCREMENT,
-    `Scheme` varchar(200) NOT NULL,
-    `DisplayName` varchar(200) NULL,
+    `Scheme` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
+    `DisplayName` varchar(200) CHARACTER SET utf8mb4 NULL,
     `Enabled` tinyint(1) NOT NULL,
-    `Type` varchar(20) NOT NULL,
-    `Properties` varchar(max) NULL,
+    `Type` varchar(20) CHARACTER SET utf8mb4 NOT NULL,
+    `Properties` longtext CHARACTER SET utf8mb4 NULL,
     `Created` datetime(6) NOT NULL,
     `LastAccessed` datetime(6) NULL,
     `NonEditable` tinyint(1) NOT NULL,
     `Updated` datetime(6) NULL,
-    PRIMARY KEY (`Id`)
-);
+    CONSTRAINT `PK_IdentityProviders` PRIMARY KEY (`Id`)
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `IdentityResources` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `Enabled` tinyint(1) NOT NULL,
-    `Name` varchar(200) NOT NULL,
-    `DisplayName` varchar(200) NULL,
-    `Description` varchar(1000) NULL,
+    `Name` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
+    `DisplayName` varchar(200) CHARACTER SET utf8mb4 NULL,
+    `Description` varchar(1000) CHARACTER SET utf8mb4 NULL,
     `Required` tinyint(1) NOT NULL,
     `Emphasize` tinyint(1) NOT NULL,
     `ShowInDiscoveryDocument` tinyint(1) NOT NULL,
     `Created` datetime(6) NOT NULL,
     `Updated` datetime(6) NULL,
     `NonEditable` tinyint(1) NOT NULL,
-    PRIMARY KEY (`Id`)
-);
+    CONSTRAINT `PK_IdentityResources` PRIMARY KEY (`Id`)
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ApiResourceClaims` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `ApiResourceId` int NOT NULL,
-    `Type` varchar(200) NOT NULL,
-    PRIMARY KEY (`Id`),
+    `Type` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK_ApiResourceClaims` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ApiResourceClaims_ApiResources_ApiResourceId` FOREIGN KEY (`ApiResourceId`) REFERENCES `ApiResources` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ApiResourceProperties` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `ApiResourceId` int NOT NULL,
-    `Key` varchar(250) NOT NULL,
-    `Value` varchar(2000) NOT NULL,
-    PRIMARY KEY (`Id`),
+    `Key` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+    `Value` varchar(2000) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK_ApiResourceProperties` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ApiResourceProperties_ApiResources_ApiResourceId` FOREIGN KEY (`ApiResourceId`) REFERENCES `ApiResources` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ApiResourceScopes` (
     `Id` int NOT NULL AUTO_INCREMENT,
-    `Scope` varchar(200) NOT NULL,
+    `Scope` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
     `ApiResourceId` int NOT NULL,
-    PRIMARY KEY (`Id`),
+    CONSTRAINT `PK_ApiResourceScopes` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ApiResourceScopes_ApiResources_ApiResourceId` FOREIGN KEY (`ApiResourceId`) REFERENCES `ApiResources` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ApiResourceSecrets` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `ApiResourceId` int NOT NULL,
-    `Description` varchar(1000) NULL,
-    `Value` varchar(4000) NOT NULL,
+    `Description` varchar(1000) CHARACTER SET utf8mb4 NULL,
+    `Value` varchar(4000) CHARACTER SET utf8mb4 NOT NULL,
     `Expiration` datetime(6) NULL,
-    `Type` varchar(250) NOT NULL,
+    `Type` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
     `Created` datetime(6) NOT NULL,
-    PRIMARY KEY (`Id`),
+    CONSTRAINT `PK_ApiResourceSecrets` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ApiResourceSecrets_ApiResources_ApiResourceId` FOREIGN KEY (`ApiResourceId`) REFERENCES `ApiResources` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ApiScopeClaims` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `ScopeId` int NOT NULL,
-    `Type` varchar(200) NOT NULL,
-    PRIMARY KEY (`Id`),
+    `Type` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK_ApiScopeClaims` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ApiScopeClaims_ApiScopes_ScopeId` FOREIGN KEY (`ScopeId`) REFERENCES `ApiScopes` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ApiScopeProperties` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `ScopeId` int NOT NULL,
-    `Key` varchar(250) NOT NULL,
-    `Value` varchar(2000) NOT NULL,
-    PRIMARY KEY (`Id`),
+    `Key` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+    `Value` varchar(2000) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK_ApiScopeProperties` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ApiScopeProperties_ApiScopes_ScopeId` FOREIGN KEY (`ScopeId`) REFERENCES `ApiScopes` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ClientClaims` (
     `Id` int NOT NULL AUTO_INCREMENT,
-    `Type` varchar(250) NOT NULL,
-    `Value` varchar(250) NOT NULL,
+    `Type` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+    `Value` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
     `ClientId` int NOT NULL,
-    PRIMARY KEY (`Id`),
+    CONSTRAINT `PK_ClientClaims` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ClientClaims_Clients_ClientId` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ClientCorsOrigins` (
     `Id` int NOT NULL AUTO_INCREMENT,
-    `Origin` varchar(150) NOT NULL,
+    `Origin` varchar(150) CHARACTER SET utf8mb4 NOT NULL,
     `ClientId` int NOT NULL,
-    PRIMARY KEY (`Id`),
+    CONSTRAINT `PK_ClientCorsOrigins` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ClientCorsOrigins_Clients_ClientId` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ClientGrantTypes` (
     `Id` int NOT NULL AUTO_INCREMENT,
-    `GrantType` varchar(250) NOT NULL,
+    `GrantType` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
     `ClientId` int NOT NULL,
-    PRIMARY KEY (`Id`),
+    CONSTRAINT `PK_ClientGrantTypes` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ClientGrantTypes_Clients_ClientId` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ClientIdPRestrictions` (
     `Id` int NOT NULL AUTO_INCREMENT,
-    `Provider` varchar(200) NOT NULL,
+    `Provider` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
     `ClientId` int NOT NULL,
-    PRIMARY KEY (`Id`),
+    CONSTRAINT `PK_ClientIdPRestrictions` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ClientIdPRestrictions_Clients_ClientId` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ClientPostLogoutRedirectUris` (
     `Id` int NOT NULL AUTO_INCREMENT,
-    `PostLogoutRedirectUri` varchar(400) NOT NULL,
+    `PostLogoutRedirectUri` varchar(400) CHARACTER SET utf8mb4 NOT NULL,
     `ClientId` int NOT NULL,
-    PRIMARY KEY (`Id`),
+    CONSTRAINT `PK_ClientPostLogoutRedirectUris` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ClientPostLogoutRedirectUris_Clients_ClientId` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ClientProperties` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `ClientId` int NOT NULL,
-    `Key` varchar(250) NOT NULL,
-    `Value` varchar(2000) NOT NULL,
-    PRIMARY KEY (`Id`),
+    `Key` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+    `Value` varchar(2000) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK_ClientProperties` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ClientProperties_Clients_ClientId` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ClientRedirectUris` (
     `Id` int NOT NULL AUTO_INCREMENT,
-    `RedirectUri` varchar(400) NOT NULL,
+    `RedirectUri` varchar(400) CHARACTER SET utf8mb4 NOT NULL,
     `ClientId` int NOT NULL,
-    PRIMARY KEY (`Id`),
+    CONSTRAINT `PK_ClientRedirectUris` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ClientRedirectUris_Clients_ClientId` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ClientScopes` (
     `Id` int NOT NULL AUTO_INCREMENT,
-    `Scope` varchar(200) NOT NULL,
+    `Scope` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
     `ClientId` int NOT NULL,
-    PRIMARY KEY (`Id`),
+    CONSTRAINT `PK_ClientScopes` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ClientScopes_Clients_ClientId` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `ClientSecrets` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `ClientId` int NOT NULL,
-    `Description` varchar(2000) NULL,
-    `Value` varchar(4000) NOT NULL,
+    `Description` varchar(2000) CHARACTER SET utf8mb4 NULL,
+    `Value` varchar(4000) CHARACTER SET utf8mb4 NOT NULL,
     `Expiration` datetime(6) NULL,
-    `Type` varchar(250) NOT NULL,
+    `Type` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
     `Created` datetime(6) NOT NULL,
-    PRIMARY KEY (`Id`),
+    CONSTRAINT `PK_ClientSecrets` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_ClientSecrets_Clients_ClientId` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `IdentityResourceClaims` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `IdentityResourceId` int NOT NULL,
-    `Type` varchar(200) NOT NULL,
-    PRIMARY KEY (`Id`),
+    `Type` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK_IdentityResourceClaims` PRIMARY KEY (`Id`),
     CONSTRAINT `FK_IdentityResourceClaims_IdentityResources_IdentityResourceId` FOREIGN KEY (`IdentityResourceId`) REFERENCES `IdentityResources` (`Id`) ON DELETE CASCADE
-);
+) CHARACTER SET=utf8mb4;
 
 CREATE TABLE `IdentityResourceProperties` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `IdentityResourceId` int NOT NULL,
-    `Key` varchar(250) NOT NULL,
-    `Value` varchar(2000) NOT NULL,
-    PRIMARY KEY (`Id`),
-    CONSTRAINT `FK_IdentityResourceProperties_IdentityResources_IdentityResourc~` FOREIGN KEY (`IdentityResourceId`) REFERENCES `IdentityResources` (`Id`) ON DELETE CASCADE
-);
+    `Key` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+    `Value` varchar(2000) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK_IdentityResourceProperties` PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_IdentityResourceProperties_IdentityResources_IdentityResource` FOREIGN KEY (`IdentityResourceId`) REFERENCES `IdentityResources` (`Id`) ON DELETE CASCADE
+) CHARACTER SET=utf8mb4;
 
 CREATE UNIQUE INDEX `IX_ApiResourceClaims_ApiResourceId_Type` ON `ApiResourceClaims` (`ApiResourceId`, `Type`);
 
@@ -315,7 +317,7 @@ CREATE UNIQUE INDEX `IX_IdentityResourceProperties_IdentityResourceId_Key` ON `I
 CREATE UNIQUE INDEX `IX_IdentityResources_Name` ON `IdentityResources` (`Name`);
 
 INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
-VALUES ('20260521090120_Configuration', '10.0.7');
+VALUES ('20260529102506_Configuration', '9.0.16');
 
 COMMIT;
 
