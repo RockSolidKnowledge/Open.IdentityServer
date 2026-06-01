@@ -271,7 +271,7 @@ CREATE TABLE `IdentityResourceProperties` (
     `Key` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
     `Value` varchar(2000) CHARACTER SET utf8mb4 NOT NULL,
     CONSTRAINT `PK_IdentityResourceProperties` PRIMARY KEY (`Id`),
-    CONSTRAINT `FK_IdentityResourceProperties_IdentityResources_IdentityResource` FOREIGN KEY (`IdentityResourceId`) REFERENCES `IdentityResources` (`Id`) ON DELETE CASCADE
+    CONSTRAINT `FK_IdentityResourceProperties_IdentityResources_IdentityResourc~` FOREIGN KEY (`IdentityResourceId`) REFERENCES `IdentityResources` (`Id`) ON DELETE CASCADE
 ) CHARACTER SET=utf8mb4;
 
 CREATE UNIQUE INDEX `IX_ApiResourceClaims_ApiResourceId_Type` ON `ApiResourceClaims` (`ApiResourceId`, `Type`);
