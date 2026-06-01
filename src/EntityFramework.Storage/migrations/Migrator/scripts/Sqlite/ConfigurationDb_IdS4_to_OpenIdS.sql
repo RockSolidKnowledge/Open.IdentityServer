@@ -3,7 +3,11 @@ DROP INDEX "IX_IdentityResourceProperties_IdentityResourceId";
 
 DROP INDEX "IX_IdentityResourceClaims_IdentityResourceId";
 
+DROP INDEX "IX_ClientScopes_ClientId";
+
 DROP INDEX "IX_ClientRedirectUris_ClientId";
+
+DROP INDEX "IX_ClientProperties_ClientId";
 
 DROP INDEX "IX_ClientPostLogoutRedirectUris_ClientId";
 
@@ -70,7 +74,11 @@ CREATE UNIQUE INDEX "IX_IdentityResourceProperties_IdentityResourceId_Key" ON "I
 
 CREATE UNIQUE INDEX "IX_IdentityResourceClaims_IdentityResourceId_Type" ON "IdentityResourceClaims" ("IdentityResourceId", "Type");
 
+CREATE UNIQUE INDEX "IX_ClientScopes_ClientId_Scope" ON "ClientScopes" ("ClientId", "Scope");
+
 CREATE UNIQUE INDEX "IX_ClientRedirectUris_ClientId_RedirectUri" ON "ClientRedirectUris" ("ClientId", "RedirectUri");
+
+CREATE UNIQUE INDEX "IX_ClientProperties_ClientId_Key" ON "ClientProperties" ("ClientId", "Key");
 
 CREATE UNIQUE INDEX "IX_ClientPostLogoutRedirectUris_ClientId_PostLogoutRedirectUri" ON "ClientPostLogoutRedirectUris" ("ClientId", "PostLogoutRedirectUri");
 
@@ -92,8 +100,10 @@ CREATE UNIQUE INDEX "IX_ApiResourceProperties_ApiResourceId_Key" ON "ApiResource
 
 CREATE UNIQUE INDEX "IX_ApiResourceClaims_ApiResourceId_Type" ON "ApiResourceClaims" ("ApiResourceId", "Type");
 
+CREATE UNIQUE INDEX "IX_IdentityProviders_Scheme" ON "IdentityProviders" ("Scheme");
+
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20260521135324_Configuration_to_OpenIdS', '10.0.8');
+VALUES ('20260601122013_Configuration_to_OpenIdS', '10.0.8');
 
 COMMIT;
 

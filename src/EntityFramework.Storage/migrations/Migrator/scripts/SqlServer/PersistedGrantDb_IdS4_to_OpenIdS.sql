@@ -16,7 +16,7 @@ ALTER TABLE [PersistedGrants] ADD CONSTRAINT [PK_PersistedGrants] PRIMARY KEY ([
 CREATE TABLE [Keys] (
     [Id] nvarchar(450) NOT NULL,
     [Version] int NOT NULL,
-    [Use] nvarchar(max) NULL,
+    [Use] nvarchar(450) NULL,
     [DataProtected] bit NOT NULL,
     [Algorithm] nvarchar(100) NOT NULL,
     [IsX509Certificate] bit NOT NULL,
@@ -26,15 +26,15 @@ CREATE TABLE [Keys] (
 );
 
 CREATE TABLE [PushedAuthorizationRequests] (
-    [Id] int NOT NULL IDENTITY,
-    [ReferenceHashValue] nvarchar(64) NOT NULL,
-    [Created] datetime2 NOT NULL,
+    [Id] bigint NOT NULL IDENTITY,
+    [ReferenceValueHash] nvarchar(64) NOT NULL,
+    [ExpiresAtUtc] datetime2 NOT NULL,
     [Parameters] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_PushedAuthorizationRequests] PRIMARY KEY ([Id])
 );
 
 CREATE TABLE [ServerSideSessions] (
-    [Id] int NOT NULL IDENTITY,
+    [Id] bigint NOT NULL IDENTITY,
     [Key] nvarchar(100) NOT NULL,
     [Scheme] nvarchar(100) NOT NULL,
     [SubjectId] nvarchar(100) NOT NULL,
@@ -51,8 +51,24 @@ CREATE INDEX [IX_PersistedGrants_ConsumedTime] ON [PersistedGrants] ([ConsumedTi
 
 CREATE UNIQUE INDEX [IX_PersistedGrants_Key] ON [PersistedGrants] ([Key]) WHERE [Key] IS NOT NULL;
 
+CREATE INDEX [IX_Keys_Use] ON [Keys] ([Use]);
+
+CREATE INDEX [IX_PushedAuthorizationRequests_ExpiresAtUtc] ON [PushedAuthorizationRequests] ([ExpiresAtUtc]);
+
+CREATE UNIQUE INDEX [IX_PushedAuthorizationRequests_ReferenceValueHash] ON [PushedAuthorizationRequests] ([ReferenceValueHash]);
+
+CREATE INDEX [IX_ServerSideSessions_DisplayName] ON [ServerSideSessions] ([DisplayName]);
+
+CREATE INDEX [IX_ServerSideSessions_Expires] ON [ServerSideSessions] ([Expires]);
+
+CREATE UNIQUE INDEX [IX_ServerSideSessions_Key] ON [ServerSideSessions] ([Key]);
+
+CREATE INDEX [IX_ServerSideSessions_SessionId] ON [ServerSideSessions] ([SessionId]);
+
+CREATE INDEX [IX_ServerSideSessions_SubjectId] ON [ServerSideSessions] ([SubjectId]);
+
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260521083533_Grants_to_OpenIdS', N'10.0.7');
+VALUES (N'20260601121057_Grants_to_OpenIdS', N'10.0.8');
 
 COMMIT;
 GO

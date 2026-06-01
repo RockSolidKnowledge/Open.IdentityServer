@@ -87,7 +87,7 @@ CREATE TABLE `Clients` (
     `CibaLifetime` int NULL,
     `PollingInterval` int NULL,
     `CoordinateLifetimeWithUserSession` tinyint(1) NULL,
-    `InitiateLoginUri` longtext CHARACTER SET utf8mb4 NULL,
+    `InitiateLoginUri` varchar(2000) CHARACTER SET utf8mb4 NULL,
     `DPoPClockSkew` time(6) NOT NULL,
     `DPoPValidationMode` int NOT NULL,
     `RequireDPoP` tinyint(1) NOT NULL,
@@ -271,7 +271,7 @@ CREATE TABLE `IdentityResourceProperties` (
     `Key` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
     `Value` varchar(2000) CHARACTER SET utf8mb4 NOT NULL,
     CONSTRAINT `PK_IdentityResourceProperties` PRIMARY KEY (`Id`),
-    CONSTRAINT `FK_IdentityResourceProperties_IdentityResources_IdentityResource` FOREIGN KEY (`IdentityResourceId`) REFERENCES `IdentityResources` (`Id`) ON DELETE CASCADE
+    CONSTRAINT `FK_IdentityResourceProperties_IdentityResources_IdentityResourc~` FOREIGN KEY (`IdentityResourceId`) REFERENCES `IdentityResources` (`Id`) ON DELETE CASCADE
 ) CHARACTER SET=utf8mb4;
 
 CREATE UNIQUE INDEX `IX_ApiResourceClaims_ApiResourceId_Type` ON `ApiResourceClaims` (`ApiResourceId`, `Type`);
@@ -300,15 +300,17 @@ CREATE UNIQUE INDEX `IX_ClientIdPRestrictions_ClientId_Provider` ON `ClientIdPRe
 
 CREATE UNIQUE INDEX `IX_ClientPostLogoutRedirectUris_ClientId_PostLogoutRedirectUri` ON `ClientPostLogoutRedirectUris` (`ClientId`, `PostLogoutRedirectUri`);
 
-CREATE INDEX `IX_ClientProperties_ClientId` ON `ClientProperties` (`ClientId`);
+CREATE UNIQUE INDEX `IX_ClientProperties_ClientId_Key` ON `ClientProperties` (`ClientId`, `Key`);
 
 CREATE UNIQUE INDEX `IX_ClientRedirectUris_ClientId_RedirectUri` ON `ClientRedirectUris` (`ClientId`, `RedirectUri`);
 
 CREATE UNIQUE INDEX `IX_Clients_ClientId` ON `Clients` (`ClientId`);
 
-CREATE INDEX `IX_ClientScopes_ClientId` ON `ClientScopes` (`ClientId`);
+CREATE UNIQUE INDEX `IX_ClientScopes_ClientId_Scope` ON `ClientScopes` (`ClientId`, `Scope`);
 
 CREATE INDEX `IX_ClientSecrets_ClientId` ON `ClientSecrets` (`ClientId`);
+
+CREATE UNIQUE INDEX `IX_IdentityProviders_Scheme` ON `IdentityProviders` (`Scheme`);
 
 CREATE UNIQUE INDEX `IX_IdentityResourceClaims_IdentityResourceId_Type` ON `IdentityResourceClaims` (`IdentityResourceId`, `Type`);
 
@@ -317,7 +319,7 @@ CREATE UNIQUE INDEX `IX_IdentityResourceProperties_IdentityResourceId_Key` ON `I
 CREATE UNIQUE INDEX `IX_IdentityResources_Name` ON `IdentityResources` (`Name`);
 
 INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
-VALUES ('20260529102506_Configuration', '9.0.16');
+VALUES ('20260601113759_Configuration', '9.0.16');
 
 COMMIT;
 

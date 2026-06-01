@@ -385,9 +385,9 @@ public static class ModelBuilderExtensions
                 builder.Property(x => x.Version).IsRequired();
                 builder.Property(x => x.Created).IsRequired();
                 builder.Property(x => x.Algorithm).HasMaxLength(100).IsRequired();
-                builder.Property(x => x.IsX509Certificate).IsRequired();
-                builder.Property(x => x.DataProtected).IsRequired();
-                builder.Property(x => x.Data).HasMaxLength(-1).IsRequired();
+                builder.Property(x => x.Data).IsRequired();
+
+                builder.HasIndex(x => x.Use);
             });
 
             modelBuilder.Entity<IdentityServerServerSideSessions>(builder =>
@@ -402,14 +402,23 @@ public static class ModelBuilderExtensions
                 builder.Property(x => x.Created).IsRequired();
                 builder.Property(x => x.Renewed).IsRequired();
                 builder.Property(x => x.Data).HasMaxLength(-1);
+
+                builder.HasIndex(x => x.Key).IsUnique();
+                builder.HasIndex(x => x.DisplayName);
+                builder.HasIndex(x => x.Expires);
+                builder.HasIndex(x => x.SessionId);
+                builder.HasIndex(x => x.SubjectId);
             });
 
             modelBuilder.Entity<IdentityServerPushedAuthorizationRequests>(builder =>
             {
                 builder.ToTable(storeOptions.PushedAuthorizationRequests).HasKey(x => x.Id);
                 
-                builder.Property(x => x.ReferenceHashValue).HasMaxLength(64);
+                builder.Property(x => x.ReferenceValueHash).HasMaxLength(64);
                 builder.Property(x => x.Parameters).HasMaxLength(-1);
+                
+                builder.HasIndex(x => x.ReferenceValueHash).IsUnique();
+                builder.HasIndex(x => x.ExpiresAtUtc);
             });
         }
     }

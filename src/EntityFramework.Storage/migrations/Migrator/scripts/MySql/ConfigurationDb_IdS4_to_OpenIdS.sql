@@ -8,7 +8,7 @@ ALTER TABLE `Clients` ADD `DPoPClockSkew` time(6) NOT NULL DEFAULT '00:00:00';
 
 ALTER TABLE `Clients` ADD `DPoPValidationMode` int NOT NULL DEFAULT 0;
 
-ALTER TABLE `Clients` ADD `InitiateLoginUri` longtext CHARACTER SET utf8mb4 NULL;
+ALTER TABLE `Clients` ADD `InitiateLoginUri` varchar(2000) CHARACTER SET utf8mb4 NULL;
 
 ALTER TABLE `Clients` ADD `PollingInterval` int NULL;
 
@@ -50,7 +50,11 @@ CREATE UNIQUE INDEX `IX_IdentityResourceProperties_IdentityResourceId_Key` ON `I
 
 CREATE UNIQUE INDEX `IX_IdentityResourceClaims_IdentityResourceId_Type` ON `IdentityResourceClaims` (`IdentityResourceId`, `Type`);
 
+CREATE UNIQUE INDEX `IX_ClientScopes_ClientId_Scope` ON `ClientScopes` (`ClientId`, `Scope`);
+
 CREATE UNIQUE INDEX `IX_ClientRedirectUris_ClientId_RedirectUri` ON `ClientRedirectUris` (`ClientId`, `RedirectUri`);
+
+CREATE UNIQUE INDEX `IX_ClientProperties_ClientId_Key` ON `ClientProperties` (`ClientId`, `Key`);
 
 CREATE UNIQUE INDEX `IX_ClientPostLogoutRedirectUris_ClientId_PostLogoutRedirectUri` ON `ClientPostLogoutRedirectUris` (`ClientId`, `PostLogoutRedirectUri`);
 
@@ -72,11 +76,17 @@ CREATE UNIQUE INDEX `IX_ApiResourceProperties_ApiResourceId_Key` ON `ApiResource
 
 CREATE UNIQUE INDEX `IX_ApiResourceClaims_ApiResourceId_Type` ON `ApiResourceClaims` (`ApiResourceId`, `Type`);
 
+CREATE UNIQUE INDEX `IX_IdentityProviders_Scheme` ON `IdentityProviders` (`Scheme`);
+
 ALTER TABLE `IdentityResourceProperties` DROP INDEX `IX_IdentityResourceProperties_IdentityResourceId`;
 
 ALTER TABLE `IdentityResourceClaims` DROP INDEX `IX_IdentityResourceClaims_IdentityResourceId`;
 
+ALTER TABLE `ClientScopes` DROP INDEX `IX_ClientScopes_ClientId`;
+
 ALTER TABLE `ClientRedirectUris` DROP INDEX `IX_ClientRedirectUris_ClientId`;
+
+ALTER TABLE `ClientProperties` DROP INDEX `IX_ClientProperties_ClientId`;
 
 ALTER TABLE `ClientPostLogoutRedirectUris` DROP INDEX `IX_ClientPostLogoutRedirectUris_ClientId`;
 
@@ -99,7 +109,7 @@ ALTER TABLE `ApiResourceProperties` DROP INDEX `IX_ApiResourceProperties_ApiReso
 ALTER TABLE `ApiResourceClaims` DROP INDEX `IX_ApiResourceClaims_ApiResourceId`;
 
 INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
-VALUES ('20260529101748_Configuration_to_OpenIdS', '9.0.16');
+VALUES ('20260601115713_Configuration_to_OpenIdS', '9.0.16');
 
 COMMIT;
 

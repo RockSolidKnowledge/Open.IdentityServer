@@ -25,7 +25,7 @@ CREATE TABLE [DeviceCodes] (
 CREATE TABLE [Keys] (
     [Id] nvarchar(450) NOT NULL,
     [Version] int NOT NULL,
-    [Use] nvarchar(max) NULL,
+    [Use] nvarchar(450) NULL,
     [DataProtected] bit NOT NULL,
     [Algorithm] nvarchar(100) NOT NULL,
     [IsX509Certificate] bit NOT NULL,
@@ -50,15 +50,15 @@ CREATE TABLE [PersistedGrants] (
 );
 
 CREATE TABLE [PushedAuthorizationRequests] (
-    [Id] int NOT NULL IDENTITY,
-    [ReferenceHashValue] nvarchar(64) NOT NULL,
-    [Created] datetime2 NOT NULL,
+    [Id] bigint NOT NULL IDENTITY,
+    [ReferenceValueHash] nvarchar(64) NOT NULL,
+    [ExpiresAtUtc] datetime2 NOT NULL,
     [Parameters] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_PushedAuthorizationRequests] PRIMARY KEY ([Id])
 );
 
 CREATE TABLE [ServerSideSessions] (
-    [Id] int NOT NULL IDENTITY,
+    [Id] bigint NOT NULL IDENTITY,
     [Key] nvarchar(100) NOT NULL,
     [Scheme] nvarchar(100) NOT NULL,
     [SubjectId] nvarchar(100) NOT NULL,
@@ -75,6 +75,8 @@ CREATE UNIQUE INDEX [IX_DeviceCodes_DeviceCode] ON [DeviceCodes] ([DeviceCode]);
 
 CREATE INDEX [IX_DeviceCodes_Expiration] ON [DeviceCodes] ([Expiration]);
 
+CREATE INDEX [IX_Keys_Use] ON [Keys] ([Use]);
+
 CREATE INDEX [IX_PersistedGrants_ConsumedTime] ON [PersistedGrants] ([ConsumedTime]);
 
 CREATE INDEX [IX_PersistedGrants_Expiration] ON [PersistedGrants] ([Expiration]);
@@ -85,8 +87,22 @@ CREATE INDEX [IX_PersistedGrants_SubjectId_ClientId_Type] ON [PersistedGrants] (
 
 CREATE INDEX [IX_PersistedGrants_SubjectId_SessionId_Type] ON [PersistedGrants] ([SubjectId], [SessionId], [Type]);
 
+CREATE INDEX [IX_PushedAuthorizationRequests_ExpiresAtUtc] ON [PushedAuthorizationRequests] ([ExpiresAtUtc]);
+
+CREATE UNIQUE INDEX [IX_PushedAuthorizationRequests_ReferenceValueHash] ON [PushedAuthorizationRequests] ([ReferenceValueHash]);
+
+CREATE INDEX [IX_ServerSideSessions_DisplayName] ON [ServerSideSessions] ([DisplayName]);
+
+CREATE INDEX [IX_ServerSideSessions_Expires] ON [ServerSideSessions] ([Expires]);
+
+CREATE UNIQUE INDEX [IX_ServerSideSessions_Key] ON [ServerSideSessions] ([Key]);
+
+CREATE INDEX [IX_ServerSideSessions_SessionId] ON [ServerSideSessions] ([SessionId]);
+
+CREATE INDEX [IX_ServerSideSessions_SubjectId] ON [ServerSideSessions] ([SubjectId]);
+
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260521140637_Grants', N'10.0.8');
+VALUES (N'20260601112107_Grants', N'10.0.8');
 
 COMMIT;
 GO

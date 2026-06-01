@@ -3,7 +3,11 @@ DROP INDEX "IX_IdentityResourceProperties_IdentityResourceId";
 
 DROP INDEX "IX_IdentityResourceClaims_IdentityResourceId";
 
+DROP INDEX "IX_ClientScopes_ClientId";
+
 DROP INDEX "IX_ClientRedirectUris_ClientId";
+
+DROP INDEX "IX_ClientProperties_ClientId";
 
 DROP INDEX "IX_ClientPostLogoutRedirectUris_ClientId";
 
@@ -33,7 +37,7 @@ ALTER TABLE "Clients" ADD "DPoPClockSkew" interval NOT NULL DEFAULT INTERVAL '00
 
 ALTER TABLE "Clients" ADD "DPoPValidationMode" integer NOT NULL DEFAULT 0;
 
-ALTER TABLE "Clients" ADD "InitiateLoginUri" text;
+ALTER TABLE "Clients" ADD "InitiateLoginUri" character varying(2000);
 
 ALTER TABLE "Clients" ADD "PollingInterval" integer;
 
@@ -75,7 +79,11 @@ CREATE UNIQUE INDEX "IX_IdentityResourceProperties_IdentityResourceId_Key" ON "I
 
 CREATE UNIQUE INDEX "IX_IdentityResourceClaims_IdentityResourceId_Type" ON "IdentityResourceClaims" ("IdentityResourceId", "Type");
 
+CREATE UNIQUE INDEX "IX_ClientScopes_ClientId_Scope" ON "ClientScopes" ("ClientId", "Scope");
+
 CREATE UNIQUE INDEX "IX_ClientRedirectUris_ClientId_RedirectUri" ON "ClientRedirectUris" ("ClientId", "RedirectUri");
+
+CREATE UNIQUE INDEX "IX_ClientProperties_ClientId_Key" ON "ClientProperties" ("ClientId", "Key");
 
 CREATE UNIQUE INDEX "IX_ClientPostLogoutRedirectUris_ClientId_PostLogoutRedirectUri" ON "ClientPostLogoutRedirectUris" ("ClientId", "PostLogoutRedirectUri");
 
@@ -97,8 +105,10 @@ CREATE UNIQUE INDEX "IX_ApiResourceProperties_ApiResourceId_Key" ON "ApiResource
 
 CREATE UNIQUE INDEX "IX_ApiResourceClaims_ApiResourceId_Type" ON "ApiResourceClaims" ("ApiResourceId", "Type");
 
+CREATE UNIQUE INDEX "IX_IdentityProviders_Scheme" ON "IdentityProviders" ("Scheme");
+
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20260521085634_Configuration_to_OpenIdS', '10.0.7');
+VALUES ('20260601121627_Configuration_to_OpenIdS', '10.0.8');
 
 COMMIT;
 

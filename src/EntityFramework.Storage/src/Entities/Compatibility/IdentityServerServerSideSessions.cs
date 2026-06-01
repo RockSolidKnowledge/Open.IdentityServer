@@ -16,7 +16,7 @@ public class IdentityServerServerSideSessions
     /// <summary>
     /// Get or set unique identifier
     /// </summary>
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     /// <summary>
     /// Get or set key
