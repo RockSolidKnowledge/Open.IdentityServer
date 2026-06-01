@@ -14,8 +14,8 @@ CREATE TABLE "Keys" (
 
 CREATE TABLE "PushedAuthorizationRequests" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_PushedAuthorizationRequests" PRIMARY KEY AUTOINCREMENT,
-    "ReferenceHashValue" TEXT NOT NULL,
-    "Created" TEXT NOT NULL,
+    "ReferenceValueHash" TEXT NOT NULL,
+    "ExpiresAtUtc" TEXT NOT NULL,
     "Parameters" TEXT NOT NULL
 );
 
@@ -35,6 +35,22 @@ CREATE TABLE "ServerSideSessions" (
 CREATE INDEX "IX_PersistedGrants_ConsumedTime" ON "PersistedGrants" ("ConsumedTime");
 
 CREATE UNIQUE INDEX "IX_PersistedGrants_Key" ON "PersistedGrants" ("Key");
+
+CREATE INDEX "IX_Keys_Use" ON "Keys" ("Use");
+
+CREATE INDEX "IX_PushedAuthorizationRequests_ExpiresAtUtc" ON "PushedAuthorizationRequests" ("ExpiresAtUtc");
+
+CREATE UNIQUE INDEX "IX_PushedAuthorizationRequests_ReferenceValueHash" ON "PushedAuthorizationRequests" ("ReferenceValueHash");
+
+CREATE INDEX "IX_ServerSideSessions_DisplayName" ON "ServerSideSessions" ("DisplayName");
+
+CREATE INDEX "IX_ServerSideSessions_Expires" ON "ServerSideSessions" ("Expires");
+
+CREATE UNIQUE INDEX "IX_ServerSideSessions_Key" ON "ServerSideSessions" ("Key");
+
+CREATE INDEX "IX_ServerSideSessions_SessionId" ON "ServerSideSessions" ("SessionId");
+
+CREATE INDEX "IX_ServerSideSessions_SubjectId" ON "ServerSideSessions" ("SubjectId");
 
 CREATE TABLE "ef_temp_PersistedGrants" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_PersistedGrants" PRIMARY KEY AUTOINCREMENT,
@@ -81,5 +97,5 @@ CREATE INDEX "IX_PersistedGrants_SubjectId_SessionId_Type" ON "PersistedGrants" 
 COMMIT;
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20260521135317_Grants_to_OpenIdS', '10.0.8');
+VALUES ('20260601122007_Grants_to_OpenIdS', '10.0.8');
 

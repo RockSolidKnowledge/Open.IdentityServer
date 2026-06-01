@@ -3,7 +3,11 @@ DROP INDEX [IX_IdentityResourceProperties_IdentityResourceId] ON [IdentityResour
 
 DROP INDEX [IX_IdentityResourceClaims_IdentityResourceId] ON [IdentityResourceClaims];
 
+DROP INDEX [IX_ClientScopes_ClientId] ON [ClientScopes];
+
 DROP INDEX [IX_ClientRedirectUris_ClientId] ON [ClientRedirectUris];
+
+DROP INDEX [IX_ClientProperties_ClientId] ON [ClientProperties];
 
 DROP INDEX [IX_ClientPostLogoutRedirectUris_ClientId] ON [ClientPostLogoutRedirectUris];
 
@@ -33,7 +37,7 @@ ALTER TABLE [Clients] ADD [DPoPClockSkew] time NOT NULL DEFAULT '00:00:00';
 
 ALTER TABLE [Clients] ADD [DPoPValidationMode] int NOT NULL DEFAULT 0;
 
-ALTER TABLE [Clients] ADD [InitiateLoginUri] nvarchar(max) NULL;
+ALTER TABLE [Clients] ADD [InitiateLoginUri] nvarchar(2000) NULL;
 
 ALTER TABLE [Clients] ADD [PollingInterval] int NULL;
 
@@ -87,7 +91,11 @@ CREATE UNIQUE INDEX [IX_IdentityResourceProperties_IdentityResourceId_Key] ON [I
 
 CREATE UNIQUE INDEX [IX_IdentityResourceClaims_IdentityResourceId_Type] ON [IdentityResourceClaims] ([IdentityResourceId], [Type]);
 
+CREATE UNIQUE INDEX [IX_ClientScopes_ClientId_Scope] ON [ClientScopes] ([ClientId], [Scope]);
+
 CREATE UNIQUE INDEX [IX_ClientRedirectUris_ClientId_RedirectUri] ON [ClientRedirectUris] ([ClientId], [RedirectUri]);
+
+CREATE UNIQUE INDEX [IX_ClientProperties_ClientId_Key] ON [ClientProperties] ([ClientId], [Key]);
 
 CREATE UNIQUE INDEX [IX_ClientPostLogoutRedirectUris_ClientId_PostLogoutRedirectUri] ON [ClientPostLogoutRedirectUris] ([ClientId], [PostLogoutRedirectUri]);
 
@@ -109,8 +117,10 @@ CREATE UNIQUE INDEX [IX_ApiResourceProperties_ApiResourceId_Key] ON [ApiResource
 
 CREATE UNIQUE INDEX [IX_ApiResourceClaims_ApiResourceId_Type] ON [ApiResourceClaims] ([ApiResourceId], [Type]);
 
+CREATE UNIQUE INDEX [IX_IdentityProviders_Scheme] ON [IdentityProviders] ([Scheme]);
+
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260521083539_Configuration_to_OpenIdS', N'10.0.7');
+VALUES (N'20260601121103_Configuration_to_OpenIdS', N'10.0.8');
 
 COMMIT;
 GO

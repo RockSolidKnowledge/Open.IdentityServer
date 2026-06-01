@@ -62,6 +62,7 @@ public static class ModelBuilderExtensions
                 client.Property(x => x.PairWiseSubjectSalt).HasMaxLength(200);
                 client.Property(x => x.UserCodeType).HasMaxLength(100);
                 client.Property(x => x.AllowedIdentityTokenSigningAlgorithms).HasMaxLength(100);
+                client.Property(x => x.InitiateLoginUri).HasMaxLength(2000);
 
                 client.HasIndex(x => x.ClientId).IsUnique();
 
@@ -113,6 +114,8 @@ public static class ModelBuilderExtensions
             {
                 scope.ToTable(storeOptions.ClientScopes);
                 scope.Property(x => x.Scope).HasMaxLength(200).IsRequired();
+                
+                scope.HasIndex(x => new { x.ClientId, x.Scope }).IsUnique();
             });
 
             modelBuilder.Entity<ClientSecret>(secret =>
@@ -153,6 +156,8 @@ public static class ModelBuilderExtensions
                 property.ToTable(storeOptions.ClientProperty);
                 property.Property(x => x.Key).HasMaxLength(250).IsRequired();
                 property.Property(x => x.Value).HasMaxLength(2000).IsRequired();
+                
+                property.HasIndex(x => new { x.ClientId, x.Key }).IsUnique();
             });
         }
 
@@ -359,6 +364,8 @@ public static class ModelBuilderExtensions
                 builder.Property(x => x.DisplayName).HasMaxLength(200);
                 builder.Property(x => x.Type).HasMaxLength(20).IsRequired();
                 builder.Property(x => x.Properties).HasMaxLength(-1);
+
+                builder.HasIndex(x => x.Scheme).IsUnique();
             });
         }
 
@@ -378,9 +385,9 @@ public static class ModelBuilderExtensions
                 builder.Property(x => x.Version).IsRequired();
                 builder.Property(x => x.Created).IsRequired();
                 builder.Property(x => x.Algorithm).HasMaxLength(100).IsRequired();
-                builder.Property(x => x.IsX509Certificate).IsRequired();
-                builder.Property(x => x.DataProtected).IsRequired();
-                builder.Property(x => x.Data).HasMaxLength(-1).IsRequired();
+                builder.Property(x => x.Data).IsRequired();
+
+                builder.HasIndex(x => x.Use);
             });
 
             modelBuilder.Entity<IdentityServerServerSideSessions>(builder =>
@@ -395,14 +402,23 @@ public static class ModelBuilderExtensions
                 builder.Property(x => x.Created).IsRequired();
                 builder.Property(x => x.Renewed).IsRequired();
                 builder.Property(x => x.Data).HasMaxLength(-1);
+
+                builder.HasIndex(x => x.Key).IsUnique();
+                builder.HasIndex(x => x.DisplayName);
+                builder.HasIndex(x => x.Expires);
+                builder.HasIndex(x => x.SessionId);
+                builder.HasIndex(x => x.SubjectId);
             });
 
             modelBuilder.Entity<IdentityServerPushedAuthorizationRequests>(builder =>
             {
                 builder.ToTable(storeOptions.PushedAuthorizationRequests).HasKey(x => x.Id);
                 
-                builder.Property(x => x.ReferenceHashValue).HasMaxLength(64);
+                builder.Property(x => x.ReferenceValueHash).HasMaxLength(64);
                 builder.Property(x => x.Parameters).HasMaxLength(-1);
+                
+                builder.HasIndex(x => x.ReferenceValueHash).IsUnique();
+                builder.HasIndex(x => x.ExpiresAtUtc);
             });
         }
     }

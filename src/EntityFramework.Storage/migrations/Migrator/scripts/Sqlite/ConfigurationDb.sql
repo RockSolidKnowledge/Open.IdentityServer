@@ -15,7 +15,8 @@ CREATE TABLE "ApiResources" (
     "Created" TEXT NOT NULL,
     "Updated" TEXT NULL,
     "LastAccessed" TEXT NULL,
-    "NonEditable" INTEGER NOT NULL
+    "NonEditable" INTEGER NOT NULL,
+    "RequireResourceIndicator" INTEGER NOT NULL
 );
 
 CREATE TABLE "ApiScopes" (
@@ -26,7 +27,11 @@ CREATE TABLE "ApiScopes" (
     "Description" TEXT NULL,
     "Required" INTEGER NOT NULL,
     "Emphasize" INTEGER NOT NULL,
-    "ShowInDiscoveryDocument" INTEGER NOT NULL
+    "ShowInDiscoveryDocument" INTEGER NOT NULL,
+    "NonEditable" INTEGER NOT NULL,
+    "Created" TEXT NOT NULL,
+    "LastAccessed" TEXT NULL,
+    "Updated" TEXT NULL
 );
 
 CREATE TABLE "Clients" (
@@ -73,7 +78,29 @@ CREATE TABLE "Clients" (
     "UserSsoLifetime" INTEGER NULL,
     "UserCodeType" TEXT NULL,
     "DeviceCodeLifetime" INTEGER NOT NULL,
-    "NonEditable" INTEGER NOT NULL
+    "NonEditable" INTEGER NOT NULL,
+    "CibaLifetime" INTEGER NULL,
+    "PollingInterval" INTEGER NULL,
+    "CoordinateLifetimeWithUserSession" INTEGER NULL,
+    "InitiateLoginUri" TEXT NULL,
+    "DPoPClockSkew" TEXT NOT NULL,
+    "DPoPValidationMode" INTEGER NOT NULL,
+    "RequireDPoP" INTEGER NOT NULL,
+    "PushedAuthorizationLifetime" INTEGER NULL,
+    "RequirePushedAuthorization" INTEGER NOT NULL
+);
+
+CREATE TABLE "IdentityProviders" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_IdentityProviders" PRIMARY KEY AUTOINCREMENT,
+    "Scheme" TEXT NOT NULL,
+    "DisplayName" TEXT NULL,
+    "Enabled" INTEGER NOT NULL,
+    "Type" TEXT NOT NULL,
+    "Properties" TEXT NULL,
+    "Created" TEXT NOT NULL,
+    "LastAccessed" TEXT NULL,
+    "NonEditable" INTEGER NOT NULL,
+    "Updated" TEXT NULL
 );
 
 CREATE TABLE "IdentityResources" (
@@ -222,50 +249,52 @@ CREATE TABLE "IdentityResourceProperties" (
     CONSTRAINT "FK_IdentityResourceProperties_IdentityResources_IdentityResourceId" FOREIGN KEY ("IdentityResourceId") REFERENCES "IdentityResources" ("Id") ON DELETE CASCADE
 );
 
-CREATE INDEX "IX_ApiResourceClaims_ApiResourceId" ON "ApiResourceClaims" ("ApiResourceId");
+CREATE UNIQUE INDEX "IX_ApiResourceClaims_ApiResourceId_Type" ON "ApiResourceClaims" ("ApiResourceId", "Type");
 
-CREATE INDEX "IX_ApiResourceProperties_ApiResourceId" ON "ApiResourceProperties" ("ApiResourceId");
+CREATE UNIQUE INDEX "IX_ApiResourceProperties_ApiResourceId_Key" ON "ApiResourceProperties" ("ApiResourceId", "Key");
 
 CREATE UNIQUE INDEX "IX_ApiResources_Name" ON "ApiResources" ("Name");
 
-CREATE INDEX "IX_ApiResourceScopes_ApiResourceId" ON "ApiResourceScopes" ("ApiResourceId");
+CREATE UNIQUE INDEX "IX_ApiResourceScopes_ApiResourceId_Scope" ON "ApiResourceScopes" ("ApiResourceId", "Scope");
 
 CREATE INDEX "IX_ApiResourceSecrets_ApiResourceId" ON "ApiResourceSecrets" ("ApiResourceId");
 
-CREATE INDEX "IX_ApiScopeClaims_ScopeId" ON "ApiScopeClaims" ("ScopeId");
+CREATE UNIQUE INDEX "IX_ApiScopeClaims_ScopeId_Type" ON "ApiScopeClaims" ("ScopeId", "Type");
 
-CREATE INDEX "IX_ApiScopeProperties_ScopeId" ON "ApiScopeProperties" ("ScopeId");
+CREATE UNIQUE INDEX "IX_ApiScopeProperties_ScopeId_Key" ON "ApiScopeProperties" ("ScopeId", "Key");
 
 CREATE UNIQUE INDEX "IX_ApiScopes_Name" ON "ApiScopes" ("Name");
 
-CREATE INDEX "IX_ClientClaims_ClientId" ON "ClientClaims" ("ClientId");
+CREATE UNIQUE INDEX "IX_ClientClaims_ClientId_Type_Value" ON "ClientClaims" ("ClientId", "Type", "Value");
 
-CREATE INDEX "IX_ClientCorsOrigins_ClientId" ON "ClientCorsOrigins" ("ClientId");
+CREATE UNIQUE INDEX "IX_ClientCorsOrigins_ClientId_Origin" ON "ClientCorsOrigins" ("ClientId", "Origin");
 
-CREATE INDEX "IX_ClientGrantTypes_ClientId" ON "ClientGrantTypes" ("ClientId");
+CREATE UNIQUE INDEX "IX_ClientGrantTypes_ClientId_GrantType" ON "ClientGrantTypes" ("ClientId", "GrantType");
 
-CREATE INDEX "IX_ClientIdPRestrictions_ClientId" ON "ClientIdPRestrictions" ("ClientId");
+CREATE UNIQUE INDEX "IX_ClientIdPRestrictions_ClientId_Provider" ON "ClientIdPRestrictions" ("ClientId", "Provider");
 
-CREATE INDEX "IX_ClientPostLogoutRedirectUris_ClientId" ON "ClientPostLogoutRedirectUris" ("ClientId");
+CREATE UNIQUE INDEX "IX_ClientPostLogoutRedirectUris_ClientId_PostLogoutRedirectUri" ON "ClientPostLogoutRedirectUris" ("ClientId", "PostLogoutRedirectUri");
 
-CREATE INDEX "IX_ClientProperties_ClientId" ON "ClientProperties" ("ClientId");
+CREATE UNIQUE INDEX "IX_ClientProperties_ClientId_Key" ON "ClientProperties" ("ClientId", "Key");
 
-CREATE INDEX "IX_ClientRedirectUris_ClientId" ON "ClientRedirectUris" ("ClientId");
+CREATE UNIQUE INDEX "IX_ClientRedirectUris_ClientId_RedirectUri" ON "ClientRedirectUris" ("ClientId", "RedirectUri");
 
 CREATE UNIQUE INDEX "IX_Clients_ClientId" ON "Clients" ("ClientId");
 
-CREATE INDEX "IX_ClientScopes_ClientId" ON "ClientScopes" ("ClientId");
+CREATE UNIQUE INDEX "IX_ClientScopes_ClientId_Scope" ON "ClientScopes" ("ClientId", "Scope");
 
 CREATE INDEX "IX_ClientSecrets_ClientId" ON "ClientSecrets" ("ClientId");
 
-CREATE INDEX "IX_IdentityResourceClaims_IdentityResourceId" ON "IdentityResourceClaims" ("IdentityResourceId");
+CREATE UNIQUE INDEX "IX_IdentityProviders_Scheme" ON "IdentityProviders" ("Scheme");
 
-CREATE INDEX "IX_IdentityResourceProperties_IdentityResourceId" ON "IdentityResourceProperties" ("IdentityResourceId");
+CREATE UNIQUE INDEX "IX_IdentityResourceClaims_IdentityResourceId_Type" ON "IdentityResourceClaims" ("IdentityResourceId", "Type");
+
+CREATE UNIQUE INDEX "IX_IdentityResourceProperties_IdentityResourceId_Key" ON "IdentityResourceProperties" ("IdentityResourceId", "Key");
 
 CREATE UNIQUE INDEX "IX_IdentityResources_Name" ON "IdentityResources" ("Name");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20260521134248_Configuration', '10.0.8');
+VALUES ('20260601112203_Configuration', '10.0.8');
 
 COMMIT;
 

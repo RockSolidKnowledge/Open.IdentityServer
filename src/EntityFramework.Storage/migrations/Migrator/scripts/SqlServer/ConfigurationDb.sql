@@ -89,7 +89,7 @@ CREATE TABLE [Clients] (
     [CibaLifetime] int NULL,
     [PollingInterval] int NULL,
     [CoordinateLifetimeWithUserSession] bit NULL,
-    [InitiateLoginUri] nvarchar(max) NULL,
+    [InitiateLoginUri] nvarchar(2000) NULL,
     [DPoPClockSkew] time NOT NULL,
     [DPoPValidationMode] int NOT NULL,
     [RequireDPoP] bit NOT NULL,
@@ -302,15 +302,17 @@ CREATE UNIQUE INDEX [IX_ClientIdPRestrictions_ClientId_Provider] ON [ClientIdPRe
 
 CREATE UNIQUE INDEX [IX_ClientPostLogoutRedirectUris_ClientId_PostLogoutRedirectUri] ON [ClientPostLogoutRedirectUris] ([ClientId], [PostLogoutRedirectUri]);
 
-CREATE INDEX [IX_ClientProperties_ClientId] ON [ClientProperties] ([ClientId]);
+CREATE UNIQUE INDEX [IX_ClientProperties_ClientId_Key] ON [ClientProperties] ([ClientId], [Key]);
 
 CREATE UNIQUE INDEX [IX_ClientRedirectUris_ClientId_RedirectUri] ON [ClientRedirectUris] ([ClientId], [RedirectUri]);
 
 CREATE UNIQUE INDEX [IX_Clients_ClientId] ON [Clients] ([ClientId]);
 
-CREATE INDEX [IX_ClientScopes_ClientId] ON [ClientScopes] ([ClientId]);
+CREATE UNIQUE INDEX [IX_ClientScopes_ClientId_Scope] ON [ClientScopes] ([ClientId], [Scope]);
 
 CREATE INDEX [IX_ClientSecrets_ClientId] ON [ClientSecrets] ([ClientId]);
+
+CREATE UNIQUE INDEX [IX_IdentityProviders_Scheme] ON [IdentityProviders] ([Scheme]);
 
 CREATE UNIQUE INDEX [IX_IdentityResourceClaims_IdentityResourceId_Type] ON [IdentityResourceClaims] ([IdentityResourceId], [Type]);
 
@@ -319,7 +321,7 @@ CREATE UNIQUE INDEX [IX_IdentityResourceProperties_IdentityResourceId_Key] ON [I
 CREATE UNIQUE INDEX [IX_IdentityResources_Name] ON [IdentityResources] ([Name]);
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260521140644_Configuration', N'10.0.8');
+VALUES (N'20260601112113_Configuration', N'10.0.8');
 
 COMMIT;
 GO

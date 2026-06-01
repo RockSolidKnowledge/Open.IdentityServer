@@ -15,17 +15,17 @@ public class IdentityServerPushedAuthorizationRequests
     /// <summary>
     /// Get or set unique identifier
     /// </summary>
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     /// <summary>
     /// Get or set reference hash value 
     /// </summary>
-    public string ReferenceHashValue { get; set; } = null!;
+    public string ReferenceValueHash { get; set; } = null!;
     
     /// <summary>
     /// Get or set created datetime value
     /// </summary>
-    public DateTime Created { get; set; }
+    public DateTime ExpiresAtUtc { get; set; }
 
     /// <summary>
     /// Get or set parameters value
