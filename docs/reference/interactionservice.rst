@@ -1,6 +1,6 @@
 .. _refInteractionService:
 IdentityServer Interaction Service
-=======================================
+==================================
 
 The ``IIdentityServerInteractionService`` interface is intended to provide services to be used by the user interface to communicate with IdentityServer, mainly pertaining to user interaction.
 It is available from the dependency injection system and would normally be injected as a constructor parameter into your MVC controllers for the user interface of IdentityServer.
