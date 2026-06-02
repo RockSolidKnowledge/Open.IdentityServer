@@ -1,6 +1,6 @@
 ## About Open.IdentityServer
 
-![Open.IdentityServer](./docs/images/OpenIdentityServer.png)
+![Open.IdentityServer](./docs/images/OpenIdentityServerDark.png)
 
 Open.IdentityServer is a free, open source [OpenID Connect](http://openid.net/connect/) and [OAuth 2.0](https://tools.ietf.org/html/rfc6749) framework for .NET.
 
