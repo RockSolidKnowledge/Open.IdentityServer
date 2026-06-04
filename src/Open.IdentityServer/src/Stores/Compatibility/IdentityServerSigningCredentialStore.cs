@@ -28,6 +28,6 @@ public class IdentityServerSigningCredentialStore(
             .Select(dataProtectedIdentityServerKeyMaterialConverter.Convert)
             .OrderByDescending(x => x.Created)
             .Select(x => x.Credentials)
-            .First();
+            .FirstOrDefault();
     }
 }

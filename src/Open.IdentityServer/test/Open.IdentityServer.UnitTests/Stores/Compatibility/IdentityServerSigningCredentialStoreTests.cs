@@ -325,4 +325,17 @@ public class IdentityServerSigningCredentialStoreTests
         
         actual.Should().BeEquivalentTo(expectedSigningCredentials);
     }
+
+    [Fact]
+    public async Task GetSigningCredentialsAsync_WhenTableIsEmpty_ShouldReturnNull()
+    {
+        Mock.Get(_identityServerKeyStore)
+            .Setup(x => x.GetKeys())
+            .Returns([]);
+
+        var sut = CreateSut();
+        var actual = await sut.GetSigningCredentialsAsync();
+
+        actual.Should().BeNull();
+    }
 }

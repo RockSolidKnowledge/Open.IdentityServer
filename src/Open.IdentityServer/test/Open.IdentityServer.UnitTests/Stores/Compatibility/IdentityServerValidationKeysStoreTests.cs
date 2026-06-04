@@ -177,4 +177,17 @@ public class IdentityServerValidationKeysStoreTests
 
         actual.Should().BeEquivalentTo(expectedCredentials);
     }
+
+    [Fact]
+    public async Task GetValidationKeysAsync_WhenTableIsEmpty_ShouldReturnEmptyList()
+    {
+        Mock.Get(_identityServerKeyStore)
+            .Setup(x => x.GetKeys())
+            .Returns([]);
+
+        var sut = CreateSut();
+        var actual = await sut.GetValidationKeysAsync();
+
+        actual.Should().BeEmpty();
+    }
 }
