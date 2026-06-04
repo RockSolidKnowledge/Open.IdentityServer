@@ -1,0 +1,38 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - docs/**
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Verify dependencies
+        run: |
+          python --version
+          docker --version
+
+      - name: Build docs site
+        working-directory: docs
+        run: bash ./buildDocs.sh
+
+      - name: Upload generated docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site
+          path: docs/_build/html
+          if-no-files-found: error
