@@ -34,7 +34,7 @@ public class IdentityServerValidationKeysStore(
     /// <returns>list of validation keys info</returns>
     public async Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync()
     {
-        return GetKeysAsync()
+        return GetKeys()
             .Select(x => new SecurityKeyInfo { Key = x.Credentials.Key, SigningAlgorithm = x.Credentials.Algorithm })
             .ToList();
     }

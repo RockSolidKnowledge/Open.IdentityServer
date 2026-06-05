@@ -1,3 +1,6 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +32,7 @@ public abstract class IdentityServerSigningKeyStore(
     /// Get all signing keys from the store, filtering based on the compatibility key store configuration and use
     /// </summary>
     /// <returns></returns>
-    protected IEnumerable<SigningKey> GetKeysAsync()
+    protected IEnumerable<SigningKey> GetKeys()
     {
         return identityServerKeyStore.GetKeys()
             .Where(x => x.Use == "signing")

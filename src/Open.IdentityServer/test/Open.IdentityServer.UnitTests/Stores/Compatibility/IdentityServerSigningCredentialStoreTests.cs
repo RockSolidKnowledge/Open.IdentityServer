@@ -29,13 +29,13 @@ public class IdentityServerSigningCredentialStoreTests
     private readonly FakeTimeProvider timeProvider = new();
     private readonly CompatibilityKeyStoreOptions fakeOptions = new();
 
-    private DateTime FakeNow = new(2026, 05, 01, 12, 00, 00, DateTimeKind.Utc);
+    private readonly DateTime fakeNow = new(2026, 05, 01, 12, 00, 00, DateTimeKind.Utc);
     
     private List<IdentityServerKeyMaterial> fakeKeyMaterials = [];
 
     public IdentityServerSigningCredentialStoreTests()
     {
-        timeProvider.SetUtcNow(FakeNow);
+        timeProvider.SetUtcNow(fakeNow);
         
         Mock.Get(identityServerKeyStore)
             .Setup(x => x.GetKeys())
@@ -134,7 +134,7 @@ public class IdentityServerSigningCredentialStoreTests
         var fakeRsaKey = new RsaIdentityServerKeyData
         {
             Id = "Fake_RS256",
-            Created = FakeNow.AddDays(-130),
+            Created = fakeNow.AddDays(-130),
             Algorithm = "RS256",
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
@@ -142,7 +142,7 @@ public class IdentityServerSigningCredentialStoreTests
         var fakeEcKey = new EcIdentityServerKeyData
         {
             Id = "Fake_ES256",
-            Created = FakeNow.AddDays(-99),
+            Created = fakeNow.AddDays(-99),
             Algorithm = "ES256",
             D = FakeKeyData.EcDsaSecurityKey256.D,
             Q = FakeKeyData.EcDsaSecurityKey256.Q,
@@ -300,7 +300,7 @@ public class IdentityServerSigningCredentialStoreTests
         var fakeX509CertData = new X509IdentityServerKeyData
         {
             Id = fakeRsaSecurityKey.KeyId,
-            Created = FakeNow.AddDays(-33),
+            Created = fakeNow.AddDays(-33),
             Algorithm = "RS256",
             CertificateRawData = fakeRsaSecurityKey.ToBase64Pfx(),
         };
@@ -339,7 +339,7 @@ public class IdentityServerSigningCredentialStoreTests
         var fakeX509CertData = new X509IdentityServerKeyData
         {
             Id = fakeECDsaSecurityKey.KeyId,
-            Created = FakeNow.AddDays(-33),
+            Created = fakeNow.AddDays(-33),
             Algorithm = "ES384",
             CertificateRawData = fakeECDsaSecurityKey.ToBase64Pfx(),
         };

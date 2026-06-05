@@ -20,24 +20,24 @@ namespace IdentityServer.UnitTests.Stores.Compatibility;
 
 public class IdentityServerValidationKeysStoreTests
 {
-    private readonly IIdentityServerKeyStore _identityServerKeyStore = Mock.Of<IIdentityServerKeyStore>();
+    private readonly IIdentityServerKeyStore identityServerKeyStore = Mock.Of<IIdentityServerKeyStore>();
     private readonly IDataProtectionProvider dataProtectionProvider = Mock.Of<IDataProtectionProvider>();
     private IDataProtector dataProtector = Mock.Of<IDataProtector>();
-    private readonly DataProtectedIdentityServerKeyMaterialConverter _dataProtectedIdentityServerKeyMaterialConverter;
+    private readonly DataProtectedIdentityServerKeyMaterialConverter dataProtectedIdentityServerKeyMaterialConverter;
     private readonly FakeTimeProvider timeProvider = new();
     private readonly CompatibilityKeyStoreOptions fakeOptions = new();
 
-    private DateTime FakeNow = new DateTime(2026, 05, 01, 12, 00, 00, DateTimeKind.Utc);
+    private readonly DateTime fakeNow = new(2026, 05, 01, 12, 00, 00, DateTimeKind.Utc);
     
     private List<IdentityServerKeyMaterial> fakeKeyMaterials = [];
 
     public IdentityServerValidationKeysStoreTests()
     {
-        timeProvider.SetUtcNow(FakeNow);
+        timeProvider.SetUtcNow(fakeNow);
         
-        _dataProtectedIdentityServerKeyMaterialConverter = new DataProtectedIdentityServerKeyMaterialConverter(dataProtectionProvider);
+        dataProtectedIdentityServerKeyMaterialConverter = new DataProtectedIdentityServerKeyMaterialConverter(dataProtectionProvider);
         
-        Mock.Get(_identityServerKeyStore)
+        Mock.Get(identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
 
@@ -46,7 +46,7 @@ public class IdentityServerValidationKeysStoreTests
             .Returns(dataProtector);
     }
     
-    private IdentityServerValidationKeysStore CreateSut() => new(_identityServerKeyStore, _dataProtectedIdentityServerKeyMaterialConverter, timeProvider, fakeOptions);
+    private IdentityServerValidationKeysStore CreateSut() => new(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, fakeOptions);
 
     [Fact]
     public async Task GetValidationKeysAsync_ShouldReturnCollectionOfSecurityKeyInfo()
@@ -54,7 +54,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeRsaKey0 = new RsaIdentityServerKeyData
         {
             Id = "Fake_RS256_0",
-            Created = FakeNow.AddDays(-20),
+            Created = fakeNow.AddDays(-20),
             Algorithm = "RS256",
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
@@ -62,7 +62,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeRsaKey1 = new RsaIdentityServerKeyData
         {
             Id = "Fake_RS256_1",
-            Created = FakeNow.AddDays(-10),
+            Created = fakeNow.AddDays(-10),
             Algorithm = "RS256",
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
@@ -70,7 +70,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeEcKey0 = new EcIdentityServerKeyData
         {
             Id = "Fake_ES384_0",
-            Created = FakeNow.AddDays(-30),
+            Created = fakeNow.AddDays(-30),
             Algorithm = "ES384",
             D = FakeKeyData.EcDsaSecurityKey384.D,
             Q = FakeKeyData.EcDsaSecurityKey384.Q,
@@ -79,7 +79,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeEcKey1 = new EcIdentityServerKeyData
         {
             Id = "Fake_ES521_0",
-            Created = FakeNow.AddDays(-45),
+            Created = fakeNow.AddDays(-45),
             Algorithm = "ES521",
             D = FakeKeyData.EcDsaSecurityKey521.D,
             Q = FakeKeyData.EcDsaSecurityKey521.Q,
@@ -92,7 +92,7 @@ public class IdentityServerValidationKeysStoreTests
             new IdentityServerKeyMaterial { Id = fakeEcKey1.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey1.Algorithm, Data = fakeEcKey1.ToExpectedJson() },
         ];
 
-        Mock.Get(_identityServerKeyStore)
+        Mock.Get(identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
 
@@ -126,7 +126,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeRsaKey0 = new RsaIdentityServerKeyData
         {
             Id = "Fake_RS256_0",
-            Created = FakeNow.AddDays(-10),
+            Created = fakeNow.AddDays(-10),
             Algorithm = "RS256",
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
@@ -134,7 +134,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeRsaKey1 = new RsaIdentityServerKeyData
         {
             Id = "Fake_RS256_1",
-            Created = FakeNow.AddDays(-30),
+            Created = fakeNow.AddDays(-30),
             Algorithm = "RS256",
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
@@ -142,7 +142,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeEcKey0 = new EcIdentityServerKeyData
         {
             Id = "Fake_ES256_0",
-            Created = FakeNow.AddHours(-12),
+            Created = fakeNow.AddHours(-12),
             Algorithm = "ES256",
             D = FakeKeyData.EcDsaSecurityKey256.D,
             Q = FakeKeyData.EcDsaSecurityKey256.Q,
@@ -151,7 +151,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeEcKey1 = new EcIdentityServerKeyData
         {
             Id = "Fake_ES521_0",
-            Created = FakeNow.AddDays(-20),
+            Created = fakeNow.AddDays(-20),
             Algorithm = "ES521",
             D = FakeKeyData.EcDsaSecurityKey521.D,
             Q = FakeKeyData.EcDsaSecurityKey521.Q,
@@ -164,7 +164,7 @@ public class IdentityServerValidationKeysStoreTests
             new IdentityServerKeyMaterial { Id = fakeEcKey1.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey1.Algorithm, Data = fakeEcKey1.ToExpectedJson() },
         ];
 
-        Mock.Get(_identityServerKeyStore)
+        Mock.Get(identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
 
@@ -191,7 +191,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeRsaKey0 = new RsaIdentityServerKeyData
         {
             Id = "Fake_RS256_0",
-            Created = FakeNow.AddDays(-30),
+            Created = fakeNow.AddDays(-30),
             Algorithm = "RS256",
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
@@ -199,7 +199,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeRsaKey1 = new RsaIdentityServerKeyData
         {
             Id = "Fake_RS256_1",
-            Created = FakeNow.AddHours(-12),
+            Created = fakeNow.AddHours(-12),
             Algorithm = "RS256",
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
@@ -207,7 +207,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeEcKey0 = new EcIdentityServerKeyData
         {
             Id = "Fake_ES256_0",
-            Created = FakeNow.AddDays(-100),
+            Created = fakeNow.AddDays(-100),
             Algorithm = "ES256",
             D = FakeKeyData.EcDsaSecurityKey256.D,
             Q = FakeKeyData.EcDsaSecurityKey256.Q,
@@ -216,7 +216,7 @@ public class IdentityServerValidationKeysStoreTests
         var fakeEcKey1 = new EcIdentityServerKeyData
         {
             Id = "Fake_ES521_0",
-            Created = FakeNow.AddDays(-10),
+            Created = fakeNow.AddDays(-10),
             Algorithm = "ES521",
             D = FakeKeyData.EcDsaSecurityKey521.D,
             Q = FakeKeyData.EcDsaSecurityKey521.Q,
@@ -229,7 +229,7 @@ public class IdentityServerValidationKeysStoreTests
             new IdentityServerKeyMaterial { Id = fakeEcKey1.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey1.Algorithm, Data = fakeEcKey1.ToExpectedJson() },
         ];
 
-        Mock.Get(_identityServerKeyStore)
+        Mock.Get(identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
 
@@ -253,7 +253,7 @@ public class IdentityServerValidationKeysStoreTests
     [Fact]
     public async Task GetValidationKeysAsync_WhenTableIsEmpty_ShouldReturnEmptyList()
     {
-        Mock.Get(_identityServerKeyStore)
+        Mock.Get(identityServerKeyStore)
             .Setup(x => x.GetKeys())
             .Returns([]);
 

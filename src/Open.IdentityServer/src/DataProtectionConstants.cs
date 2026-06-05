@@ -6,8 +6,8 @@ namespace Open.IdentityServer;
 /// <summary>
 /// Constants for DataProtection in Open.IdentityServer.
 /// </summary>
-public abstract class DataProtectionConstants
+public static class DataProtectionConstants
 {
-    /// <summary>Purposed used when creating key material data protector</summary>
+    /// <summary>Purpose used when creating key material data protector.</summary>
     public const string KeyProtectorPurpose = "DataProtectionKeyProtector";
 }

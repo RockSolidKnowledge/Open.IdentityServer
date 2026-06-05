@@ -7,7 +7,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery;
 
 public class FakeIdentityServerKeyStore: IIdentityServerKeyStore
 {
-    public static DateTime FakeNow = new DateTime(2026, 02, 01, 12, 00, 00, DateTimeKind.Utc);
+    public static readonly DateTime FakeNow = new(2026, 02, 01, 12, 00, 00, DateTimeKind.Utc);
     
     public IEnumerable<IdentityServerKeyMaterial> GetKeys()
     {
@@ -18,7 +18,7 @@ public class FakeIdentityServerKeyStore: IIdentityServerKeyStore
             new IdentityServerKeyMaterial { Id = "FakeRSA_ES256", Version = 1, Use = "signing", DataProtected = false, Algorithm = "ES256", Data = FakeES256KeyData },
             new IdentityServerKeyMaterial { Id = "FakeRSA_ES384", Version = 1, Use = "signing", DataProtected = false, Algorithm = "ES384", Data = FakeES384KeyData },
             new IdentityServerKeyMaterial { Id = "FakeRSA_ES521", Version = 1, Use = "signing", DataProtected = false, Algorithm = "ES521", Data = FakeES521KeyData },
-            new IdentityServerKeyMaterial { Id = "FakeRSA_PS512_Expired", Version = 1, Use = "signing", DataProtected = false, Algorithm = "PS256", Data = FakePS512KeyData },
+            new IdentityServerKeyMaterial { Id = "FakeRSA_PS512_Expired", Version = 1, Use = "signing", DataProtected = false, Algorithm = "PS512", Data = FakePS512KeyData },
         ];
     }
     

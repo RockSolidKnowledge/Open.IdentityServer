@@ -33,7 +33,7 @@ public class IdentityServerSigningCredentialStore(
     /// <returns>a key to be used for signing</returns>
     public async Task<SigningCredentials> GetSigningCredentialsAsync()
     {
-        return GetKeysAsync()
+        return GetKeys()
             .Select(x => x.Credentials)
             .FirstOrDefault();
     }
