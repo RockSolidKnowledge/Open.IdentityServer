@@ -34,10 +34,12 @@ public abstract class IdentityServerSigningKeyStore(
     /// <returns></returns>
     protected IEnumerable<SigningKey> GetKeys()
     {
-        return identityServerKeyStore.GetKeys()
+        var results = identityServerKeyStore.GetKeys()
             .Where(x => x.Use == "signing")
             .Select(dataProtectedIdentityServerKeyMaterialConverter.Convert)
-            .Where(x => x.Created.Add(options.MaxLifetime) > timeProvider.GetUtcNow())
+            .Where(x => x.Created.Add(options.MaxLifetime) > timeProvider.GetUtcNow().UtcDateTime)
             .OrderByDescending(x => x.Created);
+
+        return results;
     }
 }

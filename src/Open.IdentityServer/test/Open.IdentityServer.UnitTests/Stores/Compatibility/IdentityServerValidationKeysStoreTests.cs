@@ -14,6 +14,7 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
+using Open.IdentityServer.UnitTests;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Stores.Compatibility;
@@ -47,6 +48,83 @@ public class IdentityServerValidationKeysStoreTests
     }
     
     private IdentityServerValidationKeysStore CreateSut() => new(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, fakeOptions);
+    
+    [Fact]
+    public async Task GetValidationKeysAsync_WhenUnspecifiedDateTime_ShouldTreatAsUtcTime()
+    {
+        //Ensuring timezone info is the same across environments
+        using var mockedTimezone = new LocalTimeZoneInfoMocker(TimeZoneInfo.FindSystemTimeZoneById("China Standard Time"));
+
+        var fakeRsaKey0Created = fakeNow.AddDays(-90).AddHours(1);
+        var fakeRsaKey0 = new RsaIdentityServerKeyData
+        {
+            Id = "Fake_RS256_0",
+            Created = new DateTime(fakeRsaKey0Created.Year, fakeRsaKey0Created.Month, fakeRsaKey0Created.Day, fakeRsaKey0Created.Hour, fakeRsaKey0Created.Minute, fakeRsaKey0Created.Second, DateTimeKind.Unspecified), //Subtracts in total 89 days, 23 hours
+            Algorithm = "RS256",
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        var fakeRsaKey1 = new RsaIdentityServerKeyData
+        {
+            Id = "Fake_RS256_1",
+            Created = fakeNow.AddDays(-10),
+            Algorithm = "RS256",
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        var fakeEcKey0Created = fakeNow.AddDays(-90).AddHours(2);
+        var fakeEcKey0 = new EcIdentityServerKeyData
+        {
+            Id = "Fake_ES384_0",
+            Created = new DateTime(fakeEcKey0Created.Year, fakeEcKey0Created.Month, fakeEcKey0Created.Day, fakeEcKey0Created.Hour, fakeEcKey0Created.Minute, fakeEcKey0Created.Second, DateTimeKind.Unspecified), //Subtracts in total 89 days, 22 hours
+            Algorithm = "ES384",
+            D = FakeKeyData.EcDsaSecurityKey384.D,
+            Q = FakeKeyData.EcDsaSecurityKey384.Q,
+        };
+        
+        var fakeEcKey1 = new EcIdentityServerKeyData
+        {
+            Id = "Fake_ES521_0",
+            Created = fakeNow.AddDays(-45),
+            Algorithm = "ES521",
+            D = FakeKeyData.EcDsaSecurityKey521.D,
+            Q = FakeKeyData.EcDsaSecurityKey521.Q,
+        };
+        
+        fakeKeyMaterials = [
+            new IdentityServerKeyMaterial { Id = fakeRsaKey0.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeRsaKey0.Algorithm, Data = fakeRsaKey0.ToExpectedJson() },
+            new IdentityServerKeyMaterial { Id = fakeRsaKey1.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeRsaKey1.Algorithm, Data = fakeRsaKey1.ToExpectedJson() },
+            new IdentityServerKeyMaterial { Id = fakeEcKey0.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey0.Algorithm, Data = fakeEcKey0.ToExpectedJson() },
+            new IdentityServerKeyMaterial { Id = fakeEcKey1.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeEcKey1.Algorithm, Data = fakeEcKey1.ToExpectedJson() },
+        ];
+
+        Mock.Get(identityServerKeyStore)
+            .Setup(x => x.GetKeys())
+            .Returns(fakeKeyMaterials);
+
+        var sut = CreateSut();
+        var actual = await sut.GetValidationKeysAsync();
+        
+        
+        ECDsa expectedEcDsa0 = ECDsa.Create(new ECParameters
+        {
+            Curve = CryptoHelper.GetCurveFromCrvValue("P-384"), D = fakeEcKey0.D, Q = fakeEcKey0.Q,
+        });
+        
+        ECDsa expectedEcDsa1 = ECDsa.Create(new ECParameters
+        {
+            Curve = CryptoHelper.GetCurveFromCrvValue("P-521"), D = fakeEcKey1.D, Q = fakeEcKey1.Q,
+        });
+
+        IEnumerable<SecurityKeyInfo> expectedCredentials = [
+            new() { Key = new RsaSecurityKey(fakeRsaKey0.Parameters) { KeyId = fakeRsaKey0.Id }, SigningAlgorithm = fakeRsaKey0.Algorithm },
+            new() { Key = new RsaSecurityKey(fakeRsaKey1.Parameters) { KeyId = fakeRsaKey1.Id }, SigningAlgorithm = fakeRsaKey1.Algorithm },
+            new() { Key = new ECDsaSecurityKey(expectedEcDsa0) { KeyId = fakeEcKey0.Id }, SigningAlgorithm = fakeEcKey0.Algorithm },
+            new() { Key = new ECDsaSecurityKey(expectedEcDsa1) { KeyId = fakeEcKey1.Id }, SigningAlgorithm = fakeEcKey1.Algorithm },
+        ];
+
+        actual.Should().BeEquivalentTo(expectedCredentials);
+    }
 
     [Fact]
     public async Task GetValidationKeysAsync_ShouldReturnCollectionOfSecurityKeyInfo()

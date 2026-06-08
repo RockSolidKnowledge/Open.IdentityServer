@@ -16,6 +16,7 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
+using Open.IdentityServer.UnitTests;
 using Xunit;
 
 namespace IdentityServer.UnitTests.Stores.Compatibility;
@@ -49,6 +50,39 @@ public class IdentityServerSigningCredentialStoreTests
     }
     
     private IdentityServerSigningCredentialStore CreateSut() => new(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, fakeOptions);
+
+    [Fact]
+    public async Task GetSigningCredentialsAsync_WhenUnspecifiedDateTime_ShouldTreatAsUtcTime()
+    {
+        //Ensuring timezone info is the same across environments
+        using var mockedTimezone = new LocalTimeZoneInfoMocker(TimeZoneInfo.FindSystemTimeZoneById("China Standard Time"));
+
+        var testCreated = fakeNow.AddDays(-90).AddHours(1);
+        
+        var fakeRsaKey = new RsaIdentityServerKeyData
+        {
+            Id = "Fake_RS256",
+            Created = new DateTime(testCreated.Year, testCreated.Month, testCreated.Day, testCreated.Hour, testCreated.Minute, testCreated.Second, DateTimeKind.Unspecified), //Subtracts in total 89 days, 23 hours
+            Algorithm = "RS256",
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        fakeKeyMaterials = [
+            new IdentityServerKeyMaterial { Id = fakeRsaKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeRsaKey.Algorithm, Data = fakeRsaKey.ToExpectedJson() },
+        ];
+
+        Mock.Get(identityServerKeyStore)
+            .Setup(x => x.GetKeys())
+            .Returns(fakeKeyMaterials);
+
+        var sut = CreateSut();
+        var actual = await sut.GetSigningCredentialsAsync();
+
+        SigningCredentials expectedSigningCredentials = new SigningCredentials(new RsaSecurityKey(fakeRsaKey.Parameters) { KeyId = fakeRsaKey.Id }, fakeRsaKey.Algorithm);
+
+        actual.Should().BeEquivalentTo(expectedSigningCredentials);
+        
+    }
 
     [Fact]
     public async Task GetSigningCredentialsAsync_WhenDataUnprotected_AndLatestRsaKey_ShouldReturnSigningCredentialsRepresenting()
