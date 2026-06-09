@@ -11,7 +11,7 @@ using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Endpoints.EndSession;
+namespace Open.IdentityServer.UnitTests.Endpoints.EndSession;
 
 public class EndSessionCallbackResultTests
 {

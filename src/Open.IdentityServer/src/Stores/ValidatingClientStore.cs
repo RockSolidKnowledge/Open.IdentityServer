@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -20,6 +21,7 @@ public class ValidatingClientStore<T> : IClientStore
     private readonly IClientStore _inner;
     private readonly IClientConfigurationValidator _validator;
     private readonly IEventService _events;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger<ValidatingClientStore<T>> _logger;
     private readonly string _validatorType;
 
@@ -29,13 +31,16 @@ public class ValidatingClientStore<T> : IClientStore
     /// <param name="inner">The inner.</param>
     /// <param name="validator">The validator.</param>
     /// <param name="events">The events.</param>
+    /// <param name="telemetry">The telemetry</param>
     /// <param name="logger">The logger.</param>
-    public ValidatingClientStore(T inner, IClientConfigurationValidator validator, IEventService events, ILogger<ValidatingClientStore<T>> logger)
+    public ValidatingClientStore(T inner, IClientConfigurationValidator validator, IEventService events,
+        ITelemetryService telemetry, ILogger<ValidatingClientStore<T>> logger)
     {
         _inner = inner;
         _validator = validator;
         _events = events;
         _logger = logger;
+        _telemetry = telemetry;
 
         _validatorType = validator.GetType().FullName;
     }
@@ -60,14 +65,18 @@ public class ValidatingClientStore<T> : IClientStore
 
             if (context.IsValid)
             {
+                _telemetry.CountClientConfigValidation(
+                    new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId));
                 _logger.LogDebug("client configuration validation for client {clientId} succeeded.", client.ClientId);
                 return client;
             }
 
+            _telemetry.CountClientConfigValidation(
+                new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
+                new TelemetryTag(TelemetryConstants.TagConstants.Error, context.ErrorMessage)
+            );
             _logger.LogError("Invalid client configuration for client {clientId}: {errorMessage}", client.ClientId, context.ErrorMessage);
             await _events.RaiseAsync(new InvalidClientConfigurationEvent(client, context.ErrorMessage));
-                    
-            return null;
         }
 
         return null;

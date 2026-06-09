@@ -5,7 +5,7 @@ using AwesomeAssertions;
 using Open.IdentityServer.Extensions;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Extensions;
+namespace Open.IdentityServer.UnitTests.Extensions;
 
 public class StringExtensionsTests
 {

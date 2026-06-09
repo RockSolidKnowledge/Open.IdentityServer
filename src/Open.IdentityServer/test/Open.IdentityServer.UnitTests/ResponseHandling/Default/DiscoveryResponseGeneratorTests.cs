@@ -17,7 +17,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.ResponseHandling.Default;
+namespace Open.IdentityServer.UnitTests.ResponseHandling.Default;
 
 public class DiscoveryResponseGeneratorTests
 {

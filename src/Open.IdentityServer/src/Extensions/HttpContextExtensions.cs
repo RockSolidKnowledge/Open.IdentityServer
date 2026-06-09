@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -235,5 +236,16 @@ public static class HttpContextExtensions
 
         // no sessions, so nothing to cleanup
         return null;
+    }
+
+    internal static string GetOriginalRequestPath(this HttpContext context)
+    {
+        PathString path = context.Request.Path;
+        if (context.Items.TryGetValue(Constants.EnvironmentKeys.OriginalRequestPath, out var originalPath))
+        {
+            path = originalPath as PathString? ?? path;
+        }
+
+        return path.ToString();
     }
 }

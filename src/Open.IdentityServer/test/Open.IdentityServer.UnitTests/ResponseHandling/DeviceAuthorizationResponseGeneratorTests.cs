@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.ResponseHandling;
@@ -18,7 +18,7 @@ using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace IdentityServer.UnitTests.ResponseHandling;
+namespace Open.IdentityServer.UnitTests.ResponseHandling;
 
 public class DeviceAuthorizationResponseGeneratorTests
 {

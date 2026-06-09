@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 
-namespace IdentityServer.UnitTests.Validation.Setup;
+namespace Open.IdentityServer.UnitTests.Validation.Setup;
 
 public class TestDeviceFlowThrottlingService : IDeviceFlowThrottlingService
 {

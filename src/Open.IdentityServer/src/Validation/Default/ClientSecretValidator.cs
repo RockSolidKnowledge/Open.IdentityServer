@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -20,6 +21,7 @@ public class ClientSecretValidator : IClientSecretValidator
     private readonly ILogger _logger;
     private readonly IClientStore _clients;
     private readonly IEventService _events;
+    private readonly ITelemetryService _telemetry;
     private readonly ISecretsListValidator _validator;
     private readonly ISecretsListParser _parser;
 
@@ -30,14 +32,22 @@ public class ClientSecretValidator : IClientSecretValidator
     /// <param name="parser">The parser.</param>
     /// <param name="validator">The validator.</param>
     /// <param name="events">The events.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
-    public ClientSecretValidator(IClientStore clients, ISecretsListParser parser, ISecretsListValidator validator, IEventService events, ILogger<ClientSecretValidator> logger)
+    public ClientSecretValidator(
+        IClientStore clients, 
+        ISecretsListParser parser, 
+        ISecretsListValidator validator, 
+        IEventService events,
+        ITelemetryService telemetry,
+        ILogger<ClientSecretValidator> logger)
     {
         _clients = clients;
         _parser = parser;
         _validator = validator;
         _events = events;
         _logger = logger;
+        _telemetry = telemetry;
     }
 
     /// <summary>
@@ -59,7 +69,7 @@ public class ClientSecretValidator : IClientSecretValidator
         var parsedSecret = await _parser.ParseAsync(context);
         if (parsedSecret == null)
         {
-            await RaiseFailureEventAsync("unknown", "No client id found");
+            await OnFailureAsync("unknown", "No client id found");
 
             _logger.LogError("No client identifier found");
             return fail;
@@ -69,7 +79,7 @@ public class ClientSecretValidator : IClientSecretValidator
         var client = await _clients.FindEnabledClientByIdAsync(parsedSecret.Id);
         if (client == null)
         {
-            await RaiseFailureEventAsync(parsedSecret.Id, "Unknown client");
+            await OnFailureAsync(parsedSecret.Id, "Unknown client");
 
             _logger.LogError("No client with id '{clientId}' found. aborting", parsedSecret.Id);
             return fail;
@@ -85,7 +95,7 @@ public class ClientSecretValidator : IClientSecretValidator
             secretValidationResult = await _validator.ValidateAsync(client.ClientSecrets, parsedSecret);
             if (secretValidationResult.Success == false)
             {
-                await RaiseFailureEventAsync(client.ClientId, "Invalid client secret");
+                await OnFailureAsync(client.ClientId, "Invalid client secret");
                 _logger.LogError("Client secret validation failed for client: {clientId}.", client.ClientId);
 
                 return fail;
@@ -102,17 +112,27 @@ public class ClientSecretValidator : IClientSecretValidator
             Confirmation = secretValidationResult?.Confirmation
         };
 
-        await RaiseSuccessEventAsync(client.ClientId, parsedSecret.Type);
+        await OnSuccessAsync(client.ClientId, parsedSecret.Type);
         return success;
     }
 
-    private Task RaiseSuccessEventAsync(string clientId, string authMethod)
+    private Task OnSuccessAsync(string clientId, string authMethod)
     {
+        _telemetry.CountClientSecretValidation(
+            new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
+            new TelemetryTag(TelemetryConstants.TagConstants.AuthMethod, authMethod)
+        );
+        
         return _events.RaiseAsync(new ClientAuthenticationSuccessEvent(clientId, authMethod));
     }
 
-    private Task RaiseFailureEventAsync(string clientId, string message)
+    private Task OnFailureAsync(string clientId, string message)
     {
+        _telemetry.CountClientSecretValidation(
+            new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
+            new TelemetryTag(TelemetryConstants.TagConstants.Error, message)
+        );
+        
         return _events.RaiseAsync(new ClientAuthenticationFailureEvent(clientId, message));
     }
 }

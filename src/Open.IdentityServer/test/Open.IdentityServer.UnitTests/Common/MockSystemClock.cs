@@ -3,7 +3,7 @@
 
 using System;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 class MockSystemClock : TimeProvider
 {

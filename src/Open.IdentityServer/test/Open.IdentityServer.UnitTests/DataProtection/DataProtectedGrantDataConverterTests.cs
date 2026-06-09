@@ -6,7 +6,7 @@ using AwesomeAssertions;
 using Open.IdentityServer.DataProtection;
 using Xunit;
 
-namespace IdentityServer.UnitTests.DataProtection;
+namespace Open.IdentityServer.UnitTests.DataProtection;
 
 public class DataProtectedGrantDataConverterTests
 {

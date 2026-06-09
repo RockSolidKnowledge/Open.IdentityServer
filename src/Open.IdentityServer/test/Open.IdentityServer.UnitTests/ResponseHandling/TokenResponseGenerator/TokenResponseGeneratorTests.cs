@@ -6,7 +6,7 @@
 using System;
 using System.Linq;
 using System.Security.Claims;
-using IdentityServer.UnitTests.Validation.Setup;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
@@ -17,7 +17,7 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 
-namespace IdentityServer.UnitTests.ResponseHandling.TokenResponseGenerator;
+namespace Open.IdentityServer.UnitTests.ResponseHandling.TokenResponseGenerator;
 
 public abstract class TokenResponseGeneratorTests
 {

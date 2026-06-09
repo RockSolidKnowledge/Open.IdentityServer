@@ -5,12 +5,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.InMemory;
+namespace Open.IdentityServer.UnitTests.Services.InMemory;
 
 public class InMemoryCorsPolicyServiceTests
 {

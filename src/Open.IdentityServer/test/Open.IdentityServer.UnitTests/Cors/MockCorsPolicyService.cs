@@ -5,7 +5,7 @@
 using System.Threading.Tasks;
 using Open.IdentityServer.Services;
 
-namespace IdentityServer.UnitTests.Cors;
+namespace Open.IdentityServer.UnitTests.Cors;
 
 public class MockCorsPolicyService : ICorsPolicyService
 {

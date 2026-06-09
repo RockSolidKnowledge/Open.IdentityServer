@@ -10,7 +10,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Extensions;
+namespace Open.IdentityServer.UnitTests.Extensions;
 
 public class IResourceStoreExtensionsTests
 {

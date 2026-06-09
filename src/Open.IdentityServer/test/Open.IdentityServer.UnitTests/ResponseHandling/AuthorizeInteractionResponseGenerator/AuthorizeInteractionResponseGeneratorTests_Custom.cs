@@ -5,7 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
@@ -15,7 +15,7 @@ using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponseGenerator;
+namespace Open.IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponseGenerator;
 
 public class CustomAuthorizeInteractionResponseGenerator : Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator
 {

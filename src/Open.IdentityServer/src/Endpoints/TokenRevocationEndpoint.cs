@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -27,6 +28,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
     private readonly ITokenRevocationRequestValidator _requestValidator;
     private readonly ITokenRevocationResponseGenerator _responseGenerator;
     private readonly IEventService _events;
+    private readonly ITelemetryService _telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TokenRevocationEndpoint" /> class.
@@ -36,11 +38,13 @@ internal class TokenRevocationEndpoint : IEndpointHandler
     /// <param name="requestValidator">The request validator.</param>
     /// <param name="responseGenerator">The response generator.</param>
     /// <param name="events">The events.</param>
+    /// <param name="telemetry">The telemetry service</param>
     public TokenRevocationEndpoint(ILogger<TokenRevocationEndpoint> logger,
         IClientSecretValidator clientValidator,
         ITokenRevocationRequestValidator requestValidator,
         ITokenRevocationResponseGenerator responseGenerator,
-        IEventService events)
+        IEventService events, 
+        ITelemetryService telemetry)
     {
         _logger = logger;
         _clientValidator = clientValidator;
@@ -48,6 +52,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
         _responseGenerator = responseGenerator;
 
         _events = events;
+        _telemetry = telemetry;
     }
 
     /// <summary>
@@ -85,6 +90,10 @@ internal class TokenRevocationEndpoint : IEndpointHandler
 
         if (clientValidationResult.IsError)
         {
+            _telemetry.CountTokenRevocation(
+                new TelemetryTag(TelemetryConstants.TagConstants.Client, clientValidationResult.Client?.ClientId ?? "unknown client"),
+                new TelemetryTag(TelemetryConstants.TagConstants.Error, OidcConstants.TokenErrors.InvalidClient)
+            );
             return new TokenRevocationErrorResult(OidcConstants.TokenErrors.InvalidClient);
         }
 
@@ -98,6 +107,10 @@ internal class TokenRevocationEndpoint : IEndpointHandler
 
         if (requestValidationResult.IsError)
         {
+            _telemetry.CountTokenRevocation(
+                new TelemetryTag(TelemetryConstants.TagConstants.Client, requestValidationResult.Client?.ClientId),
+                new TelemetryTag(TelemetryConstants.TagConstants.Error, requestValidationResult.Error)
+            );
             return new TokenRevocationErrorResult(requestValidationResult.Error);
         }
 
@@ -107,6 +120,9 @@ internal class TokenRevocationEndpoint : IEndpointHandler
         if (response.Success)
         {
             _logger.LogInformation("Token revocation complete");
+            _telemetry.CountTokenRevocation(
+                new TelemetryTag(TelemetryConstants.TagConstants.Client, requestValidationResult.Client.ClientId)
+            );
             await _events.RaiseAsync(new TokenRevokedSuccessEvent(requestValidationResult, requestValidationResult.Client));
         }
         else

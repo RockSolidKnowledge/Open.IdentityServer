@@ -8,7 +8,7 @@ using AwesomeAssertions;
 using Open.IdentityServer.Models;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation;
+namespace Open.IdentityServer.UnitTests.Validation;
 
 public class GrantTypesValidation
 {

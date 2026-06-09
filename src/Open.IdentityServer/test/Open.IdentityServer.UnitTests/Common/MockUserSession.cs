@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Services;
 using Microsoft.AspNetCore.Authentication;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 public class MockUserSession : IUserSession
 {

@@ -8,7 +8,7 @@ using Open.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Extensions;
+namespace Open.IdentityServer.UnitTests.Extensions;
 
 [SuppressMessage(
     "Usage", 

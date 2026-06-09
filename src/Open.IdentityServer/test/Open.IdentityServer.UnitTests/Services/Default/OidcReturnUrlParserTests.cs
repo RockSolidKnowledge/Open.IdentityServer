@@ -19,7 +19,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.Default;
+namespace Open.IdentityServer.UnitTests.Services.Default;
 
 public class OidcReturnUrlParserTests
 {

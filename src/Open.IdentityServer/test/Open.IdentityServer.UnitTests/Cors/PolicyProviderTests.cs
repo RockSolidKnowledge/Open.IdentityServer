@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Configuration.DependencyInjection;
 using Open.IdentityServer.Hosting;
@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Cors;
+namespace Open.IdentityServer.UnitTests.Cors;
 
 [SuppressMessage(
     "Usage", 

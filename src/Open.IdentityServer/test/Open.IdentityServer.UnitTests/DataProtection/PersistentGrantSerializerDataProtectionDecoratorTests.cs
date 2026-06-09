@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Moq;
 using Xunit;
 
-namespace IdentityServer.UnitTests.DataProtection;
+namespace Open.IdentityServer.UnitTests.DataProtection;
 
 public class FakeData
 {

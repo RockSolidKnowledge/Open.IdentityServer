@@ -11,7 +11,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeResponseGenerator;
+namespace Open.IdentityServer.UnitTests.ResponseHandling.AuthorizeResponseGenerator;
 
 public class AuthorizeResponseGeneratorTests_Code : AuthorizeResponseGeneratorTests
 {

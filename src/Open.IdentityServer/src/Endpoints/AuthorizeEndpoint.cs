@@ -25,8 +25,9 @@ internal class AuthorizeEndpoint : AuthorizeEndpointBase
         IAuthorizeRequestValidator validator,
         IAuthorizeInteractionResponseGenerator interactionGenerator,
         IAuthorizeResponseGenerator authorizeResponseGenerator,
-        IUserSession userSession)
-        : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession)
+        IUserSession userSession,
+        ITelemetryService telemetry)
+        : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, telemetry)
     {
     }
 

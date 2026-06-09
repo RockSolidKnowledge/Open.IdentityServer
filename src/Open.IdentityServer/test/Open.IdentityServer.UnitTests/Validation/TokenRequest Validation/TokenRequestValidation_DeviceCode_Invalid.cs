@@ -6,15 +6,15 @@ using System;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
-using IdentityServer.UnitTests.Validation.Setup;
+using Open.IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation;
+namespace Open.IdentityServer.UnitTests.Validation.TokenRequest_Validation;
 
 public class TokenRequestValidation_DeviceCode_Invalid
 {

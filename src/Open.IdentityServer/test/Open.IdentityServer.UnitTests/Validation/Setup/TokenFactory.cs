@@ -6,11 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using IdentityServer.UnitTests.Common;
-using Open.IdentityServer;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Models;
 
-namespace IdentityServer.UnitTests.Validation.Setup;
+namespace Open.IdentityServer.UnitTests.Validation.Setup;
 
 internal static class TokenFactory
 {

@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -20,6 +21,7 @@ public class ApiSecretValidator : IApiSecretValidator
     private readonly ILogger _logger;
     private readonly IResourceStore _resources;
     private readonly IEventService _events;
+    private readonly ITelemetryService _telemetry;
     private readonly ISecretsListParser _parser;
     private readonly ISecretsListValidator _validator;
 
@@ -30,13 +32,21 @@ public class ApiSecretValidator : IApiSecretValidator
     /// <param name="parsers">The parsers.</param>
     /// <param name="validator">The validator.</param>
     /// <param name="events">The events.</param>
+    /// <param name="telemetry">The telemetry service</param>
     /// <param name="logger">The logger.</param>
-    public ApiSecretValidator(IResourceStore resources, ISecretsListParser parsers, ISecretsListValidator validator, IEventService events, ILogger<ApiSecretValidator> logger)
+    public ApiSecretValidator(
+        IResourceStore resources, 
+        ISecretsListParser parsers, 
+        ISecretsListValidator validator, 
+        IEventService events, 
+        ITelemetryService telemetry,
+        ILogger<ApiSecretValidator> logger)
     {
         _resources = resources;
         _parser = parsers;
         _validator = validator;
         _events = events;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
@@ -59,7 +69,7 @@ public class ApiSecretValidator : IApiSecretValidator
         var parsedSecret = await _parser.ParseAsync(context);
         if (parsedSecret == null)
         {
-            await RaiseFailureEventAsync("unknown", "No API id or secret found");
+            await OnFailureAsync("unknown", "No API id or secret found");
 
             _logger.LogError("No API secret found");
             return fail;
@@ -69,7 +79,7 @@ public class ApiSecretValidator : IApiSecretValidator
         var apis = await _resources.FindApiResourcesByNameAsync(new[] { parsedSecret.Id });
         if (apis == null || !apis.Any())
         {
-            await RaiseFailureEventAsync(parsedSecret.Id, "Unknown API resource");
+            await OnFailureAsync(parsedSecret.Id, "Unknown API resource");
 
             _logger.LogError("No API resource with that name found. aborting");
             return fail;
@@ -77,7 +87,7 @@ public class ApiSecretValidator : IApiSecretValidator
 
         if (apis.Count() > 1)
         {
-            await RaiseFailureEventAsync(parsedSecret.Id, "Invalid API resource");
+            await OnFailureAsync(parsedSecret.Id, "Invalid API resource");
 
             _logger.LogError("More than one API resource with that name found. aborting");
             return fail;
@@ -87,7 +97,7 @@ public class ApiSecretValidator : IApiSecretValidator
 
         if (api.Enabled == false)
         {
-            await RaiseFailureEventAsync(parsedSecret.Id, "API resource not enabled");
+            await OnFailureAsync(parsedSecret.Id, "API resource not enabled");
 
             _logger.LogError("API resource not enabled. aborting.");
             return fail;
@@ -104,23 +114,32 @@ public class ApiSecretValidator : IApiSecretValidator
                 Resource = api
             };
 
-            await RaiseSuccessEventAsync(api.Name, parsedSecret.Type);
+            await OnSuccessEventAsync(api.Name, parsedSecret.Type);
             return success;
         }
 
-        await RaiseFailureEventAsync(api.Name, "Invalid API secret");
+        await OnFailureAsync(api.Name, "Invalid API secret");
         _logger.LogError("API validation failed.");
 
         return fail;
     }
 
-    private Task RaiseSuccessEventAsync(string clientId, string authMethod)
+    private Task OnSuccessEventAsync(string clientId, string authMethod)
     {
+        _telemetry.CountApiSecretValidation(
+            new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
+            new TelemetryTag(TelemetryConstants.TagConstants.AuthMethod, authMethod)
+        );
+        
         return _events.RaiseAsync(new ApiAuthenticationSuccessEvent(clientId, authMethod));
     }
 
-    private Task RaiseFailureEventAsync(string clientId, string message)
+    private Task OnFailureAsync(string clientId, string message)
     {
+        _telemetry.CountApiSecretValidation(
+            new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
+            new TelemetryTag(TelemetryConstants.TagConstants.Error, message)
+        );
         return _events.RaiseAsync(new ApiAuthenticationFailureEvent(clientId, message));
     }
 }

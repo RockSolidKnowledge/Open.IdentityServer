@@ -6,7 +6,7 @@ using AwesomeAssertions;
 using Open.IdentityServer.Models;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Infrastructure;
+namespace Open.IdentityServer.UnitTests.Infrastructure;
 
 public class ObjectSerializerTests
 {

@@ -13,7 +13,7 @@ using Open.IdentityServer.Models;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Endpoints.Results;
+namespace Open.IdentityServer.UnitTests.Endpoints.Results;
 
 public class CheckSessionResultTests
 {

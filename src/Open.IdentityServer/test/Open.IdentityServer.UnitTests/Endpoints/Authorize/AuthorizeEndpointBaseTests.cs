@@ -5,8 +5,7 @@ using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
-using Open.IdentityServer;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Endpoints;
 using Open.IdentityServer.Endpoints.Results;
@@ -17,9 +16,11 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Moq;
+using Open.IdentityServer.Events;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Endpoints.Authorize;
+namespace Open.IdentityServer.UnitTests.Endpoints.Authorize;
 
 public class AuthorizeEndpointBaseTests
 {
@@ -48,6 +49,8 @@ public class AuthorizeEndpointBaseTests
     private ClaimsPrincipal _user = new IdentityServerUser("bob").CreatePrincipal();
 
     private ValidatedAuthorizeRequest _validatedAuthorizeRequest;
+
+    private Mock<ITelemetryService> _telemetry;
 
     public AuthorizeEndpointBaseTests()
     {
@@ -157,6 +160,153 @@ public class AuthorizeEndpointBaseTests
 
         result.Should().BeOfType<AuthorizeResult>();
     }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task successful_authorization_request_should_raise_token_issued_success_event()
+    {
+        var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        result.Should().BeOfType<AuthorizeResult>();
+        var evt = _fakeEventService.AssertEventWasRaised<TokenIssuedSuccessEvent>();
+        evt.ClientId.Should().Be(_validatedAuthorizeRequest.ClientId);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task authorize_request_validation_produces_error_should_raise_token_issued_failure_event()
+    {
+        _stubAuthorizeRequestValidator.Result.IsError = true;
+        _stubAuthorizeRequestValidator.Result.Error = "some_error";
+
+        var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        result.Should().BeOfType<AuthorizeResult>();
+        var evt = _fakeEventService.AssertEventWasRaised<TokenIssuedFailureEvent>();
+        evt.Error.Should().Be("some_error");
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task interaction_produces_error_should_raise_token_issued_failure_event()
+    {
+        _stubInteractionGenerator.Response.Error = "interaction_error";
+        _stubInteractionGenerator.Response.ErrorDescription = "something went wrong";
+
+        var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        result.Should().BeOfType<AuthorizeResult>();
+        var evt = _fakeEventService.AssertEventWasRaised<TokenIssuedFailureEvent>();
+        evt.Error.Should().Be("interaction_error");
+        evt.ErrorDescription.Should().Be("something went wrong");
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task authorize_response_is_error_should_raise_token_issued_failure_event()
+    {
+        _stubAuthorizeResponseGenerator.Response.Error = "access_denied";
+        _stubAuthorizeResponseGenerator.Response.ErrorDescription = "user denied access";
+
+        var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        result.Should().BeOfType<AuthorizeResult>();
+        var evt = _fakeEventService.AssertEventWasRaised<TokenIssuedFailureEvent>();
+        evt.Error.Should().Be("access_denied");
+        evt.ErrorDescription.Should().Be("user denied access");
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task successful_authorization_request_should_emit_telemetry_signal()
+    {
+        TelemetryTag[] expectedTags =
+        {
+           new(TelemetryConstants.TagConstants.Client, "client"),
+           new(TelemetryConstants.TagConstants.GrantType, "grant_type")
+        };
+        TelemetryTag[] actualTags = null;
+        _telemetry.Setup(t => t.CountTokenIssued(It.IsAny<TelemetryTag[]>()))
+            .Callback((TelemetryTag[] tags) => actualTags = tags)
+            .Verifiable(Times.Once);
+        
+        await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        _telemetry.Verify();
+        actualTags.Should().BeEquivalentTo(expectedTags);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task authorize_request_validation_produces_error_should_emit_telemetry_signal()
+    {
+        TelemetryTag[] expectedTags =
+        {
+            new(TelemetryConstants.TagConstants.Client, "client"),
+            new(TelemetryConstants.TagConstants.GrantType, "grant_type"),
+            new(TelemetryConstants.TagConstants.Error, "some_error")
+        };
+        TelemetryTag[] actualTags = null;
+        _telemetry.Setup(t => t.CountTokenIssued(It.IsAny<TelemetryTag[]>()))
+            .Callback((TelemetryTag[] tags) => actualTags = tags)
+            .Verifiable(Times.Once);
+
+        _stubAuthorizeRequestValidator.Result.IsError = true;
+        _stubAuthorizeRequestValidator.Result.Error = "some_error";
+
+        await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        _telemetry.Verify();
+        actualTags.Should().BeEquivalentTo(expectedTags);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task interaction_produces_error_should_emit_telemetry_signal()
+    {
+        TelemetryTag[] expectedTags =
+        {
+            new(TelemetryConstants.TagConstants.Client, "client"),
+            new(TelemetryConstants.TagConstants.GrantType, "grant_type"),
+            new(TelemetryConstants.TagConstants.Error, "interaction_error")
+        };
+        TelemetryTag[] actualTags = null;
+        _telemetry.Setup(t => t.CountTokenIssued(It.IsAny<TelemetryTag[]>()))
+            .Callback((TelemetryTag[] tags) => actualTags = tags)
+            .Verifiable(Times.Once);
+
+        _stubInteractionGenerator.Response.Error = "interaction_error";
+        _stubInteractionGenerator.Response.ErrorDescription = "something went wrong";
+
+        await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        _telemetry.Verify();
+        actualTags.Should().BeEquivalentTo(expectedTags);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task authorize_response_is_error_should_emit_telemetry_signal()
+    {
+        TelemetryTag[] expectedTags =
+        {
+            new(TelemetryConstants.TagConstants.Client, "client"),
+            new(TelemetryConstants.TagConstants.GrantType, "grant_type"),
+            new(TelemetryConstants.TagConstants.Error, "access_denied")
+        };
+        TelemetryTag[] actualTags = null;
+        _telemetry.Setup(t => t.CountTokenIssued(It.IsAny<TelemetryTag[]>()))
+            .Callback((TelemetryTag[] tags) => actualTags = tags)
+            .Verifiable(Times.Once);
+
+        _stubAuthorizeResponseGenerator.Response.Error = "access_denied";
+        _stubAuthorizeResponseGenerator.Response.ErrorDescription = "user denied access";
+
+        await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        _telemetry.Verify();
+        actualTags.Should().BeEquivalentTo(expectedTags);
+    }
 
     internal void Init()
     {
@@ -174,11 +324,14 @@ public class AuthorizeEndpointBaseTests
                 ClientName = "Test Client"
             },
             Raw = _params,
-            Subject = _user
+            Subject = _user,
+            GrantType = "grant_type",
         };
         _stubAuthorizeResponseGenerator.Response.Request = _validatedAuthorizeRequest;
 
         _stubAuthorizeRequestValidator.Result = new AuthorizeRequestValidationResult(_validatedAuthorizeRequest);
+
+        _telemetry = new();
 
         _subject = new TestAuthorizeEndpoint(
             _fakeEventService,
@@ -187,7 +340,8 @@ public class AuthorizeEndpointBaseTests
             _stubAuthorizeRequestValidator,
             _stubInteractionGenerator,
             _stubAuthorizeResponseGenerator,
-            _mockUserSession);
+            _mockUserSession,
+            _telemetry.Object);
     }
 
     internal class TestAuthorizeEndpoint : AuthorizeEndpointBase
@@ -199,8 +353,9 @@ public class AuthorizeEndpointBaseTests
             IAuthorizeRequestValidator validator,
             IAuthorizeInteractionResponseGenerator interactionGenerator,
             IAuthorizeResponseGenerator authorizeResponseGenerator,
-            IUserSession userSession)
-            : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession)
+            IUserSession userSession,
+            ITelemetryService telemetry)
+            : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, telemetry)
         {
         }
 

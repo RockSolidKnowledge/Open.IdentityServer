@@ -11,7 +11,7 @@ using Open.IdentityServer.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Extensions;
+namespace Open.IdentityServer.UnitTests.Extensions;
 
 public class IdentityServerBuilderExtensionsCacheStoreTests
 {

@@ -8,10 +8,10 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 using System;
 using System.Threading.Tasks;
-using IdentityServer.UnitTests.Validation.Setup;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation;
+namespace Open.IdentityServer.UnitTests.Validation;
 
 public class ClientConfigurationValidation
 {

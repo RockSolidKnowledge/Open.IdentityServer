@@ -3,7 +3,7 @@
 
 
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 //class MockClientSessionService : IClientSessionService
 //{

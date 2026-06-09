@@ -6,7 +6,7 @@ using AwesomeAssertions;
 using Open.IdentityServer.Services;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.Default;
+namespace Open.IdentityServer.UnitTests.Services.Default;
 
 public class NumericUserCodeGeneratorTests
 {

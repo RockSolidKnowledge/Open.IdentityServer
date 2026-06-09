@@ -5,7 +5,7 @@
 using Open.IdentityServer.Endpoints;
 using Microsoft.Extensions.Logging;
 
-namespace IdentityServer.UnitTests.Endpoints.EndSession;
+namespace Open.IdentityServer.UnitTests.Endpoints.EndSession;
 
 public class EndSessionCallbackEndpointTests
 {

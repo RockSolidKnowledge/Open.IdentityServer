@@ -8,7 +8,7 @@ using Moq;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 
-namespace IdentityServer.UnitTests.ResponseHandling.AuthorizeResponseGenerator;
+namespace Open.IdentityServer.UnitTests.ResponseHandling.AuthorizeResponseGenerator;
 
 public abstract class AuthorizeResponseGeneratorTests
 {

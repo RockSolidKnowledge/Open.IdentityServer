@@ -5,7 +5,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 using System.Threading.Tasks;
 
-namespace IdentityServer.UnitTests.Validation.Setup;
+namespace Open.IdentityServer.UnitTests.Validation.Setup;
 
 class TestTokenValidator : ITokenValidator
 {

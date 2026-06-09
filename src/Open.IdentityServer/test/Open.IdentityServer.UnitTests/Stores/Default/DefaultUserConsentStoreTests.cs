@@ -15,7 +15,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Stores.Default;
+namespace Open.IdentityServer.UnitTests.Stores.Default;
 
 public class DefaultUserConsentStoreTests
 {

@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
@@ -16,7 +16,7 @@ using Open.IdentityServer.Stores.Serialization;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
 
-namespace IdentityServer.UnitTests.Validation.Setup;
+namespace Open.IdentityServer.UnitTests.Validation.Setup;
 
 internal static class Factory
 {
@@ -37,7 +37,9 @@ internal static class Factory
         ICustomTokenRequestValidator customRequestValidator = null,
         ITokenValidator tokenValidator = null,
         IRefreshTokenService refreshTokenService = null,
-        IResourceValidator resourceValidator = null)
+        IResourceValidator resourceValidator = null,
+        IEventService events = null,
+        ITelemetryService telemetry = null)
     {
         if (options == null)
         {
@@ -106,6 +108,16 @@ internal static class Factory
                 profile);
         }
 
+        if (events == null)
+        {
+            events = new TestEventService();
+        }
+
+        if (telemetry == null)
+        {
+            telemetry = new NopTelemetryService();
+        }
+
         return new TokenRequestValidator(
             options,
             authorizationCodeStore,
@@ -118,8 +130,9 @@ internal static class Factory
             resourceStore,
             tokenValidator,
             refreshTokenService,
-            new TestEventService(), 
+            events,
             new StubClock(), 
+            telemetry,
             TestLogger.Create<TokenRequestValidator>());
     }
 
@@ -311,7 +324,7 @@ internal static class Factory
         return validator;
     }
 
-    public static IClientSecretValidator CreateClientSecretValidator(IClientStore clients = null, SecretParser parser = null, SecretValidator validator = null, IdentityServerOptions options = null)
+    public static IClientSecretValidator CreateClientSecretValidator(IClientStore clients = null, SecretParser parser = null, SecretValidator validator = null, IdentityServerOptions options = null, ITelemetryService telemetry = null)
     {
         options = options ?? TestIdentityServerOptions.Create();
 
@@ -339,7 +352,12 @@ internal static class Factory
             validator = new SecretValidator(new StubClock(), validators, TestLogger.Create<SecretValidator>());
         }
 
-        return new ClientSecretValidator(clients, parser, validator, new TestEventService(), TestLogger.Create<ClientSecretValidator>());
+        if (telemetry == null)
+        {
+            telemetry = new DefaultTelemetryService();
+        }
+
+        return new ClientSecretValidator(clients, parser, validator, new TestEventService(), telemetry, TestLogger.Create<ClientSecretValidator>());
     }
 
     public static IAuthorizationCodeStore CreateAuthorizationCodeStore()
@@ -377,5 +395,74 @@ internal static class Factory
             new PersistentGrantSerializer(),
             new DefaultHandleGenerationService(),
             TestLogger.Create<DefaultUserConsentStore>());
+    }
+}
+
+internal class NopTelemetryService : ITelemetryService
+{
+    public void CountOperationSucceeded(params TelemetryTag[] tags)
+    {
+        
+    }
+
+    public void CountOperationFailed(params TelemetryTag[] tags)
+    {
+    }
+
+    public void CountInternalError(params TelemetryTag[] tags)
+    {
+    }
+
+    public IDisposable BeginActiveRequest(string endpoint, string path)
+    {
+        return new NopDisposable();
+    }
+    
+    private class NopDisposable : IDisposable
+    {
+        public void Dispose()
+        {
+            
+        }
+    }
+
+    public void CountApiSecretValidation(params TelemetryTag[] tags)
+    {
+    }
+
+    public void CountBackchannelAuthentication(params TelemetryTag[] tags)
+    {
+    }
+
+    public void CountClientConfigValidation(params TelemetryTag[] tags)
+    {
+    }
+
+    public void CountClientSecretValidation(params TelemetryTag[] tags)
+    {
+    }
+
+    public void CountDeviceAuthentication(params TelemetryTag[] tags)
+    {
+    }
+
+    public void CountTokenIntrospection(params TelemetryTag[] tags)
+    {
+    }
+
+    public void CountPushedAuthorizationRequest(params TelemetryTag[] tags)
+    {
+    }
+
+    public void CountResourceOwnerAuthentication(params TelemetryTag[] tags)
+    {
+    }
+
+    public void CountTokenRevocation(params TelemetryTag[] tags)
+    {
+    }
+
+    public void CountTokenIssued(params TelemetryTag[] tags)
+    {
     }
 }

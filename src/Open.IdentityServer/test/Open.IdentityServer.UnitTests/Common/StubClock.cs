@@ -4,7 +4,7 @@
 
 using System;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 internal class StubClock : TimeProvider
 {

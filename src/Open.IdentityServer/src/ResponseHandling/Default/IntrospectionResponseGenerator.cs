@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -28,6 +29,11 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
     protected readonly IEventService Events;
 
     /// <summary>
+    /// The Telemetry service
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
+
+    /// <summary>
     /// The logger
     /// </summary>
     protected readonly ILogger Logger;
@@ -36,10 +42,12 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
     /// Initializes a new instance of the <see cref="IntrospectionResponseGenerator" /> class.
     /// </summary>
     /// <param name="events">The events.</param>
+    /// <param name="telemetry">The Telemetry</param>
     /// <param name="logger">The logger.</param>
-    public IntrospectionResponseGenerator(IEventService events, ILogger<IntrospectionResponseGenerator> logger)
+    public IntrospectionResponseGenerator(IEventService events, ITelemetryService telemetry, ILogger<IntrospectionResponseGenerator> logger)
     {
         Events = events;
+        Telemetry = telemetry;
         Logger = logger;
     }
 
@@ -61,6 +69,10 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
         // token is invalid
         if (validationResult.IsActive == false)
         {
+            Telemetry.CountTokenIntrospection(
+                new TelemetryTag(TelemetryConstants.TagConstants.Active, validationResult.IsActive),
+                new TelemetryTag(TelemetryConstants.TagConstants.Caller, validationResult.Api.Name)
+            );
             Logger.LogDebug("Creating introspection response for inactive token.");
             await Events.RaiseAsync(new TokenIntrospectionSuccessEvent(validationResult));
 
@@ -87,6 +99,10 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
         scopes = scopes.Where(x => allowedScopes.Contains(x));
         response.Add("scope", scopes.ToSpaceSeparatedString());
 
+        Telemetry.CountTokenIntrospection(
+            new TelemetryTag(TelemetryConstants.TagConstants.Active, validationResult.IsActive),
+            new TelemetryTag(TelemetryConstants.TagConstants.Caller, validationResult.Api.Name)
+        );
         await Events.RaiseAsync(new TokenIntrospectionSuccessEvent(validationResult));
         return response;
     }
@@ -113,6 +129,10 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
         else
         {
             // no scopes for this API are found in the token
+            Telemetry.CountTokenIntrospection(
+                new TelemetryTag(TelemetryConstants.TagConstants.Caller, validationResult.Api.Name),
+                new TelemetryTag(TelemetryConstants.TagConstants.Error, "Expected scopes are missing")
+            );
             Logger.LogError("Expected scope {scopes} is missing in token", apiScopes);
             await Events.RaiseAsync(new TokenIntrospectionFailureEvent(validationResult.Api.Name, "Expected scopes are missing", validationResult.Token, apiScopes, tokenScopes.Select(s => s.Value)));
         }

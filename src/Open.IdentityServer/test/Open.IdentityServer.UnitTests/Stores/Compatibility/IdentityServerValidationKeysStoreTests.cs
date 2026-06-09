@@ -17,7 +17,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.UnitTests;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Stores.Compatibility;
+namespace Open.IdentityServer.UnitTests.Stores.Compatibility;
 
 public class IdentityServerValidationKeysStoreTests
 {

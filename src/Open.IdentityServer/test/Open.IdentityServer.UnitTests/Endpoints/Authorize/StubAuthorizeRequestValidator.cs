@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Open.IdentityServer.Validation;
 
-namespace IdentityServer.UnitTests.Endpoints.Authorize;
+namespace Open.IdentityServer.UnitTests.Endpoints.Authorize;
 
 public class StubAuthorizeRequestValidator : IAuthorizeRequestValidator
 {

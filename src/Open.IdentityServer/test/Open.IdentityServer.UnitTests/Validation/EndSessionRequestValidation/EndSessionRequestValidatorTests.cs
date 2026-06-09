@@ -7,7 +7,7 @@ using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
@@ -15,7 +15,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.EndSessionRequestValidation;
+namespace Open.IdentityServer.UnitTests.Validation.EndSessionRequestValidation;
 
 public class EndSessionRequestValidatorTests
 {
