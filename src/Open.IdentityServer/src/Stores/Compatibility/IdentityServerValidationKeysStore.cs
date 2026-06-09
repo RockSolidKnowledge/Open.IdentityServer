@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Stores;
 
@@ -18,11 +19,13 @@ namespace Open.IdentityServer.Stores;
 /// <param name="dataProtectedIdentityServerKeyMaterialConverter">Converter used to decrypt and convert data-protected key material into usable credentials.</param>
 /// <param name="timeProvider">Time provider implementation</param>
 /// <param name="options">Compatibility key store options</param>
+/// <param name="telemetry">The telemetry service</param>
 public class IdentityServerValidationKeysStore(
     IIdentityServerKeyStore identityServerKeyStore, 
     DataProtectedIdentityServerKeyMaterialConverter dataProtectedIdentityServerKeyMaterialConverter,
     TimeProvider timeProvider,
-    CompatibilityKeyStoreOptions options
+    CompatibilityKeyStoreOptions options,
+    ITelemetryService telemetry
     ): 
     IdentityServerSigningKeyStore(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, options), 
     IValidationKeysStore
@@ -34,6 +37,8 @@ public class IdentityServerValidationKeysStore(
     /// <returns>list of validation keys info</returns>
     public async Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync()
     {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         return GetKeys()
             .Select(x => new SecurityKeyInfo { Key = x.Credentials.Key, SigningAlgorithm = x.Credentials.Algorithm })
             .ToList();

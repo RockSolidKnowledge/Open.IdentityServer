@@ -11,7 +11,7 @@
     "Host (proxy)": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "https://identityserver.local",
+      "launchUrl": "https://localhost:5001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

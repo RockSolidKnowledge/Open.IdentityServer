@@ -7,12 +7,12 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation;
+namespace Open.IdentityServer.UnitTests.Validation;
 
 [SuppressMessage(
     "Usage", 

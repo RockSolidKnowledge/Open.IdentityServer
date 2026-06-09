@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -383,8 +384,9 @@ public static class IdentityServerBuilderExtensionsAdditional
             var httpClientFactory = s.GetRequiredService<IHttpClientFactory>();
             var httpClient = httpClientFactory.CreateClient(name);
             var loggerFactory = s.GetRequiredService<ILoggerFactory>();
+            var telemetry = s.GetRequiredService<ITelemetryService>();
                 
-            return new DefaultBackChannelLogoutHttpClient(httpClient, loggerFactory);
+            return new DefaultBackChannelLogoutHttpClient(httpClient, telemetry, loggerFactory);
         });
 
         return httpBuilder;
@@ -421,8 +423,9 @@ public static class IdentityServerBuilderExtensionsAdditional
             var httpClient = httpClientFactory.CreateClient(name);
             var loggerFactory = s.GetRequiredService<ILoggerFactory>();
             var options = s.GetRequiredService<IdentityServerOptions>();
+            var telemetry = s.GetRequiredService<ITelemetryService>();
 
-            return new DefaultJwtRequestUriHttpClient(httpClient, options, loggerFactory);
+            return new DefaultJwtRequestUriHttpClient(httpClient, options, telemetry, loggerFactory);
         });
 
         return httpBuilder;

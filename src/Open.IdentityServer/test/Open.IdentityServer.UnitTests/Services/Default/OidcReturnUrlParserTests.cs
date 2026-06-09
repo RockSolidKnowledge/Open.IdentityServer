@@ -19,7 +19,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.Default;
+namespace Open.IdentityServer.UnitTests.Services.Default;
 
 public class OidcReturnUrlParserTests
 {
@@ -27,6 +27,8 @@ public class OidcReturnUrlParserTests
     private readonly IUserSession userSession = Mock.Of<IUserSession>();
     private readonly ILogger<OidcReturnUrlParser> logger = NullLogger<OidcReturnUrlParser>.Instance;
     private IAuthorizationParametersMessageStore? authorizationParametersMessageStore = Mock.Of<IAuthorizationParametersMessageStore>();
+    private ITelemetryService _telemetry = Mock.Of<ITelemetryService>();
+    private ITrace _trace = Mock.Of<ITrace>();
     
     private static readonly List<Claim> claims =
     [
@@ -44,7 +46,7 @@ public class OidcReturnUrlParserTests
             .ReturnsAsync(fakeUser);
     }
     
-    private OidcReturnUrlParser CreateSut() => new(authorizeRequestValidator, userSession, logger, authorizationParametersMessageStore);
+    private OidcReturnUrlParser CreateSut() => new(authorizeRequestValidator, userSession, logger, _telemetry, authorizationParametersMessageStore);
 
     [Theory]
     [InlineData($"/some/path/{Constants.ProtocolRoutePaths.Authorize}", true)]
@@ -197,6 +199,43 @@ public class OidcReturnUrlParserTests
         parsedParams.Should().NotBeNull();
         parsedParams.GetValues("paramA").Should().BeEquivalentTo("someValue");
         parsedParams.GetValues("paramB").Should().BeEquivalentTo("acmeOne", "otherVal");
+    }
+
+    [Fact]
+    public async Task ParseAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        int stackDepth = 0;
+        Mock.Get(_telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(() => stackDepth++ == 0 ? _trace : Mock.Of<ITrace>());
+        
+        var subject = CreateSut();
+        
+        await subject.ParseAsync("anything");
+        
+        Mock.Get(_telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Services,
+                subject, 
+                "ParseAsync"));
+        Mock.Get(_trace).Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public void IsValidReturnUrl_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        Mock.Get(_telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace);
+        
+        var subject = CreateSut();
+        
+        subject.IsValidReturnUrl("anything");
+        
+        Mock.Get(_telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Services,
+                subject, 
+                "IsValidReturnUrl"));
+        Mock.Get(_trace).Verify(t => t.Dispose(), Times.Once);
     }
     
     public bool CompareNameValueCollections(NameValueCollection nvc1,

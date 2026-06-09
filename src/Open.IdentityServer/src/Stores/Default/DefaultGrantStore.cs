@@ -34,7 +34,7 @@ public class DefaultGrantStore<T>
     protected IPersistedGrantStore Store { get; }
 
     /// <summary>
-    /// The PersistentGrantSerializer;
+    /// The PersistentGrantSerializer.
     /// </summary>
     protected IPersistentGrantSerializer Serializer { get; }
 
@@ -42,6 +42,12 @@ public class DefaultGrantStore<T>
     /// The HandleGenerationService.
     /// </summary>
     protected IHandleGenerationService HandleGenerationService { get; }
+    
+    
+    /// <summary>
+    /// The TelemetryService.
+    /// </summary>
+    protected ITelemetryService TelemetryService { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultGrantStore{T}"/> class.
@@ -50,12 +56,14 @@ public class DefaultGrantStore<T>
     /// <param name="store">The store.</param>
     /// <param name="serializer">The serializer.</param>
     /// <param name="handleGenerationService">The handle generation service.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
     /// <exception cref="System.ArgumentNullException">grantType</exception>
     protected DefaultGrantStore(string grantType,
         IPersistedGrantStore store,
         IPersistentGrantSerializer serializer,
         IHandleGenerationService handleGenerationService,
+        ITelemetryService telemetry,
         ILogger logger)
     {
         if (grantType.IsMissing()) throw new ArgumentNullException(nameof(grantType));
@@ -64,6 +72,7 @@ public class DefaultGrantStore<T>
         Store = store;
         Serializer = serializer;
         HandleGenerationService = handleGenerationService;
+        TelemetryService = telemetry;
         Logger = logger;
     }
 

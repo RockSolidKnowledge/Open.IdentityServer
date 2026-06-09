@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 public class MockMessageStore<TModel> : IMessageStore<TModel>
 {

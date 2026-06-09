@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Open.IdentityServer.Validation;
 
-namespace IdentityServer.UnitTests.Endpoints.EndSession;
+namespace Open.IdentityServer.UnitTests.Endpoints.EndSession;
 
 class StubEndSessionRequestValidator : IEndSessionRequestValidator
 {

@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Collections.Specialized;
@@ -18,6 +19,8 @@ namespace Open.IdentityServer.Endpoints;
 
 internal class AuthorizeEndpoint : AuthorizeEndpointBase
 {
+    private readonly ITelemetryService _telemetry;
+
     public AuthorizeEndpoint(
         IEventService events,
         ILogger<AuthorizeEndpoint> logger,
@@ -25,13 +28,17 @@ internal class AuthorizeEndpoint : AuthorizeEndpointBase
         IAuthorizeRequestValidator validator,
         IAuthorizeInteractionResponseGenerator interactionGenerator,
         IAuthorizeResponseGenerator authorizeResponseGenerator,
-        IUserSession userSession)
-        : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession)
+        IUserSession userSession,
+        ITelemetryService telemetry)
+        : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, telemetry)
     {
+        _telemetry = telemetry;
     }
 
     public override async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        
         Logger.LogDebug("Start authorize request");
 
         NameValueCollection values;

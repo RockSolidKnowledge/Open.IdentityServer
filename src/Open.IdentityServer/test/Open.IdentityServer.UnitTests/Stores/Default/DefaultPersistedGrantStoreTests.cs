@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Open.IdentityServer;
@@ -16,10 +16,11 @@ using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Xunit;
 #pragma warning disable CS0618 // Type or member is obsolete
 
-namespace IdentityServer.UnitTests.Stores.Default;
+namespace Open.IdentityServer.UnitTests.Stores.Default;
 
 public class DefaultPersistedGrantStoreTests
 {
@@ -39,18 +40,22 @@ public class DefaultPersistedGrantStoreTests
         _codes = new DefaultAuthorizationCodeStore(_store,
             new PersistentGrantSerializer(),
             _stubHandleGenerationService,
+            new NopTelemetryService(),
             TestLogger.Create<DefaultAuthorizationCodeStore>());
         _refreshTokens = new DefaultRefreshTokenStore(_store,
             new PersistentGrantSerializer(),
             _stubHandleGenerationService,
+            new NopTelemetryService(),
             refreshTokenStoreLogger);
         _referenceTokens = new DefaultReferenceTokenStore(_store,
             new PersistentGrantSerializer(),
             _stubHandleGenerationService,
+            new NopTelemetryService(),
             TestLogger.Create<DefaultReferenceTokenStore>());
         _userConsent = new DefaultUserConsentStore(_store,
             new PersistentGrantSerializer(),
             _stubHandleGenerationService,
+            new NopTelemetryService(),
             TestLogger.Create<DefaultUserConsentStore>());
     }
         

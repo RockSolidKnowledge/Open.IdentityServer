@@ -7,8 +7,9 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 public class TestUserConsentStore : IUserConsentStore
 {
@@ -21,6 +22,7 @@ public class TestUserConsentStore : IUserConsentStore
             _grantStore,
             new PersistentGrantSerializer(),
             new DefaultHandleGenerationService(),
+            new NopTelemetryService(),
             TestLogger.Create<DefaultUserConsentStore>());
     }
 

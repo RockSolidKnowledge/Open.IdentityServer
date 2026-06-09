@@ -4,7 +4,7 @@
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 
-namespace IdentityServer.UnitTests.Validation.Setup;
+namespace Open.IdentityServer.UnitTests.Validation.Setup;
 
 public static class ValidationExtensions
 {

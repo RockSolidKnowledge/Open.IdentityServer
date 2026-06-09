@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 
-namespace IdentityServer.UnitTests.Validation.EndSessionRequestValidation;
+namespace Open.IdentityServer.UnitTests.Validation.EndSessionRequestValidation;
 
 public class StubRedirectUriValidator : IRedirectUriValidator
 {

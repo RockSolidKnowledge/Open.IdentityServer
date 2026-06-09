@@ -10,7 +10,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Stores;
+namespace Open.IdentityServer.UnitTests.Stores;
 
 public class InMemoryDeviceFlowStoreTests
 {

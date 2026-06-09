@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
 
-namespace IdentityServer.UnitTests.Validation.Setup;
+namespace Open.IdentityServer.UnitTests.Validation.Setup;
 
 internal class TestClients
 {

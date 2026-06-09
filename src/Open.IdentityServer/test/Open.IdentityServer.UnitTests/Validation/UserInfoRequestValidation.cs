@@ -1,24 +1,28 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Validation.Setup;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityServer.UnitTests.Common;
-using Open.IdentityServer;
+using Moq;
+using Open.IdentityServer.Services;
+using Open.IdentityServer.UnitTests.Common;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation;
+namespace Open.IdentityServer.UnitTests.Validation;
 
 public class UserInfoRequestValidation
 {
     private const string Category = "UserInfo Request Validation Tests";
     private IClientStore _clients = new InMemoryClientStore(TestClients.Get());
+    private Mock<ITelemetryService> _telemetry = new();
+    private Mock<ITrace> _trace = new();
 
     [Fact]
     [Trait("Category", Category)]
@@ -34,7 +38,8 @@ public class UserInfoRequestValidation
         var validator = new UserInfoRequestValidator(
             new TestTokenValidator(tokenResult),
             new TestProfileService(shouldBeActive: true),
-            TestLogger.Create<UserInfoRequestValidator>());
+            _telemetry.Object,
+        TestLogger.Create<UserInfoRequestValidator>());
 
         var result = await validator.ValidateRequestAsync("token");
 
@@ -59,6 +64,7 @@ public class UserInfoRequestValidation
         var validator = new UserInfoRequestValidator(
             new TestTokenValidator(tokenResult),
             new TestProfileService(shouldBeActive: true),
+            _telemetry.Object,
             TestLogger.Create<UserInfoRequestValidator>());
 
         var result = await validator.ValidateRequestAsync("token");
@@ -83,11 +89,42 @@ public class UserInfoRequestValidation
         var validator = new UserInfoRequestValidator(
             new TestTokenValidator(tokenResult),
             new TestProfileService(shouldBeActive: false),
+            _telemetry.Object,
             TestLogger.Create<UserInfoRequestValidator>());
 
         var result = await validator.ValidateRequestAsync("token");
 
         result.IsError.Should().BeTrue();
         result.Error.Should().Be(OidcConstants.ProtectedResourceErrors.InvalidToken);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task validateRequest_should_initiate_telemetry_trace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        var tokenResult = new TokenValidationResult
+        {
+            IsError = false,
+            Client = await _clients.FindEnabledClientByIdAsync("codeclient"),
+            Claims = new List<Claim>
+            {
+                new Claim("sub", "123")
+            },
+        };
+
+        var validator = new UserInfoRequestValidator(
+            new TestTokenValidator(tokenResult),
+            new TestProfileService(shouldBeActive: true),
+            _telemetry.Object,
+            TestLogger.Create<UserInfoRequestValidator>());
+
+        await validator.ValidateRequestAsync("token");
+
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Validation, validator, "ValidateRequestAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
     }
 }

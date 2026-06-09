@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
@@ -16,7 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using Open.IdentityServer;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Extensions;
+namespace Open.IdentityServer.UnitTests.Extensions;
 
 public class JwtPayloadCreationTests
 {

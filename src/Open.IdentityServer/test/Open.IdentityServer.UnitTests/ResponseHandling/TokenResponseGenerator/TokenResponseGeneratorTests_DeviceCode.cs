@@ -4,15 +4,45 @@
 using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.ResponseHandling.TokenResponseGenerator;
+namespace Open.IdentityServer.UnitTests.ResponseHandling.TokenResponseGenerator;
 
 public class TokenResponseGeneratorTests_DeviceCode : TokenResponseGeneratorTests
 {
+    [Fact]
+    public async Task ProcessAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var trace = Mock.Of<ITrace>();
+        Mock.Get(telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(trace);
+        
+        var subject = CreateSut();
+
+        await subject.ProcessAsync(
+            new TokenRequestValidationResult(
+                new ValidatedTokenRequest()
+                {
+                    GrantType = "grant",
+                }));
+        
+        Mock.Get(telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Basic,
+                subject,
+                "ProcessAsync"));
+        Mock.Get(trace)
+            .Verify(t => t.Dispose(), Times.Once);
+        Mock.Get(trace)
+            .Verify(t => t.AddTag(TelemetryConstants.TagConstants.GrantType, "grant"),
+                Times.Once);
+    }
+    
     [Fact]
     public async Task ProcessAsync_DeviceCode_ReturnsAccessToken()
     {

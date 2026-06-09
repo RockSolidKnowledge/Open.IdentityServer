@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using Open.IdentityServer.Validation;
 
-namespace IdentityServer.UnitTests.Validation.Setup;
+namespace Open.IdentityServer.UnitTests.Validation.Setup;
 
 public class TestDeviceCodeValidator : IDeviceCodeValidator
 {

@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -21,6 +22,7 @@ public class CachingClientStore<T> : IClientStore
 {
     private readonly IdentityServerOptions _options;
     private readonly ICache<Client> _cache;
+    private readonly ITelemetryService _telemetry;
     private readonly IClientStore _inner;
     private readonly ILogger _logger;
 
@@ -30,12 +32,19 @@ public class CachingClientStore<T> : IClientStore
     /// <param name="options">The options.</param>
     /// <param name="inner">The inner.</param>
     /// <param name="cache">The cache.</param>
+    /// <param name="telemetry">The telemetry.</param>
     /// <param name="logger">The logger.</param>
-    public CachingClientStore(IdentityServerOptions options, T inner, ICache<Client> cache, ILogger<CachingClientStore<T>> logger)
+    public CachingClientStore(
+        IdentityServerOptions options, 
+        T inner, 
+        ICache<Client> cache, 
+        ITelemetryService telemetry,
+        ILogger<CachingClientStore<T>> logger)
     {
         _options = options;
         _inner = inner;
         _cache = cache;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
@@ -48,6 +57,9 @@ public class CachingClientStore<T> : IClientStore
     /// </returns>
     public async Task<Client> FindClientByIdAsync(string clientId)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Cache, this);
+        trace?.AddTag(TelemetryConstants.TagConstants.Client, clientId);
+        
         var client = await _cache.GetAsync(clientId,
             _options.Caching.ClientStoreExpiration,
             async () => await _inner.FindClientByIdAsync(clientId),

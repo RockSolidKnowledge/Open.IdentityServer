@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -6,7 +7,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Moq;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
@@ -14,12 +16,14 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.Default;
+namespace Open.IdentityServer.UnitTests.Services.Default;
 
 public class DefaultClaimsServiceTests
 {
     private DefaultClaimsService _subject;
     private MockProfileService _mockMockProfileService = new MockProfileService();
+    private Mock<ITelemetryService> _telemetry = new();
+    private Mock<ITrace> _trace = new();
 
     private ClaimsPrincipal _user;
     private Client _client;
@@ -51,7 +55,7 @@ public class DefaultClaimsServiceTests
             }
         }.CreatePrincipal();
 
-        _subject = new DefaultClaimsService(_mockMockProfileService, TestLogger.Create<DefaultClaimsService>());
+        _subject = new DefaultClaimsService(_mockMockProfileService, _telemetry.Object, TestLogger.Create<DefaultClaimsService>());
 
         _validatedRequest = new ValidatedRequest();
         _validatedRequest.Options = new IdentityServerOptions();
@@ -364,5 +368,31 @@ public class DefaultClaimsServiceTests
 
         _mockMockProfileService.ProfileContext.RequestedClaimTypes.Should().Contain("foo");
         _mockMockProfileService.ProfileContext.RequestedClaimTypes.Should().Contain("bar");
+    }
+
+    [Fact]
+    public async Task GetIdentityTokenClaimsAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        await _subject.GetIdentityTokenClaimsAsync(_user, ResourceValidationResult, true, _validatedRequest);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, _subject, "GetIdentityTokenClaimsAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAccessTokenClaimsAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        await _subject.GetAccessTokenClaimsAsync(_user, ResourceValidationResult, _validatedRequest);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, _subject, "GetAccessTokenClaimsAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
     }
 }

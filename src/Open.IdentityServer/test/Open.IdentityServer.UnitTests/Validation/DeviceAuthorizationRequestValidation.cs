@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -7,13 +8,14 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Validation.Setup;
-using Open.IdentityServer;
+using Moq;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation;
+namespace Open.IdentityServer.UnitTests.Validation;
 
 public class DeviceAuthorizationRequestValidation
 {
@@ -191,5 +193,26 @@ public class DeviceAuthorizationRequestValidation
 
         result.IsError.Should().BeTrue();
         result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidScope);
+    }
+    
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Starts_Telemetry_Trace()
+    {
+        Mock<ITelemetryService> telemetry = new();
+        Mock<ITrace> trace = new();
+        
+        telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(trace.Object);
+        
+        var parameters = new NameValueCollection {{"scope", "openid"}};
+
+        var validator = Factory.CreateDeviceAuthorizationRequestValidator(telemetry: telemetry.Object);
+        await validator.ValidateAsync(parameters, new ClientSecretValidationResult {Client = testClient});
+        
+        telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Validation, validator, "ValidateAsync"));
+        trace.Verify(t => t.Dispose(), Times.Once);
     }
 }

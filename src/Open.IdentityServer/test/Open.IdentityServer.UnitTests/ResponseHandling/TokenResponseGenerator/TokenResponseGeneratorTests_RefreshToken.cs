@@ -13,7 +13,7 @@ using Open.IdentityServer.Utility;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.ResponseHandling.TokenResponseGenerator;
+namespace Open.IdentityServer.UnitTests.ResponseHandling.TokenResponseGenerator;
 
 public class TokenResponseGeneratorTests_RefreshToken : TokenResponseGeneratorTests
 {

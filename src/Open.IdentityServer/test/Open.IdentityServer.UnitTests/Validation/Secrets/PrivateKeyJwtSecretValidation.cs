@@ -8,9 +8,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
-using IdentityServer.UnitTests.Services.Default;
-using IdentityServer.UnitTests.Validation.Setup;
+using Open.IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Services.Default;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
@@ -19,9 +19,10 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.Secrets;
+namespace Open.IdentityServer.UnitTests.Validation.Secrets;
 
 public class PrivateKeyJwtSecretValidation
 {
@@ -37,7 +38,7 @@ public class PrivateKeyJwtSecretValidation
                     IssuerUri = "https://idsrv3.com"
                 }
             ),
-            new DefaultReplayCache(new TestCache()), 
+            new DefaultReplayCache(new TestCache(), Mock.Of<ITelemetryService>()), 
             new LoggerFactory().CreateLogger<PrivateKeyJwtSecretValidator>()
         );
         _clients = new InMemoryClientStore(ClientValidationTestClients.Get());

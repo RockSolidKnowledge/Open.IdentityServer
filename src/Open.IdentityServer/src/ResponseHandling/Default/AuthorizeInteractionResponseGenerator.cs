@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -38,6 +39,11 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
     /// The clock
     /// </summary>
     protected readonly TimeProvider Clock;
+    
+    /// <summary>
+    /// The telemetry
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizeInteractionResponseGenerator"/> class.
@@ -46,16 +52,19 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
     /// <param name="logger">The logger.</param>
     /// <param name="consent">The consent.</param>
     /// <param name="profile">The profile.</param>
+    /// <param name="telemetry">The telemetry.</param>
     public AuthorizeInteractionResponseGenerator(
         TimeProvider clock,
         ILogger<AuthorizeInteractionResponseGenerator> logger,
         IConsentService consent, 
-        IProfileService profile)
+        IProfileService profile,
+        ITelemetryService telemetry)
     {
         Clock = clock;
         Logger = logger;
         Consent = consent;
         Profile = profile;
+        Telemetry =  telemetry;
     }
 
     /// <summary>
@@ -66,6 +75,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
     /// <returns>A task that resolves to an <see cref="InteractionResponse"/> indicating whether the user must log in, consent, or can proceed.</returns>
     public virtual async Task<InteractionResponse> ProcessInteractionAsync(ValidatedAuthorizeRequest request, ConsentResponse consent = null)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         Logger.LogTrace("ProcessInteractionAsync");
 
         if (consent != null && 

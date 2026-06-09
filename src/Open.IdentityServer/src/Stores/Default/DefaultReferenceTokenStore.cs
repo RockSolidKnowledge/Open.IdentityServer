@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -21,13 +22,15 @@ public class DefaultReferenceTokenStore : DefaultGrantStore<Token>, IReferenceTo
     /// <param name="store">The store.</param>
     /// <param name="serializer">The serializer.</param>
     /// <param name="handleGenerationService">The handle generation service.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
     public DefaultReferenceTokenStore(
         IPersistedGrantStore store, 
         IPersistentGrantSerializer serializer,
         IHandleGenerationService handleGenerationService,
+        ITelemetryService telemetry,
         ILogger<DefaultReferenceTokenStore> logger) 
-        : base(IdentityServerConstants.PersistedGrantTypes.ReferenceToken, store, serializer, handleGenerationService, logger)
+        : base(IdentityServerConstants.PersistedGrantTypes.ReferenceToken, store, serializer, handleGenerationService, telemetry, logger)
     {
     }
 
@@ -38,6 +41,8 @@ public class DefaultReferenceTokenStore : DefaultGrantStore<Token>, IReferenceTo
     /// <returns>A task that resolves to the handle assigned to the stored reference token.</returns>
     public Task<string> StoreReferenceTokenAsync(Token token)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         return CreateItemAsync(token, token.ClientId, token.SubjectId, token.SessionId, token.Description, token.CreationTime, token.Lifetime);
     }
 
@@ -48,6 +53,8 @@ public class DefaultReferenceTokenStore : DefaultGrantStore<Token>, IReferenceTo
     /// <returns>A task that resolves to the <see cref="Token"/> for the given handle, or <see langword="null"/> if not found.</returns>
     public Task<Token> GetReferenceTokenAsync(string handle)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
         return GetItemAsync(handle);
     }
 
@@ -57,6 +64,8 @@ public class DefaultReferenceTokenStore : DefaultGrantStore<Token>, IReferenceTo
     /// <param name="handle">The handle.</param>
     public Task RemoveReferenceTokenAsync(string handle)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
         return RemoveItemAsync(handle);
     }
 
@@ -67,6 +76,10 @@ public class DefaultReferenceTokenStore : DefaultGrantStore<Token>, IReferenceTo
     /// <param name="clientId">The client identifier.</param>
     public Task RemoveReferenceTokensAsync(string subjectId, string clientId)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        trace?.AddTag(TelemetryConstants.TagConstants.Subject, subjectId);
+        trace?.AddTag(TelemetryConstants.TagConstants.Client, clientId);
+
         return RemoveAllAsync(subjectId, clientId);
     }
 }

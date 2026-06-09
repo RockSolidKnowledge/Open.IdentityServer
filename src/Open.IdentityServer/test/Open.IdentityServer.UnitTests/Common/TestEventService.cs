@@ -10,7 +10,7 @@ using AwesomeAssertions;
 using Open.IdentityServer.Events;
 using Open.IdentityServer.Services;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 public class TestEventService : IEventService
 {

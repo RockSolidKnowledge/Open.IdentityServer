@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -21,13 +22,15 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// <param name="store">The store.</param>
     /// <param name="serializer">The serializer.</param>
     /// <param name="handleGenerationService">The handle generation service.</param>
+    /// <param name="telemetry">The telemetry.</param>
     /// <param name="logger">The logger.</param>
     public DefaultRefreshTokenStore(
         IPersistedGrantStore store, 
         IPersistentGrantSerializer serializer, 
         IHandleGenerationService handleGenerationService,
+        ITelemetryService telemetry,
         ILogger<DefaultRefreshTokenStore> logger) 
-        : base(IdentityServerConstants.PersistedGrantTypes.RefreshToken, store, serializer, handleGenerationService, logger)
+        : base(IdentityServerConstants.PersistedGrantTypes.RefreshToken, store, serializer, handleGenerationService, telemetry, logger)
     {
     }
 
@@ -38,6 +41,8 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// <returns>A task that resolves to the handle assigned to the stored refresh token.</returns>
     public async Task<string> StoreRefreshTokenAsync(RefreshToken refreshToken)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         return await CreateItemAsync(refreshToken, refreshToken.ClientId, refreshToken.SubjectId, refreshToken.SessionId, refreshToken.Description, refreshToken.CreationTime, refreshToken.Lifetime);
     }
 
@@ -48,6 +53,8 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// <param name="refreshToken">The refresh token.</param>
     public Task UpdateRefreshTokenAsync(string handle, RefreshToken refreshToken)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
         return StoreItemAsync(handle, refreshToken, refreshToken.ClientId, refreshToken.SubjectId, refreshToken.SessionId, refreshToken.Description, refreshToken.CreationTime, refreshToken.CreationTime.AddSeconds(refreshToken.Lifetime), refreshToken.ConsumedTime);
     }
 
@@ -58,6 +65,8 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// <returns>A task that resolves to the <see cref="RefreshToken"/> for the given handle, or <see langword="null"/> if not found.</returns>
     public Task<RefreshToken> GetRefreshTokenAsync(string refreshTokenHandle)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
         return GetItemAsync(refreshTokenHandle);
     }
 
@@ -67,6 +76,8 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// <param name="refreshTokenHandle">The refresh token handle.</param>
     public Task RemoveRefreshTokenAsync(string refreshTokenHandle)
     {
+       using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
         return RemoveItemAsync(refreshTokenHandle);
     }
 
@@ -77,6 +88,10 @@ public class DefaultRefreshTokenStore : DefaultGrantStore<RefreshToken>, IRefres
     /// <param name="clientId">The client identifier.</param>
     public Task RemoveRefreshTokensAsync(string subjectId, string clientId)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        trace?.AddTag(TelemetryConstants.TagConstants.Subject, subjectId);
+        trace?.AddTag(TelemetryConstants.TagConstants.Client, clientId);
+
         return RemoveAllAsync(subjectId, clientId);
     }
 }

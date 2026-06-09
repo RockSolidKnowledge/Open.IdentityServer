@@ -92,6 +92,7 @@ Open.IdentityServer enables the following features in your applications:
    topics/deployment
    topics/logging
    topics/events
+   topics/open_telemetry
    topics/crypto
    topics/grant_types
    topics/client_authentication

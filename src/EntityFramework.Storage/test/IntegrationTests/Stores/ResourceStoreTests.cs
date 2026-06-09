@@ -7,12 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using Open.IdentityServer.EntityFramework.DbContexts;
 using Open.IdentityServer.EntityFramework.Options;
 using Open.IdentityServer.EntityFramework.Stores;
 using Open.IdentityServer.Models;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Open.IdentityServer.EntityFramework.Mappers;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Utility;
 using Xunit;
 
@@ -20,6 +23,8 @@ namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores;
 
 public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbContext, ConfigurationStoreOptions>
 {
+    private ITelemetryService _telemetry = Mock.Of<ITelemetryService>();
+    
     public ScopeStoreTests(DatabaseProviderFixture<ConfigurationDbContext> fixture) : base(fixture)
     {
         foreach (var row in TestDatabaseProviders)
@@ -73,7 +78,6 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         };
     }
 
-
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task FindApiResourcesByNameAsync_WhenResourceExists_ExpectResourceAndCollectionsReturned(DbContextOptions<ConfigurationDbContext> options)
     {
@@ -88,7 +92,7 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         ApiResource foundResource;
         using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ResourceStore(context, FakeLogger<ResourceStore>.Create());
+            var store = new ResourceStore(context, _telemetry, FakeLogger<ResourceStore>.Create());
             foundResource = (await store.FindApiResourcesByNameAsync(new[] { resource.Name })).SingleOrDefault();
         }
 
@@ -118,7 +122,7 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         ApiResource foundResource;
         using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ResourceStore(context, FakeLogger<ResourceStore>.Create());
+            var store = new ResourceStore(context, _telemetry, FakeLogger<ResourceStore>.Create());
             foundResource = (await store.FindApiResourcesByNameAsync(new[] { resource.Name })).SingleOrDefault();
         }
 
@@ -132,9 +136,6 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         Assert.NotNull(foundResource.Scopes);
         Assert.NotEmpty(foundResource.Scopes);
     }
-
-
-
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task FindApiResourcesByScopeNameAsync_WhenResourcesExist_ExpectResourcesReturned(DbContextOptions<ConfigurationDbContext> options)
@@ -153,7 +154,7 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         IEnumerable<ApiResource> resources;
         using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ResourceStore(context, FakeLogger<ResourceStore>.Create());
+            var store = new ResourceStore(context, _telemetry, FakeLogger<ResourceStore>.Create());
             resources = await store.FindApiResourcesByScopeNameAsync(new List<string>
             {
                 testApiScope.Name
@@ -187,7 +188,7 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         IEnumerable<ApiResource> resources;
         using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ResourceStore(context, FakeLogger<ResourceStore>.Create());
+            var store = new ResourceStore(context, _telemetry, FakeLogger<ResourceStore>.Create());
             resources = await store.FindApiResourcesByScopeNameAsync(new[] { testApiScope.Name });
         }
 
@@ -195,9 +196,6 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         Assert.NotEmpty(resources);
         Assert.NotNull(resources.Single(x => x.Name == testApiResource.Name));
     }
-
-
-
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task FindIdentityResourcesByScopeNameAsync_WhenResourceExists_ExpectResourceAndCollectionsReturned(DbContextOptions<ConfigurationDbContext> options)
@@ -213,7 +211,7 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         IList<IdentityResource> resources;
         using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ResourceStore(context, FakeLogger<ResourceStore>.Create());
+            var store = new ResourceStore(context, _telemetry, FakeLogger<ResourceStore>.Create());
             resources = (await store.FindIdentityResourcesByScopeNameAsync(new List<string>
             {
                 resource.Name
@@ -244,7 +242,7 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         IList<IdentityResource> resources;
         using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ResourceStore(context, FakeLogger<ResourceStore>.Create());
+            var store = new ResourceStore(context, _telemetry, FakeLogger<ResourceStore>.Create());
             resources = (await store.FindIdentityResourcesByScopeNameAsync(new List<string>
             {
                 resource.Name
@@ -272,7 +270,7 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         IList<ApiScope> resources;
         using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ResourceStore(context, FakeLogger<ResourceStore>.Create());
+            var store = new ResourceStore(context, _telemetry, FakeLogger<ResourceStore>.Create());
             resources = (await store.FindApiScopesByNameAsync(new List<string>
             {
                 resource.Name
@@ -303,7 +301,7 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         IList<ApiScope> resources;
         using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ResourceStore(context, FakeLogger<ResourceStore>.Create());
+            var store = new ResourceStore(context, _telemetry, FakeLogger<ResourceStore>.Create());
             resources = (await store.FindApiScopesByNameAsync(new List<string>
             {
                 resource.Name
@@ -314,9 +312,6 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         Assert.NotEmpty(resources);
         Assert.NotNull(resources.Single(x => x.Name == resource.Name));
     }
-
-
-
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task GetAllResources_WhenAllResourcesRequested_ExpectAllResourcesIncludingHidden(DbContextOptions<ConfigurationDbContext> options)
@@ -353,7 +348,7 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         Resources resources;
         using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ResourceStore(context, FakeLogger<ResourceStore>.Create());
+            var store = new ResourceStore(context, _telemetry, FakeLogger<ResourceStore>.Create());
             resources = await store.GetAllResourcesAsync();
         }
 
@@ -370,5 +365,48 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
 
         Assert.Contains(resources.ApiScopes, x => x.Name == visibleApiScope.Name);
         Assert.Contains(resources.ApiScopes, x => x.Name == hiddenApiScope.Name);
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace(DbContextOptions<ConfigurationDbContext> options)
+    {
+        List<(Func<ResourceStore, Task> actMethod, string traceMethodName)> methods
+            = new()
+            {
+                (store => store.FindApiResourcesByNameAsync(new[] { "test" }), "FindApiResourcesByNameAsync"),
+                (store => store.FindApiResourcesByScopeNameAsync(new[] { "test" }), "FindApiResourcesByScopeNameAsync"),
+                (store => store.FindIdentityResourcesByScopeNameAsync(new[] { "test" }), "FindIdentityResourcesByScopeNameAsync"),
+                (store => store.FindApiScopesByNameAsync(new[] { "test" }), "FindApiScopesByNameAsync"),
+                (store => store.GetAllResourcesAsync(), "GetAllResourcesAsync")
+            };
+
+        foreach (var method in methods)
+        {
+            var trace = Mock.Of<ITrace>();
+            Mock.Get(_telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+                .Returns(trace);
+            Mock.Get(trace).Setup(t => t.AddTag(It.IsAny<string>(), It.IsAny<string>())).Returns(trace);
+            Mock.Get(trace).Setup(t => t.AddTag(It.IsAny<string>(), It.IsAny<object>())).Returns(trace);
+            
+            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            {
+                var store = new ResourceStore(context, _telemetry, FakeLogger<ResourceStore>.Create());
+                await method.actMethod(store);
+
+                Mock.Get(_telemetry)
+                    .Verify(t => t.Trace(
+                        TelemetryConstants.TraceCategories.Stores, store, method.traceMethodName), Times.Once);
+                Mock.Get(trace)
+                    .Verify(t => t.Dispose(), Times.Once);
+            }
+        }
+        
+        // Assert all methods covered
+        typeof(ResourceStore).GetMethods()
+            .Where(m => m.IsPublic && !m.IsStatic && !m.IsSpecialName)
+            .Where(m => m.DeclaringType == typeof(ResourceStore))
+            .Select(m => m.Name)
+            .Distinct()
+            .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
     }
 }

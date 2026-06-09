@@ -4,6 +4,8 @@
 
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Open.IdentityServer.EntityFramework.DbContexts;
@@ -11,7 +13,9 @@ using Open.IdentityServer.EntityFramework.Options;
 using Open.IdentityServer.EntityFramework.Stores;
 using Open.IdentityServer.Models;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Open.IdentityServer.EntityFramework.Mappers;
+using Open.IdentityServer.Services;
 using Xunit;
 using Xunit.Sdk;
 
@@ -19,6 +23,8 @@ namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores;
 
 public class ClientStoreTests : IntegrationTest<ClientStoreTests, ConfigurationDbContext, ConfigurationStoreOptions>
 {
+    private ITelemetryService _telemetry = Mock.Of<ITelemetryService>();
+    
     public ClientStoreTests(DatabaseProviderFixture<ConfigurationDbContext> fixture) : base(fixture)
     {
         foreach (var row in TestDatabaseProviders)
@@ -27,13 +33,18 @@ public class ClientStoreTests : IntegrationTest<ClientStoreTests, ConfigurationD
             context.Database.EnsureCreated();
         }
     }
+    
+    private ClientStore CreateStore(ConfigurationDbContext context)
+    {
+        return new ClientStore(context, _telemetry, FakeLogger<ClientStore>.Create());
+    }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task FindClientByIdAsync_WhenClientDoesNotExist_ExpectNull(
         DbContextOptions<ConfigurationDbContext> options)
     {
         await using var context = new ConfigurationDbContext(options, StoreOptions);
-        var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
+        var store = CreateStore(context);
         var client = await store.FindClientByIdAsync(Guid.NewGuid().ToString());
         client.Should().BeNull();
     }
@@ -57,7 +68,7 @@ public class ClientStoreTests : IntegrationTest<ClientStoreTests, ConfigurationD
         Client client;
         await using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
+            var store = CreateStore(context);
             client = await store.FindClientByIdAsync(testClient.ClientId);
         }
 
@@ -92,7 +103,7 @@ public class ClientStoreTests : IntegrationTest<ClientStoreTests, ConfigurationD
         Client client;
         await using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
+            var store = CreateStore(context);
             client = await store.FindClientByIdAsync(testClient.ClientId);
         }
 
@@ -141,7 +152,8 @@ public class ClientStoreTests : IntegrationTest<ClientStoreTests, ConfigurationD
 
         await using (var context = new ConfigurationDbContext(options, StoreOptions))
         {
-            var store = new ClientStore(context, FakeLogger<ClientStore>.Create());
+            var clientStore = CreateStore(context);
+            var store = clientStore;
 
             const int timeout = 5000;
             var task = Task.Run(() => store.FindClientByIdAsync(testClient.ClientId));
@@ -156,5 +168,44 @@ public class ClientStoreTests : IntegrationTest<ClientStoreTests, ConfigurationD
                 throw TestTimeoutException.ForTimedOutTest(timeout);
             }
         }
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace(DbContextOptions<ConfigurationDbContext> options)
+    {
+        List<(Func<ClientStore, Task> actMethod, string traceMethodName)> methods
+            = new()
+            {
+                (store => store.FindClientByIdAsync("clientId"), "FindClientByIdAsync"),
+            };
+
+        foreach (var method in methods)
+        {
+            var trace = Mock.Of<ITrace>();
+            Mock.Get(_telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+                .Returns(trace);
+            Mock.Get(trace).Setup(t => t.AddTag(It.IsAny<string>(), It.IsAny<string>())).Returns(trace);
+            Mock.Get(trace).Setup(t => t.AddTag(It.IsAny<string>(), It.IsAny<object>())).Returns(trace);
+            
+            using (var context = new ConfigurationDbContext(options, StoreOptions))
+            {
+                var store = CreateStore(context);
+                
+                await method.actMethod(store);
+
+                Mock.Get(_telemetry)
+                    .Verify(t => t.Trace(
+                        TelemetryConstants.TraceCategories.Stores, store, method.traceMethodName), Times.Once);
+                Mock.Get(trace).Verify(t => t.Dispose(), Times.Once);
+            }
+        }
+        
+        // Assert all methods covered
+        typeof(ClientStore).GetMethods()
+            .Where(m => m.IsPublic && !m.IsStatic && !m.IsSpecialName)
+            .Where(m => m.DeclaringType == typeof(ClientStore))
+            .Select(m => m.Name)
+            .Distinct()
+            .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
     }
 }

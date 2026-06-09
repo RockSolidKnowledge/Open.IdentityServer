@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -27,16 +28,26 @@ public class DefaultClaimsService : IClaimsService
     /// The user service
     /// </summary>
     protected readonly IProfileService Profile;
+    
+    /// <summary>
+    /// The telemetry service
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultClaimsService"/> class.
     /// </summary>
     /// <param name="profile">The profile service</param>
+    /// <param name="telemetry">The telemetry service</param>
     /// <param name="logger">The logger</param>
-    public DefaultClaimsService(IProfileService profile, ILogger<DefaultClaimsService> logger)
+    public DefaultClaimsService(
+        IProfileService profile, 
+        ITelemetryService telemetry, 
+        ILogger<DefaultClaimsService> logger)
     {
         Logger = logger;
         Profile = profile;
+        Telemetry = telemetry;
     }
 
     /// <summary>
@@ -51,9 +62,12 @@ public class DefaultClaimsService : IClaimsService
     /// </returns>
     public virtual async Task<IEnumerable<Claim>> GetIdentityTokenClaimsAsync(ClaimsPrincipal subject, ResourceValidationResult resources, bool includeAllIdentityClaims, ValidatedRequest request)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
+        trace
+            ?.AddTag(TelemetryConstants.TagConstants.Client, request.Client.ClientId)
+            ?.AddTag(TelemetryConstants.TagConstants.Subject, subject?.GetSubjectId());
         Logger.LogDebug("Getting claims for identity token for subject: {subject} and client: {clientId}",
-            subject.GetSubjectId(),
-            request.Client.ClientId);
+            subject.GetSubjectId(), request.Client.ClientId);
 
         var outputClaims = new List<Claim>(GetStandardSubjectClaims(subject));
         outputClaims.AddRange(GetOptionalClaims(subject));
@@ -111,6 +125,10 @@ public class DefaultClaimsService : IClaimsService
     /// </returns>
     public virtual async Task<IEnumerable<Claim>> GetAccessTokenClaimsAsync(ClaimsPrincipal subject, ResourceValidationResult resourceResult, ValidatedRequest request)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
+        trace
+            ?.AddTag(TelemetryConstants.TagConstants.Client, request.ClientId)
+            ?.AddTag(TelemetryConstants.TagConstants.Subject, subject?.GetSubjectId());
         Logger.LogDebug("Getting claims for access token for client: {clientId}", request.Client.ClientId);
 
         var outputClaims = new List<Claim>

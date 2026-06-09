@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -27,6 +28,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
     private readonly ITokenRevocationRequestValidator _requestValidator;
     private readonly ITokenRevocationResponseGenerator _responseGenerator;
     private readonly IEventService _events;
+    private readonly ITelemetryService _telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TokenRevocationEndpoint" /> class.
@@ -36,11 +38,13 @@ internal class TokenRevocationEndpoint : IEndpointHandler
     /// <param name="requestValidator">The request validator.</param>
     /// <param name="responseGenerator">The response generator.</param>
     /// <param name="events">The events.</param>
+    /// <param name="telemetry">The telemetry service</param>
     public TokenRevocationEndpoint(ILogger<TokenRevocationEndpoint> logger,
         IClientSecretValidator clientValidator,
         ITokenRevocationRequestValidator requestValidator,
         ITokenRevocationResponseGenerator responseGenerator,
-        IEventService events)
+        IEventService events, 
+        ITelemetryService telemetry)
     {
         _logger = logger;
         _clientValidator = clientValidator;
@@ -48,6 +52,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
         _responseGenerator = responseGenerator;
 
         _events = events;
+        _telemetry = telemetry;
     }
 
     /// <summary>
@@ -57,6 +62,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
     /// <returns>A task that resolves to an <see cref="IEndpointResult"/> representing either a successful revocation response or an error response.</returns>
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         _logger.LogTrace("Processing revocation request.");
 
         if (!HttpMethods.IsPost(context.Request.Method))
@@ -85,6 +91,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
 
         if (clientValidationResult.IsError)
         {
+            _telemetry.CountTokenRevocation(clientValidationResult.Client?.ClientId ?? "unknown client", clientValidationResult.Error);
             return new TokenRevocationErrorResult(OidcConstants.TokenErrors.InvalidClient);
         }
 
@@ -98,6 +105,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
 
         if (requestValidationResult.IsError)
         {
+            _telemetry.CountTokenRevocation(requestValidationResult.Client?.ClientId  ?? "unknown client", requestValidationResult.Error);
             return new TokenRevocationErrorResult(requestValidationResult.Error);
         }
 
@@ -107,6 +115,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
         if (response.Success)
         {
             _logger.LogInformation("Token revocation complete");
+            _telemetry.CountTokenRevocation(requestValidationResult.Client.ClientId);
             await _events.RaiseAsync(new TokenRevokedSuccessEvent(requestValidationResult, requestValidationResult.Client));
         }
         else

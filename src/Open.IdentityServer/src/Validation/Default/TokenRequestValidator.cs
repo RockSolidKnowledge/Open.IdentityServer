@@ -35,6 +35,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
     private readonly IProfileService _profile;
     private readonly IDeviceCodeValidator _deviceCodeValidator;
     private readonly TimeProvider _clock;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
 
     private ValidatedTokenRequest _validatedRequest;
@@ -55,6 +56,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
     /// <param name="refreshTokenService">The refresh token service used to validate refresh tokens.</param>
     /// <param name="events">The events.</param>
     /// <param name="clock">The clock.</param>
+    /// <param name="telemetry">the telemetry service</param>
     /// <param name="logger">The logger.</param>
     public TokenRequestValidator(IdentityServerOptions options,
         IAuthorizationCodeStore authorizationCodeStore,
@@ -69,6 +71,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         IRefreshTokenService refreshTokenService,
         IEventService events,
         TimeProvider clock,
+        ITelemetryService telemetry,
         ILogger<TokenRequestValidator> logger)
     {
         _logger = logger;
@@ -85,6 +88,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         _tokenValidator = tokenValidator;
         _refreshTokenService = refreshTokenService;
         _events = events;
+        _telemetry = telemetry;
     }
 
     /// <summary>
@@ -101,6 +105,8 @@ internal class TokenRequestValidator : ITokenRequestValidator
     public async Task<TokenRequestValidationResult> ValidateRequestAsync(NameValueCollection parameters,
         ClientSecretValidationResult clientValidationResult)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
+        
         _logger.LogDebug("Start token request validation");
 
         _validatedRequest = new ValidatedTokenRequest
@@ -961,11 +967,13 @@ internal class TokenRequestValidator : ITokenRequestValidator
     private Task RaiseSuccessfulResourceOwnerAuthenticationEventAsync(string userName, string subjectId,
         string clientId)
     {
+        _telemetry.CountResourceOwnerAuthentication(clientId);
         return _events.RaiseAsync(new UserLoginSuccessEvent(userName, subjectId, null, interactive: false, clientId));
     }
 
     private Task RaiseFailedResourceOwnerAuthenticationEventAsync(string userName, string error, string clientId)
     {
+        _telemetry.CountResourceOwnerAuthentication(clientId, error);
         return _events.RaiseAsync(new UserLoginFailureEvent(userName, error, interactive: false, clientId: clientId));
     }
 }

@@ -8,7 +8,7 @@ using AwesomeAssertions;
 using System.Threading.Tasks;
 using System.Linq;
 
-namespace IdentityServer.UnitTests.Stores;
+namespace Open.IdentityServer.UnitTests.Stores;
 
 public class InMemoryPersistedGrantStoreTests
 {

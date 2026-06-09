@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 internal class MockHttpContextAccessor : IHttpContextAccessor
 {

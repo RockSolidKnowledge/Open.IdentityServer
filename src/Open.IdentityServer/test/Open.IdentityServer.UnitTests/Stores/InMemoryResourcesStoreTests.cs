@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using Xunit;
 using AwesomeAssertions;
 
-namespace IdentityServer.UnitTests.Stores;
+namespace Open.IdentityServer.UnitTests.Stores;
 
 public class InMemoryResourcesStoreTests
 {

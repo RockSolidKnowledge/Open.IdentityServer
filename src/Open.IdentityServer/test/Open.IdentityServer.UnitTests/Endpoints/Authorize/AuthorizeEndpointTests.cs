@@ -6,8 +6,7 @@ using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
-using Open.IdentityServer;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Endpoints;
 using Open.IdentityServer.Endpoints.Results;
@@ -15,9 +14,11 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Moq;
+using Open.IdentityServer.Services;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Endpoints.Authorize;
+namespace Open.IdentityServer.UnitTests.Endpoints.Authorize;
 
 public class AuthorizeEndpointTests
 {
@@ -46,6 +47,8 @@ public class AuthorizeEndpointTests
     private ClaimsPrincipal _user = new IdentityServerUser("bob").CreatePrincipal();
 
     private ValidatedAuthorizeRequest _validatedAuthorizeRequest;
+    private Mock<ITelemetryService> _telemetry;
+    private Mock<ITrace> _trace;
 
     public AuthorizeEndpointTests()
     {
@@ -78,9 +81,26 @@ public class AuthorizeEndpointTests
         statusCode.StatusCode.Should().Be(415);
     }
 
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task ProcessAsync_should_initiate_telemetry_trace()
+    {
+        await _subject.ProcessAsync(_context);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Basic, 
+            _subject,
+            "ProcessAsync"), Times.Once);
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
     internal void Init()
     {
         _context = new MockHttpContextAccessor().HttpContext;
+        _telemetry = new();
+        _trace = new();
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
 
         _validatedAuthorizeRequest = new ValidatedAuthorizeRequest()
         {
@@ -107,6 +127,7 @@ public class AuthorizeEndpointTests
             _stubAuthorizeRequestValidator,
             _stubInteractionGenerator,
             _stubAuthorizeResponseGenerator,
-            _mockUserSession);
+            _mockUserSession,
+            _telemetry.Object);
     }
 }

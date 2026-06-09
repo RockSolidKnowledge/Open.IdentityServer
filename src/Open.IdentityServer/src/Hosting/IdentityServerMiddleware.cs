@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -39,8 +40,15 @@ public class IdentityServerMiddleware
     /// <param name="session">The user session.</param>
     /// <param name="events">The event service.</param>
     /// <param name="backChannelLogoutService">The service used to send back-channel logout notifications to clients when the user signs out.</param>
-    /// /// <returns>A task that completes when the request has been handled by an IdentityServer endpoint or passed to the next middleware in the pipeline.</returns>
-    public async Task Invoke(HttpContext context, IEndpointRouter router, IUserSession session, IEventService events, IBackChannelLogoutService backChannelLogoutService)
+    /// <param name="telemetryService">The telemetry service</param>
+    /// <returns>A task that completes when the request has been handled by an IdentityServer endpoint or passed to the next middleware in the pipeline.</returns>
+    public async Task Invoke(
+        HttpContext context, 
+        IEndpointRouter router, 
+        IUserSession session, 
+        IEventService events, 
+        IBackChannelLogoutService backChannelLogoutService, 
+        ITelemetryService telemetryService)
     {
         // this will check the authentication session and from it emit the check session
         // cookie needed from JS-based signout clients.
@@ -64,15 +72,21 @@ public class IdentityServerMiddleware
             }
         });
 
+        ITrace trace = null;
         try
         {
             var endpoint = router.Find(context);
             if (endpoint != null)
             {
-                _logger.LogInformation("Invoking IdentityServer endpoint: {endpointType} for {url}", endpoint.GetType().FullName, context.Request.Path.ToString());
+                trace = telemetryService
+                    .Trace(TelemetryConstants.TraceCategories.Basic, "IdentityServerProtocolRequest");
+                using var activeRequest = telemetryService.BeginActiveRequest(
+                    endpoint.GetType().FullName, context.GetOriginalRequestPath());
+
+                _logger.LogInformation("Invoking IdentityServer endpoint: {endpointType} for {url}",
+                    endpoint.GetType().FullName, context.Request.Path.ToString());
 
                 var result = await endpoint.ProcessAsync(context);
-
                 if (result != null)
                 {
                     _logger.LogTrace("Invoking result: {type}", result.GetType().FullName);
@@ -84,9 +98,15 @@ public class IdentityServerMiddleware
         }
         catch (Exception ex)
         {
+            trace?.AddException(ex);
+            telemetryService.CountInternalError(error: ex.GetType().FullName);
             await events.RaiseAsync(new UnhandledExceptionEvent(ex));
             _logger.LogCritical(ex, "Unhandled exception: {exception}", ex.Message);
             throw;
+        }
+        finally
+        {
+            trace?.Dispose();
         }
 
         await _next(context);

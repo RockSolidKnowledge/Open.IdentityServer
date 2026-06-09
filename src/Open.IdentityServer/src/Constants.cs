@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -245,6 +246,8 @@ internal static class Constants
         [Obsolete("The IdentityServerOrigin constant is obsolete.")]
         public const string IdentityServerOrigin = "idsvr:IdentityServerOrigin"; // todo: deprecate
         public const string SignOutCalled = "idsvr:IdentityServerSignOutCalled";
+        
+        internal const string OriginalRequestPath = "idsvr:OriginalRequestPath";
     }
 
     public static class TokenTypeHints

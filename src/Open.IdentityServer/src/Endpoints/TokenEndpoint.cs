@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -26,6 +27,7 @@ internal class TokenEndpoint : IEndpointHandler
     private readonly ITokenRequestValidator _requestValidator;
     private readonly ITokenResponseGenerator _responseGenerator;
     private readonly IEventService _events;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
 
     /// <summary>
@@ -35,12 +37,13 @@ internal class TokenEndpoint : IEndpointHandler
     /// <param name="requestValidator">The request validator.</param>
     /// <param name="responseGenerator">The response generator.</param>
     /// <param name="events">The events.</param>
+    /// <param name="telemetry">The telemetry service</param>
     /// <param name="logger">The logger.</param>
-    public TokenEndpoint(
-        IClientSecretValidator clientValidator, 
-        ITokenRequestValidator requestValidator, 
-        ITokenResponseGenerator responseGenerator, 
-        IEventService events, 
+    public TokenEndpoint(IClientSecretValidator clientValidator,
+        ITokenRequestValidator requestValidator,
+        ITokenResponseGenerator responseGenerator,
+        IEventService events,
+        ITelemetryService telemetry,
         ILogger<TokenEndpoint> logger)
     {
         _clientValidator = clientValidator;
@@ -48,6 +51,7 @@ internal class TokenEndpoint : IEndpointHandler
         _responseGenerator = responseGenerator;
         _events = events;
         _logger = logger;
+        _telemetry = telemetry;
     }
 
     /// <summary>
@@ -57,6 +61,7 @@ internal class TokenEndpoint : IEndpointHandler
     /// <returns>A task that resolves to an <see cref="IEndpointResult"/> representing either a token response or an error response.</returns>
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         _logger.LogTrace("Processing token request.");
 
         // validate HTTP
@@ -88,6 +93,8 @@ internal class TokenEndpoint : IEndpointHandler
 
         if (requestResult.IsError)
         {
+            _telemetry.CountTokenIssued(clientResult.Client.ClientId, requestResult.ValidatedRequest.GrantType,
+                false, false, false, requestResult.Error);
             await _events.RaiseAsync(new TokenIssuedFailureEvent(requestResult));
             return Error(requestResult.Error, requestResult.ErrorDescription, requestResult.CustomResponse);
         }
@@ -96,6 +103,8 @@ internal class TokenEndpoint : IEndpointHandler
         _logger.LogTrace("Calling into token request response generator: {type}", _responseGenerator.GetType().FullName);
         var response = await _responseGenerator.ProcessAsync(requestResult);
 
+        _telemetry.CountTokenIssued(clientResult.Client.ClientId, requestResult.ValidatedRequest.GrantType,
+            response.AccessToken.IsPresent(), response.IdentityToken.IsPresent(), response.RefreshToken.IsPresent());
         await _events.RaiseAsync(new TokenIssuedSuccessEvent(response, requestResult));
         LogTokens(response, requestResult);
 

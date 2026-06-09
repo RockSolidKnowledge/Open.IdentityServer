@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Stores;
 
@@ -17,22 +18,25 @@ namespace Open.IdentityServer.Stores;
 /// <param name="dataProtectedIdentityServerKeyMaterialConverter">Converter used to decrypt and convert data-protected key material into usable credentials.</param>
 /// <param name="timeProvider">Time provider implementation</param>
 /// <param name="options">Compatibility key store options</param>
+/// <param name="telemetry">The telemetry service</param>
 public class IdentityServerSigningCredentialStore(
     IIdentityServerKeyStore identityServerKeyStore,
     DataProtectedIdentityServerKeyMaterialConverter dataProtectedIdentityServerKeyMaterialConverter,
     TimeProvider timeProvider,
-    CompatibilityKeyStoreOptions options
+    CompatibilityKeyStoreOptions options,
+    ITelemetryService telemetry
     ): 
     IdentityServerSigningKeyStore(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, options), 
     ISigningCredentialStore
 {
-
     /// <summary>
     /// Gets the key to be used for signing from the key store, will be the newest key 
     /// </summary>
     /// <returns>a key to be used for signing</returns>
     public async Task<SigningCredentials> GetSigningCredentialsAsync()
     {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         return GetKeys()
             .Select(x => x.Credentials)
             .FirstOrDefault();
