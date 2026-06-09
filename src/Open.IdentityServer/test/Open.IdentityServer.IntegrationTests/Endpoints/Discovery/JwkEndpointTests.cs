@@ -1,12 +1,14 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.IntegrationTests.Common;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
 using Microsoft.IdentityModel.Tokens;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
@@ -157,9 +159,12 @@ public class JwkEndpointTests
     public async Task Jwks_WhenCompatibilityStoreConfigured_ShouldGetKeysFromStore()
     {
         IdentityServerPipeline pipeline = new IdentityServerPipeline();
+        FakeTimeProvider timeProvider = new FakeTimeProvider();
+        timeProvider.SetUtcNow(FakeIdentityServerKeyStore.FakeNow);
         
         pipeline.OnPostConfigureServices += services =>
         {
+            services.AddSingleton<TimeProvider>(timeProvider);
             services.AddScoped<IIdentityServerKeyStore, FakeIdentityServerKeyStore>();
             services.AddIdentityServerBuilder()
                 .AddCompatibilityKeyStores();

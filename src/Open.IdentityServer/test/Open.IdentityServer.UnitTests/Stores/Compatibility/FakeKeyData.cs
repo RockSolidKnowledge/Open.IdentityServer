@@ -12,7 +12,7 @@ namespace IdentityServer.UnitTests.Stores.Compatibility;
 
 public static class FakeKeyData
 {
-    public static RSAParameters RsaSecurityKey256 = new RSAParameters
+    public static RSAParameters RsaSecurityKey256 = new()
     {
         Modulus = Convert.FromBase64String("lhB1UxNfZTjo7y41Oj6YVOqk7Lr4kd4MEWkmEgS6OME+N7DPMlHQM0EUH5NswPKl/6gD8YW6vaMPtynhCO6X/tLnAfQXu0R7vPme8/5YsVhHcCzYYUZUUjCe2hCm0oeSdV+oVB9Q7N0RDbvI64upmKXs6WsmWQjR5gxVsWgtU4hnkBXgRMWSQZPTvAaGthGtT18e0xZPiRI3mi7++JonkgVpvln8lHubP4ov6OKOOmxW7yLaLFRyYJIKJpXl9G26QRV8VpwWDEV6klds2n9YNAuQJFCAD1qoFgk4p+JZm3yAFRHpZlQHL83E4LF2ub7bZwy/pSo948Ie0/S21uYiTw=="),
         Exponent = Convert.FromBase64String("AQAB"),
@@ -24,7 +24,7 @@ public static class FakeKeyData
         InverseQ = Convert.FromBase64String("Rgz8DKhPbMDzBZJKnqqmNuqP5FEQVy9ixlHx1gjM1QzdXSOBxQM9hJ7xEVVeU72HQaGfONFfs+ywJRTTrGOYYFS0arQC7xSSKnQj84FGm/5M+geme5Libt2Tp2mNxcbUrxJBTHxoLAXvGfjlu7pL5xmYC/GJIOXiN8KoAP8O8i0=")
     };
 
-    public static ECParameters EcDsaSecurityKey256 = new ECParameters
+    public static ECParameters EcDsaSecurityKey256 = new()
     {
         Curve = ECCurve.NamedCurves.nistP256,
         Q = new ECPoint
@@ -35,7 +35,7 @@ public static class FakeKeyData
         D = Convert.FromBase64String("6l0Qd9ZoV5gFj7mrKuzDJvLuaCOAoWiuSuWhJMTFuts=")
     };
 
-    public static ECParameters EcDsaSecurityKey384 = new ECParameters
+    public static ECParameters EcDsaSecurityKey384 = new()
     {
         Curve = ECCurve.NamedCurves.nistP384,
         Q = new ECPoint
@@ -46,7 +46,7 @@ public static class FakeKeyData
         D = Convert.FromBase64String("FTG9qoWhAOdRtzovZJxq+4ZerL3u1Ji7zF8QNRRcZjpMLT1pLTwsq8ipwhXUjNTE")
     };
 
-    public static ECParameters EcDsaSecurityKey521 = new ECParameters
+    public static ECParameters EcDsaSecurityKey521 = new()
     {
         Curve = ECCurve.NamedCurves.nistP521,
         Q = new ECPoint
@@ -59,14 +59,20 @@ public static class FakeKeyData
 
     public static string ToBase64Pfx(this RsaSecurityKey rsaKey)
     {
-        using var rsa = RSA.Create(rsaKey.Parameters);
-        var request = new CertificateRequest($"CN={rsaKey.KeyId}", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        using var rsa = RSA.Create();
+        rsa.ImportParameters(rsaKey.Parameters);
 
-        using X509Certificate2 cert = request.CreateSelfSigned(
+        var request = new CertificateRequest(
+            $"CN={rsaKey.KeyId}",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+
+        using var cert = request.CreateSelfSigned(
             DateTimeOffset.UtcNow,
             DateTimeOffset.UtcNow.AddYears(1));
 
-        return Convert.ToBase64String(cert.Export(X509ContentType.Pfx, null as string));
+        return Convert.ToBase64String(cert.Export(X509ContentType.Pfx));
     }
 
     public static string ToBase64Pfx(this ECDsaSecurityKey ecKey)

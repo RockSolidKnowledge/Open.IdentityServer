@@ -18,7 +18,7 @@ namespace Open.IdentityServer.DataProtection;
 /// <param name="dataProtectionProvider">The data protection provider used to create a protector for unprotecting encrypted key material.</param>
 public class DataProtectedIdentityServerKeyMaterialConverter(IDataProtectionProvider dataProtectionProvider)
 {
-    private IDataProtector dataProtector = dataProtectionProvider.CreateProtector("DataProtectionKeyProtector");
+    private IDataProtector dataProtector = dataProtectionProvider.CreateProtector(DataProtectionConstants.KeyProtectorPurpose);
     
     /// <summary>
     /// Json serializer settings
@@ -58,8 +58,6 @@ public class DataProtectedIdentityServerKeyMaterialConverter(IDataProtectionProv
         {
             var keyData = JsonSerializer.Deserialize<EcIdentityServerKeyData>(unprotectedData, Settings);
 
-            signingKey.Created = keyData.Created;
-
             ECCurve curve = keyMaterial.Algorithm switch
             {
                 "ES256" => CryptoHelper.GetCurveFromCrvValue("P-256"),
@@ -70,6 +68,7 @@ public class DataProtectedIdentityServerKeyMaterialConverter(IDataProtectionProv
 
             var ecdsa = ECDsa.Create(new ECParameters { Curve = curve, D = keyData.D, Q = keyData.Q });
             
+            signingKey.Created = keyData.Created;
             signingKey.Credentials = new SigningCredentials(new ECDsaSecurityKey(ecdsa) { KeyId = keyData.Id }, keyData.Algorithm);
         }
 
@@ -79,7 +78,8 @@ public class DataProtectedIdentityServerKeyMaterialConverter(IDataProtectionProv
             
             var cert = X509CertificateLoader.LoadPkcs12(System.Convert.FromBase64String(keyData.CertificateRawData), null);
             
-            signingKey.Credentials = new SigningCredentials(new X509SecurityKey(cert), keyData.Algorithm);
+            signingKey.Created = keyData.Created;
+            signingKey.Credentials = new SigningCredentials(new X509SecurityKey(cert) { KeyId = keyData.Id }, keyData.Algorithm);
         }
         
         return signingKey;

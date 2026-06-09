@@ -1,3 +1,7 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
@@ -6,6 +10,8 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery;
 
 public class FakeIdentityServerKeyStore: IIdentityServerKeyStore
 {
+    public static readonly DateTime FakeNow = new(2026, 02, 01, 12, 00, 00, DateTimeKind.Utc);
+    
     public IEnumerable<IdentityServerKeyMaterial> GetKeys()
     {
         return
@@ -15,6 +21,7 @@ public class FakeIdentityServerKeyStore: IIdentityServerKeyStore
             new IdentityServerKeyMaterial { Id = "FakeRSA_ES256", Version = 1, Use = "signing", DataProtected = false, Algorithm = "ES256", Data = FakeES256KeyData },
             new IdentityServerKeyMaterial { Id = "FakeRSA_ES384", Version = 1, Use = "signing", DataProtected = false, Algorithm = "ES384", Data = FakeES384KeyData },
             new IdentityServerKeyMaterial { Id = "FakeRSA_ES521", Version = 1, Use = "signing", DataProtected = false, Algorithm = "ES521", Data = FakeES521KeyData },
+            new IdentityServerKeyMaterial { Id = "FakeRSA_PS512_Expired", Version = 1, Use = "signing", DataProtected = false, Algorithm = "PS512", Data = FakePS512KeyData },
         ];
     }
     
@@ -95,6 +102,25 @@ public class FakeIdentityServerKeyStore: IIdentityServerKeyStore
             "Algorithm": "ES521",
             "HasX509Certificate": false,
             "Created": "2026-01-01T12:00:00"
+        }
+        """;
+    
+    private const string FakePS512KeyData = """
+        {
+            "Parameters": {
+                "D": "Bj8nuAP4kWK6Bh5u7JM1SlkENF4MmaCDhptjtoG3mo+Blh7EfRb3IGCNP4E81xmWTBAmnNdb6/H9e0YSublgXVHnXcsEwLCiIucWCa9YmwuUeBw4cMzNIHVsWss2wv7XpY18SVLzZs9PW99zgZwREquQFbYcjVGfEQqEYNGe891Lz+AKTo5Qpsyx3laZLTOUL+VBb5bJGJxl2HIeFWDbrn/bqltBRUcjayYiX563IwtHBwLBWBAEbrBBurGPaIk9PjC4WVAvVdvWYZQgksfePsV7/1zWhi6K5VElAn0ohrpmImHWh6ob+nIV6oUJG/gXpNAmB2ZbMDopeRn1QRZKAQ==",
+                "DP": "QUvY4w84l8MoqhAcxoXA7H6DaPZRpDnoNuTPfMVJCjnMxBLrX8k2Yx8vPk2KhFXSklG9K0PrLWsp8EO/dHVplbUXqhluYbeAJ6UZXNXW1cmjw6AXiYn+SwibP7KY6HhElxTVqhMqm+66e6Coei11otsweRMWT3dSmPBMlYoxc/M=",
+                "DQ": "2HtvEUst8qBP7yl1n2cMoEBNo6X6Hv8On2oFBvAtsUgzfHO9BKRdrrwo7fGH6t6ZGoGYB+uE9tbenRpr58ZEHHE65bKwZ6z/Us6ogKq/QOsfroQCU509U0x5aXn3DfYwzNGXDDlw7RESh89L9YWf7j9UsMeITPpw1nINf06jIAE=",
+                "Exponent": "AQAB",
+                "InverseQ": "PUaNIRe81tN+RmxtA4OrfKupweBWPfGrKXosT9IbIlP3aqEGsR0+rLtWzs+5fw0bMyFSLcVUmEQAfso/RirlskqtO0A5Zg2qfQjSVZkTCvLrPYBnu94JwNhA6K/MawkoRcqsM682FVOlJvSqkhbCZuG/6AcF+Lu3To4oDjsm5y4=",
+                "Modulus": "zYRdc59usklvJRIgQhK+6jEp0P8YohIj3vYEWyv3S/dHqa8dSGloyHDJhG6RAdqnR8S2nhGTcdokqRE4hSdWMaQSd5FKgC2ZpKe0BM3qt4q7lzid8kezkUqkhqCV39ITEiMxMkeMDK+SZqiH2OB5J6n+G4b5PnroshElcNXRaWultIm+vnAWkPXJyhc0mvD+uAlFd9TMbTU5BZE7NZ0tn8Y0Ny2MAPLWW0UVmkGeSwS5rCROiaJTS3P50BJD5eAJrq4OAilVjciBWWt68+6uwxmUGZye9foqAc98P3jLM7ccLrMKklyejTBNIcisyNEY+3+WM1NkA3mMy0qVS0cbXw==",
+                "P": "7khqnAiMQG17a5daoEmL2zcB6rpnJ5t7cVqJd12UUCbfVzhP+pdxvjG5vt4Dpb5/lN29GlC+sJeL9WsmBSwtCENb1No3uUQ8QbQYCFA4gBInck5q2RBRuPeqP4RHJWglR+9rDSs+hcGvNaDPBL70BCyUQKcrlaBSy4NDwBCFZb8=",
+                "Q": "3MxE5TRElLXPnY0miYxqGc3zpjKayu/c7yRaM/kR+16+fRi1AWhscVBpusA27xHdS5SZiTGEeLdqiKQ+OVC/oNmXS2aXDaGOyb6014jsil43sBQVQekeiTfkKslPE03DlOr6w6KqeuiKTF+yQBHvH3yybDlXy3wqpiGLq7az8mE="
+            },
+            "Id": "FakeRSA_PS512_Expired",
+            "Algorithm": "PS512",
+            "HasX509Certificate": false,
+            "Created": "2025-10-01T12:00:00"
         }
         """;
 }

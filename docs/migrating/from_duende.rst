@@ -102,7 +102,7 @@ Migration Steps
 
    .. _refReadOnlyKeyStore:
 
-   If you were using automatic key management, you will now need to register read-only key store or add a signing key explicitly:
+   If you were using automatic key management, you will now need to register the read-only key store and/or add a signing key(s) explicitly:
 
    .. code-block:: c#
 
@@ -113,6 +113,12 @@ Migration Steps
        // Explicit key registration
        builder.Services.AddIdentityServer()
            .AddSigningCredential(certificate);
+           
+   .. warning::
+       If configuring the read-only key store, all keys created within a 90 days will be considered valid, and the newest 
+       key within this timespan will be registered as a signing key. The extension method used to register the 
+       compatibility store allows you to configure this ``.AddCompatibilityKeyStores(opt => opt.MaxLifetime = TimeSpan.FromDays(120))``.
+       
 
 5. **Migrate the database schema (if applicable)**
 

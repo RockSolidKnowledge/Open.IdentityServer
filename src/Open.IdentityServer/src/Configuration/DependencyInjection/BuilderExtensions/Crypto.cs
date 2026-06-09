@@ -303,12 +303,17 @@ public static class IdentityServerBuilderExtensionsCrypto
     /// Add the signing and validation key stores that target the IdentityServer compatibility key stores
     /// </summary>
     /// <param name="builder">The builder.</param>
+    /// <param name="configure">Action to configure compatibility key store options</param>
     /// <returns></returns>
-    public static IIdentityServerBuilder AddCompatibilityKeyStores(this IIdentityServerBuilder builder)
+    public static IIdentityServerBuilder AddCompatibilityKeyStores(this IIdentityServerBuilder builder, Action<CompatibilityKeyStoreOptions> configure = null)
     {
+        var options = new CompatibilityKeyStoreOptions();
+        configure?.Invoke(options);
+        
+        builder.Services.AddSingleton(options);
         builder.Services.AddTransient<DataProtectedIdentityServerKeyMaterialConverter>();
-        builder.Services.AddScoped<ISigningCredentialStore, IdentityServerSigningCredentialStore>();
         builder.Services.AddScoped<IValidationKeysStore, IdentityServerValidationKeysStore>();
+        builder.Services.AddScoped<ISigningCredentialStore, IdentityServerSigningCredentialStore>();
 
         return builder;
     }
