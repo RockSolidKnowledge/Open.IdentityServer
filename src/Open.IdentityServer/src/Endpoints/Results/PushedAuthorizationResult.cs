@@ -4,10 +4,11 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Open.IdentityServer.Hosting;
+using Open.IdentityServer.ResponseHandling;
 
 namespace Open.IdentityServer.Endpoints.Results;
 
-internal class PushedAuthorizationResult : IEndpointResult
+internal record PushedAuthorizationResult(PushedAuthorizationResponse Response) : IEndpointResult
 {
     public Task ExecuteAsync(HttpContext context)
     {

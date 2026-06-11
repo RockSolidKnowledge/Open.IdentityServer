@@ -9,12 +9,15 @@ using Microsoft.AspNetCore.Http;
 using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Hosting;
 using Open.IdentityServer.Extensions;
+using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Validation;
 
 #nullable  enable
 namespace Open.IdentityServer.Endpoints;
 
-internal class PushedAuthorizationEndpoint(IPushedAuthorizationRequestValidator validator) : IEndpointHandler
+internal class PushedAuthorizationEndpoint(
+    IPushedAuthorizationRequestValidator validator ,
+    IPushedAuthorizationResponseGenerator responseGenerator) : IEndpointHandler
 {
     public async Task<IEndpointResult> ProcessAsync(HttpContext requestContext)
     {
@@ -28,11 +31,12 @@ internal class PushedAuthorizationEndpoint(IPushedAuthorizationRequestValidator 
         {
             return new StatusCodeResult(HttpStatusCode.BadRequest);
         }
-        PushedAuthorizationRequestValidationContext validationContext = new (parParameters);
+        var validationContext = new PushedAuthorizationRequestValidationContext(parParameters);
         return await ProcessRequest(requestContext, validationContext);
     }
 
-    private async Task<IEndpointResult> ProcessRequest(HttpContext requestContext,
+    private async Task<IEndpointResult> ProcessRequest(
+        HttpContext requestContext,
         PushedAuthorizationRequestValidationContext validationContext)
     {
         PushAuthorizationRequestValidationResult result = await validator
@@ -42,11 +46,11 @@ internal class PushedAuthorizationEndpoint(IPushedAuthorizationRequestValidator 
         {
             return new BadRequestResult(result.Error, result.ErrorDescription);
         }
+    
+        PushedAuthorizationResponse response = await responseGenerator
+            .CreateResponseAsync(result.ValidatedAuthorizeRequest);
         
-        // Generate URI
-        // Store Validated Authorize Request
-        
-        return new PushedAuthorizationResult();
+        return new PushedAuthorizationResult(response);
     }
     
     private async Task<NameValueCollection?> ParseForm(HttpRequest request)
