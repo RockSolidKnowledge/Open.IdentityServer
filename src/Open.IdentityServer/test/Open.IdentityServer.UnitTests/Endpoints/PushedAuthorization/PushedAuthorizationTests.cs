@@ -14,6 +14,7 @@ using Moq;
 using Open.IdentityServer.Endpoints;
 using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Hosting;
+using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Validation;
 using Xunit;
 
@@ -23,6 +24,8 @@ public class PushedAuthorizationTests
 {
 
     private readonly Mock<IPushedAuthorizationRequestValidator> pushedAuthorizationRequestValidator = new();
+    private readonly Mock<IPushedAuthorizationResponseGenerator> pushedAuthorizationResponseGenerator = new();
+    
     private readonly MockHttpContextAccessor mockHttpContext = new();
 
     [Theory]
@@ -38,18 +41,9 @@ public class PushedAuthorizationTests
         context.Request.Method = verb;
 
         IEndpointResult result = await sut.ProcessAsync(context);
-        if (!isSupported)
-        {
-            ResultShouldBeStatusCodeOf(result, HttpStatusCode.MethodNotAllowed);
-        }
-        else
-        {
-            ResultShouldBeStatusCodeOf(result, HttpStatusCode.BadRequest);
-        }
+        ResultShouldBeStatusCodeOf(result, !isSupported ? HttpStatusCode.MethodNotAllowed : HttpStatusCode.BadRequest);
     }
-
-
-
+    
     [Fact]
     public async Task ProcessAsync_should_return_bad_request_when_no_form_body_in_request()
     {
@@ -103,9 +97,32 @@ public class PushedAuthorizationTests
         result.Should()
             .BeOfType<BadRequestResult>()
             .And.BeEquivalentTo(new BadRequestResult(expectedError, expectedErrorDescription));
-
     }
 
+    [Fact]
+    public async Task ProcessAsync_when_called_with_valid_request_should_generate_ok_response()
+    {
+        var sut = CreateSut();
+        var context = mockHttpContext.HttpContext!;
+        var requestValidatorResult = new PushAuthorizationRequestValidationResult(new ValidatedAuthorizeRequest());
+        var expectedResult = new PushedAuthorizationResponse(new Uri("urn:foo"), 10);
+        var parameters = new NameValueCollection();
+
+        AddRequest(parameters);
+        pushedAuthorizationRequestValidator
+            .Setup(parv =>
+                parv.ValidateAsync(It.IsAny<PushedAuthorizationRequestValidationContext>(), context.RequestAborted))
+                    .ReturnsAsync(requestValidatorResult);
+
+        pushedAuthorizationResponseGenerator
+            .Setup(parg => parg.CreateResponseAsync(requestValidatorResult.ValidatedAuthorizeRequest))
+            .ReturnsAsync(expectedResult);
+        
+        PushedAuthorizationResult result = (PushedAuthorizationResult)await sut.ProcessAsync(context);
+
+        result.Response.Should().Be(expectedResult);
+    }
+    
     private static bool IsNameCollectionEquivalent(NameValueCollection lhs, NameValueCollection rhs)
     {
         return lhs.Count == rhs.Count &&
@@ -134,6 +151,8 @@ public class PushedAuthorizationTests
     
     private PushedAuthorizationEndpoint CreateSut()
     {
-        return new PushedAuthorizationEndpoint(pushedAuthorizationRequestValidator?.Object);
+        return new PushedAuthorizationEndpoint(
+            pushedAuthorizationRequestValidator.Object,
+            pushedAuthorizationResponseGenerator.Object);
     }
 }
