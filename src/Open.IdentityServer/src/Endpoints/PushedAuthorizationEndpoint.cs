@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Hosting;
 using Open.IdentityServer.Extensions;
@@ -17,10 +18,12 @@ namespace Open.IdentityServer.Endpoints;
 
 internal class PushedAuthorizationEndpoint(
     IPushedAuthorizationRequestValidator validator ,
-    IPushedAuthorizationResponseGenerator responseGenerator) : IEndpointHandler
+    IPushedAuthorizationResponseGenerator responseGenerator,
+    ILogger<PushedAuthorizationEndpoint> logger) : IEndpointHandler
 {
     public async Task<IEndpointResult> ProcessAsync(HttpContext requestContext)
     {
+        logger.LogDebug("Start processing pushed authorization request");
         if (!HttpMethods.IsPost(requestContext.Request.Method))
         {
             return new StatusCodeResult(HttpStatusCode.MethodNotAllowed);
@@ -50,6 +53,8 @@ internal class PushedAuthorizationEndpoint(
         PushedAuthorizationResponse response = await responseGenerator
             .CreateResponseAsync(result.ValidatedAuthorizeRequest);
         
+        
+        logger.LogTrace("End processing pushed authorization request");
         return new PushedAuthorizationResult(response);
     }
     
