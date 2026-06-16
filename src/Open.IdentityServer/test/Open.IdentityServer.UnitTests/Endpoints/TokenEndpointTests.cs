@@ -119,14 +119,7 @@ public class TokenEndpointTests
     [Trait("Category", Category)]
     public async Task process_should_emit_telemetry_signal_when_request_is_valid()
     {
-        TelemetryTag[] expectedTags =
-        {
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "client"),
-            new TelemetryTag(TelemetryConstants.TagConstants.GrantType, "client_credentials")
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenIssued(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenIssued("client",  "client_credentials"))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -144,22 +137,13 @@ public class TokenEndpointTests
         await subject.ProcessAsync(context);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     [Trait("Category", Category)]
     public async Task process_should_emit_telemetry_signal_when_request_validation_fails()
     {
-        TelemetryTag[] expectedTags =
-        {
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "client"),
-            new TelemetryTag(TelemetryConstants.TagConstants.GrantType, "client_credentials"),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, "invalid_grant")
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenIssued(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenIssued("client", "client_credentials", "invalid_grant"))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -174,6 +158,5 @@ public class TokenEndpointTests
         await subject.ProcessAsync(context);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 }

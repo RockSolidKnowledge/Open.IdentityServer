@@ -113,15 +113,7 @@ public class IdentityServerMiddlewareTests
     [Fact]
     public async Task Invoke_OnUnhandledException_ShouldCountTelemetryEvent()
     {
-        TelemetryTag[] passedTags = null;
-        TelemetryTag[] expectedTags = new[]
-        {
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, "System.Exception"),
-        };
-        
         _router.Setup(x => x.Find(_context)).Throws(new Exception("Test exception"));
-        _telemetryService.Setup(x => x.CountInternalError(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => passedTags = tags);
         
         try
         {
@@ -132,9 +124,7 @@ public class IdentityServerMiddlewareTests
             // intentionally swallowed
         }
         
-        _telemetryService.Verify(x => x.CountInternalError(It.IsAny<TelemetryTag[]>()), Times.Once);
-        
-        passedTags.Should().BeEquivalentTo(expectedTags);
+        _telemetryService.Verify(x => x.CountInternalError("System.Exception"), Times.Once);
     }
 
     [Fact]

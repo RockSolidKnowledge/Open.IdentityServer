@@ -56,13 +56,7 @@ public class ClientSecretValidatorTests
     [Trait("Category", Category)]
     public async Task Validate_WhenNoSecretFound_ShouldRaiseTelemetrySignal()
     {
-        TelemetryTag[] actualTags = null;
-        TelemetryTag[] expectedTags = [
-            new(TelemetryConstants.TagConstants.Client, "unknown"),
-            new(TelemetryConstants.TagConstants.Error, "No client id found")
-        ];
-        _telemetry.Setup(t => t.CountClientSecretValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        _telemetry.Setup(t => t.CountClientSecretValidation("unknown", null, "No client id found"))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -77,7 +71,6 @@ public class ClientSecretValidatorTests
         _events.AssertEventWasRaised<ClientAuthenticationFailureEvent>();
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -102,13 +95,7 @@ public class ClientSecretValidatorTests
     [Trait("Category", Category)]
     public async Task Validate_WhenClientUnknown_ShouldRaiseTelemetrySignal()
     {
-        TelemetryTag[] actualTags = null;
-        TelemetryTag[] expectedTags = [
-            new(TelemetryConstants.TagConstants.Client, "unknown-client"),
-            new(TelemetryConstants.TagConstants.Error, "Unknown client")
-        ];
-        _telemetry.Setup(t => t.CountClientSecretValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        _telemetry.Setup(t => t.CountClientSecretValidation("unknown-client", null, "Unknown client"))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -125,7 +112,6 @@ public class ClientSecretValidatorTests
         _events.AssertEventWasRaised<ClientAuthenticationFailureEvent>();
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -154,13 +140,7 @@ public class ClientSecretValidatorTests
     [Trait("Category", Category)]
     public async Task Validate_WhenClientSecretInvalid_ShouldRaiseTelemetrySignal()
     {
-        TelemetryTag[] actualTags = null;
-        TelemetryTag[] expectedTags = [
-            new(TelemetryConstants.TagConstants.Client, "client_id"),
-            new(TelemetryConstants.TagConstants.Error, "Invalid client secret")
-        ];
-        _telemetry.Setup(t => t.CountClientSecretValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        _telemetry.Setup(t => t.CountClientSecretValidation("client_id", null, "Invalid client secret"))
             .Verifiable(Times.Once);
 
         var subject = CreateSubject();
@@ -181,7 +161,6 @@ public class ClientSecretValidatorTests
         _events.AssertEventWasRaised<ClientAuthenticationFailureEvent>();
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -213,13 +192,7 @@ public class ClientSecretValidatorTests
     [Trait("Category", Category)]
     public async Task Validate_WhenClientSecretValid_ShouldRaiseTelemetrySignal()
     {
-        TelemetryTag[] actualTags = null;
-        TelemetryTag[] expectedTags = [
-            new(TelemetryConstants.TagConstants.Client, "client"),
-            new(TelemetryConstants.TagConstants.AuthMethod, "SharedSecret")
-        ];
-        _telemetry.Setup(t => t.CountClientSecretValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        _telemetry.Setup(t => t.CountClientSecretValidation("client", "SharedSecret", null))
             .Verifiable(Times.Once);
 
         var subject = CreateSubject();
@@ -243,6 +216,5 @@ public class ClientSecretValidatorTests
         _events.AssertEventWasRaised<ClientAuthenticationSuccessEvent>();
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 }

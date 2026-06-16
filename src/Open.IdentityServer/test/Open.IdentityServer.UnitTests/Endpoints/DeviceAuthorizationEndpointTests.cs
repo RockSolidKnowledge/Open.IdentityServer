@@ -138,14 +138,7 @@ public class DeviceAuthorizationEndpointTests
     [Trait("Category", Category)]
     public async Task process_should_raise_telemetry_signal_when_request_validation_fails()
     {
-        TelemetryTag[] actualTags = null;
-        TelemetryTag[] expectedTags =
-        [
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "test-client"),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, OidcConstants.TokenErrors.InvalidScope)
-        ];
-        _telemetry.Setup(x => x.CountDeviceAuthentication(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        _telemetry.Setup(x => x.CountDeviceAuthentication("test-client", OidcConstants.TokenErrors.InvalidScope))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -172,7 +165,6 @@ public class DeviceAuthorizationEndpointTests
         await subject.ProcessAsync(context);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -220,12 +212,7 @@ public class DeviceAuthorizationEndpointTests
     [Trait("Category", Category)]
     public async Task process_should_raise_telemetry_result_on_success()
     {
-        TelemetryTag[] actualTags = null;
-        TelemetryTag[] expectedTags = [
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "test-client")
-        ];
-        _telemetry.Setup(x => x.CountDeviceAuthentication(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        _telemetry.Setup(x => x.CountDeviceAuthentication("test-client"))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -259,7 +246,6 @@ public class DeviceAuthorizationEndpointTests
         await subject.ProcessAsync(context);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]

@@ -176,14 +176,9 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
 
     private Task RaiseFailureEventAsync(ValidatedAuthorizeRequest request, string error, string errorDescription)
     {
-        List<TelemetryTag> tags = [new(TelemetryConstants.TagConstants.Error, error)];
-        if (request != null)
-        {
-            tags.Add(new TelemetryTag(TelemetryConstants.TagConstants.Client, request.ClientId));
-            tags.Add(new TelemetryTag(TelemetryConstants.TagConstants.GrantType, request.GrantType));
-        }
-        
-        _telemetry.CountTokenIssued(tags.ToArray());
+        _telemetry.CountTokenIssued(request?.ClientId ?? "unknown-client",
+            request?.GrantType ?? "unknown-grant-type",
+            error);
         return _events.RaiseAsync(new TokenIssuedFailureEvent(request, error, errorDescription));
     }
 
@@ -192,10 +187,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         if (!response.IsError)
         {
             LogTokens(response);
-            _telemetry.CountTokenIssued(
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, response.Request.ClientId),
-                new TelemetryTag(TelemetryConstants.TagConstants.GrantType, response.Request.GrantType)
-            );
+            _telemetry.CountTokenIssued(response.Request.ClientId, response.Request.GrantType);
             return _events.RaiseAsync(new TokenIssuedSuccessEvent(response));
         }
         

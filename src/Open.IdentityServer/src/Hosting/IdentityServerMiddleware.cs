@@ -93,7 +93,7 @@ public class IdentityServerMiddleware
         }
         catch (Exception ex)
         {
-            telemetryService.CountInternalError(new TelemetryTag(TelemetryConstants.TagConstants.Error, ex.GetType().FullName));
+            telemetryService.CountInternalError(error: ex.GetType().FullName);
             await events.RaiseAsync(new UnhandledExceptionEvent(ex));
             _logger.LogCritical(ex, "Unhandled exception: {exception}", ex.Message);
             throw;

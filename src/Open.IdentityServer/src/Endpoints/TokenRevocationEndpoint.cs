@@ -90,10 +90,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
 
         if (clientValidationResult.IsError)
         {
-            _telemetry.CountTokenRevocation(
-                new TelemetryTag(TelemetryConstants.TagConstants.Client, clientValidationResult.Client?.ClientId ?? "unknown client"),
-                new TelemetryTag(TelemetryConstants.TagConstants.Error, OidcConstants.TokenErrors.InvalidClient)
-            );
+            _telemetry.CountTokenRevocation(clientValidationResult.Client?.ClientId ?? "unknown client", clientValidationResult.Error);
             return new TokenRevocationErrorResult(OidcConstants.TokenErrors.InvalidClient);
         }
 
@@ -107,10 +104,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
 
         if (requestValidationResult.IsError)
         {
-            _telemetry.CountTokenRevocation(
-                new TelemetryTag(TelemetryConstants.TagConstants.Client, requestValidationResult.Client?.ClientId),
-                new TelemetryTag(TelemetryConstants.TagConstants.Error, requestValidationResult.Error)
-            );
+            _telemetry.CountTokenRevocation(requestValidationResult.Client?.ClientId  ?? "unknown client", requestValidationResult.Error);
             return new TokenRevocationErrorResult(requestValidationResult.Error);
         }
 
@@ -120,9 +114,7 @@ internal class TokenRevocationEndpoint : IEndpointHandler
         if (response.Success)
         {
             _logger.LogInformation("Token revocation complete");
-            _telemetry.CountTokenRevocation(
-                new TelemetryTag(TelemetryConstants.TagConstants.Client, requestValidationResult.Client.ClientId)
-            );
+            _telemetry.CountTokenRevocation(requestValidationResult.Client.ClientId);
             await _events.RaiseAsync(new TokenRevokedSuccessEvent(requestValidationResult, requestValidationResult.Client));
         }
         else

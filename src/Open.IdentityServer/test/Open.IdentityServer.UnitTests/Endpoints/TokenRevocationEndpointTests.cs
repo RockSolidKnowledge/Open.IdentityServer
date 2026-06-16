@@ -89,13 +89,7 @@ public class TokenRevocationEndpointTests
     [Trait("Category", Category)]
     public async Task process_should_emit_telemetry_signal_when_token_is_found_and_revoked()
     {
-        TelemetryTag[] expectedTags = new TelemetryTag[]
-        {
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "client")
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenRevocation(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenRevocation("client"))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -113,21 +107,13 @@ public class TokenRevocationEndpointTests
         var result = await subject.ProcessAsync(context);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     [Trait("Category", Category)]
     public async Task process_should_emit_telemetry_signal_when_client_validation_fails()
     {
-        TelemetryTag[] expectedTags = new TelemetryTag[]
-        {
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "client"),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, OidcConstants.TokenErrors.InvalidClient)
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenRevocation(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenRevocation("client", OidcConstants.TokenErrors.InvalidClient))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -149,21 +135,13 @@ public class TokenRevocationEndpointTests
         var result = await subject.ProcessAsync(context);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     [Trait("Category", Category)]
     public async Task process_should_emit_telemetry_signal_when_request_validation_fails()
     {
-        TelemetryTag[] expectedTags = new TelemetryTag[]
-        {
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "client"),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, OidcConstants.TokenErrors.InvalidRequest)
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenRevocation(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenRevocation("client", OidcConstants.TokenErrors.InvalidRequest))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -182,9 +160,8 @@ public class TokenRevocationEndpointTests
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRevocationRequestValidationResult>()))
             .ReturnsAsync(new TokenRevocationResponse { Success = true });
 
-        var result = await subject.ProcessAsync(context);
+        await subject.ProcessAsync(context);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 }

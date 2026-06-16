@@ -88,11 +88,7 @@ internal class DeviceAuthorizationEndpoint : IEndpointHandler
 
         if (requestResult.IsError)
         {
-            _telemetry.CountDeviceAuthentication(
-                new TelemetryTag(TelemetryConstants.TagConstants.Client,
-                    clientResult.Client.ClientId ?? "No client id found"),
-                new TelemetryTag(TelemetryConstants.TagConstants.Error, requestResult.Error)
-            );
+            _telemetry.CountDeviceAuthentication(clientResult.Client.ClientId ?? "No client id found", requestResult.Error);
             await _events.RaiseAsync(new DeviceAuthorizationFailureEvent(requestResult));
             return Error(requestResult.Error, requestResult.ErrorDescription);
         }
@@ -104,10 +100,7 @@ internal class DeviceAuthorizationEndpoint : IEndpointHandler
         var response = await _responseGenerator.ProcessAsync(requestResult, baseUrl);
 
         
-        _telemetry.CountDeviceAuthentication(
-            new TelemetryTag(TelemetryConstants.TagConstants.Client,
-                clientResult.Client.ClientId)
-        );
+        _telemetry.CountDeviceAuthentication(clientResult.Client.ClientId);
         await _events.RaiseAsync(new DeviceAuthorizationSuccessEvent(response, requestResult));
 
         // return result

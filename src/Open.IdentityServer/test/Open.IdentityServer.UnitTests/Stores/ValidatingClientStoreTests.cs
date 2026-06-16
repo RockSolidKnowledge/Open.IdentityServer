@@ -117,13 +117,7 @@ public class ValidatingClientStoreTests
     [Fact]
     public async Task FindClientById_OnValidClient_ShouldRaiseTelemetrySignal()
     {
-        TelemetryTag[] expectedTags = new[]
-        {
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "client"),
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountClientConfigValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        _telemetry.Setup(t => t.CountClientConfigValidation( "client", null))
             .Verifiable(Times.Once());
         
         var subject = CreateSubject();
@@ -138,20 +132,12 @@ public class ValidatingClientStoreTests
         var result = await subject.FindClientByIdAsync("client");
         
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     public async Task FindClientById_OnInvalidClient_ShouldRaiseTelemetrySignal()
     {
-        TelemetryTag[] expectedTags = new[]
-        {
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "client"),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, "invalid client configuration"),
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountClientConfigValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        _telemetry.Setup(t => t.CountClientConfigValidation("client", "invalid client configuration"))
             .Verifiable(Times.Once());
         
         var subject = CreateSubject();
@@ -170,6 +156,5 @@ public class ValidatingClientStoreTests
         var result = await subject.FindClientByIdAsync("client");
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 }

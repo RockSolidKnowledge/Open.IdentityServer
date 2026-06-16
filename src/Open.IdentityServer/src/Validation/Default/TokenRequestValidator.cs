@@ -965,18 +965,13 @@ internal class TokenRequestValidator : ITokenRequestValidator
     private Task RaiseSuccessfulResourceOwnerAuthenticationEventAsync(string userName, string subjectId,
         string clientId)
     {
-        _telemetry.CountResourceOwnerAuthentication(
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId)
-        );
+        _telemetry.CountResourceOwnerAuthentication(clientId);
         return _events.RaiseAsync(new UserLoginSuccessEvent(userName, subjectId, null, interactive: false, clientId));
     }
 
     private Task RaiseFailedResourceOwnerAuthenticationEventAsync(string userName, string error, string clientId)
     {
-        _telemetry.CountResourceOwnerAuthentication(
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, error)
-        );
+        _telemetry.CountResourceOwnerAuthentication(clientId, error);
         return _events.RaiseAsync(new UserLoginFailureEvent(userName, error, interactive: false, clientId: clientId));
     }
 }

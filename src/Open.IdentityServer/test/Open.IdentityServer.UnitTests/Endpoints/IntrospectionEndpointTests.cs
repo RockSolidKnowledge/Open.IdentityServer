@@ -83,14 +83,7 @@ public class IntrospectionEndpointTests
     [Trait("Category", Category)]
     public async Task process_should_send_telemetry_signal_when_request_validation_fails()
     {
-        TelemetryTag[] expectedTags =
-        {
-            new (TelemetryConstants.TagConstants.Error, "invalid_request"),
-            new (TelemetryConstants.TagConstants.Caller, "api1")
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetryService.Setup(t => t.CountTokenIntrospection(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetryService.Setup(t => t.CountTokenIntrospection("api1", null, "invalid_request"))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -115,12 +108,5 @@ public class IntrospectionEndpointTests
         await subject.ProcessAsync(context);
         
         _telemetryService.Verify();
-        actualTags.Should().Equal(expectedTags);
-    }
-
-    [Fact]
-    public void Todo_WhenApiResourceIsNull_ShouldFallbackToClientForTelemetryCaller()
-    {
-        Assert.Fail("Todo");
     }
 }

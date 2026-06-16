@@ -126,20 +126,13 @@ public class ApiSecretValidator : IApiSecretValidator
 
     private Task OnSuccessEventAsync(string clientId, string authMethod)
     {
-        _telemetry.CountApiSecretValidation(
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
-            new TelemetryTag(TelemetryConstants.TagConstants.AuthMethod, authMethod)
-        );
-        
+        _telemetry.CountApiSecretValidation(client: clientId, authMethod: authMethod);
         return _events.RaiseAsync(new ApiAuthenticationSuccessEvent(clientId, authMethod));
     }
 
     private Task OnFailureAsync(string clientId, string message)
     {
-        _telemetry.CountApiSecretValidation(
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, message)
-        );
+        _telemetry.CountApiSecretValidation(client: clientId, error: message);
         return _events.RaiseAsync(new ApiAuthenticationFailureEvent(clientId, message));
     }
 }

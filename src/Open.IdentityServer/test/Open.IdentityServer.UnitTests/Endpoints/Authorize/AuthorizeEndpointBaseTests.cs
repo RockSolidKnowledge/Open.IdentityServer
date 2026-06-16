@@ -220,35 +220,19 @@ public class AuthorizeEndpointBaseTests
     [Trait("Category", Category)]
     public async Task successful_authorization_request_should_emit_telemetry_signal()
     {
-        TelemetryTag[] expectedTags =
-        {
-           new(TelemetryConstants.TagConstants.Client, "client"),
-           new(TelemetryConstants.TagConstants.GrantType, "grant_type")
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenIssued(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenIssued("client", "grant_type"))
             .Verifiable(Times.Once);
         
         await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     [Trait("Category", Category)]
     public async Task authorize_request_validation_produces_error_should_emit_telemetry_signal()
     {
-        TelemetryTag[] expectedTags =
-        {
-            new(TelemetryConstants.TagConstants.Client, "client"),
-            new(TelemetryConstants.TagConstants.GrantType, "grant_type"),
-            new(TelemetryConstants.TagConstants.Error, "some_error")
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenIssued(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenIssued("client", "grant_type", "some_error"))
             .Verifiable(Times.Once);
 
         _stubAuthorizeRequestValidator.Result.IsError = true;
@@ -257,22 +241,13 @@ public class AuthorizeEndpointBaseTests
         await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     [Trait("Category", Category)]
     public async Task interaction_produces_error_should_emit_telemetry_signal()
     {
-        TelemetryTag[] expectedTags =
-        {
-            new(TelemetryConstants.TagConstants.Client, "client"),
-            new(TelemetryConstants.TagConstants.GrantType, "grant_type"),
-            new(TelemetryConstants.TagConstants.Error, "interaction_error")
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenIssued(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenIssued("client", "grant_type", "interaction_error"))
             .Verifiable(Times.Once);
 
         _stubInteractionGenerator.Response.Error = "interaction_error";
@@ -281,22 +256,13 @@ public class AuthorizeEndpointBaseTests
         await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     [Trait("Category", Category)]
     public async Task authorize_response_is_error_should_emit_telemetry_signal()
     {
-        TelemetryTag[] expectedTags =
-        {
-            new(TelemetryConstants.TagConstants.Client, "client"),
-            new(TelemetryConstants.TagConstants.GrantType, "grant_type"),
-            new(TelemetryConstants.TagConstants.Error, "access_denied")
-        };
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenIssued(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenIssued("client", "grant_type", "access_denied"))
             .Verifiable(Times.Once);
 
         _stubAuthorizeResponseGenerator.Response.Error = "access_denied";
@@ -305,7 +271,6 @@ public class AuthorizeEndpointBaseTests
         await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
 
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     internal void Init()

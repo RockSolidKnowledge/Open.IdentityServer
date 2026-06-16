@@ -63,14 +63,7 @@ public class ApiSecretValidation
     [Trait("Category", Category)]
     public async Task no_secret_found_should_emit_telemetry_count()
     {
-        TelemetryTag[] expectedTags = new TelemetryTag[]
-        {
-            new("client", "unknown"),
-            new("error", "No API id or secret found")
-        };
-        TelemetryTag[] invokedTags = null;
-        _telemetry.Setup(x => x.CountApiSecretValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => invokedTags = tags)
+        _telemetry.Setup(x => x.CountApiSecretValidation("unknown", null, "No API id or secret found"))
             .Verifiable(Times.Once);
         
         _parser.Setup(x => x.ParseAsync(It.IsAny<HttpContext>()))
@@ -79,7 +72,6 @@ public class ApiSecretValidation
         await _subject.ValidateAsync(new DefaultHttpContext());
         
         _telemetry.Verify();
-        invokedTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -103,14 +95,7 @@ public class ApiSecretValidation
     [Trait("Category", Category)]
     public async Task unknown_api_resource_should_emit_telemetry_signal()
     {
-        TelemetryTag[] expectedTags = new TelemetryTag[]
-        {
-            new("client", "unknown_api"),
-            new("error", "Unknown API resource")
-        };
-        TelemetryTag[] invokedTags = null;
-        _telemetry.Setup(x => x.CountApiSecretValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => invokedTags = tags)
+        _telemetry.Setup(x => x.CountApiSecretValidation("unknown_api", null, "Unknown API resource"))
             .Verifiable(Times.Once);
         
         _parser.Setup(x => x.ParseAsync(It.IsAny<HttpContext>()))
@@ -122,7 +107,6 @@ public class ApiSecretValidation
         await _subject.ValidateAsync(new DefaultHttpContext());
         
         _telemetry.Verify();
-        invokedTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -150,14 +134,7 @@ public class ApiSecretValidation
     [Trait("Category", Category)]
     public async Task multiple_api_resources_should_emit_telemetry_signal()
     {
-        TelemetryTag[] expectedTags = new TelemetryTag[]
-        {
-            new("client", "api_id"),
-            new("error", "Invalid API resource")
-        };
-        TelemetryTag[] invokedTags = null;
-        _telemetry.Setup(x => x.CountApiSecretValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => invokedTags = tags)
+        _telemetry.Setup(x => x.CountApiSecretValidation("api_id", null,"Invalid API resource"))
             .Verifiable(Times.Once);
         
         _parser.Setup(x => x.ParseAsync(It.IsAny<HttpContext>()))
@@ -173,7 +150,6 @@ public class ApiSecretValidation
         await _subject.ValidateAsync(new DefaultHttpContext());
         
         _telemetry.Verify();
-        invokedTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -199,14 +175,7 @@ public class ApiSecretValidation
     [Trait("Category", Category)]
     public async Task disabled_api_resource_should_emit_telemetry_signal()
     {
-        TelemetryTag[] expectedTags = new TelemetryTag[]
-        {
-            new("client", "my_api"),
-            new("error", "API resource not enabled")
-        };
-        TelemetryTag[] invokedTags = null;
-        _telemetry.Setup(x => x.CountApiSecretValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => invokedTags = tags)
+        _telemetry.Setup(x => x.CountApiSecretValidation("my_api", null, "API resource not enabled"))
             .Verifiable(Times.Once);
         
         var api = new ApiResource("my_api") { Enabled = false };
@@ -220,7 +189,6 @@ public class ApiSecretValidation
         await _subject.ValidateAsync(new DefaultHttpContext());
         
         _telemetry.Verify();
-        invokedTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -249,14 +217,7 @@ public class ApiSecretValidation
     [Trait("Category", Category)]
     public async Task invalid_secret_should_emit_telemetry_signal()
     {
-        TelemetryTag[] expectedTags = new TelemetryTag[]
-        {
-            new("client", "my_api"),
-            new("error", "Invalid API secret")
-        };
-        TelemetryTag[] invokedTags = null;
-        _telemetry.Setup(x => x.CountApiSecretValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => invokedTags = tags)
+        _telemetry.Setup(x => x.CountApiSecretValidation("my_api", null, "Invalid API secret"))
             .Verifiable(Times.Once);
         
         var api = new ApiResource("my_api");
@@ -273,7 +234,6 @@ public class ApiSecretValidation
         await _subject.ValidateAsync(new DefaultHttpContext());
         
         _telemetry.Verify();
-        invokedTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -303,14 +263,7 @@ public class ApiSecretValidation
     [Trait("Category", Category)]
     public async Task valid_secret_should_emit_telemetry_signal()
     {
-        TelemetryTag[] expectedTags = new TelemetryTag[]
-        {
-            new("client", "my_api"),
-            new(TelemetryConstants.TagConstants.AuthMethod, "SharedSecret")
-        };
-        TelemetryTag[] invokedTags = null;
-        _telemetry.Setup(x => x.CountApiSecretValidation(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => invokedTags = tags)
+        _telemetry.Setup(x => x.CountApiSecretValidation("my_api",  "SharedSecret"))
             .Verifiable(Times.Once);
         
         var api = new ApiResource("my_api");
@@ -327,6 +280,5 @@ public class ApiSecretValidation
         await _subject.ValidateAsync(new DefaultHttpContext());
         
         _telemetry.Verify();
-        invokedTags.Should().BeEquivalentTo(expectedTags);
     }
 }

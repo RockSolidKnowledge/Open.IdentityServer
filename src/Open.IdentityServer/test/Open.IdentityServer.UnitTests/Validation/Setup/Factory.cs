@@ -400,16 +400,7 @@ internal static class Factory
 
 internal class NopTelemetryService : ITelemetryService
 {
-    public void CountOperationSucceeded(params TelemetryTag[] tags)
-    {
-        
-    }
-
-    public void CountOperationFailed(params TelemetryTag[] tags)
-    {
-    }
-
-    public void CountInternalError(params TelemetryTag[] tags)
+    public void CountInternalError(string error)
     {
     }
 
@@ -417,52 +408,52 @@ internal class NopTelemetryService : ITelemetryService
     {
         return new NopDisposable();
     }
-    
+
+    public void CountApiSecretValidation(string client, string authMethod = null, string error = null)
+    {
+    }
+
+    public void CountBackchannelAuthentication(string client, string error = null)
+    {
+    }
+
+    public void CountClientConfigValidation(string client, string error = null)
+    {
+    }
+
+    public void CountClientSecretValidation(string client, string authMethod = null, string error = null)
+    {
+    }
+
+    public void CountDeviceAuthentication(string client, string error = null)
+    {
+    }
+
+    public void CountTokenIntrospection(string caller, bool? active = null, string error = null)
+    {
+    }
+
+    public void CountPushedAuthorizationRequest(string client, string error = null)
+    {
+    }
+
+    public void CountResourceOwnerAuthentication(string client, string error = null)
+    {
+    }
+
+    public void CountTokenRevocation(string client, string error = null)
+    {
+    }
+
+    public void CountTokenIssued(string client, string grantType, string error = null)
+    {
+    }
+
     private class NopDisposable : IDisposable
     {
         public void Dispose()
         {
             
         }
-    }
-
-    public void CountApiSecretValidation(params TelemetryTag[] tags)
-    {
-    }
-
-    public void CountBackchannelAuthentication(params TelemetryTag[] tags)
-    {
-    }
-
-    public void CountClientConfigValidation(params TelemetryTag[] tags)
-    {
-    }
-
-    public void CountClientSecretValidation(params TelemetryTag[] tags)
-    {
-    }
-
-    public void CountDeviceAuthentication(params TelemetryTag[] tags)
-    {
-    }
-
-    public void CountTokenIntrospection(params TelemetryTag[] tags)
-    {
-    }
-
-    public void CountPushedAuthorizationRequest(params TelemetryTag[] tags)
-    {
-    }
-
-    public void CountResourceOwnerAuthentication(params TelemetryTag[] tags)
-    {
-    }
-
-    public void CountTokenRevocation(params TelemetryTag[] tags)
-    {
-    }
-
-    public void CountTokenIssued(params TelemetryTag[] tags)
-    {
     }
 }

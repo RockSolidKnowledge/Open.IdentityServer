@@ -118,21 +118,13 @@ public class ClientSecretValidator : IClientSecretValidator
 
     private Task OnSuccessAsync(string clientId, string authMethod)
     {
-        _telemetry.CountClientSecretValidation(
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
-            new TelemetryTag(TelemetryConstants.TagConstants.AuthMethod, authMethod)
-        );
-        
+        _telemetry.CountClientSecretValidation(clientId, authMethod);
         return _events.RaiseAsync(new ClientAuthenticationSuccessEvent(clientId, authMethod));
     }
 
     private Task OnFailureAsync(string clientId, string message)
     {
-        _telemetry.CountClientSecretValidation(
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, message)
-        );
-        
+        _telemetry.CountClientSecretValidation(clientId, error: message);
         return _events.RaiseAsync(new ClientAuthenticationFailureEvent(clientId, message));
     }
 }

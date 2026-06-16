@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Linq;
 
@@ -48,124 +49,218 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
         _pushedAuthorizationRequest = _meter.CreateCounter<long>(TelemetryConstants.MetricsConstants.PushedAuthorizationRequestCounterName);
     }
     
-    /// <inheritdoc/>
-    public void CountOperationSucceeded(params TelemetryTag[] tags)
+    private void CountOperationSucceeded(string clientId)
     {
-        TelemetryTag result = new TelemetryTag(TelemetryConstants.TagConstants.Result, TelemetryConstants.TagConstants.Success);
+        TagList tags = new TagList
+        {
+            { TelemetryConstants.TagConstants.Result, TelemetryConstants.TagConstants.Success },
+            { TelemetryConstants.TagConstants.Client, clientId }
+        };
         
-        CountOperation(new[] { result }.Concat(tags));
+        _operation.Add(delta: 1, tags);
     }
 
-    /// <inheritdoc/>
-    public void CountOperationFailed(params TelemetryTag[] tags)
+    private void CountOperationFailed(string clientId, string error)
     {
-        TelemetryTag result = new TelemetryTag(TelemetryConstants.TagConstants.Result, TelemetryConstants.TagConstants.Error);
+        TagList tags = new TagList
+        {
+            { TelemetryConstants.TagConstants.Result, TelemetryConstants.TagConstants.Error },
+            { TelemetryConstants.TagConstants.Client, clientId },
+            { TelemetryConstants.TagConstants.Error, error }
+        };
         
-        CountOperation(new[] { result }.Concat(tags));
+        _operation.Add(delta: 1, tags);
     }
-
+    
     /// <inheritdoc/>
-    public void CountInternalError(params TelemetryTag[] tags)
+    public void CountInternalError(string error)
     {
-        TelemetryTag result = new TelemetryTag(TelemetryConstants.TagConstants.Result, TelemetryConstants.TagConstants.InternalError);
-
-        CountOperation(new[] { result }.Concat(tags));
+        TagList tags = new TagList
+        {
+            { TelemetryConstants.TagConstants.Result, TelemetryConstants.TagConstants.InternalError },
+            { TelemetryConstants.TagConstants.Error, error }
+        };
+        
+        _operation.Add(delta: 1, tags);
     }
 
     /// <inheritdoc/>
     public IDisposable BeginActiveRequest(string endpoint, string path)
     {
-        _activeRequests.Add(delta: 1, ConvertTags([
-            new TelemetryTag(TelemetryConstants.TagConstants.Endpoint, endpoint),
-            new TelemetryTag(TelemetryConstants.TagConstants.Path, path)
-        ]));
-        
-        return new ActiveRequest(() =>
+        var tags = new TagList
         {
-            _activeRequests.Add(delta: -1, ConvertTags([
-                new TelemetryTag(TelemetryConstants.TagConstants.Endpoint, endpoint),
-                new TelemetryTag(TelemetryConstants.TagConstants.Path, path)
-            ]));
-        });
-    }
-
-    /// <inheritdoc/>
-    public void CountApiSecretValidation(params TelemetryTag[] tags)
-    {
-        _apiSecretValidation.Add(delta: 1, tags: ConvertTags(tags));
-    }
-
-    /// <inheritdoc/>
-    public void CountBackchannelAuthentication(params TelemetryTag[] tags)
-    {
-        CountOperationSuccessOrFailure(tags);
+            { TelemetryConstants.TagConstants.Endpoint, endpoint },
+            { TelemetryConstants.TagConstants.Path, path }
+        };
         
-        _backchannelAuthentication.Add(delta: 1, tags: ConvertTags(tags));
-    }
-
-    /// <inheritdoc/>
-    public void CountClientConfigValidation(params TelemetryTag[] tags)
-    {
-        _clientConfigValidation.Add(delta: 1, tags: ConvertTags(tags));
-    }
-
-    /// <inheritdoc/>
-    public void CountClientSecretValidation(params TelemetryTag[] tags)
-    {
-        _clientSecretValidation.Add(delta: 1, tags: ConvertTags(tags));
+        _activeRequests.Add(delta: 1, tags);
+        
+        return new ActionDisposable(() =>
+        {
+            _activeRequests.Add(delta: -1, tags);
+        });
     }
     
     /// <inheritdoc/>
-    public void CountResourceOwnerAuthentication(params TelemetryTag[] tags)
+    public void CountApiSecretValidation(string client, string authMethod = null, string error = null)
     {
-        _resourceOwnerAuthentication.Add(delta: 1, tags: ConvertTags(tags));
+        var tags = new TagList()
+        {
+            { TelemetryConstants.TagConstants.Client, client },
+        };
+        
+        if (authMethod != null)
+        {
+            tags.Add(TelemetryConstants.TagConstants.AuthMethod, authMethod);
+        }
+
+        if (error != null)
+        {
+            tags.Add(TelemetryConstants.TagConstants.Error, error);
+        }
+        
+        _apiSecretValidation.Add(delta: 1, tags);
+        CountOperationSuccessOrFailure(client, error);
+    }
+    
+    /// <inheritdoc/>
+    public void CountBackchannelAuthentication(string client, string error = null)
+    {
+        var tags = CreateClientAndErrorTagList(client, error);
+
+        _backchannelAuthentication.Add(delta: 1, tags);
+        CountOperationSuccessOrFailure(client, error);
+    }
+
+    private static TagList CreateClientAndErrorTagList(string client, string error)
+    {
+        var tags = new TagList
+        {
+            { TelemetryConstants.TagConstants.Client, client },
+        };
+
+        if (error != null)
+        {
+            tags.Add(TelemetryConstants.TagConstants.Error, error);
+        }
+
+        return tags;
     }
 
     /// <inheritdoc/>
-    public void CountDeviceAuthentication(params TelemetryTag[] tags)
+    public void CountClientConfigValidation(string client, string error = null)
     {
-        CountOperationSuccessOrFailure(tags);
-
-        _deviceAuthentication.Add(delta: 1, tags: ConvertTags(tags));
+        var tags = CreateClientAndErrorTagList(client, error);
+        
+        _clientConfigValidation.Add(delta: 1, tags);
     }
 
     /// <inheritdoc/>
-    public void CountTokenIntrospection(params TelemetryTag[] tags)
+    public void CountClientSecretValidation(string client, string authMethod = null, string error = null)
     {
-        CountOperationSuccessOrFailure(tags);
+        var tags = new TagList
+        {
+            { TelemetryConstants.TagConstants.Client, client },
+        };
+        
+        if (authMethod != null)
+        {
+            tags.Add(TelemetryConstants.TagConstants.AuthMethod, authMethod);
+        }
 
-        _introspection.Add(delta: 1, tags: ConvertTags(tags));
+        if (error != null)
+        {
+            tags.Add(TelemetryConstants.TagConstants.Error, error);
+        }
+        
+        _clientSecretValidation.Add(delta: 1, tags);
+    }
+    
+    /// <inheritdoc/>
+    public void CountResourceOwnerAuthentication(string client, string error = null)
+    {
+        var tags = CreateClientAndErrorTagList(client, error);
+        
+        _resourceOwnerAuthentication.Add(delta: 1, tags);
     }
 
     /// <inheritdoc/>
-    public void CountPushedAuthorizationRequest(params TelemetryTag[] tags)
+    public void CountDeviceAuthentication(string client, string error = null)
     {
-        CountOperationSuccessOrFailure(tags);
+        CountOperationSuccessOrFailure(client, error);
+        
+        var tags = CreateClientAndErrorTagList(client, error);
 
-        _pushedAuthorizationRequest.Add(delta: 1, tags: ConvertTags(tags));
+        _deviceAuthentication.Add(delta: 1, tags);
     }
 
     /// <inheritdoc/>
-    public void CountTokenRevocation(params TelemetryTag[] tags)
+    public void CountTokenIntrospection(string caller, bool? active = null, string error = null)
     {
-        CountOperationSuccessOrFailure(tags);
+        CountOperationSuccessOrFailure(caller, error);
 
-        _revocation.Add(delta: 1, tags: ConvertTags(tags));
+        var tags = new TagList
+        {
+            { TelemetryConstants.TagConstants.Caller, caller },
+        };
+
+        if (active.HasValue)
+        {
+            tags.Add(TelemetryConstants.TagConstants.Active, active.Value);
+        }
+
+        if (error != null)
+        {
+            tags.Add(TelemetryConstants.TagConstants.Error, error);
+        }
+
+        _introspection.Add(delta: 1, tags);
     }
 
     /// <inheritdoc/>
-    public void CountTokenIssued(params TelemetryTag[] tags)
+    public void CountPushedAuthorizationRequest(string client, string error = null)
     {
-        CountOperationSuccessOrFailure(tags);
+        CountOperationSuccessOrFailure(client, error);
+        
+        var tags = CreateClientAndErrorTagList(client, error);
 
-        _tokenIssued.Add(delta: 1, tags: ConvertTags(tags));
+        _pushedAuthorizationRequest.Add(delta: 1, tags);
     }
 
-    private class ActiveRequest : IDisposable
+    /// <inheritdoc/>
+    public void CountTokenRevocation(string client,string error = null)
     {
-        private readonly Action _onDispose;
+        CountOperationSuccessOrFailure(client, error);
+        
+        var tags = CreateClientAndErrorTagList(client, error);
 
-        internal ActiveRequest(Action onDispose)
+        _revocation.Add(delta: 1, tags);
+    }
+
+    /// <inheritdoc/>
+    public void CountTokenIssued(string client, string grantType, string error = null)
+    {
+        CountOperationSuccessOrFailure(client, error);
+        
+        var tags = new TagList
+        {
+            { TelemetryConstants.TagConstants.Client, client },
+            { TelemetryConstants.TagConstants.GrantType, grantType },
+        };
+
+        if (error != null)
+        {
+            tags.Add(TelemetryConstants.TagConstants.Error, error);
+        }
+
+        _tokenIssued.Add(delta: 1, tags);
+    }
+
+    private class ActionDisposable : IDisposable
+    {
+        private Action _onDispose;
+
+        internal ActionDisposable(Action onDispose)
         {
             _onDispose = onDispose;
         }
@@ -173,36 +268,19 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
         public void Dispose()
         {
             _onDispose?.Invoke();
-        }
-    }
-    
-    private KeyValuePair<string, object>[] ConvertTags(IEnumerable<TelemetryTag> tags)
-    {
-        if (tags == null) return Array.Empty<KeyValuePair<string, object>>();
-        
-        return tags.Select(t => new KeyValuePair<string, object>(t.Name, t.Value)).ToArray();
-    }
-    
-    private void CountOperationSuccessOrFailure(TelemetryTag[] tags)
-    {
-        var relevantTags = tags.Where(t =>
-                t.Name == TelemetryConstants.TagConstants.Error ||
-                t.Name == TelemetryConstants.TagConstants.Client)
-            .ToArray();
-        
-        if (relevantTags.Any(t => t.Name == TelemetryConstants.TagConstants.Error))
-        {
-            CountOperationFailed(relevantTags);
-        }
-        else
-        {
-            CountOperationSucceeded(relevantTags);
+            _onDispose = null;
         }
     }
 
-    private void CountOperation(IEnumerable<TelemetryTag> tags)
+    private void CountOperationSuccessOrFailure(string clientId, string error = null)
     {
-        _operation.Add(delta: 1, tags: ConvertTags(tags));
+        if (error == null)
+        {
+            CountOperationSucceeded(clientId);
+            return;
+        }
+
+        CountOperationFailed(clientId, error);
     }
 
     /// <inheritdoc/>

@@ -61,13 +61,7 @@ public class IntrospectionResponseGeneratorTests
     [Trait("Category", Category)]
     public async Task process_should_return_emit_telemetry_signal_for_inactive_token()
     {
-        TelemetryTag[] expectedTags = [
-            new (TelemetryConstants.TagConstants.Active, false),
-            new (TelemetryConstants.TagConstants.Caller, "api1")
-        ];
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenIntrospection(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenIntrospection("api1", false))
             .Verifiable(Times.Once);
         
         var subject = CreateSubject();
@@ -86,7 +80,6 @@ public class IntrospectionResponseGeneratorTests
         await subject.ProcessAsync(validationResult);
         
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -124,13 +117,7 @@ public class IntrospectionResponseGeneratorTests
     [Trait("Category", Category)]
     public async Task process_should_emit_telemetry_signal_when_expected_scopes_are_missing()
     {
-        TelemetryTag[] expectedTags = [
-            new (TelemetryConstants.TagConstants.Caller, "api1"),
-            new (TelemetryConstants.TagConstants.Error, "Expected scopes are missing")
-        ];
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenIntrospection(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenIntrospection("api1", null, "Expected scopes are missing"))
             .Verifiable(Times.Once);
 
         var subject = CreateSubject();
@@ -154,7 +141,6 @@ public class IntrospectionResponseGeneratorTests
         await subject.ProcessAsync(validationResult);
         
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
@@ -199,13 +185,7 @@ public class IntrospectionResponseGeneratorTests
     [Trait("Category", Category)]
     public async Task process_should_emit_telemetry_signal_when_expected_scopes_are_present()
     {
-        TelemetryTag[] expectedTags = [
-            new (TelemetryConstants.TagConstants.Active, true),
-            new (TelemetryConstants.TagConstants.Caller, "api1")
-        ];
-        TelemetryTag[] actualTags = null;
-        _telemetry.Setup(t => t.CountTokenIntrospection(It.IsAny<TelemetryTag[]>()))
-            .Callback((TelemetryTag[] tags) => actualTags = tags)
+        _telemetry.Setup(t => t.CountTokenIntrospection( "api1", true, null))
             .Verifiable(Times.Once);
 
         var subject = CreateSubject();
@@ -230,6 +210,5 @@ public class IntrospectionResponseGeneratorTests
         await subject.ProcessAsync(validationResult);
         
         _telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 }

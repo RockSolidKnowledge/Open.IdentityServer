@@ -69,10 +69,7 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
         // token is invalid
         if (validationResult.IsActive == false)
         {
-            Telemetry.CountTokenIntrospection(
-                new TelemetryTag(TelemetryConstants.TagConstants.Active, validationResult.IsActive),
-                new TelemetryTag(TelemetryConstants.TagConstants.Caller, validationResult.Api.Name)
-            );
+            Telemetry.CountTokenIntrospection(validationResult.Api.Name, validationResult.IsActive);
             Logger.LogDebug("Creating introspection response for inactive token.");
             await Events.RaiseAsync(new TokenIntrospectionSuccessEvent(validationResult));
 
@@ -99,10 +96,7 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
         scopes = scopes.Where(x => allowedScopes.Contains(x));
         response.Add("scope", scopes.ToSpaceSeparatedString());
 
-        Telemetry.CountTokenIntrospection(
-            new TelemetryTag(TelemetryConstants.TagConstants.Active, validationResult.IsActive),
-            new TelemetryTag(TelemetryConstants.TagConstants.Caller, validationResult.Api.Name)
-        );
+        Telemetry.CountTokenIntrospection(validationResult.Api.Name,  validationResult.IsActive);
         await Events.RaiseAsync(new TokenIntrospectionSuccessEvent(validationResult));
         return response;
     }
@@ -129,10 +123,7 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
         else
         {
             // no scopes for this API are found in the token
-            Telemetry.CountTokenIntrospection(
-                new TelemetryTag(TelemetryConstants.TagConstants.Caller, validationResult.Api.Name),
-                new TelemetryTag(TelemetryConstants.TagConstants.Error, "Expected scopes are missing")
-            );
+            Telemetry.CountTokenIntrospection( validationResult.Api.Name, error:  "Expected scopes are missing");
             Logger.LogError("Expected scope {scopes} is missing in token", apiScopes);
             await Events.RaiseAsync(new TokenIntrospectionFailureEvent(validationResult.Api.Name, "Expected scopes are missing", validationResult.Token, apiScopes, tokenScopes.Select(s => s.Value)));
         }

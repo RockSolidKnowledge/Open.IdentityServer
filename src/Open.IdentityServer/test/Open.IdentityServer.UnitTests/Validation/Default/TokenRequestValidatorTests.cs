@@ -174,12 +174,7 @@ public class TokenRequestValidatorTests
     public async Task PasswordGrant_WhenCredentialsValidAndUserActive_EmitsTelemetrySignal()
     {
         var telemetry = new Mock<ITelemetryService>();
-        TelemetryTag[] expectedTags = [
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "roclient"),
-        ];
-        TelemetryTag[] actualTags = null;
-        telemetry.Setup(t => t.CountResourceOwnerAuthentication(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        telemetry.Setup(t => t.CountResourceOwnerAuthentication("roclient"))
             .Verifiable(Times.Once);
 
         var subject = Factory.CreateTokenRequestValidator(telemetry: telemetry.Object);
@@ -193,20 +188,13 @@ public class TokenRequestValidatorTests
         result.IsError.Should().BeFalse();
 
         telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     public async Task PasswordGrant_WhenValidatorReturnsUnsupportedGrantType_EmitsTelemetrySignal()
     {
         var telemetry = new Mock<ITelemetryService>();
-        TelemetryTag[] expectedTags = [
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "roclient"),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, "password grant type not supported")
-        ];
-        TelemetryTag[] actualTags = null;
-        telemetry.Setup(t => t.CountResourceOwnerAuthentication(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        telemetry.Setup(t => t.CountResourceOwnerAuthentication( "roclient","password grant type not supported"))
             .Verifiable(Times.Once);
 
         var subject = Factory.CreateTokenRequestValidator(
@@ -222,20 +210,13 @@ public class TokenRequestValidatorTests
         result.IsError.Should().BeTrue();
 
         telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     public async Task PasswordGrant_WhenValidatorReturnsErrorWithNoDescription_EmitsTelemetrySignal()
     {
         var telemetry = new Mock<ITelemetryService>();
-        TelemetryTag[] expectedTags = [
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "roclient"),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, "invalid_username_or_password")
-        ];
-        TelemetryTag[] actualTags = null;
-        telemetry.Setup(t => t.CountResourceOwnerAuthentication(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        telemetry.Setup(t => t.CountResourceOwnerAuthentication( "roclient", "invalid_username_or_password"))
             .Verifiable(Times.Once);
 
         var subject = Factory.CreateTokenRequestValidator(
@@ -251,20 +232,13 @@ public class TokenRequestValidatorTests
         result.IsError.Should().BeTrue();
 
         telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     public async Task PasswordGrant_WhenValidatorReturnsErrorWithDescription_EmitsTelemetrySignal()
     {
         var telemetry = new Mock<ITelemetryService>();
-        TelemetryTag[] expectedTags = [
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "roclient"),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, "account_locked")
-        ];
-        TelemetryTag[] actualTags = null;
-        telemetry.Setup(t => t.CountResourceOwnerAuthentication(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        telemetry.Setup(t => t.CountResourceOwnerAuthentication("roclient", "account_locked"))
             .Verifiable(Times.Once);
 
         var subject = Factory.CreateTokenRequestValidator(
@@ -281,20 +255,13 @@ public class TokenRequestValidatorTests
         result.IsError.Should().BeTrue();
 
         telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 
     [Fact]
     public async Task PasswordGrant_WhenValidatorReturnsNullSubject_EmitsTelemetrySignal()
     {
         var telemetry = new Mock<ITelemetryService>();
-        TelemetryTag[] expectedTags = [
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "roclient"),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, "invalid_username_or_password")
-        ];
-        TelemetryTag[] actualTags = null;
-        telemetry.Setup(t => t.CountResourceOwnerAuthentication(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        telemetry.Setup(t => t.CountResourceOwnerAuthentication("roclient", "invalid_username_or_password"))
             .Verifiable(Times.Once);
 
         var subject = Factory.CreateTokenRequestValidator(telemetry: telemetry.Object);
@@ -310,20 +277,13 @@ public class TokenRequestValidatorTests
         result.IsError.Should().BeTrue();
 
         telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
     
     [Fact]
     public async Task PasswordGrant_WhenUserIsInactive_EmitsTelemetrySignal()
     {
         var telemetry = new Mock<ITelemetryService>();
-        TelemetryTag[] expectedTags = [
-            new TelemetryTag(TelemetryConstants.TagConstants.Client, "roclient"),
-            new TelemetryTag(TelemetryConstants.TagConstants.Error, "user is inactive")
-        ];
-        TelemetryTag[] actualTags = null;
-        telemetry.Setup(t => t.CountResourceOwnerAuthentication(It.IsAny<TelemetryTag[]>()))
-            .Callback<TelemetryTag[]>(tags => actualTags = tags)
+        telemetry.Setup(t => t.CountResourceOwnerAuthentication("roclient", "user is inactive"))
             .Verifiable(Times.Once);
         
         var subject  = Factory.CreateTokenRequestValidator(
@@ -340,6 +300,5 @@ public class TokenRequestValidatorTests
         result.IsError.Should().BeTrue();
 
         telemetry.Verify();
-        actualTags.Should().BeEquivalentTo(expectedTags);
     }
 }

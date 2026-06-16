@@ -106,10 +106,7 @@ internal class IntrospectionEndpoint : IEndpointHandler
         var validationResult = await _requestValidator.ValidateAsync(body.AsNameValueCollection(), apiResult.Resource);
         if (validationResult.IsError)
         {
-            _telemetry.CountTokenIntrospection(
-                new TelemetryTag(TelemetryConstants.TagConstants.Error, validationResult.Error),
-                new TelemetryTag(TelemetryConstants.TagConstants.Caller, apiResult.Resource.Name)
-            );
+            _telemetry.CountTokenIntrospection(apiResult.Resource.Name, error: validationResult.Error);
             LogFailure(validationResult.Error, apiResult.Resource.Name);
             await _events.RaiseAsync(new TokenIntrospectionFailureEvent(apiResult.Resource.Name, validationResult.Error));
 

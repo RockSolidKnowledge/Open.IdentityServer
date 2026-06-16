@@ -65,16 +65,12 @@ public class ValidatingClientStore<T> : IClientStore
 
             if (context.IsValid)
             {
-                _telemetry.CountClientConfigValidation(
-                    new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId));
+                _telemetry.CountClientConfigValidation(clientId);
                 _logger.LogDebug("client configuration validation for client {clientId} succeeded.", client.ClientId);
                 return client;
             }
 
-            _telemetry.CountClientConfigValidation(
-                new TelemetryTag(TelemetryConstants.TagConstants.Client, clientId),
-                new TelemetryTag(TelemetryConstants.TagConstants.Error, context.ErrorMessage)
-            );
+            _telemetry.CountClientConfigValidation(clientId, context.ErrorMessage);
             _logger.LogError("Invalid client configuration for client {clientId}: {errorMessage}", client.ClientId, context.ErrorMessage);
             await _events.RaiseAsync(new InvalidClientConfigurationEvent(client, context.ErrorMessage));
         }

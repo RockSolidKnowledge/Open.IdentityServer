@@ -92,11 +92,7 @@ internal class TokenEndpoint : IEndpointHandler
 
         if (requestResult.IsError)
         {
-            _telemetry.CountTokenIssued(
-                new TelemetryTag(TelemetryConstants.TagConstants.Client,  clientResult.Client.ClientId),
-                new TelemetryTag(TelemetryConstants.TagConstants.GrantType, requestResult.ValidatedRequest.GrantType),
-                new TelemetryTag(TelemetryConstants.TagConstants.Error, requestResult.Error)
-            );
+            _telemetry.CountTokenIssued(clientResult.Client.ClientId, requestResult.ValidatedRequest.GrantType, requestResult.Error);
             await _events.RaiseAsync(new TokenIssuedFailureEvent(requestResult));
             return Error(requestResult.Error, requestResult.ErrorDescription, requestResult.CustomResponse);
         }
@@ -105,10 +101,7 @@ internal class TokenEndpoint : IEndpointHandler
         _logger.LogTrace("Calling into token request response generator: {type}", _responseGenerator.GetType().FullName);
         var response = await _responseGenerator.ProcessAsync(requestResult);
 
-        _telemetry.CountTokenIssued(
-            new TelemetryTag(TelemetryConstants.TagConstants.Client,  clientResult.Client.ClientId),
-            new TelemetryTag(TelemetryConstants.TagConstants.GrantType, requestResult.ValidatedRequest.GrantType)
-        );
+        _telemetry.CountTokenIssued(clientResult.Client.ClientId, requestResult.ValidatedRequest.GrantType);
         await _events.RaiseAsync(new TokenIssuedSuccessEvent(response, requestResult));
         LogTokens(response, requestResult);
 
