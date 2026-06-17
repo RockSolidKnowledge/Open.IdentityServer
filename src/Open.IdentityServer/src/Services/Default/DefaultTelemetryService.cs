@@ -49,29 +49,6 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
         _pushedAuthorizationRequest = _meter.CreateCounter<long>(TelemetryConstants.MetricsConstants.PushedAuthorizationRequestCounterName);
     }
     
-    private void CountOperationSucceeded(string clientId)
-    {
-        TagList tags = new TagList
-        {
-            { TelemetryConstants.TagConstants.Result, TelemetryConstants.TagConstants.Success },
-            { TelemetryConstants.TagConstants.Client, clientId }
-        };
-        
-        _operation.Add(delta: 1, tags);
-    }
-
-    private void CountOperationFailed(string clientId, string error)
-    {
-        TagList tags = new TagList
-        {
-            { TelemetryConstants.TagConstants.Result, TelemetryConstants.TagConstants.Error },
-            { TelemetryConstants.TagConstants.Client, clientId },
-            { TelemetryConstants.TagConstants.Error, error }
-        };
-        
-        _operation.Add(delta: 1, tags);
-    }
-    
     /// <inheritdoc/>
     public void CountInternalError(string error)
     {
@@ -153,6 +130,8 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
         var tags = CreateClientAndErrorTagList(client, error);
         
         _clientConfigValidation.Add(delta: 1, tags);
+        
+        CountOperationSuccessOrFailure(client, error);
     }
 
     /// <inheritdoc/>
@@ -174,6 +153,8 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
         }
         
         _clientSecretValidation.Add(delta: 1, tags);
+        
+        CountOperationSuccessOrFailure(client, error);
     }
     
     /// <inheritdoc/>
@@ -182,23 +163,23 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
         var tags = CreateClientAndErrorTagList(client, error);
         
         _resourceOwnerAuthentication.Add(delta: 1, tags);
+        
+        CountOperationSuccessOrFailure(client, error);
     }
 
     /// <inheritdoc/>
     public void CountDeviceAuthentication(string client, string error = null)
     {
-        CountOperationSuccessOrFailure(client, error);
-        
         var tags = CreateClientAndErrorTagList(client, error);
 
         _deviceAuthentication.Add(delta: 1, tags);
+        
+        CountOperationSuccessOrFailure(client, error);
     }
 
     /// <inheritdoc/>
     public void CountTokenIntrospection(string caller, bool? active = null, string error = null)
     {
-        CountOperationSuccessOrFailure(caller, error);
-
         var tags = new TagList
         {
             { TelemetryConstants.TagConstants.Caller, caller },
@@ -215,33 +196,33 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
         }
 
         _introspection.Add(delta: 1, tags);
+        
+        CountOperationSuccessOrFailure(caller, error);
     }
 
     /// <inheritdoc/>
     public void CountPushedAuthorizationRequest(string client, string error = null)
     {
-        CountOperationSuccessOrFailure(client, error);
-        
         var tags = CreateClientAndErrorTagList(client, error);
 
         _pushedAuthorizationRequest.Add(delta: 1, tags);
+        
+        CountOperationSuccessOrFailure(client, error);
     }
 
     /// <inheritdoc/>
     public void CountTokenRevocation(string client,string error = null)
     {
-        CountOperationSuccessOrFailure(client, error);
-        
         var tags = CreateClientAndErrorTagList(client, error);
 
         _revocation.Add(delta: 1, tags);
+        
+        CountOperationSuccessOrFailure(client, error);
     }
 
     /// <inheritdoc/>
     public void CountTokenIssued(string client, string grantType, string error = null)
     {
-        CountOperationSuccessOrFailure(client, error);
-        
         var tags = new TagList
         {
             { TelemetryConstants.TagConstants.Client, client },
@@ -254,6 +235,42 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
         }
 
         _tokenIssued.Add(delta: 1, tags);
+        
+        CountOperationSuccessOrFailure(client, error);
+    }
+    
+    private void CountOperationSuccessOrFailure(string clientId, string error = null)
+    {
+        if (error == null)
+        {
+            CountOperationSucceeded(clientId);
+            return;
+        }
+
+        CountOperationFailed(clientId, error);
+    }
+    
+    private void CountOperationSucceeded(string clientId)
+    {
+        TagList tags = new TagList
+        {
+            { TelemetryConstants.TagConstants.Result, TelemetryConstants.TagConstants.Success },
+            { TelemetryConstants.TagConstants.Client, clientId }
+        };
+        
+        _operation.Add(delta: 1, tags);
+    }
+
+    private void CountOperationFailed(string clientId, string error)
+    {
+        TagList tags = new TagList
+        {
+            { TelemetryConstants.TagConstants.Result, TelemetryConstants.TagConstants.Error },
+            { TelemetryConstants.TagConstants.Client, clientId },
+            { TelemetryConstants.TagConstants.Error, error }
+        };
+        
+        _operation.Add(delta: 1, tags);
     }
 
     private class ActionDisposable : IDisposable
@@ -270,17 +287,6 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
             _onDispose?.Invoke();
             _onDispose = null;
         }
-    }
-
-    private void CountOperationSuccessOrFailure(string clientId, string error = null)
-    {
-        if (error == null)
-        {
-            CountOperationSucceeded(clientId);
-            return;
-        }
-
-        CountOperationFailed(clientId, error);
     }
 
     /// <inheritdoc/>
