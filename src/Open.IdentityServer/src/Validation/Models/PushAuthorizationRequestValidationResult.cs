@@ -26,7 +26,7 @@ public class PushAuthorizationRequestValidationResult : ValidationResult
         ErrorDescription = errorDescription;
     }
 
-    /// <summary>
+    /// <summary>   
     /// Create a fully validated authorization request
     /// </summary>
     /// <param name="validatedAuthorizeRequest"></param>
