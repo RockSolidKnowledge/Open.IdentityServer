@@ -109,4 +109,22 @@ public class IntrospectionEndpointTests
         
         _telemetryService.Verify();
     }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task process_should_initiate_telemetry_trace()
+    {
+        var subject = CreateSubject();
+        var context = CreatePostFormContext("token=abc");
+        
+        _apiSecretValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
+            .ReturnsAsync(new ApiSecretValidationResult { });
+
+        await subject.ProcessAsync(context);
+        
+        _telemetryService.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Basic,
+            subject,
+            "ProcessAsync"));
+    }
 }

@@ -79,6 +79,9 @@ public class IdentityServerMiddleware
             {
                 using var activeRequest = telemetryService.BeginActiveRequest(
                     endpoint.GetType().FullName, context.GetOriginalRequestPath());
+                using var trace =
+                    telemetryService.Trace(TelemetryConstants.TraceCategories.Basic, "IdentityServerProtocolRequest");
+                
                 _logger.LogInformation("Invoking IdentityServer endpoint: {endpointType} for {url}", endpoint.GetType().FullName, context.Request.Path.ToString());
                 
                 var result = await endpoint.ProcessAsync(context);

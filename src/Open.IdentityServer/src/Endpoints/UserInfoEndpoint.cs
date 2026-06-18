@@ -10,6 +10,7 @@ using Open.IdentityServer.Hosting;
 using Open.IdentityServer.Endpoints.Results;
 using Microsoft.AspNetCore.Http;
 using System.Net;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Endpoints;
 
@@ -22,6 +23,7 @@ internal class UserInfoEndpoint : IEndpointHandler
     private readonly BearerTokenUsageValidator _tokenUsageValidator;
     private readonly IUserInfoRequestValidator _requestValidator;
     private readonly IUserInfoResponseGenerator _responseGenerator;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
 
     /// <summary>
@@ -30,16 +32,19 @@ internal class UserInfoEndpoint : IEndpointHandler
     /// <param name="tokenUsageValidator">The token usage validator.</param>
     /// <param name="requestValidator">The request validator.</param>
     /// <param name="responseGenerator">The response generator.</param>
+    /// <param name="telemetry">The telemetry service</param>
     /// <param name="logger">The logger.</param>
     public UserInfoEndpoint(
         BearerTokenUsageValidator tokenUsageValidator, 
         IUserInfoRequestValidator requestValidator, 
         IUserInfoResponseGenerator responseGenerator, 
+        ITelemetryService telemetry,
         ILogger<UserInfoEndpoint> logger)
     {
         _tokenUsageValidator = tokenUsageValidator;
         _requestValidator = requestValidator;
         _responseGenerator = responseGenerator;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
@@ -50,6 +55,8 @@ internal class UserInfoEndpoint : IEndpointHandler
     /// <returns>A task that resolves to an <see cref="IEndpointResult"/> representing either a userinfo response or an error response.</returns>
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        
         if (!HttpMethods.IsGet(context.Request.Method) && !HttpMethods.IsPost(context.Request.Method))
         {
             _logger.LogWarning("Invalid HTTP method for userinfo endpoint.");

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Open.IdentityServer.Services;
 
@@ -27,13 +28,16 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
     private readonly Counter<long> _revocation;
     private readonly Counter<long> _pushedAuthorizationRequest;
 
+    private Dictionary<string, ActivitySource> _activitySources;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultTelemetryService"/> class.
     /// </summary>
     public DefaultTelemetryService()
     {
         Version version = GetType().Assembly.GetName().Version ?? new Version(1, 0, 0);
-        _meter = new Meter(TelemetryConstants.MetricsConstants.MeterName, $"{version.Major}.{version.Minor}.{version.Build}");
+        var versionString = $"{version.Major}.{version.Minor}.{version.Build}";
+        _meter = new Meter(TelemetryConstants.MetricsConstants.MeterName, versionString);
         
         _operation = _meter.CreateCounter<long>(TelemetryConstants.MetricsConstants.OperationCounterName);
         _activeRequests = _meter.CreateUpDownCounter<long>(TelemetryConstants.MetricsConstants.ActiveRequestsCounterName);
@@ -47,6 +51,15 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
         _tokenIssued = _meter.CreateCounter<long>(TelemetryConstants.MetricsConstants.TokenIssuedCounterName);
         _revocation = _meter.CreateCounter<long>(TelemetryConstants.MetricsConstants.RevocationCounterName);
         _pushedAuthorizationRequest = _meter.CreateCounter<long>(TelemetryConstants.MetricsConstants.PushedAuthorizationRequestCounterName);
+
+        _activitySources = new()
+        {
+            { TelemetryConstants.TraceCategories.Basic, new ActivitySource(TelemetryConstants.TraceCategories.Basic, versionString) },
+            { TelemetryConstants.TraceCategories.Cache, new ActivitySource(TelemetryConstants.TraceCategories.Cache, versionString) },
+            { TelemetryConstants.TraceCategories.Services, new ActivitySource(TelemetryConstants.TraceCategories.Services, versionString) },
+            { TelemetryConstants.TraceCategories.Stores, new ActivitySource(TelemetryConstants.TraceCategories.Stores, versionString) },
+            { TelemetryConstants.TraceCategories.Validation, new ActivitySource(TelemetryConstants.TraceCategories.Validation, versionString) }
+        };
     }
     
     /// <inheritdoc/>
@@ -83,7 +96,7 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
     {
         var tags = new TagList()
         {
-            { TelemetryConstants.TagConstants.Client, client },
+            { TelemetryConstants.TagConstants.Api, client },
         };
         
         if (authMethod != null)
@@ -238,7 +251,22 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
         
         CountOperationSuccessOrFailure(client, error);
     }
-    
+
+    /// <inheritDoc/>
+    public Activity Trace(string category, string activityName)
+    {
+        if (_activitySources.TryGetValue(category, out var activitySource))
+            return activitySource.StartActivity(activityName);
+        
+        return null;
+    }
+
+    /// <inheritDoc/>
+    public Activity Trace(string category, object caller, [CallerMemberName] string callingMethod = null)
+    {
+        return Trace(category, activityName: $"{caller.GetType().FullName}.{callingMethod}");
+    }
+
     private void CountOperationSuccessOrFailure(string clientId, string error = null)
     {
         if (error == null)
@@ -293,5 +321,9 @@ public class DefaultTelemetryService : ITelemetryService, IDisposable
     public void Dispose()
     {
         _meter?.Dispose();
+        foreach (var keyValuePair in _activitySources)
+        {
+            keyValuePair.Value.Dispose();
+        }
     }
 }

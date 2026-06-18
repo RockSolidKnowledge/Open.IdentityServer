@@ -49,6 +49,15 @@ public static class TelemetryConstants
         public const string Active = "active";
         public const string GrantType = "grant_type";
     }
+    
+    public static class TraceCategories
+    {
+        public const string Basic = "Open.IdentityServer";
+        public const string Cache = "Open.IdentityServer.Cache";
+        public const string Services = "Open.IdentityServer.Services";
+        public const string Stores = "Open.IdentityServer.Stores";
+        public const string Validation = "Open.IdentityServer.Validation";
+    }
 }
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

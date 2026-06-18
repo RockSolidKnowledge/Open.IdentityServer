@@ -21,6 +21,7 @@ namespace Open.IdentityServer.Endpoints;
 internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
 {
     private readonly IConsentMessageStore _consentResponseStore;
+    private readonly ITelemetryService _telemetry;
     private readonly IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
 
     public AuthorizeCallbackEndpoint(
@@ -37,11 +38,14 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
         : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, telemetry)
     {
         _consentResponseStore = consentResponseStore;
+        _telemetry = telemetry;
         _authorizationParametersMessageStore = authorizationParametersMessageStore;
     }
 
     public override async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        
         if (!HttpMethods.IsGet(context.Request.Method))
         {
             Logger.LogWarning("Invalid HTTP method for authorize endpoint.");

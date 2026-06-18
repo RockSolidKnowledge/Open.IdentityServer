@@ -61,6 +61,7 @@ internal class TokenEndpoint : IEndpointHandler
     /// <returns>A task that resolves to an <see cref="IEndpointResult"/> representing either a token response or an error response.</returns>
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         _logger.LogTrace("Processing token request.");
 
         // validate HTTP

@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using Open.IdentityServer.UnitTests.Common;
@@ -447,6 +448,16 @@ internal class NopTelemetryService : ITelemetryService
 
     public void CountTokenIssued(string client, string grantType, string error = null)
     {
+    }
+
+    public Activity Trace(string category, string activityName)
+    {
+        return null;
+    }
+
+    public Activity Trace(string category, object caller, string callingMethod = null)
+    {
+        return null;
     }
 
     private class NopDisposable : IDisposable

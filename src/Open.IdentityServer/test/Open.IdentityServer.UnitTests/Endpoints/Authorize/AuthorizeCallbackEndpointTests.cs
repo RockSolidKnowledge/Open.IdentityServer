@@ -206,6 +206,18 @@ public class AuthorizeCallbackEndpointTests
         result.Should().BeOfType<AuthorizeResult>();
     }
 
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task process_should_initiate_telemetry_trace()
+    {
+        await _subject.ProcessAsync(_context);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Basic,
+            _subject,
+            "ProcessAsync"));
+    }
+
     internal void Init()
     {
         _context = new MockHttpContextAccessor().HttpContext;

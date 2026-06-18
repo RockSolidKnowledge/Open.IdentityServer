@@ -8,20 +8,27 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Threading.Tasks;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Endpoints;
 
 internal class CheckSessionEndpoint : IEndpointHandler
 {
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
 
-    public CheckSessionEndpoint(ILogger<CheckSessionEndpoint> logger)
+    public CheckSessionEndpoint(
+        ITelemetryService telemetryService,
+        ILogger<CheckSessionEndpoint> logger)
     {
+        _telemetry = telemetryService;
         _logger = logger;
     }
 
     public Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        
         IEndpointResult result;
 
         if (!HttpMethods.IsGet(context.Request.Method))

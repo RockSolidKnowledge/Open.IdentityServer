@@ -80,6 +80,18 @@ public class AuthorizeEndpointTests
         statusCode.StatusCode.Should().Be(415);
     }
 
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task ProcessAsync_should_initiate_telemetry_trace()
+    {
+        await _subject.ProcessAsync(_context);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Basic, 
+            _subject,
+            "ProcessAsync"), Times.Once);
+    }
+
     internal void Init()
     {
         _context = new MockHttpContextAccessor().HttpContext;

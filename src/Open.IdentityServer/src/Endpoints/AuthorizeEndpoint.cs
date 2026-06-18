@@ -18,6 +18,8 @@ namespace Open.IdentityServer.Endpoints;
 
 internal class AuthorizeEndpoint : AuthorizeEndpointBase
 {
+    private readonly ITelemetryService _telemetry;
+
     public AuthorizeEndpoint(
         IEventService events,
         ILogger<AuthorizeEndpoint> logger,
@@ -29,10 +31,13 @@ internal class AuthorizeEndpoint : AuthorizeEndpointBase
         ITelemetryService telemetry)
         : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, telemetry)
     {
+        _telemetry = telemetry;
     }
 
     public override async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        
         Logger.LogDebug("Start authorize request");
 
         NameValueCollection values;

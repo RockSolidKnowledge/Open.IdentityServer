@@ -21,19 +21,24 @@ internal class EndSessionEndpoint : IEndpointHandler
     private readonly ILogger _logger;
 
     private readonly IUserSession _userSession;
+    private readonly ITelemetryService _telemetry;
 
     public EndSessionEndpoint(
         IEndSessionRequestValidator endSessionRequestValidator,
         IUserSession userSession,
+        ITelemetryService telemetry,
         ILogger<EndSessionEndpoint> logger)
     {
         _endSessionRequestValidator = endSessionRequestValidator;
         _userSession = userSession;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        
         NameValueCollection parameters;
         if (HttpMethods.IsGet(context.Request.Method))
         {

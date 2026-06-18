@@ -159,4 +159,25 @@ public class TokenEndpointTests
 
         _telemetry.Verify();
     }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task process_should_initiate_telemetry_trace()
+    {
+        var subject = CreateSubject();
+        var context = CreatePostFormContext();
+
+        _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
+            .ReturnsAsync(ValidClientResult());
+
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+            .ReturnsAsync(ValidRequestResult());
+
+        _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))
+            .ReturnsAsync(new TokenResponse { AccessToken = "access_token" });
+
+        await subject.ProcessAsync(context);
+
+        _telemetry.Verify(t => t.Trace(TelemetryConstants.TraceCategories.Basic, subject, "ProcessAsync"), Times.Once);
+    }
 }

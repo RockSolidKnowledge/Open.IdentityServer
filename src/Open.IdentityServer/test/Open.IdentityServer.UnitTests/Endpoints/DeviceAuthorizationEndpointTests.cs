@@ -278,4 +278,36 @@ public class DeviceAuthorizationEndpointTests
 
         capturedBaseUrl.Should().Be("https://example.com/");
     }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task process_should_initiate_telemetry_trace()
+    {
+        var subject = CreateSubject();
+        var context = CreatePostContext();
+        context.Request.Scheme = "https";
+        context.Request.Host = new HostString("example.com");
+        context.Request.PathBase = "/auth";
+        
+        var client = new Open.IdentityServer.Models.Client { ClientId = "test-client" };
+        var validatedRequest = new DeviceAuthorizationRequestValidationResult(new ValidatedDeviceAuthorizationRequest { Client = client });
+            
+        var response = new DeviceAuthorizationResponse { DeviceCode = "code" };
+        
+        _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
+            .ReturnsAsync(new ClientSecretValidationResult { IsError = false, Client = client });
+        
+        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+            .ReturnsAsync(validatedRequest);
+        
+        _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<DeviceAuthorizationRequestValidationResult>(), It.IsAny<string>()))
+            .ReturnsAsync(response);
+
+        await subject.ProcessAsync(context);
+
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Basic,
+            subject,
+            "ProcessAsync"));
+    }
 }
