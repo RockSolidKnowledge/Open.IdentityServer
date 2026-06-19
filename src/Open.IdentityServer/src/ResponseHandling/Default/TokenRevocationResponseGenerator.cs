@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Validation;
 using Open.IdentityServer.Stores;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.ResponseHandling;
 
@@ -32,6 +34,11 @@ public class TokenRevocationResponseGenerator : ITokenRevocationResponseGenerato
     protected readonly IRefreshTokenStore RefreshTokenStore;
 
     /// <summary>
+    /// The telemetry service.
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
+    
+    /// <summary>
     /// Gets the logger.
     /// </summary>
     /// <value>
@@ -44,11 +51,17 @@ public class TokenRevocationResponseGenerator : ITokenRevocationResponseGenerato
     /// </summary>
     /// <param name="referenceTokenStore">The reference token store.</param>
     /// <param name="refreshTokenStore">The refresh token store.</param>
+    /// <param name="telemetry">The telemetry.</param>
     /// <param name="logger">The logger.</param>
-    public TokenRevocationResponseGenerator(IReferenceTokenStore referenceTokenStore, IRefreshTokenStore refreshTokenStore, ILogger<TokenRevocationResponseGenerator> logger)
+    public TokenRevocationResponseGenerator(
+        IReferenceTokenStore referenceTokenStore, 
+        IRefreshTokenStore refreshTokenStore, 
+        ITelemetryService telemetry,
+        ILogger<TokenRevocationResponseGenerator> logger)
     {
         ReferenceTokenStore = referenceTokenStore;
         RefreshTokenStore = refreshTokenStore;
+        Telemetry = telemetry;
         Logger = logger;
     }
 
@@ -59,6 +72,9 @@ public class TokenRevocationResponseGenerator : ITokenRevocationResponseGenerato
     /// <returns>A task that resolves to a <see cref="TokenRevocationResponse"/> indicating whether the token was successfully revoked.</returns>
     public virtual async Task<TokenRevocationResponse> ProcessAsync(TokenRevocationRequestValidationResult validationResult)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Basic, this);
+        
         var response = new TokenRevocationResponse
         {
             Success = false,

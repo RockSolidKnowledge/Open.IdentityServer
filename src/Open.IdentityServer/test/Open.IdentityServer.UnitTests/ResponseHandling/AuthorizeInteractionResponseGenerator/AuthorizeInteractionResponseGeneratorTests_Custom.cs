@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -13,6 +14,7 @@ using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.ResponseHandling.AuthorizeInteractionResponseGenerator;
@@ -22,7 +24,7 @@ public class CustomAuthorizeInteractionResponseGenerator : Open.IdentityServer.R
     public CustomAuthorizeInteractionResponseGenerator(
         TimeProvider clock, 
         ILogger<Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator> logger, 
-        IConsentService consent, IProfileService profile) : base(clock, logger, consent, profile)
+        IConsentService consent, IProfileService profile, ITelemetryService telemetry) : base(clock, logger, consent, profile, telemetry)
     {
     }
 
@@ -54,6 +56,7 @@ public class AuthorizeInteractionResponseGeneratorTests_Custom
     private readonly CustomAuthorizeInteractionResponseGenerator _subject;
     private readonly MockConsentService _mockConsentService = new MockConsentService();
     private readonly StubClock _clock = new StubClock();
+    private readonly Mock<ITelemetryService> _mockTelemetryService = new Mock<ITelemetryService>();
 
     public AuthorizeInteractionResponseGeneratorTests_Custom()
     {
@@ -61,7 +64,8 @@ public class AuthorizeInteractionResponseGeneratorTests_Custom
             _clock,
             TestLogger.Create<Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator>(),
             _mockConsentService,
-            new MockProfileService());
+            new MockProfileService(),
+            _mockTelemetryService.Object);
     }
 
 

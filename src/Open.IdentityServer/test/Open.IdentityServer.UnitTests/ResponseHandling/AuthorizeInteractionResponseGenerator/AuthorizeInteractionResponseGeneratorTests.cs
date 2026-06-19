@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -6,10 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
 using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Xunit;
 
@@ -21,6 +24,7 @@ public class AuthorizeInteractionResponseGeneratorTests
     private readonly Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator _subject;
     private readonly MockConsentService _mockConsentService = new MockConsentService();
     private readonly StubClock _clock = new StubClock();
+    private readonly Mock<ITelemetryService> _mockTelemetryService = new Mock<ITelemetryService>();
 
     public AuthorizeInteractionResponseGeneratorTests()
     {
@@ -28,9 +32,9 @@ public class AuthorizeInteractionResponseGeneratorTests
             _clock,
             TestLogger.Create<Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator>(),
             _mockConsentService,
-            new MockProfileService());
+            new MockProfileService(),
+            _mockTelemetryService.Object);
     }
-
 
     [Fact]
     public async Task Authenticated_User_with_restricted_current_Idp_with_prompt_none_must_error()
@@ -154,5 +158,30 @@ public class AuthorizeInteractionResponseGeneratorTests
 
         result.IsError.Should().BeTrue();
         result.IsLogin.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task process_interaction_should_initiate_telemetry_trace()
+    {
+        var request = new ValidatedAuthorizeRequest
+        {
+            ClientId = "foo",
+            Client = new Client()
+            {
+                EnableLocalLogin = false
+            },
+            Subject = new IdentityServerUser("123")
+            {
+                IdentityProvider = IdentityServerConstants.LocalIdentityProvider
+            }.CreatePrincipal(),
+            PromptModes = new[] { OidcConstants.PromptModes.None }
+        };
+
+        await _subject.ProcessInteractionAsync(request);
+
+        _mockTelemetryService.Verify(
+            t => t.Trace(TelemetryConstants.TraceCategories.Basic,
+                _subject,
+                "ProcessInteractionAsync"));
     }
 }

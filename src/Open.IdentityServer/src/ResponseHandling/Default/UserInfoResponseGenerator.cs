@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -38,15 +39,22 @@ public class UserInfoResponseGenerator : IUserInfoResponseGenerator
     protected readonly IResourceStore Resources;
 
     /// <summary>
+    /// The telemetry
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="UserInfoResponseGenerator"/> class.
     /// </summary>
     /// <param name="profile">The profile.</param>
     /// <param name="resourceStore">The resource store.</param>
+    /// <param name="telemetry">The telemetry.</param>
     /// <param name="logger">The logger.</param>
-    public UserInfoResponseGenerator(IProfileService profile, IResourceStore resourceStore, ILogger<UserInfoResponseGenerator> logger)
+    public UserInfoResponseGenerator(IProfileService profile, IResourceStore resourceStore, ITelemetryService telemetry, ILogger<UserInfoResponseGenerator> logger)
     {
         Profile = profile;
         Resources = resourceStore;
+        Telemetry = telemetry;
         Logger = logger;
     }
 
@@ -58,6 +66,9 @@ public class UserInfoResponseGenerator : IUserInfoResponseGenerator
     /// <exception cref="System.InvalidOperationException">Profile service returned incorrect subject value</exception>
     public virtual async Task<Dictionary<string, object>> ProcessAsync(UserInfoRequestValidationResult validationResult)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Basic, this);
+        
         Logger.LogDebug("Creating userinfo response");
 
         // extract scopes and turn into requested claim types

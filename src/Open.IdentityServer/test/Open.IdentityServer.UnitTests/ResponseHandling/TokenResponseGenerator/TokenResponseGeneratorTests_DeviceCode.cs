@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
@@ -13,6 +14,22 @@ namespace Open.IdentityServer.UnitTests.ResponseHandling.TokenResponseGenerator;
 
 public class TokenResponseGeneratorTests_DeviceCode : TokenResponseGeneratorTests
 {
+    [Fact]
+    public async Task ProcessAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var subject = CreateSut();
+
+        await subject.ProcessAsync(
+            new TokenRequestValidationResult(
+                new ValidatedTokenRequest()));
+        
+        Mock.Get(telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Basic,
+                subject,
+                "ProcessAsync"));
+    }
+    
     [Fact]
     public async Task ProcessAsync_DeviceCode_ReturnsAccessToken()
     {

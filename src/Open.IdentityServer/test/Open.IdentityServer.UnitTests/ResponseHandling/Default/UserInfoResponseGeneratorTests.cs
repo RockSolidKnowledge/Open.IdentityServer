@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -8,10 +9,12 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
 using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.ResponseHandling;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Xunit;
@@ -22,6 +25,7 @@ public class UserInfoResponseGeneratorTests
 {
     private readonly UserInfoResponseGenerator _subject;
     private readonly MockProfileService _mockProfileService = new();
+    private readonly Mock<ITelemetryService> _telemetry = new();
     private readonly ClaimsPrincipal _user;
     private readonly Client _client;
 
@@ -49,7 +53,7 @@ public class UserInfoResponseGeneratorTests
         }.CreatePrincipal();
 
         _resourceStore = new InMemoryResourcesStore(_identityResources, _apiResources, _apiScopes);
-        _subject = new UserInfoResponseGenerator(_mockProfileService, _resourceStore, TestLogger.Create<UserInfoResponseGenerator>());
+        _subject = new UserInfoResponseGenerator(_mockProfileService, _resourceStore, _telemetry.Object, TestLogger.Create<UserInfoResponseGenerator>());
     }
 
     [Fact]
@@ -220,4 +224,30 @@ public class UserInfoResponseGeneratorTests
             .And.Message.Should().Contain("subject");
     }
 
+    [Fact]
+    public async Task ProcessAsync_whenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _identityResources.Add(new IdentityResource("id1", ["foo"]));
+        _identityResources.Add(new IdentityResource("id2", ["bar"]));
+
+        var result = new UserInfoRequestValidationResult
+        {
+            Subject = _user,
+            TokenValidationResult = new TokenValidationResult
+            {
+                Claims = new List<Claim>
+                {
+                    { new("scope", "id1") },
+                    { new("scope", "id2") },
+                    { new("scope", "id3") }
+                },
+                Client = _client
+            }
+        };
+
+        await _subject.ProcessAsync(result);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Basic, _subject, "ProcessAsync"));
+    }
 }

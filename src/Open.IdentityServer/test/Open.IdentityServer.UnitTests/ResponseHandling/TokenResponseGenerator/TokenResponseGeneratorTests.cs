@@ -6,6 +6,7 @@
 using System;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Open.IdentityServer.UnitTests.Validation.Setup;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -16,6 +17,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
+using Xunit;
 
 namespace Open.IdentityServer.UnitTests.ResponseHandling.TokenResponseGenerator;
 
@@ -27,6 +29,7 @@ public abstract class TokenResponseGeneratorTests
     protected readonly IScopeParser scopeParser = new DefaultScopeParser(NullLogger<DefaultScopeParser>.Instance);
     protected readonly IResourceStore resources = new InMemoryResourcesStore(TestScopes.GetIdentity(), TestScopes.GetApis(), TestScopes.GetScopes());
     protected readonly IClientStore clients = new InMemoryClientStore(TestClients.Get());
+    protected readonly ITelemetryService telemetry = Mock.Of<ITelemetryService>();
     protected readonly ILogger<Open.IdentityServer.ResponseHandling.TokenResponseGenerator> logger = NullLogger<Open.IdentityServer.ResponseHandling.TokenResponseGenerator>.Instance;
 
     protected readonly DateTime FakeNow = new DateTime(2026, 02, 01, 12, 23, 00);
@@ -37,7 +40,7 @@ public abstract class TokenResponseGeneratorTests
     }
 
     protected Open.IdentityServer.ResponseHandling.TokenResponseGenerator CreateSut() =>
-        new(clock, tokenService, refreshTokenService, scopeParser, resources, clients, logger);
+        new(clock, tokenService, refreshTokenService, scopeParser, resources, clients, telemetry, logger);
     
     protected class CapturedTokenCreationRequest
     {

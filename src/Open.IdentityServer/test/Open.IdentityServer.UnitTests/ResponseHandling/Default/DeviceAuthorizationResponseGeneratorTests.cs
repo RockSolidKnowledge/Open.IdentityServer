@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -16,6 +17,7 @@ using Open.IdentityServer.Services.Default;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.ResponseHandling;
@@ -31,6 +33,7 @@ public class DeviceAuthorizationResponseGeneratorTests
     private readonly IDeviceFlowCodeService deviceFlowCodeService = new DefaultDeviceFlowCodeService(new InMemoryDeviceFlowStore(), new StubHandleGenerationService());
     private readonly IdentityServerOptions options = new();
     private readonly StubClock clock = new();
+    private readonly Mock<ITelemetryService> telemetry = new();
         
     private readonly DeviceAuthorizationResponseGenerator generator;
     private readonly DeviceAuthorizationRequestValidationResult testResult;
@@ -50,7 +53,24 @@ public class DeviceAuthorizationResponseGeneratorTests
             new DefaultUserCodeService([new NumericUserCodeGenerator(), fakeUserCodeGenerator]),
             deviceFlowCodeService,
             clock,
+            telemetry.Object,
             new NullLogger<DeviceAuthorizationResponseGenerator>());
+    }
+    
+
+    [Fact]
+    public async Task ProcessAsync_should_initiate_telemetry_trace()
+    {
+        var creationTime = DateTime.UtcNow;
+        clock.UtcNowFunc = () => creationTime;
+
+        testResult.ValidatedRequest.Client.UserCodeType = FakeUserCodeGenerator.UserCodeTypeValue;
+        await deviceFlowCodeService.StoreDeviceAuthorizationAsync(FakeUserCodeGenerator.TestCollisionUserCode, new DeviceCode());
+
+        await generator.ProcessAsync(testResult, TestBaseUrl);
+
+        telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Basic, generator, "ProcessAsync"));
     }
 
     [Fact]

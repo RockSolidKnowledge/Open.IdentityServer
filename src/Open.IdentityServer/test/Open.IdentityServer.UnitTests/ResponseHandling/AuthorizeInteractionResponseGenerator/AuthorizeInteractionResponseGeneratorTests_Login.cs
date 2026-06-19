@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -7,10 +8,12 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
 using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Utility;
 using Open.IdentityServer.Validation;
 using Xunit;
@@ -23,6 +26,7 @@ public class AuthorizeInteractionResponseGeneratorTests_Login
     private readonly Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator _subject;
     private readonly MockConsentService _mockConsentService = new MockConsentService();
     private readonly StubClock _clock = new StubClock();
+    private readonly Mock<ITelemetryService> _mockTelemetryService = new Mock<ITelemetryService>();
 
     public AuthorizeInteractionResponseGeneratorTests_Login()
     {
@@ -30,7 +34,8 @@ public class AuthorizeInteractionResponseGeneratorTests_Login
             _clock,
             TestLogger.Create<Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator>(),
             _mockConsentService,
-            new MockProfileService());
+            new MockProfileService(),
+            _mockTelemetryService.Object);
     }
 
     [Fact]

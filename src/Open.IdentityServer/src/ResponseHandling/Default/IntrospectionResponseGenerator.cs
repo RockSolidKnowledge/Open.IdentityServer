@@ -58,6 +58,7 @@ public class IntrospectionResponseGenerator : IIntrospectionResponseGenerator
     /// <returns>A task that resolves to a dictionary containing the introspection response claims, with <c>active</c> set to <see langword="true"/> and scopes filtered to those the calling API is permitted to see, or a minimal inactive response if the token is invalid or the API has no matching scopes.</returns>
     public virtual async Task<Dictionary<string, object>> ProcessAsync(IntrospectionRequestValidationResult validationResult)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         Logger.LogTrace("Creating introspection response");
 
         // standard response

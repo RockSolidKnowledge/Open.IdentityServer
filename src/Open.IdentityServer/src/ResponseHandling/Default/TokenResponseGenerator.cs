@@ -52,9 +52,14 @@ public class TokenResponseGenerator : ITokenResponseGenerator
     protected readonly IClientStore Clients;
 
     /// <summary>
-    ///  The clock
+    /// The clock
     /// </summary>
     protected readonly TimeProvider Clock;
+    
+    /// <summary>
+    /// The telemetry
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TokenResponseGenerator" /> class.
@@ -65,10 +70,11 @@ public class TokenResponseGenerator : ITokenResponseGenerator
     /// <param name="scopeParser">The scope parser.</param>
     /// <param name="resources">The resources.</param>
     /// <param name="clients">The clients.</param>
+    /// <param name="telemetry">The telemetry.</param>
     /// <param name="logger">The logger.</param>
     public TokenResponseGenerator(TimeProvider clock, ITokenService tokenService,
         IRefreshTokenService refreshTokenService, IScopeParser scopeParser, IResourceStore resources,
-        IClientStore clients, ILogger<TokenResponseGenerator> logger)
+        IClientStore clients, ITelemetryService telemetry, ILogger<TokenResponseGenerator> logger)
     {
         Clock = clock;
         TokenService = tokenService;
@@ -76,6 +82,7 @@ public class TokenResponseGenerator : ITokenResponseGenerator
         ScopeParser = scopeParser;
         Resources = resources;
         Clients = clients;
+        Telemetry = telemetry;
         Logger = logger;
     }
 
@@ -86,6 +93,10 @@ public class TokenResponseGenerator : ITokenResponseGenerator
     /// <returns>A task that resolves to a <see cref="TokenResponse"/> for the requested grant type.</returns>
     public virtual async Task<TokenResponse> ProcessAsync(TokenRequestValidationResult request)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Basic,
+            this);
+        
         switch (request.ValidatedRequest.GrantType)
         {
             case OidcConstants.GrantTypes.ClientCredentials:

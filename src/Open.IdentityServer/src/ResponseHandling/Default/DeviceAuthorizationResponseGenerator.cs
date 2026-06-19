@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -45,20 +46,27 @@ public class DeviceAuthorizationResponseGenerator : IDeviceAuthorizationResponse
     protected readonly ILogger Logger;
 
     /// <summary>
+    /// The telemetry
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="DeviceAuthorizationResponseGenerator"/> class.
     /// </summary>
     /// <param name="options">The options.</param>
     /// <param name="userCodeService">The user code service.</param>
     /// <param name="deviceFlowCodeService">The device flow code service.</param>
     /// <param name="clock">The clock.</param>
+    /// <param name="telemetry">The telemetry</param>
     /// <param name="logger">The logger.</param>
-    public DeviceAuthorizationResponseGenerator(IdentityServerOptions options, IUserCodeService userCodeService, IDeviceFlowCodeService deviceFlowCodeService, TimeProvider clock, ILogger<DeviceAuthorizationResponseGenerator> logger)
+    public DeviceAuthorizationResponseGenerator(IdentityServerOptions options, IUserCodeService userCodeService, IDeviceFlowCodeService deviceFlowCodeService, TimeProvider clock, ITelemetryService telemetry, ILogger<DeviceAuthorizationResponseGenerator> logger)
     {
         Options = options;
         UserCodeService = userCodeService;
         DeviceFlowCodeService = deviceFlowCodeService;
         Clock = clock;
         Logger = logger;
+        Telemetry =  telemetry;
     }
 
     /// <summary>
@@ -75,6 +83,8 @@ public class DeviceAuthorizationResponseGenerator : IDeviceAuthorizationResponse
         if (validationResult.ValidatedRequest.Client == null) throw new ArgumentNullException(nameof(validationResult.ValidatedRequest.Client));
         if (string.IsNullOrWhiteSpace(baseUrl)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(baseUrl));
 
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        
         Logger.LogTrace("Creating response for device authorization request");
 
         var response = new DeviceAuthorizationResponse();

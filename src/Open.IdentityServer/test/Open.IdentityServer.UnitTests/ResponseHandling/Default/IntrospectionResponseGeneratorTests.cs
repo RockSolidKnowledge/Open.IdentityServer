@@ -211,4 +211,34 @@ public class IntrospectionResponseGeneratorTests
         
         _telemetry.Verify();
     }
+
+    [Fact]
+    public async Task process_should_initiate_telemetry_trace()
+    {
+        var subject = CreateSubject();
+        var api = new ApiResource("api1")
+        {
+            Scopes = { "scope1", "scope2" }
+        };
+
+        var validationResult = new IntrospectionRequestValidationResult
+        {
+            IsActive = true,
+            Api = api,
+            Claims = new List<Claim>
+            {
+                new("sub", "123"),
+                new("client_id", "client"),
+                new(JwtClaimTypes.Scope, "scope1"),
+                new(JwtClaimTypes.Scope, "other-scope")
+            }
+        };
+
+        await subject.ProcessAsync(validationResult);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Basic,
+            subject,
+            "ProcessAsync"));
+    }
 }

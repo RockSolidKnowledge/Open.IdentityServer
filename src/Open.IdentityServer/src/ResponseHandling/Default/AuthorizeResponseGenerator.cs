@@ -51,6 +51,11 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
     /// The key material service
     /// </summary>
     protected readonly IKeyMaterialService KeyMaterialService;
+    
+    /// <summary>
+    /// The telemetry service
+    /// </summary>
+    protected readonly ITelemetryService TelemetryService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizeResponseGenerator"/> class.
@@ -61,13 +66,15 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
     /// <param name="keyMaterialService">The key material service used to retrieve signing credentials.</param>
     /// <param name="authorizationCodeStore">The authorization code store.</param>
     /// <param name="events">The events.</param>
+    /// <param name="telemetry">The telemetry service</param>
     public AuthorizeResponseGenerator(
         TimeProvider clock,
         ITokenService tokenService,
         IKeyMaterialService keyMaterialService,
         IAuthorizationCodeStore authorizationCodeStore,
         ILogger<AuthorizeResponseGenerator> logger,
-        IEventService events)
+        IEventService events,
+        ITelemetryService telemetry)
     {
         Clock = clock;
         TokenService = tokenService;
@@ -75,6 +82,7 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
         AuthorizationCodeStore = authorizationCodeStore;
         Events = events;
         Logger = logger;
+        TelemetryService = telemetry;
     }
 
     /// <summary>
@@ -85,6 +93,9 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
     /// <exception cref="System.InvalidOperationException">invalid grant type: " + request.GrantType</exception>
     public virtual async Task<AuthorizeResponse> CreateResponseAsync(ValidatedAuthorizeRequest request)
     {
+        using var trace = TelemetryService.Trace(
+            TelemetryConstants.TraceCategories.Basic, this);
+        
         if (request.GrantType == GrantType.AuthorizationCode)
         {
             return await CreateCodeFlowResponseAsync(request);

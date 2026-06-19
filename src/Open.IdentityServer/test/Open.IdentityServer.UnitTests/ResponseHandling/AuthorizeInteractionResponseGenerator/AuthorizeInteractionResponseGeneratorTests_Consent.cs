@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -8,9 +9,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
 using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Utility;
 using Open.IdentityServer.Validation;
 using Xunit;
@@ -22,6 +25,7 @@ public class AuthorizeInteractionResponseGeneratorTests_Consent
     private readonly Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator _subject;
     private readonly MockConsentService _mockConsent = new();
     private readonly MockProfileService _fakeUserService = new();
+    private readonly Mock<ITelemetryService> _mockTelemetryService = new ();
 
     private void RequiresConsent(bool value)
     {
@@ -95,7 +99,8 @@ public class AuthorizeInteractionResponseGeneratorTests_Consent
             new StubClock(),
             TestLogger.Create<Open.IdentityServer.ResponseHandling.AuthorizeInteractionResponseGenerator>(),
             _mockConsent,
-            _fakeUserService);
+            _fakeUserService,
+            _mockTelemetryService.Object);
     }
 
     private static ResourceValidationResult GetValidatedResources(params string[] scopes)

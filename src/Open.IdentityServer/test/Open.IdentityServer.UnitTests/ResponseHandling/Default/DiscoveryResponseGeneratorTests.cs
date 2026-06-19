@@ -31,6 +31,7 @@ public class DiscoveryResponseGeneratorTests
     private readonly IResourceOwnerPasswordValidator ResourceOwnerValidator = Mock.Of<IResourceOwnerPasswordValidator>();
     private readonly IResourceStore ResourceStore = Mock.Of<IResourceStore>();
     private readonly ISecretsListParser SecretParsers = Mock.Of<ISecretsListParser>();
+    private readonly ITelemetryService Telemetry = Mock.Of<ITelemetryService>();
     private readonly ILogger<DiscoveryResponseGenerator> Logger = NullLogger<DiscoveryResponseGenerator>.Instance;
 
     private DiscoveryResponseGenerator CreateSut()
@@ -41,8 +42,47 @@ public class DiscoveryResponseGeneratorTests
             .Setup(x => x.GetAllResourcesAsync())
             .ReturnsAsync(new Resources());
 
-        return new DiscoveryResponseGenerator(Options, ResourceStore, Keys, ExtensionGrants, SecretParsers,
-            ResourceOwnerValidator, Logger);
+        return new DiscoveryResponseGenerator(
+            Options, 
+            ResourceStore, 
+            Keys, 
+            ExtensionGrants, 
+            SecretParsers,
+            ResourceOwnerValidator, 
+            Telemetry,
+            Logger);
+    }
+
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var sut = CreateSut();
+
+        await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
+
+        Mock.Get(Telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Basic,
+                sut,
+                "CreateDiscoveryDocumentAsync"));
+    }
+
+    [Fact]
+    public async Task CreateJwkDocumentASync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        Mock.Get(Keys)
+            .Setup(k => k.GetValidationKeysAsync())
+            .ReturnsAsync([]);
+        
+        var sut = CreateSut();
+
+        await sut.CreateJwkDocumentAsync();
+        
+        Mock.Get(Telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Basic,
+                sut,
+                "CreateJwkDocumentAsync"));
     }
 
     [Fact]
