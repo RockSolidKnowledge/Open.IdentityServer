@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -18,6 +19,7 @@ internal class DefaultDeviceFlowInteractionService : IDeviceFlowInteractionServi
     private readonly IDeviceFlowCodeService _devices;
     private readonly IResourceStore _resourceStore;
     private readonly IScopeParser _scopeParser;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger<DefaultDeviceFlowInteractionService> _logger;
 
     public DefaultDeviceFlowInteractionService(
@@ -26,6 +28,7 @@ internal class DefaultDeviceFlowInteractionService : IDeviceFlowInteractionServi
         IDeviceFlowCodeService devices,
         IResourceStore resourceStore,
         IScopeParser scopeParser,
+        ITelemetryService telemetry,
         ILogger<DefaultDeviceFlowInteractionService> logger)
     {
         _clients = clients;
@@ -33,11 +36,15 @@ internal class DefaultDeviceFlowInteractionService : IDeviceFlowInteractionServi
         _devices = devices;
         _resourceStore = resourceStore;
         _scopeParser = scopeParser;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
     public async Task<DeviceFlowAuthorizationRequest> GetAuthorizationContextAsync(string userCode)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var deviceAuth = await _devices.FindByUserCodeAsync(userCode);
         if (deviceAuth == null) return null;
 
@@ -58,6 +65,9 @@ internal class DefaultDeviceFlowInteractionService : IDeviceFlowInteractionServi
     {
         if (userCode == null) throw new ArgumentNullException(nameof(userCode));
         if (consent == null) throw new ArgumentNullException(nameof(consent));
+        
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
             
         var deviceAuth = await _devices.FindByUserCodeAsync(userCode);
         if (deviceAuth == null) return LogAndReturnError("Invalid user code", "Device authorization failure - user code is invalid");

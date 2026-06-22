@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -21,19 +22,27 @@ public class InMemoryCorsPolicyService : ICorsPolicyService
     /// Logger
     /// </summary>
     protected readonly ILogger Logger;
+    
     /// <summary>
     /// Clients applications list
     /// </summary>
     protected readonly IEnumerable<Client> Clients;
+    
+    /// <summary>
+    /// The telemetry
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InMemoryCorsPolicyService"/> class.
     /// </summary>
     /// <param name="logger">The logger</param>
     /// <param name="clients">The clients.</param>
-    public InMemoryCorsPolicyService(ILogger<InMemoryCorsPolicyService> logger, IEnumerable<Client> clients)
+    /// <param name="telemetry">The telemetry service.</param>
+    public InMemoryCorsPolicyService(ILogger<InMemoryCorsPolicyService> logger, IEnumerable<Client> clients, ITelemetryService telemetry)
     {
         Logger = logger;
+        Telemetry = telemetry;
         Clients = clients ?? Enumerable.Empty<Client>();
     }
 
@@ -46,6 +55,9 @@ public class InMemoryCorsPolicyService : ICorsPolicyService
     /// </returns>
     public virtual Task<bool> IsOriginAllowedAsync(string origin)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var query =
             from client in Clients
             from url in client.AllowedCorsOrigins

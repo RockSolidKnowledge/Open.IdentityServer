@@ -12,6 +12,8 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Moq;
 using Open.IdentityServer;
 using Xunit;
 
@@ -21,13 +23,14 @@ public class DefaultTokenServiceTests
 {
     private DefaultTokenService _subject;
 
-    MockClaimsService _mockClaimsService = new MockClaimsService();
-    MockReferenceTokenStore _mockReferenceTokenStore = new MockReferenceTokenStore();
-    MockTokenCreationService _mockTokenCreationService = new MockTokenCreationService();
-    DefaultHttpContext _httpContext = new DefaultHttpContext();
-    MockSystemClock _mockSystemClock = new MockSystemClock();
-    MockKeyMaterialService _mockKeyMaterialService = new MockKeyMaterialService();
-    IdentityServerOptions _options = new IdentityServerOptions();
+    private MockClaimsService _mockClaimsService = new MockClaimsService();
+    private MockReferenceTokenStore _mockReferenceTokenStore = new MockReferenceTokenStore();
+    private MockTokenCreationService _mockTokenCreationService = new MockTokenCreationService();
+    private DefaultHttpContext _httpContext = new DefaultHttpContext();
+    private MockSystemClock _mockSystemClock = new MockSystemClock();
+    private MockKeyMaterialService _mockKeyMaterialService = new MockKeyMaterialService();
+    private IdentityServerOptions _options = new IdentityServerOptions();
+    private Mock<ITelemetryService> _telemetry = new();
 
     public DefaultTokenServiceTests()
     {
@@ -45,6 +48,7 @@ public class DefaultTokenServiceTests
             _mockSystemClock,
             _mockKeyMaterialService,
             _options,
+            _telemetry.Object,
             TestLogger.Create<DefaultTokenService>());
     }
 
@@ -170,6 +174,7 @@ public class DefaultTokenServiceTests
 
         result.Claims.SingleOrDefault(x => x.Type == JwtClaimTypes.SessionId).Should().BeNull();
     }
+    
     [Fact]
     public async Task CreateAccessTokenAsync_when_session_should_include_sid()
     {
@@ -186,5 +191,64 @@ public class DefaultTokenServiceTests
         var result = await _subject.CreateAccessTokenAsync(request);
 
         result.Claims.SingleOrDefault(x => x.Type == JwtClaimTypes.SessionId).Value.Should().Be("123");
+    }
+
+    [Fact]
+    public async Task CreateIdentityTokenAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _mockKeyMaterialService.SigningCredentials.Add(
+            new SigningCredentials(CryptoHelper.CreateRsaSecurityKey(), "RS256"));
+
+        var request = new TokenCreationRequest
+        {
+            ValidatedResources = new ResourceValidationResult(),
+            ValidatedRequest = new ValidatedRequest()
+            {
+                Client = new Client { },
+            }
+        };
+
+        await _subject.CreateIdentityTokenAsync(request);
+
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            _subject,
+            "CreateIdentityTokenAsync"));
+    }
+
+    [Fact]
+    public async Task CreateAccessTokenAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var request = new TokenCreationRequest
+        {
+            ValidatedResources = new ResourceValidationResult(),
+            ValidatedRequest = new ValidatedRequest()
+            {
+                Client = new Client { },
+            }
+        };
+
+        await _subject.CreateAccessTokenAsync(request);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            _subject,
+            "CreateAccessTokenAsync"));
+    }
+
+    [Fact]
+    public async Task CreateSecurityTokenAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var token = new Token(OidcConstants.TokenTypes.AccessToken)
+        {
+            AccessTokenType = AccessTokenType.Jwt
+        };
+
+        await _subject.CreateSecurityTokenAsync(token);
+
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            _subject,
+            "CreateSecurityTokenAsync"));
     }
 }

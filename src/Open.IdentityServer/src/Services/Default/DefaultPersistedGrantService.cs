@@ -23,26 +23,33 @@ public class DefaultPersistedGrantService : IPersistedGrantService
     private readonly ILogger _logger;
     private readonly IPersistedGrantStore _store;
     private readonly IPersistentGrantSerializer _serializer;
+    private readonly ITelemetryService _telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultPersistedGrantService"/> class.
     /// </summary>
     /// <param name="store">The store.</param>
     /// <param name="serializer">The serializer.</param>
+    /// <param name="telemetry">The telemetry.</param>
     /// <param name="logger">The logger.</param>
-    public DefaultPersistedGrantService(IPersistedGrantStore store, 
+    public DefaultPersistedGrantService(
+        IPersistedGrantStore store, 
         IPersistentGrantSerializer serializer,
+        ITelemetryService telemetry,
         ILogger<DefaultPersistedGrantService> logger)
     {
         _store = store;
         _serializer = serializer;
         _logger = logger;
+        _telemetry = telemetry;
     }
 
     /// <inheritdoc/>
     public async Task<IEnumerable<Grant>> GetAllGrantsAsync(string subjectId)
     {
         if (String.IsNullOrWhiteSpace(subjectId)) throw new ArgumentNullException(nameof(subjectId));
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
             
         var grants = (await _store.GetAllAsync(new PersistedGrantFilter { SubjectId = subjectId })).ToArray();
 
@@ -164,7 +171,9 @@ public class DefaultPersistedGrantService : IPersistedGrantService
     public Task RemoveAllGrantsAsync(string subjectId, string? clientId = null, string? sessionId = null)
     {
         if (String.IsNullOrWhiteSpace(subjectId)) throw new ArgumentNullException(nameof(subjectId));
-
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         return _store.RemoveAllAsync(new PersistedGrantFilter {
             SubjectId = subjectId,
             ClientId = clientId,

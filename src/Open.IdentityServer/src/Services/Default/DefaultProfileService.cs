@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -16,6 +17,11 @@ namespace Open.IdentityServer.Services;
 public class DefaultProfileService : IProfileService
 {
     /// <summary>
+    /// The telemetry
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
+    
+    /// <summary>
     /// The logger
     /// </summary>
     protected readonly ILogger Logger;
@@ -23,9 +29,11 @@ public class DefaultProfileService : IProfileService
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultProfileService"/> class.
     /// </summary>
+    /// <param name="telemetry">The telemetry.</param>
     /// <param name="logger">The logger.</param>
-    public DefaultProfileService(ILogger<DefaultProfileService> logger)
+    public DefaultProfileService(ITelemetryService telemetry, ILogger<DefaultProfileService> logger)
     {
+        Telemetry = telemetry;
         Logger = logger;
     }
 
@@ -35,6 +43,9 @@ public class DefaultProfileService : IProfileService
     /// <param name="context">The context.</param>
     public virtual Task GetProfileDataAsync(ProfileDataRequestContext context)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         context.LogProfileRequest(Logger);
         context.AddRequestedClaims(context.Subject.Claims);
         context.LogIssuedClaims(Logger);
@@ -49,6 +60,8 @@ public class DefaultProfileService : IProfileService
     /// <param name="context">The context.</param>
     public virtual Task IsActiveAsync(IsActiveContext context)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
         Logger.LogDebug("IsActive called from: {caller}", context.Caller);
 
         context.IsActive = true;

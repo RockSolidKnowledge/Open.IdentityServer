@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -26,9 +27,14 @@ public class DefaultConsentService : IConsentService
     protected readonly IUserConsentStore UserConsentStore;
 
     /// <summary>
-    ///  The clock
+    /// The clock
     /// </summary>
     protected readonly TimeProvider Clock;
+    
+    /// <summary>
+    /// The telemetry
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
 
     /// <summary>
     /// The logger
@@ -40,12 +46,18 @@ public class DefaultConsentService : IConsentService
     /// </summary>
     /// <param name="clock">The clock.</param>
     /// <param name="userConsentStore">The user consent store.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
     /// <exception cref="System.ArgumentNullException">store</exception>
-    public DefaultConsentService(TimeProvider clock, IUserConsentStore userConsentStore, ILogger<DefaultConsentService> logger)
+    public DefaultConsentService(
+        TimeProvider clock, 
+        IUserConsentStore userConsentStore, 
+        ITelemetryService telemetry, 
+        ILogger<DefaultConsentService> logger)
     {
         Clock = clock;
         UserConsentStore = userConsentStore;
+        Telemetry = telemetry;
         Logger = logger;
     }
 
@@ -68,6 +80,9 @@ public class DefaultConsentService : IConsentService
         if (client == null) throw new ArgumentNullException(nameof(client));
         if (subject == null) throw new ArgumentNullException(nameof(subject));
 
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         if (!client.RequireConsent)
         {
             Logger.LogDebug("Client is configured to not require consent, no consent is required");
@@ -156,6 +171,9 @@ public class DefaultConsentService : IConsentService
         if (client == null) throw new ArgumentNullException(nameof(client));
         if (subject == null) throw new ArgumentNullException(nameof(subject));
 
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         if (client.AllowRememberConsent)
         {
             var subjectId = subject.GetSubjectId();

@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -143,6 +144,7 @@ internal static class Factory
             store,
             profile,
             new StubClock(),
+            new NopTelemetryService(),
             TestLogger.Create<DefaultRefreshTokenService>());
 
         return service;
@@ -159,8 +161,10 @@ internal static class Factory
         return new DefaultTokenCreationService(
             new StubClock(),
             new DefaultKeyMaterialService(new IValidationKeysStore[] { },
-                new ISigningCredentialStore[] { new InMemorySigningCredentialsStore(TestCert.LoadSigningCredentials()) }),
+                new ISigningCredentialStore[] { new InMemorySigningCredentialsStore(TestCert.LoadSigningCredentials()) },
+                new NopTelemetryService()),
             options ?? TestIdentityServerOptions.Create(),
+            new DefaultTelemetryService(),
             TestLogger.Create<DefaultTokenCreationService>());
     }
 
@@ -239,7 +243,11 @@ internal static class Factory
 
         if (jwtRequestUriHttpClient == null)
         {
-            jwtRequestUriHttpClient = new DefaultJwtRequestUriHttpClient(new HttpClient(new NetworkHandler(new Exception("no jwt request uri response configured"))), options, new LoggerFactory());
+            jwtRequestUriHttpClient = new DefaultJwtRequestUriHttpClient(
+                new HttpClient(new NetworkHandler(new Exception("no jwt request uri response configured"))), 
+                options, 
+                new NopTelemetryService(),
+                new LoggerFactory());
         }
 
 
@@ -302,7 +310,10 @@ internal static class Factory
             referenceTokenStore: store,
             refreshTokenStore: refreshTokenStore,
             customValidator: new DefaultCustomTokenValidator(),
-            keys: new DefaultKeyMaterialService(new[] { new InMemoryValidationKeysStore(new[] { keyInfo }) }, Enumerable.Empty<ISigningCredentialStore>()),
+            keys: new DefaultKeyMaterialService(
+                new[] { new InMemoryValidationKeysStore(new[] { keyInfo }) }, 
+                Enumerable.Empty<ISigningCredentialStore>(),
+                new NopTelemetryService()),
             logger: logger,
             options: options,
             context: context);
@@ -355,7 +366,7 @@ internal static class Factory
 
         if (telemetry == null)
         {
-            telemetry = new DefaultTelemetryService();
+            telemetry = new NopTelemetryService();
         }
 
         return new ClientSecretValidator(clients, parser, validator, new TestEventService(), telemetry, TestLogger.Create<ClientSecretValidator>());
@@ -387,7 +398,7 @@ internal static class Factory
 
     public static IDeviceFlowCodeService CreateDeviceCodeService()
     {
-        return new DefaultDeviceFlowCodeService(new InMemoryDeviceFlowStore(), new DefaultHandleGenerationService());
+        return new DefaultDeviceFlowCodeService(new InMemoryDeviceFlowStore(), new DefaultHandleGenerationService(), new NopTelemetryService());
     }
         
     public static IUserConsentStore CreateUserConsentStore()

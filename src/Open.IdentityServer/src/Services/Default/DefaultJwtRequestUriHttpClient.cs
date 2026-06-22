@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -18,6 +19,7 @@ public class DefaultJwtRequestUriHttpClient : IJwtRequestUriHttpClient
 {
     private readonly HttpClient _client;
     private readonly IdentityServerOptions _options;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger<DefaultJwtRequestUriHttpClient> _logger;
 
     /// <summary>
@@ -25,17 +27,26 @@ public class DefaultJwtRequestUriHttpClient : IJwtRequestUriHttpClient
     /// </summary>
     /// <param name="client">An HTTP client</param>
     /// <param name="options">The options.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="loggerFactory">The logger factory</param>
-    public DefaultJwtRequestUriHttpClient(HttpClient client, IdentityServerOptions options, ILoggerFactory loggerFactory)
+    public DefaultJwtRequestUriHttpClient(
+        HttpClient client, 
+        IdentityServerOptions options, 
+        ITelemetryService telemetry,
+        ILoggerFactory loggerFactory)
     {
         _client = client;
         _options = options;
+        _telemetry = telemetry;
         _logger = loggerFactory.CreateLogger<DefaultJwtRequestUriHttpClient>();
     }
 
     /// <inheritdoc />
     public async Task<string> GetJwtAsync(string url, Client client)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var req = new HttpRequestMessage(HttpMethod.Get, url);
             
         req.Options.Set(new HttpRequestOptionsKey<Client>(IdentityServerConstants.JwtRequestClientKey), client);

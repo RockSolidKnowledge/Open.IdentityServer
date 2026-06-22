@@ -12,6 +12,7 @@ using Open.IdentityServer.Stores.Serialization;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Moq;
 using Open.IdentityServer.UnitTests.Validation.Setup;
 using Xunit;
 
@@ -24,6 +25,7 @@ public class DefaultRefreshTokenServiceTests
 
     private ClaimsPrincipal _user = new IdentityServerUser("123").CreatePrincipal();
     private StubClock _clock = new StubClock();
+    private Mock<ITelemetryService> _telemetry = new ();
 
     public DefaultRefreshTokenServiceTests()
     {
@@ -37,6 +39,7 @@ public class DefaultRefreshTokenServiceTests
             _store,
             new TestProfileService(),
             _clock,
+            _telemetry.Object,
             TestLogger.Create<DefaultRefreshTokenService>());
     }
 
@@ -507,5 +510,86 @@ public class DefaultRefreshTokenServiceTests
         var result = await _subject.ValidateRefreshTokenAsync(handle, client);
 
         result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task CreateRefreshToken_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var client = new Client();
+        var accessToken = new Token();
+
+        await _subject.CreateRefreshTokenAsync(new RefreshTokenCreationRequest
+        {
+            Subject = _user, AccessToken = accessToken, Client = client, AuthorisedScopes = [],
+        });
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            _subject,
+            "CreateRefreshTokenAsync"));
+    }
+
+    [Fact]
+    public async Task ValidateRefreshToken_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var client = new Client
+        {
+            ClientId = "client1",
+            AllowOfflineAccess = true,
+            RefreshTokenUsage = TokenUsage.OneTimeOnly
+        };
+
+        var refreshToken = new RefreshToken
+        {
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        };
+
+        var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
+
+        await _subject.ValidateRefreshTokenAsync(handle, client);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            _subject,
+            "ValidateRefreshTokenAsync"));
+    }
+
+    [Fact]
+    public async Task UpdateRefreshToken_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var client = new Client
+        {
+            ClientId = "client1",
+            RefreshTokenUsage = TokenUsage.OneTimeOnly
+        };
+
+        var refreshToken = new RefreshToken
+        {
+            CreationTime = DateTime.UtcNow,
+            Lifetime = 10,
+
+            Subject = new IdentityServerUser("123").CreatePrincipal(),
+            ClientId = client.ClientId,
+            AuthorizedScopes = [],
+        };
+
+        var handle = await _store.StoreRefreshTokenAsync(refreshToken);
+
+        var now = DateTime.UtcNow;
+        _clock.UtcNowFunc = () => now;
+
+        await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            _subject,
+            "UpdateRefreshTokenAsync"));
     }
 }

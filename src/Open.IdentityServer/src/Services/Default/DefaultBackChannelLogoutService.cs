@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -42,6 +43,11 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
     /// HttpClient to make the outbound HTTP calls.
     /// </summary>
     protected IBackChannelLogoutHttpClient HttpClient { get; }
+    
+    /// <summary>
+    /// The telemetry service.
+    /// </summary>
+    protected ITelemetryService Telemetry { get; }
 
     /// <summary>
     /// The logger.
@@ -55,12 +61,14 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
     /// <param name="tools">The IdentityServer tools used to issue signed JWTs.</param>
     /// <param name="logoutNotificationService">The service that builds the set of back-channel logout requests for a given logout context.</param>
     /// <param name="backChannelLogoutHttpClient">The HTTP client used to POST logout tokens to client back-channel URIs.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
     public DefaultBackChannelLogoutService(
         TimeProvider clock,
         IdentityServerTools tools,
         ILogoutNotificationService logoutNotificationService,
         IBackChannelLogoutHttpClient backChannelLogoutHttpClient,
+        ITelemetryService telemetry,
         ILogger<IBackChannelLogoutService> logger)
     {
         Clock = clock;
@@ -68,11 +76,15 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
         LogoutNotificationService = logoutNotificationService;
         HttpClient = backChannelLogoutHttpClient;
         Logger = logger;
+        Telemetry = telemetry;
     }
 
     /// <inheritdoc/>
     public virtual async Task SendLogoutNotificationsAsync(LogoutNotificationContext context)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var backChannelRequests = await LogoutNotificationService.GetBackChannelLogoutNotificationsAsync(context);
         if (backChannelRequests.Any())
         {

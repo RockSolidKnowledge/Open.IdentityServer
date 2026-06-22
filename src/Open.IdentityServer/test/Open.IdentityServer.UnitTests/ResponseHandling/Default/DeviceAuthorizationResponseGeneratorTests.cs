@@ -18,6 +18,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.ResponseHandling;
@@ -30,7 +31,7 @@ public class DeviceAuthorizationResponseGeneratorTests
     private readonly List<ApiScope> scopes = [new("api1")];
 
     private readonly FakeUserCodeGenerator fakeUserCodeGenerator = new();
-    private readonly IDeviceFlowCodeService deviceFlowCodeService = new DefaultDeviceFlowCodeService(new InMemoryDeviceFlowStore(), new StubHandleGenerationService());
+    private readonly IDeviceFlowCodeService deviceFlowCodeService = new DefaultDeviceFlowCodeService(new InMemoryDeviceFlowStore(), new StubHandleGenerationService(), new NopTelemetryService());
     private readonly IdentityServerOptions options = new();
     private readonly StubClock clock = new();
     private readonly Mock<ITelemetryService> telemetry = new();

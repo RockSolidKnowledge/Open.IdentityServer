@@ -31,12 +31,13 @@ public class DefaultPersistedGrantServiceTests
 
     private IPersistentGrantSerializer _persistentGrantSerializer = new PersistentGrantSerializer();
     private ILogger<DefaultPersistedGrantService> _logger = Mock.Of<ILogger<DefaultPersistedGrantService>>();
+    private ITelemetryService _telemetry = Mock.Of<ITelemetryService>();
         
     private ClaimsPrincipal _user = new IdentityServerUser("123").CreatePrincipal();
 
     public DefaultPersistedGrantServiceTests()
     {
-        _subject = new DefaultPersistedGrantService(_store, _persistentGrantSerializer, _logger);
+        _subject = new DefaultPersistedGrantService(_store, _persistentGrantSerializer, _telemetry, _logger);
         _codes = new DefaultAuthorizationCodeStore(_store,
             _persistentGrantSerializer, 
             new DefaultHandleGenerationService(),
@@ -199,6 +200,18 @@ public class DefaultPersistedGrantServiceTests
     }
 
     [Fact]
+    public async Task GetAllGrantsAsync_should_initiate_telemetry_trace()
+    {
+        await _subject.GetAllGrantsAsync("123");
+        
+        Mock.Get(_telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Services,
+                _subject,
+                "GetAllGrantsAsync"));
+    }
+
+    [Fact]
     public async Task RemoveAllGrantsAsync_should_remove_all_grants()
     {
         await _userConsent.StoreUserConsentAsync(new Consent
@@ -339,6 +352,19 @@ public class DefaultPersistedGrantServiceTests
         (await _codes.GetAuthorizationCodeAsync(handle8)).Should().NotBeNull();
         (await _codes.GetAuthorizationCodeAsync(handle9)).Should().NotBeNull();
     }
+    
+    [Fact]
+    public async Task RemoveAllGrantsAsync_should_initiate_telemetry_trace()
+    {
+        await _subject.RemoveAllGrantsAsync("123", "client1");
+
+        Mock.Get(_telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Services,
+                _subject,
+                "RemoveAllGrantsAsync"));
+    }
+    
     [Fact]
     public async Task RemoveAllGrantsAsync_should_filter_on_session_id()
     {
@@ -630,7 +656,7 @@ public class DefaultPersistedGrantServiceTests
                     _persistentGrantSerializer.Deserialize<AuthorizationCode>(json);
             });
 
-        _subject = new DefaultPersistedGrantService(_store, mockedSerializer, _logger);
+        _subject = new DefaultPersistedGrantService(_store, mockedSerializer, _telemetry, _logger);
                 
         var grants = (await _subject.GetAllGrantsAsync("123")).ToList();
 

@@ -27,6 +27,7 @@ public class OidcReturnUrlParserTests
     private readonly IUserSession userSession = Mock.Of<IUserSession>();
     private readonly ILogger<OidcReturnUrlParser> logger = NullLogger<OidcReturnUrlParser>.Instance;
     private IAuthorizationParametersMessageStore? authorizationParametersMessageStore = Mock.Of<IAuthorizationParametersMessageStore>();
+    private ITelemetryService telemetry = Mock.Of<ITelemetryService>();
     
     private static readonly List<Claim> claims =
     [
@@ -44,7 +45,7 @@ public class OidcReturnUrlParserTests
             .ReturnsAsync(fakeUser);
     }
     
-    private OidcReturnUrlParser CreateSut() => new(authorizeRequestValidator, userSession, logger, authorizationParametersMessageStore);
+    private OidcReturnUrlParser CreateSut() => new(authorizeRequestValidator, userSession, logger, telemetry, authorizationParametersMessageStore);
 
     [Theory]
     [InlineData($"/some/path/{Constants.ProtocolRoutePaths.Authorize}", true)]
@@ -197,6 +198,34 @@ public class OidcReturnUrlParserTests
         parsedParams.Should().NotBeNull();
         parsedParams.GetValues("paramA").Should().BeEquivalentTo("someValue");
         parsedParams.GetValues("paramB").Should().BeEquivalentTo("acmeOne", "otherVal");
+    }
+
+    [Fact]
+    public async Task ParseAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var subject = CreateSut();
+        
+        await subject.ParseAsync("anything");
+        
+        Mock.Get(telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Services,
+                subject, 
+                "ParseAsync"));
+    }
+
+    [Fact]
+    public void IsValidReturnUrl_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var subject = CreateSut();
+        
+        subject.IsValidReturnUrl("anything");
+        
+        Mock.Get(telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Services,
+                subject, 
+                "IsValidReturnUrl"));
     }
     
     public bool CompareNameValueCollections(NameValueCollection nvc1,

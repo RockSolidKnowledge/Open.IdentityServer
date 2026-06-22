@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
@@ -12,6 +13,7 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Microsoft.Extensions.Caching.Distributed;
+using Moq;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Services.Default;
@@ -30,11 +32,13 @@ public class DistributedDeviceFlowThrottlingServiceTests
     private const string CacheKey = "devicecode_";
     private readonly DateTime testDate = new(2018, 06, 28, 13, 37, 42);
 
+    private Mock<ITelemetryService> telemetry = new();
+    
     [Fact]
     public async Task First_Poll()
     {
         var handle = Guid.NewGuid().ToString();
-        var service = new DistributedDeviceFlowThrottlingService(cache, new StubClock {UtcNowFunc = () => testDate}, options);
+        var service = CreateSubject();
 
         var result = await service.ShouldSlowDown(handle, deviceCode);
 
@@ -43,11 +47,33 @@ public class DistributedDeviceFlowThrottlingServiceTests
         CheckCacheEntry(handle);
     }
 
+    private DistributedDeviceFlowThrottlingService CreateSubject()
+    {
+        return new DistributedDeviceFlowThrottlingService(
+            cache, 
+            new StubClock {UtcNowFunc = () => testDate}, 
+            options, 
+            telemetry.Object);
+    }
+
+    [Fact] public async Task ShouldSlowDown_ShouldInitiateTelemetryTrace()
+    {
+        var handle = Guid.NewGuid().ToString();
+        var service = CreateSubject();
+        
+        await service.ShouldSlowDown(handle, deviceCode);
+
+        telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            service,
+            "ShouldSlowDown"));
+    }
+
     [Fact]
     public async Task Second_Poll_Too_Fast()
     {
         var handle = Guid.NewGuid().ToString();
-        var service = new DistributedDeviceFlowThrottlingService(cache, new StubClock { UtcNowFunc = () => testDate }, options);
+        var service = CreateSubject();
 
         await cache.SetAsync(
             CacheKey + handle, 
@@ -66,7 +92,7 @@ public class DistributedDeviceFlowThrottlingServiceTests
     {
         var handle = Guid.NewGuid().ToString();
             
-        var service = new DistributedDeviceFlowThrottlingService(cache, new StubClock { UtcNowFunc = () => testDate }, options);
+        var service = CreateSubject();
 
         await cache.SetAsync(
             $"devicecode_{handle}", 
@@ -89,7 +115,7 @@ public class DistributedDeviceFlowThrottlingServiceTests
         var handle = Guid.NewGuid().ToString();
         deviceCode.CreationTime = testDate.AddSeconds(-deviceCode.Lifetime * 2);
 
-        var service = new DistributedDeviceFlowThrottlingService(cache, new StubClock { UtcNowFunc = () => testDate }, options);
+        var service = CreateSubject();
 
         var result = await service.ShouldSlowDown(handle, deviceCode);
             

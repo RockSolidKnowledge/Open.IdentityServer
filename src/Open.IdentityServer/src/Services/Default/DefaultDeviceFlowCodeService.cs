@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Threading.Tasks;
@@ -15,17 +16,22 @@ public class DefaultDeviceFlowCodeService : IDeviceFlowCodeService
 {
     private readonly IDeviceFlowStore _store;
     private readonly IHandleGenerationService _handleGenerationService;
+    private readonly ITelemetryService _telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultDeviceFlowCodeService"/> class.
     /// </summary>
     /// <param name="store">The store.</param>
     /// <param name="handleGenerationService">The handle generation service.</param>
-    public DefaultDeviceFlowCodeService(IDeviceFlowStore store,
-        IHandleGenerationService handleGenerationService)
+    /// <param name="telemetry">The telemetry service.</param>
+    public DefaultDeviceFlowCodeService(
+        IDeviceFlowStore store,
+        IHandleGenerationService handleGenerationService,
+        ITelemetryService telemetry)
     {
         _store = store;
         _handleGenerationService = handleGenerationService;
+        _telemetry = telemetry;
     }
 
     /// <summary>
@@ -36,6 +42,9 @@ public class DefaultDeviceFlowCodeService : IDeviceFlowCodeService
     /// <returns>A task that resolves to the device code handle assigned to the stored authorization.</returns>
     public async Task<string> StoreDeviceAuthorizationAsync(string userCode, DeviceCode data)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var deviceCode = await _handleGenerationService.GenerateAsync();
 
         await _store.StoreDeviceAuthorizationAsync(deviceCode.Sha256(), userCode.Sha256(), data);
@@ -50,6 +59,9 @@ public class DefaultDeviceFlowCodeService : IDeviceFlowCodeService
     /// <returns>A task that resolves to the <see cref="DeviceCode"/> associated with <paramref name="userCode"/>, or <see langword="null"/> if not found.</returns>
     public Task<DeviceCode> FindByUserCodeAsync(string userCode)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         return _store.FindByUserCodeAsync(userCode.Sha256());
     }
 
@@ -60,6 +72,9 @@ public class DefaultDeviceFlowCodeService : IDeviceFlowCodeService
     /// <returns>A task that resolves to the <see cref="DeviceCode"/> associated with <paramref name="deviceCode"/>, or <see langword="null"/> if not found.</returns>
     public Task<DeviceCode> FindByDeviceCodeAsync(string deviceCode)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+
         return _store.FindByDeviceCodeAsync(deviceCode.Sha256());
     }
 
@@ -70,6 +85,9 @@ public class DefaultDeviceFlowCodeService : IDeviceFlowCodeService
     /// <param name="data">The data.</param>
     public Task UpdateByUserCodeAsync(string userCode, DeviceCode data)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+
         return _store.UpdateByUserCodeAsync(userCode.Sha256(), data);
     }
 
@@ -79,6 +97,9 @@ public class DefaultDeviceFlowCodeService : IDeviceFlowCodeService
     /// <param name="deviceCode">The device code.</param>
     public Task RemoveByDeviceCodeAsync(string deviceCode)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+
         return _store.RemoveByDeviceCodeAsync(deviceCode.Sha256());
     }
 }

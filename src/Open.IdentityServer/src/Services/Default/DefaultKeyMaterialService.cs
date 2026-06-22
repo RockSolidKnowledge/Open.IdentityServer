@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -21,21 +22,30 @@ public class DefaultKeyMaterialService : IKeyMaterialService
 {
     private readonly IEnumerable<ISigningCredentialStore> _signingCredentialStores;
     private readonly IEnumerable<IValidationKeysStore> _validationKeysStores;
+    private readonly ITelemetryService _telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultKeyMaterialService"/> class.
     /// </summary>
     /// <param name="validationKeysStores">The validation keys stores.</param>
     /// <param name="signingCredentialStores">The signing credential store.</param>
-    public DefaultKeyMaterialService(IEnumerable<IValidationKeysStore> validationKeysStores, IEnumerable<ISigningCredentialStore> signingCredentialStores)
+    /// <param name="telemetry">The telemetry service.</param>
+    public DefaultKeyMaterialService(
+        IEnumerable<IValidationKeysStore> validationKeysStores, 
+        IEnumerable<ISigningCredentialStore> signingCredentialStores, 
+        ITelemetryService telemetry)
     {
         _signingCredentialStores = signingCredentialStores;
+        _telemetry = telemetry;
         _validationKeysStores = validationKeysStores;
     }
 
     /// <inheritdoc/>
     public async Task<SigningCredentials> GetSigningCredentialsAsync(IEnumerable<string> allowedAlgorithms = null)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         if (_signingCredentialStores.Any())
         {
             if (allowedAlgorithms.IsNullOrEmpty())
@@ -58,6 +68,9 @@ public class DefaultKeyMaterialService : IKeyMaterialService
     /// <inheritdoc/>
     public async Task<IEnumerable<SigningCredentials>> GetAllSigningCredentialsAsync()
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var credentials = new List<SigningCredentials>();
 
         foreach (var store in _signingCredentialStores)
@@ -71,6 +84,9 @@ public class DefaultKeyMaterialService : IKeyMaterialService
     /// <inheritdoc/>
     public async Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync()
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var keys = new List<SecurityKeyInfo>();
 
         foreach (var store in _validationKeysStores)

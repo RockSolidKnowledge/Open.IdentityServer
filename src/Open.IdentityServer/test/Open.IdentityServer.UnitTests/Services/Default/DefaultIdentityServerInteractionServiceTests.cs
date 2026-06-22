@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -6,6 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
 using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
@@ -29,6 +31,7 @@ public class DefaultIdentityServerInteractionServiceTests
     private readonly MockPersistedGrantService _mockPersistedGrantService = new();
     private readonly MockUserSession _mockUserSession = new();
     private readonly MockReturnUrlParser _mockReturnUrlParser = new();
+    private readonly Mock<ITelemetryService> _telemetry = new();
 
     private readonly ResourceValidationResult _resourceValidationResult;
 
@@ -44,6 +47,7 @@ public class DefaultIdentityServerInteractionServiceTests
             _mockPersistedGrantService,
             _mockUserSession,
             _mockReturnUrlParser,
+            _telemetry.Object,
             TestLogger.Create<DefaultIdentityServerInteractionService>()
         );
 
@@ -144,5 +148,126 @@ public class DefaultIdentityServerInteractionServiceTests
         _mockConsentStore.Messages.Should().NotBeEmpty();
         var consentRequest = new ConsentRequest(req, "bob");
         _mockConsentStore.Messages.First().Key.Should().Be(consentRequest.Id);
+    }
+
+    [Fact]
+    public async Task GetAuthorizationContextAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        await _subject.GetAuthorizationContextAsync("return-url");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.GetAuthorizationContextAsync)));
+    }
+
+    [Fact]
+    public void IsValidReturnUrl_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _subject.IsValidReturnUrl("return-url");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.IsValidReturnUrl)));
+    }
+
+    [Fact]
+    public async Task GetErrorContextAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        await _subject.GetErrorContextAsync("error-id");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.GetErrorContextAsync)));
+    }
+
+    [Fact]
+    public async Task GetLogoutContextAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        await _subject.GetLogoutContextAsync("logout-id");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.GetLogoutContextAsync)));
+    }
+
+    [Fact]
+    public async Task CreateLogoutContextAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        await _subject.CreateLogoutContextAsync();
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.CreateLogoutContextAsync)));
+    }
+
+    [Fact]
+    public async Task GrantConsentAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var request = CreateValidRequest();
+        await _subject.GrantConsentAsync(request, new ConsentResponse(), "subject");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.GrantConsentAsync)));
+    }
+    
+    private AuthorizationRequest CreateValidRequest()
+    {
+        return new AuthorizationRequest()
+        {
+            Client = new Client { ClientId = "client" },
+            ValidatedResources = _resourceValidationResult
+        };
+    }
+
+    [Fact]
+    public async Task DenyAuthorizationAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var request = CreateValidRequest();
+        await _subject.DenyAuthorizationAsync(request, AuthorizationError.AccessDenied);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.DenyAuthorizationAsync)));
+    }
+
+    [Fact]
+    public async Task GetAllUserGrantsAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        await _subject.GetAllUserGrantsAsync();
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.GetAllUserGrantsAsync)));
+    }
+
+    [Fact]
+    public async Task RevokeUserConsentAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        await _subject.RevokeUserConsentAsync("client-id");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.RevokeUserConsentAsync)));
+    }
+
+    [Fact]
+    public async Task RevokeTokensForCurrentSessionAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        await _subject.RevokeTokensForCurrentSessionAsync();
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.RevokeTokensForCurrentSessionAsync)));
     }
 }

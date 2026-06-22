@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -25,6 +26,7 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
     private readonly IUserSession _userSession;
     private readonly ILogger _logger;
     private readonly ReturnUrlParser _returnUrlParser;
+    private readonly ITelemetryService _telemetry;
 
     public DefaultIdentityServerInteractionService(
         TimeProvider clock,
@@ -35,6 +37,7 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
         IPersistedGrantService grants,
         IUserSession userSession,
         ReturnUrlParser returnUrlParser,
+        ITelemetryService telemetry,
         ILogger<DefaultIdentityServerInteractionService> logger)
     {
         _clock = clock;
@@ -45,11 +48,15 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
         _grants = grants;
         _userSession = userSession;
         _returnUrlParser = returnUrlParser;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
     public async Task<AuthorizationRequest> GetAuthorizationContextAsync(string returnUrl)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var result = await _returnUrlParser.ParseAsync(returnUrl);
 
         if (result != null)
@@ -66,6 +73,9 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
 
     public async Task<LogoutRequest> GetLogoutContextAsync(string logoutId)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var msg = await _logoutMessageStore.ReadAsync(logoutId);
         var iframeUrl = await _context.HttpContext.GetIdentityServerSignoutFrameCallbackUrlAsync(msg?.Data);
         return new LogoutRequest(iframeUrl, msg?.Data);
@@ -73,6 +83,9 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
 
     public async Task<string> CreateLogoutContextAsync()
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var user = await _userSession.GetUserAsync();
         if (user != null)
         {
@@ -96,6 +109,9 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
 
     public async Task<ErrorMessage> GetErrorContextAsync(string errorId)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         if (errorId != null)
         { 
             var result = await _errorMessageStore.ReadAsync(errorId);
@@ -118,6 +134,9 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
 
     public async Task GrantConsentAsync(AuthorizationRequest request, ConsentResponse consent, string subject = null)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         if (subject == null)
         {
             var user = await _userSession.GetUserAsync();
@@ -135,6 +154,9 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
 
     public Task DenyAuthorizationAsync(AuthorizationRequest request, AuthorizationError error, string errorDescription = null)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var response = new ConsentResponse 
         {
             Error = error,
@@ -145,6 +167,9 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
 
     public bool IsValidReturnUrl(string returnUrl)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var result = _returnUrlParser.IsValidReturnUrl(returnUrl);
 
         if (result)
@@ -161,6 +186,9 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
 
     public async Task<IEnumerable<Grant>> GetAllUserGrantsAsync()
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var user = await _userSession.GetUserAsync();
         if (user != null)
         {
@@ -173,6 +201,9 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
 
     public async Task RevokeUserConsentAsync(string clientId)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var user = await _userSession.GetUserAsync();
         if (user != null)
         {
@@ -183,6 +214,9 @@ internal class DefaultIdentityServerInteractionService : IIdentityServerInteract
 
     public async Task RevokeTokensForCurrentSessionAsync()
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var user = await _userSession.GetUserAsync();
         if (user != null)
         {

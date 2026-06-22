@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -19,21 +20,28 @@ internal class OidcReturnUrlParser : IReturnUrlParser
     private readonly IUserSession _userSession;
     private readonly ILogger _logger;
     private readonly IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
+    private readonly ITelemetryService _telemetry;
 
     public OidcReturnUrlParser(
         IAuthorizeRequestValidator validator,
         IUserSession userSession,
         ILogger<OidcReturnUrlParser> logger,
+        ITelemetryService telemetry,
         IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
     {
         _validator = validator;
         _userSession = userSession;
         _logger = logger;
+        _telemetry = telemetry;
         _authorizationParametersMessageStore = authorizationParametersMessageStore;
     }
 
     public async Task<AuthorizationRequest> ParseAsync(string returnUrl)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            this);
+        
         if (IsValidReturnUrl(returnUrl))
         {
             var parameters = returnUrl.ReadQueryStringAsNameValueCollection();
@@ -59,6 +67,10 @@ internal class OidcReturnUrlParser : IReturnUrlParser
 
     public bool IsValidReturnUrl(string returnUrl)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            this);
+        
         if (returnUrl.IsLocalUrl())
         {
             var index = returnUrl.IndexOf('?');

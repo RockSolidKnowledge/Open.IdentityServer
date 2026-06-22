@@ -37,6 +37,11 @@ public class DefaultRefreshTokenService : IRefreshTokenService
     /// The clock
     /// </summary>
     protected TimeProvider Clock { get; }
+    
+    /// <summary>
+    /// The telemetry service
+    /// </summary>
+    protected ITelemetryService Telemetry { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultRefreshTokenService" /> class.
@@ -44,14 +49,19 @@ public class DefaultRefreshTokenService : IRefreshTokenService
     /// <param name="refreshTokenStore">The refresh token store</param>
     /// <param name="profile">The profile service used to check whether the token subject is still active.</param>
     /// <param name="clock">The clock</param>
+    /// <param name="telemetry">The telemetry</param>
     /// <param name="logger">The logger</param>
-    public DefaultRefreshTokenService(IRefreshTokenStore refreshTokenStore, IProfileService profile,
+    public DefaultRefreshTokenService(
+        IRefreshTokenStore refreshTokenStore, 
+        IProfileService profile,
         TimeProvider clock,
+        ITelemetryService telemetry,
         ILogger<DefaultRefreshTokenService> logger)
     {
         RefreshTokenStore = refreshTokenStore;
         Profile = profile;
         Clock = clock;
+        Telemetry = telemetry;
 
         Logger = logger;
     }
@@ -64,6 +74,9 @@ public class DefaultRefreshTokenService : IRefreshTokenService
     /// <returns>A task that resolves to a <see cref="TokenValidationResult"/> indicating whether the refresh token is valid for the specified client, including the token and client if successful.</returns>
     public virtual async Task<TokenValidationResult> ValidateRefreshTokenAsync(string tokenHandle, Client client)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var invalidGrant = new TokenValidationResult
         {
             IsError = true, Error = OidcConstants.TokenErrors.InvalidGrant
@@ -167,6 +180,8 @@ public class DefaultRefreshTokenService : IRefreshTokenService
     /// </returns>
     public virtual async Task<string> CreateRefreshTokenAsync(RefreshTokenCreationRequest request)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
         Logger.LogDebug("Creating refresh token");
 
         int lifetime;
@@ -225,6 +240,8 @@ public class DefaultRefreshTokenService : IRefreshTokenService
     public virtual async Task<string> UpdateRefreshTokenAsync(string handle, RefreshToken refreshToken,
         Client client)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
         Logger.LogDebug("Updating refresh token");
 
         bool needsCreate = false;

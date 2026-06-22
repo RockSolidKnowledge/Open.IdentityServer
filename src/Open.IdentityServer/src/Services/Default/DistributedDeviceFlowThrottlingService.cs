@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -19,6 +20,7 @@ public class DistributedDeviceFlowThrottlingService : IDeviceFlowThrottlingServi
     private readonly IDistributedCache _cache;
     private readonly TimeProvider _clock;
     private readonly IdentityServerOptions _options;
+    private readonly ITelemetryService _telemetry;
 
     private const string KeyPrefix = "devicecode_";
 
@@ -28,14 +30,17 @@ public class DistributedDeviceFlowThrottlingService : IDeviceFlowThrottlingServi
     /// <param name="cache">The cache.</param>
     /// <param name="clock">The clock.</param>
     /// <param name="options">The options.</param>
+    /// <param name="telemetry">The telemetry</param>
     public DistributedDeviceFlowThrottlingService(
         IDistributedCache cache,
         TimeProvider clock,
-        IdentityServerOptions options)
+        IdentityServerOptions options, 
+        ITelemetryService telemetry)
     {
         _cache = cache;
         _clock = clock;
         _options = options;
+        _telemetry = telemetry;
     }
 
     /// <summary>
@@ -48,7 +53,9 @@ public class DistributedDeviceFlowThrottlingService : IDeviceFlowThrottlingServi
     public async Task<bool> ShouldSlowDown(string deviceCode, DeviceCode details)
     {
         if (deviceCode == null) throw new ArgumentNullException(nameof(deviceCode));
-            
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);    
+        
         var key = KeyPrefix + deviceCode;
         var options = new DistributedCacheEntryOptions {AbsoluteExpiration = _clock.GetUtcNow().AddSeconds(details.Lifetime)};
 

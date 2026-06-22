@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -40,6 +41,11 @@ public class DefaultTokenCreationService : ITokenCreationService
     /// The options
     /// </summary>
     protected readonly IdentityServerOptions Options;
+    
+    /// <summary>
+    /// The telemetry
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultTokenCreationService"/> class.
@@ -47,17 +53,20 @@ public class DefaultTokenCreationService : ITokenCreationService
     /// <param name="clock">The options.</param>
     /// <param name="keys">The keys.</param>
     /// <param name="options">The options.</param>
+    /// <param name="telemetry"></param>
     /// <param name="logger">The logger.</param>
     public DefaultTokenCreationService(
         TimeProvider clock,
         IKeyMaterialService keys,
         IdentityServerOptions options,
+        ITelemetryService telemetry,
         ILogger<DefaultTokenCreationService> logger)
     {
         Clock = clock;
         Keys = keys;
         Options = options;
         Logger = logger;
+        Telemetry = telemetry;
     }
 
     /// <summary>
@@ -69,6 +78,9 @@ public class DefaultTokenCreationService : ITokenCreationService
     /// </returns>
     public virtual async Task<string> CreateTokenAsync(Token token)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         var header = await CreateHeaderAsync(token);
         var payload = await CreatePayloadAsync(token);
 

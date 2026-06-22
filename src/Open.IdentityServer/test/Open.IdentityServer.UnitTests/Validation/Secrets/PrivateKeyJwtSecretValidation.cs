@@ -19,6 +19,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Validation.Secrets;
@@ -37,7 +38,7 @@ public class PrivateKeyJwtSecretValidation
                     IssuerUri = "https://idsrv3.com"
                 }
             ),
-            new DefaultReplayCache(new TestCache()), 
+            new DefaultReplayCache(new TestCache(), Mock.Of<ITelemetryService>()), 
             new LoggerFactory().CreateLogger<PrivateKeyJwtSecretValidator>()
         );
         _clients = new InMemoryClientStore(ClientValidationTestClients.Get());

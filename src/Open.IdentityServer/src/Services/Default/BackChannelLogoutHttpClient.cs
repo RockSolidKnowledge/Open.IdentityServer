@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -16,16 +17,20 @@ namespace Open.IdentityServer.Services;
 public class DefaultBackChannelLogoutHttpClient : IBackChannelLogoutHttpClient
 {
     private readonly HttpClient _client;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger<DefaultBackChannelLogoutHttpClient> _logger;
 
     /// <summary>
     /// Constructor for BackChannelLogoutHttpClient.
     /// </summary>
     /// <param name="client">The <see cref="HttpClient"/> used to send back-channel logout POST requests.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="loggerFactory">The logger factory used to create a logger for this class.</param>
-    public DefaultBackChannelLogoutHttpClient(HttpClient client, ILoggerFactory loggerFactory)
+    public DefaultBackChannelLogoutHttpClient(HttpClient client, ITelemetryService telemetry,
+        ILoggerFactory loggerFactory)
     {
         _client = client;
+        _telemetry = telemetry;
         _logger = loggerFactory.CreateLogger<DefaultBackChannelLogoutHttpClient>();
     }
 
@@ -36,6 +41,9 @@ public class DefaultBackChannelLogoutHttpClient : IBackChannelLogoutHttpClient
     /// <param name="payload">The form-URL-encoded key/value pairs to include in the request body.</param>
     public async Task PostAsync(string url, Dictionary<string, string> payload)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
+        
         try
         {
             var response = await _client.PostAsync(url, new FormUrlEncodedContent(payload));

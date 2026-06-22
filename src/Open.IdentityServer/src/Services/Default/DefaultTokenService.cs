@@ -61,6 +61,11 @@ public class DefaultTokenService : ITokenService
     /// The IdentityServer options
     /// </summary>
     protected readonly IdentityServerOptions Options;
+    
+    /// <summary>
+    /// The telemetry service
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultTokenService" /> class.
@@ -72,6 +77,7 @@ public class DefaultTokenService : ITokenService
     /// <param name="clock">The clock.</param>
     /// <param name="keyMaterialService">The key material service used to retrieve signing credentials for token creation.</param>
     /// <param name="options">The IdentityServer options</param>
+    /// <param name="telemetry">The telemetry.</param>
     /// <param name="logger">The logger.</param>
     public DefaultTokenService(
         IClaimsService claimsProvider,
@@ -81,6 +87,7 @@ public class DefaultTokenService : ITokenService
         TimeProvider clock,
         IKeyMaterialService keyMaterialService,
         IdentityServerOptions options,
+        ITelemetryService telemetry,
         ILogger<DefaultTokenService> logger)
     {
         ContextAccessor = contextAccessor;
@@ -91,6 +98,7 @@ public class DefaultTokenService : ITokenService
         KeyMaterialService = keyMaterialService;
         Options = options;
         Logger = logger;
+        Telemetry = telemetry;
     }
 
     /// <summary>
@@ -102,6 +110,8 @@ public class DefaultTokenService : ITokenService
     /// </returns>
     public virtual async Task<Token> CreateIdentityTokenAsync(TokenCreationRequest request)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
         Logger.LogTrace("Creating identity token");
         request.Validate();
 
@@ -183,6 +193,8 @@ public class DefaultTokenService : ITokenService
     /// </returns>
     public virtual async Task<Token> CreateAccessTokenAsync(TokenCreationRequest request)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
         Logger.LogTrace("Creating access token");
         request.Validate();
 
@@ -263,6 +275,8 @@ public class DefaultTokenService : ITokenService
     /// <exception cref="System.InvalidOperationException">Invalid token type.</exception>
     public virtual async Task<string> CreateSecurityTokenAsync(Token token)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services, this);
         string tokenResult;
 
         if (token.Type == OidcConstants.TokenTypes.AccessToken)

@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using Open.IdentityServer.Extensions;
@@ -19,25 +20,31 @@ public class LogoutNotificationService : ILogoutNotificationService
 {
     private readonly IClientStore _clientStore;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger<LogoutNotificationService> _logger;
-
-
+    
     /// <summary>
     /// Ctor.
     /// </summary>
     public LogoutNotificationService(
         IClientStore clientStore,
         IHttpContextAccessor httpContextAccessor, 
+        ITelemetryService telemetry,
         ILogger<LogoutNotificationService> logger)
     {
         _clientStore = clientStore;
         _httpContextAccessor = httpContextAccessor;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
     /// <inheritdoc/>
     public async Task<IEnumerable<string>> GetFrontChannelLogoutNotificationsUrlsAsync(LogoutNotificationContext context)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            this);
+        
         var frontChannelUrls = new List<string>();
         foreach (var clientId in context.ClientIds)
         {
@@ -83,6 +90,10 @@ public class LogoutNotificationService : ILogoutNotificationService
     /// <inheritdoc/>
     public async Task<IEnumerable<BackChannelLogoutRequest>> GetBackChannelLogoutNotificationsAsync(LogoutNotificationContext context)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            this);
+        
         var backChannelLogouts = new List<BackChannelLogoutRequest>();
         foreach (var clientId in context.ClientIds)
         {
