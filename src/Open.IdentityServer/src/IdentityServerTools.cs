@@ -10,6 +10,7 @@ using Open.IdentityServer.Extensions;
 using System.Security.Claims;
 using Open.IdentityServer.Services;
 using System;
+using System.Linq;
 
 namespace Open.IdentityServer;
 
@@ -50,16 +51,7 @@ public class IdentityServerTools
 
         var issuer = ContextAccessor.HttpContext.GetIdentityServerIssuerUri();
 
-        var token = new Token
-        {
-            CreationTime = _clock.GetUtcNow().UtcDateTime,
-            Issuer = issuer,
-            Lifetime = lifetime,
-
-            Claims = new HashSet<Claim>(claims, new ClaimComparer())
-        };
-
-        return await _tokenCreation.CreateTokenAsync(token);
+        return await IssueJwtAsync(lifetime, issuer, claims);
     }
 
     /// <summary>
@@ -77,13 +69,15 @@ public class IdentityServerTools
         if (String.IsNullOrWhiteSpace(issuer)) throw new ArgumentNullException(nameof(issuer));
         if (claims == null) throw new ArgumentNullException(nameof(claims));
 
+        var audiences = claims.Where(c => c.Type == JwtClaimTypes.Audience).Select(c => c.Value).ToList();
+        
         var token = new Token
         {
             CreationTime = _clock.GetUtcNow().UtcDateTime,
             Issuer = issuer,
             Lifetime = lifetime,
-
-            Claims = new HashSet<Claim>(claims, new ClaimComparer())
+            Claims = new HashSet<Claim>(claims, new ClaimComparer()),
+            Audiences = audiences
         };
 
         return await _tokenCreation.CreateTokenAsync(token);
