@@ -1,10 +1,13 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.UnitTests.Validation.Setup;
 using Xunit;
 
@@ -81,5 +84,22 @@ public class IdentityTokenValidation
         var result = await validator.ValidateIdentityTokenAsync(jwt, "roclient");
         result.IsError.Should().BeTrue();
         result.Error.Should().Be(OidcConstants.ProtectedResourceErrors.InvalidToken);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task IdentityToken_ShouldTraceTelemetry()
+    {
+        var telemetry = new Mock<ITelemetryService>();
+        
+        var creator = Factory.CreateDefaultTokenCreator();
+        var token = TokenFactory.CreateIdentityToken("roclient", "valid");
+        var jwt = await creator.CreateTokenAsync(token);
+
+        var validator = Factory.CreateTokenValidator(telemetry:  telemetry.Object);
+        await validator.ValidateIdentityTokenAsync(jwt, "roclient");
+
+        telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Validation, validator, "ValidateIdentityTokenAsync"));
     }
 }

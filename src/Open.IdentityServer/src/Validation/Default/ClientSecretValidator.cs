@@ -59,6 +59,9 @@ public class ClientSecretValidator : IClientSecretValidator
     /// </returns>
     public async Task<ClientSecretValidationResult> ValidateAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Basic, this);
+        
         _logger.LogDebug("Start client validation");
 
         var fail = new ClientSecretValidationResult

@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -33,6 +34,7 @@ internal class TokenValidator : ITokenValidator
     private readonly IKeyMaterialService _keys;
     private readonly TimeProvider _clock;
     private readonly TokenValidationLog _log;
+    private readonly ITelemetryService _telemetry;
 
     public TokenValidator(
         IdentityServerOptions options,
@@ -44,6 +46,7 @@ internal class TokenValidator : ITokenValidator
         ICustomTokenValidator customValidator,
         IKeyMaterialService keys,
         TimeProvider clock,
+        ITelemetryService telemetry,
         ILogger<TokenValidator> logger)
     {
         _options = options;
@@ -55,12 +58,15 @@ internal class TokenValidator : ITokenValidator
         _keys = keys;
         _clock = clock;
         _logger = logger;
+        _telemetry = telemetry;
 
         _log = new TokenValidationLog();
     }
 
     public async Task<TokenValidationResult> ValidateIdentityTokenAsync(string token, string clientId = null, bool validateLifetime = true)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogDebug("Start identity token validation");
 
         if (token.Length > _options.InputLengthRestrictions.Jwt)
@@ -121,6 +127,8 @@ internal class TokenValidator : ITokenValidator
 
     public async Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string expectedScope = null)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogTrace("Start access token validation");
 
         _log.ExpectedScope = expectedScope;

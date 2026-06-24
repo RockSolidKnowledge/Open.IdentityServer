@@ -59,6 +59,8 @@ public class ApiSecretValidator : IApiSecretValidator
     /// </returns>
     public async Task<ApiSecretValidationResult> ValidateAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogTrace("Start API validation");
 
         var fail = new ApiSecretValidationResult

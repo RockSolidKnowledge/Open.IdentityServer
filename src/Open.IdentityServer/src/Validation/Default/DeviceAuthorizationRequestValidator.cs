@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -12,6 +13,7 @@ using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Logging;
 using Open.IdentityServer.Models;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Validation;
 
@@ -19,21 +21,26 @@ internal class DeviceAuthorizationRequestValidator : IDeviceAuthorizationRequest
 {
     private readonly IdentityServerOptions _options;
     private readonly IResourceValidator _resourceValidator;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger<DeviceAuthorizationRequestValidator> _logger;
         
     public DeviceAuthorizationRequestValidator(
         IdentityServerOptions options,
         IResourceValidator resourceValidator,
+        ITelemetryService telemetry,
         ILogger<DeviceAuthorizationRequestValidator> logger)
     {
         _options = options;
         _resourceValidator = resourceValidator;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
     /// <inheritdoc/>
     public async Task<DeviceAuthorizationRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClientSecretValidationResult clientValidationResult)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogDebug("Start device authorization request validation");
 
         var request = new ValidatedDeviceAuthorizationRequest

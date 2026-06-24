@@ -301,4 +301,23 @@ public class TokenRequestValidatorTests
 
         telemetry.Verify();
     }
+    
+    [Fact]
+    public async Task ValidateRequestAsync_WhenCalled_ShouldTrace()
+    {
+        var telemetry = new Mock<ITelemetryService>();
+        
+        var subject  = Factory.CreateTokenRequestValidator(
+            profile: new TestProfileService(shouldBeActive: false),
+            telemetry: telemetry.Object);
+
+        var client = await Clients.FindEnabledClientByIdAsync("roclient");
+        
+        await subject.ValidateRequestAsync(
+            PasswordGrantParameters(userName: "bob", password: "bob"),
+            client.ToValidationResult());
+        
+        telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Validation, subject, "ValidateRequestAsync"));
+    }
 }

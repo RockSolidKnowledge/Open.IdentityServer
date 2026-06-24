@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -21,6 +22,7 @@ internal class DeviceCodeValidator : IDeviceCodeValidator
     private readonly IProfileService _profile;
     private readonly IDeviceFlowThrottlingService _throttlingService;
     private readonly TimeProvider _systemClock;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger<DeviceCodeValidator> _logger;
 
     /// <summary>
@@ -30,18 +32,21 @@ internal class DeviceCodeValidator : IDeviceCodeValidator
     /// <param name="profile">The profile.</param>
     /// <param name="throttlingService">The throttling service.</param>
     /// <param name="systemClock">The system clock.</param>
+    /// <param name="telemetry">The telemetry service</param>
     /// <param name="logger">The logger.</param>
     public DeviceCodeValidator(
         IDeviceFlowCodeService devices,
         IProfileService profile,
         IDeviceFlowThrottlingService throttlingService,
         TimeProvider systemClock,
+        ITelemetryService telemetry,
         ILogger<DeviceCodeValidator> logger)
     {
         _devices = devices;
         _profile = profile;
         _throttlingService = throttlingService;
         _systemClock = systemClock;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
@@ -52,6 +57,9 @@ internal class DeviceCodeValidator : IDeviceCodeValidator
     /// <returns></returns>
     public async Task ValidateAsync(DeviceCodeValidationContext context)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
+        
         var deviceCode = await _devices.FindByDeviceCodeAsync(context.DeviceCode);
 
         if (deviceCode == null)

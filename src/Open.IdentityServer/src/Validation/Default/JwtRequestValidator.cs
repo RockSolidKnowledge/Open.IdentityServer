@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Validation;
 
@@ -59,18 +61,29 @@ public class JwtRequestValidator
     /// The IdentityServer options.
     /// </summary>
     protected readonly IdentityServerOptions Options;
+        
+    /// <summary>
+    /// The Telemetry service.
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="JwtRequestValidator"/> class.
     /// </summary>
     /// <param name="contextAccessor">The HTTP context accessor used to determine the audience URI.</param>
     /// <param name="options">The IdentityServer options.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
-    public JwtRequestValidator(IHttpContextAccessor contextAccessor, IdentityServerOptions options, ILogger<JwtRequestValidator> logger)
+    public JwtRequestValidator(
+        IHttpContextAccessor contextAccessor, 
+        IdentityServerOptions options, 
+        ITelemetryService telemetry,
+        ILogger<JwtRequestValidator> logger)
     {
         _httpContextAccessor = contextAccessor;
             
         Options = options;
+        Telemetry = telemetry;
         Logger = logger;
     }
 
@@ -96,6 +109,9 @@ public class JwtRequestValidator
     {
         if (client == null) throw new ArgumentNullException(nameof(client));
         if (String.IsNullOrWhiteSpace(jwtTokenString)) throw new ArgumentNullException(nameof(jwtTokenString));
+
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
 
         var fail = new JwtRequestValidationResult { IsError = true };
 

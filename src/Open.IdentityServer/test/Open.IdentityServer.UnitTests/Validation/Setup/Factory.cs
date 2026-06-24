@@ -153,7 +153,8 @@ internal static class Factory
     internal static IResourceValidator CreateResourceValidator(IResourceStore store = null)
     {
         store = store ?? new InMemoryResourcesStore(TestScopes.GetIdentity(), TestScopes.GetApis(), TestScopes.GetScopes());
-        return new DefaultResourceValidator(store, new DefaultScopeParser(TestLogger.Create<DefaultScopeParser>()), TestLogger.Create<DefaultResourceValidator>());
+        return new DefaultResourceValidator(store, 
+            new DefaultScopeParser(TestLogger.Create<DefaultScopeParser>()), new NopTelemetryService(), TestLogger.Create<DefaultResourceValidator>());
     }
 
     internal static ITokenCreationService CreateDefaultTokenCreator(IdentityServerOptions options = null)
@@ -171,7 +172,8 @@ internal static class Factory
     public static DeviceAuthorizationRequestValidator CreateDeviceAuthorizationRequestValidator(
         IdentityServerOptions options = null,
         IResourceStore resourceStore = null,
-        IResourceValidator resourceValidator = null)
+        IResourceValidator resourceValidator = null,
+        ITelemetryService telemetry = null)
     {
         if (options == null)
         {
@@ -187,11 +189,13 @@ internal static class Factory
         {
             resourceValidator = CreateResourceValidator(resourceStore);
         }
-
+        
+        if (telemetry == null) telemetry = new NopTelemetryService();
 
         return new DeviceAuthorizationRequestValidator(
             options,
             resourceValidator,
+            telemetry,
             TestLogger.Create<DeviceAuthorizationRequestValidator>());
     }
 
@@ -204,7 +208,8 @@ internal static class Factory
         IRedirectUriValidator uriValidator = null,
         IResourceValidator resourceValidator = null,
         JwtRequestValidator jwtRequestValidator = null,
-        IJwtRequestUriHttpClient jwtRequestUriHttpClient = null)
+        IJwtRequestUriHttpClient jwtRequestUriHttpClient = null,
+        ITelemetryService telemetry = null)
     {
         if (options == null)
         {
@@ -250,6 +255,10 @@ internal static class Factory
                 new LoggerFactory());
         }
 
+        if (telemetry == null)
+        {
+            telemetry = new NopTelemetryService();
+        }
 
         var userSession = new MockUserSession();
 
@@ -262,6 +271,7 @@ internal static class Factory
             userSession,
             jwtRequestValidator,
             jwtRequestUriHttpClient,
+            telemetry,
             TestLogger.Create<AuthorizeRequestValidator>());
     }
 
@@ -269,7 +279,9 @@ internal static class Factory
         IReferenceTokenStore store = null, 
         IRefreshTokenStore refreshTokenStore = null,
         IProfileService profile = null, 
-        IdentityServerOptions options = null, TimeProvider clock = null)
+        IdentityServerOptions options = null, 
+        TimeProvider clock = null,
+        ITelemetryService telemetry = null)
     {
         if (options == null)
         {
@@ -292,6 +304,8 @@ internal static class Factory
         {
             refreshTokenStore = CreateRefreshTokenStore();
         }
+        
+        telemetry = telemetry ?? new NopTelemetryService();
 
         var clients = CreateClientStore();
         var context = new MockHttpContextAccessor(options);
@@ -316,7 +330,8 @@ internal static class Factory
                 new NopTelemetryService()),
             logger: logger,
             options: options,
-            context: context);
+            context: context,
+            telemetry: telemetry);
 
         return validator;
     }
@@ -325,13 +340,15 @@ internal static class Factory
         IDeviceFlowCodeService service,
         IProfileService profile = null,
         IDeviceFlowThrottlingService throttlingService = null,
-        TimeProvider clock = null)
+        TimeProvider clock = null,
+        ITelemetryService telemetry = null)
     {
         profile = profile ?? new TestProfileService();
         throttlingService = throttlingService ?? new TestDeviceFlowThrottlingService();
         clock = clock ?? new StubClock();
+        telemetry = telemetry ?? new NopTelemetryService();
             
-        var validator = new DeviceCodeValidator(service, profile, throttlingService, clock, TestLogger.Create<DeviceCodeValidator>());
+        var validator = new DeviceCodeValidator(service, profile, throttlingService, clock, telemetry, TestLogger.Create<DeviceCodeValidator>());
 
         return validator;
     }

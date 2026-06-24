@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -7,8 +8,10 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
 using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Xunit;
 
@@ -190,5 +193,21 @@ public class DeviceAuthorizationRequestValidation
 
         result.IsError.Should().BeTrue();
         result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidScope);
+    }
+    
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Starts_Telemetry_Trace()
+    {
+        Mock<ITelemetryService> telemetry = new();
+        
+        var parameters = new NameValueCollection {{"scope", "openid"}};
+
+        var validator = Factory.CreateDeviceAuthorizationRequestValidator(telemetry: telemetry.Object);
+        await validator.ValidateAsync(parameters, new ClientSecretValidationResult {Client = testClient});
+        
+        telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Validation, validator, "ValidateAsync"));
     }
 }

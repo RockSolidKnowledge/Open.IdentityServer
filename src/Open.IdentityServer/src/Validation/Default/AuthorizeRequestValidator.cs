@@ -29,6 +29,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
     private readonly IUserSession _userSession;
     private readonly JwtRequestValidator _jwtRequestValidator;
     private readonly IJwtRequestUriHttpClient _jwtRequestUriHttpClient;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
 
     private readonly ResponseTypeEqualityComparer
@@ -43,6 +44,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         IUserSession userSession,
         JwtRequestValidator jwtRequestValidator,
         IJwtRequestUriHttpClient jwtRequestUriHttpClient,
+        ITelemetryService telemetry,
         ILogger<AuthorizeRequestValidator> logger)
     {
         _options = options;
@@ -53,12 +55,15 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         _jwtRequestValidator = jwtRequestValidator;
         _userSession = userSession;
         _jwtRequestUriHttpClient = jwtRequestUriHttpClient;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
     public async Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters,
         ClaimsPrincipal subject = null)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogDebug("Start authorize request protocol validation");
 
         var request = new ValidatedAuthorizeRequest

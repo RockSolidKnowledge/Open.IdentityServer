@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using Open.IdentityServer.Configuration;
@@ -6,6 +7,7 @@ using Open.IdentityServer.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Validation;
 
@@ -16,14 +18,17 @@ namespace Open.IdentityServer.Validation;
 public class DefaultClientConfigurationValidator : IClientConfigurationValidator
 {
     private readonly IdentityServerOptions _options;
+    private readonly ITelemetryService _telemetry;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultClientConfigurationValidator"/> class.
     /// </summary>
     /// <param name="options">The IdentityServer options used to determine validation rules such as invalid redirect URI schemes.</param>
-    public DefaultClientConfigurationValidator(IdentityServerOptions options)
+    /// <param name="telemetry">The telemetry service</param>
+    public DefaultClientConfigurationValidator(IdentityServerOptions options, ITelemetryService telemetry)
     {
         _options = options;
+        _telemetry = telemetry;
     }
 
     /// <summary>
@@ -32,6 +37,9 @@ public class DefaultClientConfigurationValidator : IClientConfigurationValidator
     /// <param name="context">The context.</param>
     public async Task ValidateAsync(ClientConfigurationValidationContext context)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
+        
         if (context.Client.ProtocolType == IdentityServerConstants.ProtocolTypes.OpenIdConnect)
         {
             await ValidateGrantTypesAsync(context);

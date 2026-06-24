@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using Open.IdentityServer.Models;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Validation;
 
@@ -18,6 +20,7 @@ public class DefaultResourceValidator : IResourceValidator
 {
     private readonly ILogger _logger;
     private readonly IScopeParser _scopeParser;
+    private readonly ITelemetryService _telemetry;
     private readonly IResourceStore _store;
 
     /// <summary>
@@ -25,12 +28,17 @@ public class DefaultResourceValidator : IResourceValidator
     /// </summary>
     /// <param name="store">The store.</param>
     /// <param name="scopeParser">The scope parser used to parse raw scope strings into structured scope values.</param>
+    /// <param name="telemetry">The telemetry service</param>
     /// <param name="logger">The logger.</param>
-    public DefaultResourceValidator(IResourceStore store, IScopeParser scopeParser,
+    public DefaultResourceValidator(
+        IResourceStore store, 
+        IScopeParser scopeParser,
+        ITelemetryService telemetry,
         ILogger<DefaultResourceValidator> logger)
     {
         _logger = logger;
         _scopeParser = scopeParser;
+        _telemetry = telemetry;
         _store = store;
     }
 
@@ -39,6 +47,8 @@ public class DefaultResourceValidator : IResourceValidator
         ResourceValidationRequest request)
     {
         if (request == null) throw new ArgumentNullException(nameof(request));
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
 
         var parsedScopesResult = _scopeParser.ParseScopeValues(request.Scopes);
 

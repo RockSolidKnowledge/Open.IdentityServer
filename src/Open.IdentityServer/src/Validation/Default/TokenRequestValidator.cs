@@ -105,6 +105,9 @@ internal class TokenRequestValidator : ITokenRequestValidator
     public async Task<TokenRequestValidationResult> ValidateRequestAsync(NameValueCollection parameters,
         ClientSecretValidationResult clientValidationResult)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
+        
         _logger.LogDebug("Start token request validation");
 
         _validatedRequest = new ValidatedTokenRequest

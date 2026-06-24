@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -8,6 +9,8 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 using System;
 using System.Threading.Tasks;
+using Moq;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.UnitTests.Validation.Setup;
 using Xunit;
 
@@ -17,12 +20,14 @@ public class ClientConfigurationValidation
 {
     private const string Category = "Client Configuration Validation Tests";
     private IClientConfigurationValidator _validator;
+    private Mock<ITelemetryService> _telemetry;
     IdentityServerOptions _options;
 
     public ClientConfigurationValidation()
     {
+        _telemetry = new();
         _options = new IdentityServerOptions();
-        _validator = new DefaultClientConfigurationValidator(_options);
+        _validator = new DefaultClientConfigurationValidator(_options, _telemetry.Object);
     }
 
     [Fact]
@@ -480,6 +485,22 @@ public class ClientConfigurationValidation
         result.IsValid.Should().BeTrue();
     }
 
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task ValidateAsync_WhenCalled_ShouldTraceTelemetry()
+    {
+        var client = new Client
+        {
+            ClientId = "id",
+            AllowedGrantTypes = GrantTypes.Implicit,
+            RedirectUris = { "http://client" },
+        };
+
+        await ValidateAsync(client);
+
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Validation, _validator, "ValidateAsync"));
+    }
 
     private async Task<ClientConfigurationValidationContext> ValidateAsync(Client client)
     {

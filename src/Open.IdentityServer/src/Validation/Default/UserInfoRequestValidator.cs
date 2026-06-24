@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -20,6 +21,7 @@ internal class UserInfoRequestValidator : IUserInfoRequestValidator
 {
     private readonly ITokenValidator _tokenValidator;
     private readonly IProfileService _profile;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
 
     /// <summary>
@@ -27,14 +29,17 @@ internal class UserInfoRequestValidator : IUserInfoRequestValidator
     /// </summary>
     /// <param name="tokenValidator">The token validator.</param>
     /// <param name="profile">The profile service</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
     public UserInfoRequestValidator(
         ITokenValidator tokenValidator, 
         IProfileService profile,
+        ITelemetryService telemetry,
         ILogger<UserInfoRequestValidator> logger)
     {
         _tokenValidator = tokenValidator;
         _profile = profile;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
@@ -43,9 +48,11 @@ internal class UserInfoRequestValidator : IUserInfoRequestValidator
     /// </summary>
     /// <param name="accessToken">The access token.</param>
     /// <returns></returns>
-    /// <exception cref="System.NotImplementedException"></exception>
     public async Task<UserInfoRequestValidationResult> ValidateRequestAsync(string accessToken)
     {
+        using var trace = _telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
+        
         // the access token needs to be valid and have at least the openid scope
         var tokenResult = await _tokenValidator.ValidateAccessTokenAsync(
             accessToken,

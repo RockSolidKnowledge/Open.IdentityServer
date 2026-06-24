@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -49,6 +50,11 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
     protected readonly IUserSession UserSession;
 
     /// <summary>
+    /// The telemetry service.
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
+
+    /// <summary>
     /// The logout notification service.
     /// </summary>
     public ILogoutNotificationService LogoutNotificationService { get; }
@@ -73,6 +79,7 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
     /// <param name="userSession">The user session service used to retrieve the current session and client list.</param>
     /// <param name="logoutNotificationService">The service used to build front-channel logout notification URLs.</param>
     /// <param name="endSessionMessageStore">The message store used to read end-session callback messages.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
     public EndSessionRequestValidator(
         IHttpContextAccessor context,
@@ -82,6 +89,7 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
         IUserSession userSession,
         ILogoutNotificationService logoutNotificationService,
         IMessageStore<LogoutNotificationContext> endSessionMessageStore,
+        ITelemetryService telemetry,
         ILogger<EndSessionRequestValidator> logger)
     {
         Context = context;
@@ -91,12 +99,15 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
         UserSession = userSession;
         LogoutNotificationService = logoutNotificationService;
         EndSessionMessageStore = endSessionMessageStore;
+        Telemetry = telemetry;
         Logger = logger;
     }
 
     /// <inheritdoc />
     public async Task<EndSessionValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal subject)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
         Logger.LogDebug("Start end session request validation");
 
         var isAuthenticated = subject.IsAuthenticated();
@@ -216,6 +227,8 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
     /// <inheritdoc />
     public async Task<EndSessionCallbackValidationResult> ValidateCallbackAsync(NameValueCollection parameters)
     {
+        using var trace = Telemetry.Trace(
+            TelemetryConstants.TraceCategories.Validation, this);
         var result = new EndSessionCallbackValidationResult
         {
             IsError = true

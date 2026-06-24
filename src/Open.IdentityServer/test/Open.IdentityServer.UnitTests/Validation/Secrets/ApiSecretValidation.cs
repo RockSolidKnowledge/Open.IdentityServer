@@ -281,4 +281,25 @@ public class ApiSecretValidation
         
         _telemetry.Verify();
     }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task validate_should_initiate_telemetry_trace()
+    {
+        var api = new ApiResource("my_api");
+
+        _parser.Setup(x => x.ParseAsync(It.IsAny<HttpContext>()))
+            .ReturnsAsync(new ParsedSecret { Id = "my_api", Type = "SharedSecret" });
+
+        _resourceStore.Setup(x => x.FindApiResourcesByNameAsync(It.IsAny<IEnumerable<string>>()))
+            .ReturnsAsync(new List<ApiResource> { api });
+
+        _validator.Setup(x => x.ValidateAsync(It.IsAny<IEnumerable<Secret>>(), It.IsAny<ParsedSecret>()))
+            .ReturnsAsync(new SecretValidationResult { Success = true });
+
+        await _subject.ValidateAsync(new DefaultHttpContext());
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Validation, _subject, "ValidateAsync"));
+    }
 }

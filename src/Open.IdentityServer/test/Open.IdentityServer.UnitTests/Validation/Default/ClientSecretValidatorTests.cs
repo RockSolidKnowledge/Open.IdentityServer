@@ -217,4 +217,25 @@ public class ClientSecretValidatorTests
 
         _telemetry.Verify();
     }
+
+    [Fact]
+    public async Task ValidateAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        var subject = CreateSubject();
+        var client = new Client { ClientId = "client", Enabled = true };
+
+        _parser.Setup(x => x.ParseAsync(It.IsAny<HttpContext>()))
+            .ReturnsAsync(new ParsedSecret { Id = "client", Type = "SharedSecret" });
+
+        _clients.Setup(x => x.FindClientByIdAsync("client"))
+            .ReturnsAsync(client);
+
+        _validator.Setup(x => x.ValidateAsync(It.IsAny<System.Collections.Generic.IEnumerable<Secret>>(), It.IsAny<ParsedSecret>()))
+            .ReturnsAsync(new SecretValidationResult { Success = true });
+
+        await subject.ValidateAsync(new DefaultHttpContext());
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Basic, subject, "ValidateAsync"));
+    }
 }
