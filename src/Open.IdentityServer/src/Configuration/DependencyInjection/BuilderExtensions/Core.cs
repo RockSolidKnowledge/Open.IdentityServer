@@ -93,7 +93,7 @@ public static class IdentityServerBuilderExtensionsCore
         builder.AddEndpoint<TokenRevocationEndpoint>(EndpointNames.Revocation, ProtocolRoutePaths.Revocation.EnsureLeadingSlash());
         builder.AddEndpoint<TokenEndpoint>(EndpointNames.Token, ProtocolRoutePaths.Token.EnsureLeadingSlash());
         builder.AddEndpoint<UserInfoEndpoint>(EndpointNames.UserInfo, ProtocolRoutePaths.UserInfo.EnsureLeadingSlash());
-
+        builder.AddEndpoint<PushedAuthorizationEndpoint>(EndpointNames.PushedAuthorizationRequest, ProtocolRoutePaths.PushedAuthorizationRequest.EnsureLeadingSlash());
         return builder;
     }
 

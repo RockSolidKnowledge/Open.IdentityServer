@@ -85,4 +85,9 @@ public class EndpointsOptions
     /// <c>true</c> if the device authorization endpoint is enabled; otherwise, <c>false</c>.
     /// </value>
     public bool EnableDeviceAuthorizationEndpoint { get; set; } = true;
+    
+    /// <summary>
+    /// Gets or sets a value indicating whether the pushed authorization endpoint is enabled.
+    /// </summary>
+    public bool EnablePushedAuthorizationEndpoint { get; set; } = true;
 }
