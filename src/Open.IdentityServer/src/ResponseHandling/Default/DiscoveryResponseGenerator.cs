@@ -199,9 +199,9 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
                     }
                 }
                 
-                AddPushedAuthorizationRequestEndpoint(baseUrl, entries);
-                
+                  
             }
+            AddPushedAuthorizationRequestEndpoint(baseUrl, entries);
         }
         
         // If PAR is enabled
