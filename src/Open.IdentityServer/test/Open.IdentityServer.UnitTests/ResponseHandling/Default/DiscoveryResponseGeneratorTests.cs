@@ -283,6 +283,7 @@ public class DiscoveryResponseGeneratorTests
         actual.Should().NotContainKey(OidcConstants.Discovery.AuthorizationEndpoint);
         actual.Should().NotContainKey(OidcConstants.Discovery.TokenEndpoint);
         actual.Should().NotContainKey(OidcConstants.Discovery.UserInfoEndpoint);
+        actual.Should().NotContainKey(OidcConstants.Discovery.PushedAuthorizationRequestEndpoint);
     }
 
     [Fact]
@@ -708,4 +709,52 @@ public class DiscoveryResponseGeneratorTests
             .Which.Should().Contain(OidcConstants.EndpointAuthenticationMethods.TlsClientAuth)
             .And.Contain(OidcConstants.EndpointAuthenticationMethods.SelfSignedTlsClientAuth);
     }
+    
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenParEnabled_ShouldContainParEndpoint()
+    {
+        var sut = CreateSut();
+        Options.Endpoints.EnablePushedAuthorizationEndpoint = true;
+
+        string expectedParEndpoint = $"https://open.ids.url/somepath/{Constants.ProtocolRoutePaths.ConnectPathPrefix}/{Constants.ProtocolRoutePaths.PushedAuthorizationRequest}";
+        
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
+
+        
+        actual.
+            Should()
+            .ContainKey(OidcConstants.Discovery.PushedAuthorizationRequestEndpoint)
+            .WhoseValue.Should().Be(expectedParEndpoint);
+    }
+    
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenParDisabled_ShouldNotContainParEndpoint()
+    {
+        var sut = CreateSut();
+        Options.Endpoints.EnablePushedAuthorizationEndpoint = false;
+
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
+
+        actual.
+            Should()
+            .NotContainKey(OidcConstants.Discovery.PushedAuthorizationRequestEndpoint);
+    }
+    
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task CreateDiscoveryDocumentAsync_WhenParIsEnforcedOrNot_ShouldContainEnforcementLevel(bool isEnforced)
+    {
+        var sut = CreateSut();
+        Options.RequirePushedAuthorization = isEnforced;
+        string expectedValue = isEnforced.ToString().ToLowerInvariant();
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
+
+        actual.
+            Should()
+            .ContainKey(OidcConstants.Discovery.RequirePushedAuthorizationRequests)
+            .WhoseValue.Should().Be(expectedValue);
+    }
+    
+    
 }

@@ -141,4 +141,9 @@ public class IdentityServerOptions
     /// Gets or sets the enable authorise response issuer param option
     /// </summary>
     public bool EnableAuthorizeResponseIssuerParam { get; set; } = false;
+    
+    /// <summary>
+    /// Enforce PAR for all authorization code flow requests
+    /// </summary>
+    public bool RequirePushedAuthorization { get; set; } = false;
 }

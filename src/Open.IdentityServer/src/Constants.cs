@@ -204,6 +204,7 @@ internal static class Constants
         public const string EndSession = "Endsession";
         public const string CheckSession = "Checksession";
         public const string UserInfo = "Userinfo";
+        public const string PushedAuthorizationRequest = "PushedAuthorizationRequest";
     }
 
     public static class ProtocolRoutePaths
@@ -211,6 +212,7 @@ internal static class Constants
         public const string ConnectPathPrefix       = "connect";
 
         public const string Authorize               = ConnectPathPrefix + "/authorize";
+        public const string PushedAuthorizationRequest = ConnectPathPrefix + "/par";
         public const string AuthorizeCallback       = Authorize + "/callback";
         public const string DiscoveryConfiguration  = ".well-known/openid-configuration";
         public const string DiscoveryWebKeys        = DiscoveryConfiguration + "/jwks";
