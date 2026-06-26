@@ -120,6 +120,7 @@ public class PushBasedAuthorizationRequestTests
             new FormUrlEncodedContent( new Dictionary<string, string>()
             {
                         [OidcConstants.AuthorizeRequest.ClientId] = parTestClient.ClientId,
+                        [OidcConstants.TokenRequest.ClientSecret] = "secret",
                         [OidcConstants.AuthorizeRequest.RedirectUri] = parTestClient.RedirectUris.First(),
                         [OidcConstants.AuthorizeRequest.ResponseType] = OidcConstants.ResponseTypes.Code,
                         [OidcConstants.AuthorizeRequest.Scope] = "api1 api2",

@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.UnitTests.Common;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Endpoints;
 using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Hosting;
+using Open.IdentityServer.Models;
 using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Validation;
 using Xunit;
@@ -27,11 +27,22 @@ public class PushedAuthorizationTests
     private readonly IdentityServerOptions options = new();
     private readonly Mock<IPushedAuthorizationRequestValidator> pushedAuthorizationRequestValidator = new();
     private readonly Mock<IPushedAuthorizationResponseGenerator> pushedAuthorizationResponseGenerator = new();
+    private readonly Mock<IClientSecretValidator> clientSecretValidator = new();
     private readonly Mock<ILogger<PushedAuthorizationRequestEndpoint>> logger = new();
     private readonly MockHttpContextAccessor mockHttpContext = new();
     
     private readonly PushAuthorizationRequestValidationResult parErrorValidationResult = new ("error", "error_description");
     private readonly PushAuthorizationRequestValidationResult validatedAuthorizeRequest = new (new ValidatedAuthorizeRequest());
+
+    public PushedAuthorizationTests()
+    {
+        clientSecretValidator.Setup(csv => csv.ValidateAsync(It.IsAny<HttpContext>()))
+            .ReturnsAsync(new ClientSecretValidationResult()
+            {
+                IsError = false,
+                Client = new Client()
+            });
+    }
 
     [Fact]
     public async Task ProcessAsync_should_log_start_processing()
@@ -58,19 +69,47 @@ public class PushedAuthorizationTests
         logger.Verify(x => x.Log(LogLevel.Trace, It.IsAny<EventId>(), It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("End processing pushed authorization request")), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
     }
 
+    [Fact]
+    public async Task ProcessAsync_should_fail_if_client_validation_fails()
+    {
+        var sut = CreateSut();
+        HttpContext context = CreateHttpContext();
+        
+        AddRequest(new NameValueCollection());
+        // Stub failed validation
+        clientSecretValidator.Setup(csv => csv.ValidateAsync(context))
+            .ReturnsAsync(new ClientSecretValidationResult());
+
+        TokenErrorResult result = (TokenErrorResult)(await sut.ProcessAsync(context));
+        
+        result.Response.Error.Should().Be(OidcConstants.TokenErrors.InvalidClient);
+    }
+    
+
     [Theory]
-    [InlineData("GET", false)]
-    [InlineData("PUT", false)]
-    [InlineData("DELETE", false)]
-    [InlineData("PATCH", false)]
-    [InlineData("POST", true)]
-    public async Task ProcessAsync_should_only_support_http_verb_POST(string verb, bool isSupported)
+    [InlineData("GET")]
+    [InlineData("PUT")]
+    [InlineData("DELETE")]
+    [InlineData("PATCH")]
+    public async Task ProcessAsync_should_not_support_the_following_http_verbs(string verb)
     {
         var sut = CreateSut();
         var context = CreateHttpContext(verb);
 
         IEndpointResult result = await sut.ProcessAsync(context);
-        ResultShouldBeStatusCodeOf(result, !isSupported ? HttpStatusCode.MethodNotAllowed : HttpStatusCode.BadRequest);
+        ResultShouldBeTokenErrorResult(result, OidcConstants.TokenErrors.InvalidRequest);
+        
+        clientSecretValidator.Verify(csv => csv.ValidateAsync(context), Times.Never);
+    }
+    
+    [Fact]
+    public async Task ProcessAsync_should_will_support_http_verb_post()
+    {
+        var sut = CreateSut();
+        var context = CreateHttpContext("POST");
+
+        IEndpointResult result = await sut.ProcessAsync(context);
+         clientSecretValidator.Verify(csv => csv.ValidateAsync(context), Times.Once);
     }
     
     [Fact]
@@ -80,7 +119,7 @@ public class PushedAuthorizationTests
         var context = CreateHttpContext();
 
         IEndpointResult result = await sut.ProcessAsync(context);
-        ResultShouldBeStatusCodeOf(result, HttpStatusCode.BadRequest);
+        ResultShouldBeTokenErrorResult(result, OidcConstants.TokenErrors.InvalidRequest);
     }
 
     [Fact]
@@ -128,7 +167,7 @@ public class PushedAuthorizationTests
     }
 
     [Fact]
-    public async Task ProcessAsync_when_and_PAR_is_disabled_should_return_404()
+    public async Task ProcessAsync_when_PAR_is_disabled_should_return_404()
     {
         options.Endpoints.EnablePushedAuthorizationRequestEndpoint = false;
         
@@ -206,10 +245,17 @@ public class PushedAuthorizationTests
             .Subject.StatusCode.Should().Be((int)expectedStatusCode);
     }
     
+    private static void ResultShouldBeTokenErrorResult(IEndpointResult result , string expectedError)
+    {
+        result.Should().BeOfType<TokenErrorResult>()
+            .Subject.Response.Error.Should().Be(expectedError);
+    }
+    
     private PushedAuthorizationRequestEndpoint CreateSut()
     {
         return new PushedAuthorizationRequestEndpoint(
             options,
+            clientSecretValidator.Object,
             pushedAuthorizationRequestValidator.Object,
             pushedAuthorizationResponseGenerator.Object,
             logger.Object);
