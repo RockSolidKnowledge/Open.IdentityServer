@@ -93,7 +93,7 @@ public static class IdentityServerBuilderExtensionsCore
         builder.AddEndpoint<TokenRevocationEndpoint>(EndpointNames.Revocation, ProtocolRoutePaths.Revocation.EnsureLeadingSlash());
         builder.AddEndpoint<TokenEndpoint>(EndpointNames.Token, ProtocolRoutePaths.Token.EnsureLeadingSlash());
         builder.AddEndpoint<UserInfoEndpoint>(EndpointNames.UserInfo, ProtocolRoutePaths.UserInfo.EnsureLeadingSlash());
-        builder.AddEndpoint<PushedAuthorizationEndpoint>(EndpointNames.PushedAuthorizationRequest, ProtocolRoutePaths.PushedAuthorizationRequest.EnsureLeadingSlash());
+        builder.AddEndpoint<PushedAuthorizationRequestEndpoint>(EndpointNames.PushedAuthorizationRequest, ProtocolRoutePaths.PushedAuthorizationRequest.EnsureLeadingSlash());
         return builder;
     }
 
@@ -216,7 +216,7 @@ public static class IdentityServerBuilderExtensionsCore
         builder.Services.TryAddTransient<IClientConfigurationValidator, DefaultClientConfigurationValidator>();
         builder.Services.TryAddTransient<IDeviceAuthorizationRequestValidator, DeviceAuthorizationRequestValidator>();
         builder.Services.TryAddTransient<IDeviceCodeValidator, DeviceCodeValidator>();
-
+        builder.Services.TryAddTransient<IPushedAuthorizationRequestValidator, PushedAuthorizationRequestValidator>();
         // optional
         builder.Services.TryAddTransient<ICustomTokenValidator, DefaultCustomTokenValidator>();
         builder.Services.TryAddTransient<ICustomAuthorizeRequestValidator, DefaultCustomAuthorizeRequestValidator>();

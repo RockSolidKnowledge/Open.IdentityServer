@@ -42,7 +42,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Endpoints\PushedAuthorization\" />
       <Folder Include="Utility\" />
     </ItemGroup>
 

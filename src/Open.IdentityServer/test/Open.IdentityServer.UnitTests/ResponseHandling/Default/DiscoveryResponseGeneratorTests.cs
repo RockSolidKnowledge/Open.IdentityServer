@@ -714,7 +714,7 @@ public class DiscoveryResponseGeneratorTests
     public async Task CreateDiscoveryDocumentAsync_WhenParEnabled_ShouldContainParEndpoint()
     {
         var sut = CreateSut();
-        Options.Endpoints.EnablePushedAuthorizationEndpoint = true;
+        Options.Endpoints.EnablePushedAuthorizationRequestEndpoint = true;
 
         string expectedParEndpoint = $"https://open.ids.url/somepath/{Constants.ProtocolRoutePaths.ConnectPathPrefix}/{Constants.ProtocolRoutePaths.PushedAuthorizationRequest}";
         
@@ -731,7 +731,7 @@ public class DiscoveryResponseGeneratorTests
     public async Task CreateDiscoveryDocumentAsync_WhenParDisabled_ShouldNotContainParEndpoint()
     {
         var sut = CreateSut();
-        Options.Endpoints.EnablePushedAuthorizationEndpoint = false;
+        Options.Endpoints.EnablePushedAuthorizationRequestEndpoint = false;
 
         var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
 
@@ -746,14 +746,15 @@ public class DiscoveryResponseGeneratorTests
     public async Task CreateDiscoveryDocumentAsync_WhenParIsEnforcedOrNot_ShouldContainEnforcementLevel(bool isEnforced)
     {
         var sut = CreateSut();
+        Options.Endpoints.EnablePushedAuthorizationRequestEndpoint = true;
         Options.RequirePushedAuthorization = isEnforced;
-        string expectedValue = isEnforced.ToString().ToLowerInvariant();
+       
         var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
 
         actual.
             Should()
             .ContainKey(OidcConstants.Discovery.RequirePushedAuthorizationRequests)
-            .WhoseValue.Should().Be(expectedValue);
+            .WhoseValue.Should().Be(isEnforced);
     }
     
     

@@ -205,11 +205,11 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
         }
         
         // If PAR is enabled
-        if (Options.Endpoints.EnablePushedAuthorizationEndpoint)
+        if (Options.Endpoints.EnablePushedAuthorizationRequestEndpoint)
         {
             entries.Add(
                 OidcConstants.Discovery.RequirePushedAuthorizationRequests,
-                Options.RequirePushedAuthorization.ToString().ToLowerInvariant()
+                Options.RequirePushedAuthorization
                 );
         }
 
@@ -378,7 +378,7 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
 
     private void AddPushedAuthorizationRequestEndpoint(string baseUrl, Dictionary<string, object> entries)
     {
-        if (Options.Endpoints.EnablePushedAuthorizationEndpoint == false)
+        if (Options.Endpoints.EnablePushedAuthorizationRequestEndpoint == false)
         {
             return;
         }

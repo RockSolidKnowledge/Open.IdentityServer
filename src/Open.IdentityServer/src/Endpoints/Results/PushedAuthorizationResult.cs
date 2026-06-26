@@ -10,8 +10,11 @@ namespace Open.IdentityServer.Endpoints.Results;
 
 internal record PushedAuthorizationResult(PushedAuthorizationResponse Response) : IEndpointResult
 {
-    public Task ExecuteAsync(HttpContext context)
+    public async Task ExecuteAsync(HttpContext context)
     {
-        throw new System.NotImplementedException();
+        context.Response.StatusCode = StatusCodes.Status201Created;
+        context.Response.ContentType = "application/json";
+         await context.Response.WriteAsJsonAsync(Response);
+         
     }
 }
