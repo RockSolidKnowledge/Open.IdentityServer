@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Net;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace Open.IdentityServer.Endpoints;
 
 internal class PushedAuthorizationRequestEndpoint(
     IdentityServerOptions options,
+    IClientSecretValidator clientSecretValidator,
     IPushedAuthorizationRequestValidator validator ,
     IPushedAuthorizationResponseGenerator responseGenerator,
     ILogger<PushedAuthorizationRequestEndpoint> logger) : IEndpointHandler
@@ -33,13 +35,19 @@ internal class PushedAuthorizationRequestEndpoint(
         logger.LogDebug("Start processing pushed authorization request");
         if (!HttpMethods.IsPost(requestContext.Request.Method))
         {
-            return new StatusCodeResult(HttpStatusCode.MethodNotAllowed);
+            return Error(OidcConstants.TokenErrors.InvalidRequest);
+        }
+
+        ClientSecretValidationResult? clientValidationResult = await clientSecretValidator.ValidateAsync(requestContext);
+        if ( clientValidationResult.IsError)
+        {
+            return Error(OidcConstants.TokenErrors.InvalidClient);
         }
 
         NameValueCollection? parParameters = await ParseForm(requestContext.Request);
         if (parParameters == null)
         {
-            return new StatusCodeResult(HttpStatusCode.BadRequest);
+            return Error(OidcConstants.TokenErrors.InvalidRequest);
         }
         var validationContext = new PushedAuthorizationRequestValidationContext(parParameters);
         return await ProcessRequest(requestContext, validationContext);
@@ -78,5 +86,19 @@ internal class PushedAuthorizationRequestEndpoint(
         {
             return null;
         }
+    }
+    
+    private TokenErrorResult Error(string error, string? errorDescription = null, Dictionary<string, object>? custom = null)
+    {
+        var response = new TokenErrorResponse
+        {
+            Error = error,
+            ErrorDescription = errorDescription,
+            Custom = custom
+        };
+
+        logger.LogError("PushedAuthorizationRequest error: {error}:{errorDescriptions}", error, error ?? "-no message-");
+
+        return new TokenErrorResult(response);
     }
 }
