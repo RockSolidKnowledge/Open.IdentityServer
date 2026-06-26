@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Endpoints;
 using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Hosting;
@@ -23,10 +24,10 @@ namespace Open.IdentityServer.UnitTests.Endpoints.PushedAuthorization;
 
 public class PushedAuthorizationTests
 {
-
+    private readonly IdentityServerOptions options = new();
     private readonly Mock<IPushedAuthorizationRequestValidator> pushedAuthorizationRequestValidator = new();
     private readonly Mock<IPushedAuthorizationResponseGenerator> pushedAuthorizationResponseGenerator = new();
-    private readonly Mock<ILogger<PushedAuthorizationEndpoint>> logger = new();
+    private readonly Mock<ILogger<PushedAuthorizationRequestEndpoint>> logger = new();
     private readonly MockHttpContextAccessor mockHttpContext = new();
     
     private readonly PushAuthorizationRequestValidationResult parErrorValidationResult = new ("error", "error_description");
@@ -126,7 +127,19 @@ public class PushedAuthorizationTests
             .And.BeEquivalentTo(new BadRequestResult(expectedError, expectedErrorDescription));
     }
 
-   
+    [Fact]
+    public async Task ProcessAsync_when_and_PAR_is_disabled_should_return_404()
+    {
+        options.Endpoints.EnablePushedAuthorizationRequestEndpoint = false;
+        
+        var sut = CreateSut();
+        var context = CreateHttpContext();
+        
+        IEndpointResult result = await sut.ProcessAsync(context);
+        
+        ResultShouldBeStatusCodeOf(result, HttpStatusCode.NotFound);
+    }
+
 
     [Fact]
     public async Task ProcessAsync_when_called_with_valid_request_should_generate_ok_response()
@@ -193,9 +206,10 @@ public class PushedAuthorizationTests
             .Subject.StatusCode.Should().Be((int)expectedStatusCode);
     }
     
-    private PushedAuthorizationEndpoint CreateSut()
+    private PushedAuthorizationRequestEndpoint CreateSut()
     {
-        return new PushedAuthorizationEndpoint(
+        return new PushedAuthorizationRequestEndpoint(
+            options,
             pushedAuthorizationRequestValidator.Object,
             pushedAuthorizationResponseGenerator.Object,
             logger.Object);

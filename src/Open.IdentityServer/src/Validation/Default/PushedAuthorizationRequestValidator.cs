@@ -15,9 +15,9 @@ internal class PushedAuthorizationRequestValidator(
     {
         logger.LogDebug("Starting pushed authorization request validation");
        
-        if (validationContext.RequestParameters.GetValues("request_uri") != null)
+        if (validationContext.RequestParameters.GetValues(OidcConstants.AuthorizeRequest.RequestUri) != null)
         {
-            return new PushAuthorizationRequestValidationResult( "request_uri not allowed" , "request_uri can only be used at the authorization endpoint");
+            return new PushAuthorizationRequestValidationResult( $"{OidcConstants.AuthorizeRequest.RequestUri} not allowed" , $"{OidcConstants.AuthorizeRequest.RequestUri} can only be used at the authorization endpoint");
         }
 
         AuthorizeRequestValidationResult authorizeRequestValidationResult = await authorizeRequestValidator.ValidateAsync(validationContext.RequestParameters, null);

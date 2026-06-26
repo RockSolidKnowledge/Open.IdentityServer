@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Hosting;
 using Open.IdentityServer.Extensions;
@@ -16,13 +17,19 @@ using Open.IdentityServer.Validation;
 #nullable  enable
 namespace Open.IdentityServer.Endpoints;
 
-internal class PushedAuthorizationEndpoint(
+internal class PushedAuthorizationRequestEndpoint(
+    IdentityServerOptions options,
     IPushedAuthorizationRequestValidator validator ,
     IPushedAuthorizationResponseGenerator responseGenerator,
-    ILogger<PushedAuthorizationEndpoint> logger) : IEndpointHandler
+    ILogger<PushedAuthorizationRequestEndpoint> logger) : IEndpointHandler
 {
     public async Task<IEndpointResult> ProcessAsync(HttpContext requestContext)
     {
+        if ( options.Endpoints.EnablePushedAuthorizationRequestEndpoint == false)
+        {
+            return new StatusCodeResult(HttpStatusCode.NotFound);
+        }
+        
         logger.LogDebug("Start processing pushed authorization request");
         if (!HttpMethods.IsPost(requestContext.Request.Method))
         {
