@@ -756,4 +756,30 @@ public class DiscoveryResponseGeneratorTests
             .Which.Should().Contain(OidcConstants.EndpointAuthenticationMethods.TlsClientAuth)
             .And.Contain(OidcConstants.EndpointAuthenticationMethods.SelfSignedTlsClientAuth);
     }
+    
+    
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabled_ShouldContainClaimsParameterSupported()
+    {
+        Options.Endpoints.EnableAuthorizeEndpoint = true;
+
+        var sut = CreateSut();
+
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
+
+        actual.Should().ContainKey(OidcConstants.Discovery.ClaimsParameterSupported)
+            .WhoseValue.Should().Be(true);
+    }
+    
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenNAuthorizeEndpointNotEnabled_ShouldNotContainClaimsParameterSupported()
+    {
+        Options.Endpoints.EnableAuthorizeEndpoint = false;
+
+        var sut = CreateSut();
+
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
+
+        actual.Should().NotContainKey(OidcConstants.Discovery.ClaimsParameterSupported);
+    }
 }

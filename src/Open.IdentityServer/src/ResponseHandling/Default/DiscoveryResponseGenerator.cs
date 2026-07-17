@@ -332,6 +332,7 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
         if (Options.Endpoints.EnableAuthorizeEndpoint)
         {
             entries.Add(OidcConstants.Discovery.RequestParameterSupported, true);
+            entries.Add(OidcConstants.Discovery.ClaimsParameterSupported, true);
             entries.Add(OidcConstants.Discovery.AuthorizationResponseIssParameterSupported, Options.EnableAuthorizeResponseIssuerParam);
 
             if (Options.Endpoints.EnableJwtRequestUri)
@@ -339,7 +340,7 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
                 entries.Add(OidcConstants.Discovery.RequestUriParameterSupported, true);
             }
         }
-
+        
         if (Options.MutualTls.Enabled)
         {
             entries.Add(OidcConstants.Discovery.TlsClientCertificateBoundAccessTokens, true);
