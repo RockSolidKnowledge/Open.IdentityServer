@@ -451,7 +451,7 @@ public class Client
     /// <summary>
     /// Gets or sets initiate login URI (Unused, added for compatibility)
     /// </summary>
-    public string? InitiateLoginUri { get; set; }
+    public string InitiateLoginUri { get; set; }
     
     /// <summary>
     /// Gets or sets DPoP clock skew (Unused, added for compatibility)

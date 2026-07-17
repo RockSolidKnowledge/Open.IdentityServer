@@ -15,7 +15,7 @@ public class IdentityServerKeyMaterial
     /// <summary>
     /// Get or set unique identifier
     /// </summary>
-    public string Id { get; set; }
+    public string Id { get; set; } = null!;
     
     /// <summary>
     /// Get or set version of key material
@@ -35,7 +35,7 @@ public class IdentityServerKeyMaterial
     /// <summary>
     /// Get or set key algorithm value
     /// </summary>
-    public string Algorithm { get; set; }
+    public string Algorithm { get; set; } = null!;
     
     /// <summary>
     /// Get or set is x509 certificate value
@@ -45,7 +45,7 @@ public class IdentityServerKeyMaterial
     /// <summary>
     /// Get or set data value
     /// </summary>
-    public string Data { get; set; }
+    public string Data { get; set; } = null!;
 
     /// <summary>
     /// Get or set created value

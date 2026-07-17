@@ -315,7 +315,7 @@ public class IdentityServerPipeline
 
     public string CreateAuthorizeUrl(
         string clientId = null!,
-        string? responseType = null,
+        string responseType = null!,
         string? scope = null,
         string? redirectUri = null,
         string? state = null,

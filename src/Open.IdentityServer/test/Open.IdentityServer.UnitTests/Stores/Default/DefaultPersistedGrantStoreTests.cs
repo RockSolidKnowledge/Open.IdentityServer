@@ -17,21 +17,22 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
 using Xunit;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace IdentityServer.UnitTests.Stores.Default;
 
 public class DefaultPersistedGrantStoreTests
 {
-    private InMemoryPersistedGrantStore _store = new InMemoryPersistedGrantStore();
-    private IAuthorizationCodeStore _codes;
-    private IRefreshTokenStore _refreshTokens;
-    private IReferenceTokenStore _referenceTokens;
-    private IUserConsentStore _userConsent;
-    private StubHandleGenerationService _stubHandleGenerationService = new StubHandleGenerationService();
+    private readonly InMemoryPersistedGrantStore _store = new InMemoryPersistedGrantStore();
+    private readonly IAuthorizationCodeStore _codes;
+    private readonly IRefreshTokenStore _refreshTokens;
+    private readonly IReferenceTokenStore _referenceTokens;
+    private readonly IUserConsentStore _userConsent;
+    private readonly StubHandleGenerationService _stubHandleGenerationService = new StubHandleGenerationService();
 
-    private ClaimsPrincipal _user = new IdentityServerUser("123").CreatePrincipal();
+    private readonly ClaimsPrincipal _user = new IdentityServerUser("123").CreatePrincipal();
         
-    private ILogger<DefaultRefreshTokenStore> refreshTokenStoreLogger = Mock.Of<ILogger<DefaultRefreshTokenStore>>();
+    private readonly ILogger<DefaultRefreshTokenStore> refreshTokenStoreLogger = Mock.Of<ILogger<DefaultRefreshTokenStore>>();
 
     public DefaultPersistedGrantStoreTests()
     {
@@ -56,7 +57,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task StoreAuthorizationCodeAsync_ShouldGenerateHexEncodedHandle()
     {
-        var code1 = new AuthorizationCode()
+        var code1 = new AuthorizationCode
         {
             ClientId = "test",
             CreationTime = DateTime.UtcNow,
@@ -76,7 +77,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task StoreAuthorizationCodeAsync_should_persist_grant()
     {
-        var code1 = new AuthorizationCode()
+        var code1 = new AuthorizationCode
         {
             ClientId = "test",
             CreationTime = DateTime.UtcNow,
@@ -104,7 +105,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task RemoveAuthorizationCodeAsync_should_remove_grant()
     {
-        var code1 = new AuthorizationCode()
+        var code1 = new AuthorizationCode
         {
             ClientId = "test",
             CreationTime = DateTime.UtcNow,
@@ -130,7 +131,7 @@ public class DefaultPersistedGrantStoreTests
     [InlineData(7)]
     public async Task GetRefreshTokenAsync_when_unsupported_token_stored_should_return_null_and_log_error(int unsupportedVersion)
     {
-        var token1 = new RefreshToken()
+        var token1 = new RefreshToken
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
@@ -143,13 +144,13 @@ public class DefaultPersistedGrantStoreTests
         token2.Should().BeNull();
             
         Mock.Get(refreshTokenStoreLogger)
-            .Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<UnsupportedRefreshTokenException>(), It.IsAny<Func<It.IsAnyType,Exception?,string>>()));
+            .Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<UnsupportedRefreshTokenException>(), It.IsAny<Func<It.IsAnyType,Exception,string>>()));
     }
         
     [Fact]
     public async Task GetRefreshTokenAsync_when_v4_token_stored_should_retrieve_mapped_grant()
     {
-        var token1 = new RefreshToken()
+        var token1 = new RefreshToken
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
@@ -191,7 +192,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task StoreRefreshTokenAsync_ShouldGenerateHexEncodedHandle()
     {
-        var token1 = new RefreshToken()
+        var token1 = new RefreshToken
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
@@ -224,7 +225,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task StoreRefreshTokenAsync_should_persist_grant()
     {
-        var token1 = new RefreshToken()
+        var token1 = new RefreshToken
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
@@ -265,7 +266,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task RemoveRefreshTokenAsync_should_remove_grant()
     {
-        var token1 = new RefreshToken()
+        var token1 = new RefreshToken
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
@@ -287,7 +288,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task RemoveRefreshTokenAsync_by_sub_and_client_should_remove_grant()
     {
-        var token1 = new RefreshToken()
+        var token1 = new RefreshToken
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 10,
@@ -312,7 +313,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task StoreReferenceTokenAsync_ShouldGenerateHexEncodedHandle()
     {
-        var token1 = new Token()
+        var token1 = new Token
         {
             ClientId = "client",
             Audiences = { "aud" },
@@ -335,7 +336,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task StoreReferenceTokenAsync_should_persist_grant()
     {
-        var token1 = new Token()
+        var token1 = new Token
         {
             ClientId = "client",
             Audiences = { "aud" },
@@ -365,7 +366,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task RemoveReferenceTokenAsync_should_remove_grant()
     {
-        var token1 = new Token()
+        var token1 = new Token
         {
             ClientId = "client",
             Audiences = { "aud" },
@@ -388,7 +389,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task RemoveReferenceTokenAsync_by_sub_and_client_should_remove_grant()
     {
-        var token1 = new Token()
+        var token1 = new Token
         {
             ClientId = "client",
             Audiences = { "aud" },
@@ -415,7 +416,7 @@ public class DefaultPersistedGrantStoreTests
     [Fact]
     public async Task StoreUserConsentAsync_should_persist_grant()
     {
-        var consent1 = new Consent()
+        var consent1 = new Consent
         {
             CreationTime = DateTime.UtcNow,
             ClientId = "client",
@@ -453,7 +454,7 @@ public class DefaultPersistedGrantStoreTests
     {
         _stubHandleGenerationService.Handle = "key";
 
-        await _referenceTokens.StoreReferenceTokenAsync(new Token()
+        await _referenceTokens.StoreReferenceTokenAsync(new Token
         {
             ClientId = "client1",
             Audiences = { "aud" },
@@ -468,7 +469,7 @@ public class DefaultPersistedGrantStoreTests
             }
         });
 
-        await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken()
+        await _refreshTokens.StoreRefreshTokenAsync(new RefreshToken
         {
             CreationTime = DateTime.UtcNow,
             Lifetime = 20,
@@ -478,7 +479,7 @@ public class DefaultPersistedGrantStoreTests
             AuthorizedScopes = ["baz1", "baz2"],
         });
 
-        await _codes.StoreAuthorizationCodeAsync(new AuthorizationCode()
+        await _codes.StoreAuthorizationCodeAsync(new AuthorizationCode
         {
             ClientId = "client1",
             CreationTime = DateTime.UtcNow,

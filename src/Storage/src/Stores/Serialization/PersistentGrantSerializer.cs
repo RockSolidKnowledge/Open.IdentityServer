@@ -4,6 +4,7 @@
 
 #nullable enable
 
+using System;
 using System.Text.Json;
 using Open.IdentityServer.Models;
 
@@ -55,6 +56,12 @@ public class PersistentGrantSerializer: IPersistentGrantSerializer
             throw new UnsupportedRefreshTokenException(refreshToken.Version);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
+        if (refreshToken.AccessToken == null)
+        {
+            throw new Exception();
+        }
+
         var user = new IdentityServerUser(refreshToken.AccessToken.SubjectId);
         if (refreshToken.AccessToken.Claims != null)
         {
@@ -73,6 +80,7 @@ public class PersistentGrantSerializer: IPersistentGrantSerializer
         refreshToken.Version = 5;
                 
         refreshToken.AccessToken = null;
+#pragma warning restore CS0618 // Type or member is obsolete
 
         return (T)(object)refreshToken;
     }

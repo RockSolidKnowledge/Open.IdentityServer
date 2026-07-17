@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 
+#nullable enable
+
 namespace Open.IdentityServer;
 
 /// <summary>
@@ -49,18 +51,15 @@ public class ClaimComparer : EqualityComparer<Claim>
     public override bool Equals(Claim? x, Claim? y)
     {
         if (x == null && y == null) return true;
-        if (x == null && y != null) return false;
-        if (x != null && y == null) return false;
-
-        if (x == null) throw new ArgumentNullException(nameof(x));
-        if (y == null) throw new ArgumentNullException(nameof(y));
+        if (x == null) return false;
+        if (y == null) return false;
 
         var valueComparison = StringComparison.Ordinal;
-        if (_options.IgnoreValueCase == true) valueComparison = StringComparison.OrdinalIgnoreCase;
+        if (_options.IgnoreValueCase) valueComparison = StringComparison.OrdinalIgnoreCase;
 
-        var equal = (String.Equals(x.Type, y.Type, StringComparison.OrdinalIgnoreCase) &&
-                         String.Equals(x.Value, y.Value, valueComparison) &&
-                         String.Equals(x.ValueType, y.ValueType, StringComparison.Ordinal));
+        var equal = string.Equals(x.Type, y.Type, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(x.Value, y.Value, valueComparison) &&
+                    string.Equals(x.ValueType, y.ValueType, StringComparison.Ordinal);
             
         if (_options.IgnoreIssuer)
         {
@@ -68,14 +67,14 @@ public class ClaimComparer : EqualityComparer<Claim>
         }
         else
         {
-            return (equal && String.Equals(x.Issuer, y.Issuer, valueComparison));
+            return equal && string.Equals(x.Issuer, y.Issuer, valueComparison);
         }
     }
 
     /// <inheritdoc/>
     public override int GetHashCode(Claim claim)
     {
-        if (claim is null) return 0;
+        // if (claim is null) return 0;
 
         int typeHash = claim.Type?.ToLowerInvariant().GetHashCode() ?? 0 ^ claim.ValueType?.GetHashCode() ?? 0;
         int valueHash;

@@ -15,6 +15,7 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Xunit;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation;
 
