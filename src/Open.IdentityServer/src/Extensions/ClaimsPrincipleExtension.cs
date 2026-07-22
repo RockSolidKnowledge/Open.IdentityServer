@@ -19,4 +19,12 @@ internal static class ClaimsPrincipleExtension
             };
         }
     }
+    
+    extension(ClaimsPrincipalLite claimsPrincipalLite)
+    {
+        public ClaimsPrincipal ToClaimsPrincipal()
+        {
+            return new ClaimsPrincipal(new ClaimsIdentity(claimsPrincipalLite.Claims.ToClaims(), claimsPrincipalLite.AuthenticationType));
+        }
+    }
 }
