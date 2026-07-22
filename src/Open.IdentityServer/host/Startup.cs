@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -20,11 +21,16 @@ using IdentityServerHost.Extensions;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.HttpOverrides;
 using IdentityServerHost.Quickstart.UI;
+using Microsoft.AspNetCore.Hosting;
 using Open.IdentityServer.Utility;
+
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace IdentityServerHost;
 
-public class Startup
+public class Startup 
 {
     private readonly IConfiguration _config;
 
@@ -78,7 +84,6 @@ public class Startup
         //     options.ConfigureDbContext = b => b.UseSqlite(connectionString,
         //         sql => sql.MigrationsAssembly(migrationsAssembly));
         // });
-                
 
         services.AddExternalIdentityProviders();
 
@@ -97,6 +102,31 @@ public class Startup
 
             return Task.FromResult(principal);
         });
+
+        services.AddOpenTelemetry()
+            .ConfigureResource(r =>
+            {
+                r.AddService(
+                    serviceName: "Demo Open.IdentityServer");
+            })
+            .WithMetrics(m =>
+            {
+                m
+                    .AddMeter(TelemetryConstants.MetricsConstants.MeterName)
+                    .AddConsoleExporter();
+            })
+            .WithTracing(t =>
+            {
+                t
+                    .AddAspNetCoreInstrumentation()
+                    .AddSource(TelemetryConstants.TraceCategories.Basic)
+                    .AddSource(TelemetryConstants.TraceCategories.Cache)
+                    .AddSource(TelemetryConstants.TraceCategories.Services)
+                    .AddSource(TelemetryConstants.TraceCategories.Stores)
+                    .AddSource(TelemetryConstants.TraceCategories.Validation)
+                    .AddConsoleExporter()
+                    ;
+            });
     }
 
     public void Configure(IApplicationBuilder app)
@@ -189,7 +219,7 @@ public static class ServiceExtensions
                 options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                 options.SignOutScheme = IdentityServerConstants.SignoutScheme;
 
-                options.Authority = "";
+                options.Authority = "https://demo.identityserver.com/";
                 options.ClientId = "login";
                 options.ResponseType = "id_token";
                 options.SaveTokens = true;

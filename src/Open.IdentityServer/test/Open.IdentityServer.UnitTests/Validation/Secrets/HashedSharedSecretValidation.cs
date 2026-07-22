@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Validation.Setup;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
@@ -12,7 +12,7 @@ using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.Secrets;
+namespace Open.IdentityServer.UnitTests.Validation.Secrets;
 
 public class HashedSharedSecretValidation
 {

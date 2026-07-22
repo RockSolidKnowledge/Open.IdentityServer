@@ -6,7 +6,7 @@ using AwesomeAssertions;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation;
+namespace Open.IdentityServer.UnitTests.Validation;
 
 /// <summary>
 /// Tests for ResponseTypeEqualityComparer

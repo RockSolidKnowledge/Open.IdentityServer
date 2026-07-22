@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Net;
@@ -9,24 +10,30 @@ using Open.IdentityServer.Hosting;
 using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Endpoints;
 
 internal class EndSessionCallbackEndpoint : IEndpointHandler
 {
     private readonly IEndSessionRequestValidator _endSessionRequestValidator;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
 
     public EndSessionCallbackEndpoint(
         IEndSessionRequestValidator endSessionRequestValidator,
+        ITelemetryService telemetry,
         ILogger<EndSessionCallbackEndpoint> logger)
     {
         _endSessionRequestValidator = endSessionRequestValidator;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        
         if (!HttpMethods.IsGet(context.Request.Method))
         {
             _logger.LogWarning("Invalid HTTP method for end session callback endpoint.");

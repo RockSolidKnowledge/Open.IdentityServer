@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Net;
@@ -9,6 +10,7 @@ using Open.IdentityServer.Hosting;
 using Open.IdentityServer.ResponseHandling;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Endpoints;
 
@@ -19,19 +21,23 @@ internal class DiscoveryKeyEndpoint : IEndpointHandler
     private readonly IdentityServerOptions _options;
 
     private readonly IDiscoveryResponseGenerator _responseGenerator;
+    private readonly ITelemetryService _telemetry;
 
     public DiscoveryKeyEndpoint(
         IdentityServerOptions options,
         IDiscoveryResponseGenerator responseGenerator,
+        ITelemetryService telemetry,
         ILogger<DiscoveryKeyEndpoint> logger)
     {
         _logger = logger;
         _options = options;
         _responseGenerator = responseGenerator;
+        _telemetry = telemetry;
     }
 
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         _logger.LogTrace("Processing discovery request.");
 
         // validate HTTP

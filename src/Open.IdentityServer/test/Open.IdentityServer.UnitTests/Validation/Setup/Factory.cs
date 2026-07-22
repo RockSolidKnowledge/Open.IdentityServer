@@ -1,12 +1,14 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
@@ -16,7 +18,7 @@ using Open.IdentityServer.Stores.Serialization;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
 
-namespace IdentityServer.UnitTests.Validation.Setup;
+namespace Open.IdentityServer.UnitTests.Validation.Setup;
 
 internal static class Factory
 {
@@ -37,7 +39,9 @@ internal static class Factory
         ICustomTokenRequestValidator customRequestValidator = null,
         ITokenValidator tokenValidator = null,
         IRefreshTokenService refreshTokenService = null,
-        IResourceValidator resourceValidator = null)
+        IResourceValidator resourceValidator = null,
+        IEventService events = null,
+        ITelemetryService telemetry = null)
     {
         if (options == null)
         {
@@ -106,6 +110,16 @@ internal static class Factory
                 profile);
         }
 
+        if (events == null)
+        {
+            events = new TestEventService();
+        }
+
+        if (telemetry == null)
+        {
+            telemetry = new NopTelemetryService();
+        }
+
         return new TokenRequestValidator(
             options,
             authorizationCodeStore,
@@ -118,8 +132,9 @@ internal static class Factory
             resourceStore,
             tokenValidator,
             refreshTokenService,
-            new TestEventService(), 
+            events,
             new StubClock(), 
+            telemetry,
             TestLogger.Create<TokenRequestValidator>());
     }
 
@@ -129,6 +144,7 @@ internal static class Factory
             store,
             profile,
             new StubClock(),
+            new NopTelemetryService(),
             TestLogger.Create<DefaultRefreshTokenService>());
 
         return service;
@@ -137,7 +153,8 @@ internal static class Factory
     internal static IResourceValidator CreateResourceValidator(IResourceStore store = null)
     {
         store = store ?? new InMemoryResourcesStore(TestScopes.GetIdentity(), TestScopes.GetApis(), TestScopes.GetScopes());
-        return new DefaultResourceValidator(store, new DefaultScopeParser(TestLogger.Create<DefaultScopeParser>()), TestLogger.Create<DefaultResourceValidator>());
+        return new DefaultResourceValidator(store, 
+            new DefaultScopeParser(TestLogger.Create<DefaultScopeParser>()), new NopTelemetryService(), TestLogger.Create<DefaultResourceValidator>());
     }
 
     internal static ITokenCreationService CreateDefaultTokenCreator(IdentityServerOptions options = null)
@@ -145,15 +162,18 @@ internal static class Factory
         return new DefaultTokenCreationService(
             new StubClock(),
             new DefaultKeyMaterialService(new IValidationKeysStore[] { },
-                new ISigningCredentialStore[] { new InMemorySigningCredentialsStore(TestCert.LoadSigningCredentials()) }),
+                new ISigningCredentialStore[] { new InMemorySigningCredentialsStore(TestCert.LoadSigningCredentials()) },
+                new NopTelemetryService()),
             options ?? TestIdentityServerOptions.Create(),
+            new DefaultTelemetryService(),
             TestLogger.Create<DefaultTokenCreationService>());
     }
 
     public static DeviceAuthorizationRequestValidator CreateDeviceAuthorizationRequestValidator(
         IdentityServerOptions options = null,
         IResourceStore resourceStore = null,
-        IResourceValidator resourceValidator = null)
+        IResourceValidator resourceValidator = null,
+        ITelemetryService telemetry = null)
     {
         if (options == null)
         {
@@ -169,11 +189,13 @@ internal static class Factory
         {
             resourceValidator = CreateResourceValidator(resourceStore);
         }
-
+        
+        if (telemetry == null) telemetry = new NopTelemetryService();
 
         return new DeviceAuthorizationRequestValidator(
             options,
             resourceValidator,
+            telemetry,
             TestLogger.Create<DeviceAuthorizationRequestValidator>());
     }
 
@@ -186,7 +208,8 @@ internal static class Factory
         IRedirectUriValidator uriValidator = null,
         IResourceValidator resourceValidator = null,
         JwtRequestValidator jwtRequestValidator = null,
-        IJwtRequestUriHttpClient jwtRequestUriHttpClient = null)
+        IJwtRequestUriHttpClient jwtRequestUriHttpClient = null,
+        ITelemetryService telemetry = null)
     {
         if (options == null)
         {
@@ -225,9 +248,17 @@ internal static class Factory
 
         if (jwtRequestUriHttpClient == null)
         {
-            jwtRequestUriHttpClient = new DefaultJwtRequestUriHttpClient(new HttpClient(new NetworkHandler(new Exception("no jwt request uri response configured"))), options, new LoggerFactory());
+            jwtRequestUriHttpClient = new DefaultJwtRequestUriHttpClient(
+                new HttpClient(new NetworkHandler(new Exception("no jwt request uri response configured"))), 
+                options, 
+                new NopTelemetryService(),
+                new LoggerFactory());
         }
 
+        if (telemetry == null)
+        {
+            telemetry = new NopTelemetryService();
+        }
 
         var userSession = new MockUserSession();
 
@@ -240,6 +271,7 @@ internal static class Factory
             userSession,
             jwtRequestValidator,
             jwtRequestUriHttpClient,
+            telemetry,
             TestLogger.Create<AuthorizeRequestValidator>());
     }
 
@@ -247,7 +279,9 @@ internal static class Factory
         IReferenceTokenStore store = null, 
         IRefreshTokenStore refreshTokenStore = null,
         IProfileService profile = null, 
-        IdentityServerOptions options = null, TimeProvider clock = null)
+        IdentityServerOptions options = null, 
+        TimeProvider clock = null,
+        ITelemetryService telemetry = null)
     {
         if (options == null)
         {
@@ -270,6 +304,8 @@ internal static class Factory
         {
             refreshTokenStore = CreateRefreshTokenStore();
         }
+        
+        telemetry = telemetry ?? new NopTelemetryService();
 
         var clients = CreateClientStore();
         var context = new MockHttpContextAccessor(options);
@@ -288,10 +324,14 @@ internal static class Factory
             referenceTokenStore: store,
             refreshTokenStore: refreshTokenStore,
             customValidator: new DefaultCustomTokenValidator(),
-            keys: new DefaultKeyMaterialService(new[] { new InMemoryValidationKeysStore(new[] { keyInfo }) }, Enumerable.Empty<ISigningCredentialStore>()),
+            keys: new DefaultKeyMaterialService(
+                new[] { new InMemoryValidationKeysStore(new[] { keyInfo }) }, 
+                Enumerable.Empty<ISigningCredentialStore>(),
+                new NopTelemetryService()),
             logger: logger,
             options: options,
-            context: context);
+            context: context,
+            telemetry: telemetry);
 
         return validator;
     }
@@ -300,18 +340,20 @@ internal static class Factory
         IDeviceFlowCodeService service,
         IProfileService profile = null,
         IDeviceFlowThrottlingService throttlingService = null,
-        TimeProvider clock = null)
+        TimeProvider clock = null,
+        ITelemetryService telemetry = null)
     {
         profile = profile ?? new TestProfileService();
         throttlingService = throttlingService ?? new TestDeviceFlowThrottlingService();
         clock = clock ?? new StubClock();
+        telemetry = telemetry ?? new NopTelemetryService();
             
-        var validator = new DeviceCodeValidator(service, profile, throttlingService, clock, TestLogger.Create<DeviceCodeValidator>());
+        var validator = new DeviceCodeValidator(service, profile, throttlingService, clock, telemetry, TestLogger.Create<DeviceCodeValidator>());
 
         return validator;
     }
 
-    public static IClientSecretValidator CreateClientSecretValidator(IClientStore clients = null, SecretParser parser = null, SecretValidator validator = null, IdentityServerOptions options = null)
+    public static IClientSecretValidator CreateClientSecretValidator(IClientStore clients = null, SecretParser parser = null, SecretValidator validator = null, IdentityServerOptions options = null, ITelemetryService telemetry = null)
     {
         options = options ?? TestIdentityServerOptions.Create();
 
@@ -339,7 +381,12 @@ internal static class Factory
             validator = new SecretValidator(new StubClock(), validators, TestLogger.Create<SecretValidator>());
         }
 
-        return new ClientSecretValidator(clients, parser, validator, new TestEventService(), TestLogger.Create<ClientSecretValidator>());
+        if (telemetry == null)
+        {
+            telemetry = new NopTelemetryService();
+        }
+
+        return new ClientSecretValidator(clients, parser, validator, new TestEventService(), telemetry, TestLogger.Create<ClientSecretValidator>());
     }
 
     public static IAuthorizationCodeStore CreateAuthorizationCodeStore()
@@ -347,6 +394,7 @@ internal static class Factory
         return new DefaultAuthorizationCodeStore(new InMemoryPersistedGrantStore(),
             new PersistentGrantSerializer(),
             new DefaultHandleGenerationService(),
+            new NopTelemetryService(),
             TestLogger.Create<DefaultAuthorizationCodeStore>());
     }
         
@@ -355,6 +403,7 @@ internal static class Factory
         return new DefaultRefreshTokenStore(new InMemoryPersistedGrantStore(),
             new PersistentGrantSerializer(),
             new DefaultHandleGenerationService(),
+            new NopTelemetryService(),
             TestLogger.Create<DefaultRefreshTokenStore>());
     }
         
@@ -363,12 +412,13 @@ internal static class Factory
         return new DefaultReferenceTokenStore(new InMemoryPersistedGrantStore(),
             new PersistentGrantSerializer(),
             new DefaultHandleGenerationService(),
+            new NopTelemetryService(),
             TestLogger.Create<DefaultReferenceTokenStore>());
     }
 
     public static IDeviceFlowCodeService CreateDeviceCodeService()
     {
-        return new DefaultDeviceFlowCodeService(new InMemoryDeviceFlowStore(), new DefaultHandleGenerationService());
+        return new DefaultDeviceFlowCodeService(new InMemoryDeviceFlowStore(), new DefaultHandleGenerationService(), new NopTelemetryService());
     }
         
     public static IUserConsentStore CreateUserConsentStore()
@@ -376,6 +426,79 @@ internal static class Factory
         return new DefaultUserConsentStore(new InMemoryPersistedGrantStore(),
             new PersistentGrantSerializer(),
             new DefaultHandleGenerationService(),
+            new NopTelemetryService(),
             TestLogger.Create<DefaultUserConsentStore>());
+    }
+}
+
+internal class NopTelemetryService : ITelemetryService
+{
+    public void CountInternalError(string error)
+    {
+    }
+
+    public IDisposable BeginActiveRequest(string endpoint, string path)
+    {
+        return new NopDisposable();
+    }
+
+    public void CountApiSecretValidation(string client, string authMethod = null, string error = null)
+    {
+    }
+
+    public void CountBackchannelAuthentication(string client, string error = null)
+    {
+    }
+
+    public void CountClientConfigValidation(string client, string error = null)
+    {
+    }
+
+    public void CountClientSecretValidation(string client, string authMethod = null, string error = null)
+    {
+    }
+
+    public void CountDeviceAuthentication(string client, string error = null)
+    {
+    }
+
+    public void CountTokenIntrospection(string caller, bool? active = null, string error = null)
+    {
+    }
+
+    public void CountPushedAuthorizationRequest(string client, string error = null)
+    {
+    }
+
+    public void CountResourceOwnerAuthentication(string client, string error = null)
+    {
+    }
+
+    public void CountTokenRevocation(string client, string error = null)
+    {
+    }
+
+    public void CountTokenIssued(string client, string grantType, bool accessTokenIssued, bool idTokenIssued,
+        bool refreshTokenIssued, string error = null)
+    {
+        
+    }
+
+    public ITrace Trace(string category, string activityName)
+    {
+        return null;
+    }
+
+    public ITrace Trace(string category, object caller, string callingMethod = null)
+    {
+        return null;
+    }
+
+    private class NopDisposable : IDisposable
+    {
+        public void Dispose()
+        {
+            
+        }
     }
 }

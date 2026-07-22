@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -32,6 +33,7 @@ public class CachingResourceStore<T> : IResourceStore
     private readonly ICache<Resources> _allCache;
         
     private readonly IResourceStore _inner;
+    private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
 
     /// <summary>
@@ -44,6 +46,7 @@ public class CachingResourceStore<T> : IResourceStore
     /// <param name="apisCache">The API cache.</param>
     /// <param name="scopeCache">The cache for API scope lookups by scope name.</param>
     /// <param name="allCache">All cache.</param>
+    /// <param name="telemetry">The telemetry</param>
     /// <param name="logger">The logger.</param>
     public CachingResourceStore(IdentityServerOptions options, T inner, 
         ICache<IEnumerable<IdentityResource>> identityCache, 
@@ -51,6 +54,7 @@ public class CachingResourceStore<T> : IResourceStore
         ICache<IEnumerable<ApiResource>> apisCache,
         ICache<IEnumerable<ApiScope>> scopeCache,
         ICache<Resources> allCache,
+        ITelemetryService telemetry,
         ILogger<CachingResourceStore<T>> logger)
     {
         _options = options;
@@ -60,6 +64,7 @@ public class CachingResourceStore<T> : IResourceStore
         _apiResourceCache = apisCache;
         _apiScopeCache = scopeCache;
         _allCache = allCache;
+        _telemetry = telemetry;
         _logger = logger;
     }
 
@@ -72,6 +77,8 @@ public class CachingResourceStore<T> : IResourceStore
     /// <inheritdoc/>
     public async Task<Resources> GetAllResourcesAsync()
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Cache, this);
+        
         var key = AllKey;
 
         var all = await _allCache.GetAsync(key,
@@ -85,6 +92,9 @@ public class CachingResourceStore<T> : IResourceStore
     /// <inheritdoc/>
     public async Task<IEnumerable<ApiResource>> FindApiResourcesByNameAsync(IEnumerable<string> apiResourceNames)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Cache, this);
+        trace?.AddTag(TelemetryConstants.TagConstants.Api, GetKey(apiResourceNames));
+
         var key = GetKey(apiResourceNames);
 
         var apis = await _apiResourceCache.GetAsync(key,
@@ -98,6 +108,9 @@ public class CachingResourceStore<T> : IResourceStore
     /// <inheritdoc/>
     public async Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> names)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Cache, this);
+        trace?.AddTag(TelemetryConstants.TagConstants.Scope, GetKey(names));
+
         var key = GetKey(names);
 
         var identities = await _identityCache.GetAsync(key,
@@ -111,6 +124,9 @@ public class CachingResourceStore<T> : IResourceStore
     /// <inheritdoc/>
     public async Task<IEnumerable<ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> names)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Cache, this);
+        trace?.AddTag(TelemetryConstants.TagConstants.Scope, GetKey(names));
+
         var key = GetKey(names);
 
         var apis = await _apiByScopeCache.GetAsync(key,
@@ -124,6 +140,9 @@ public class CachingResourceStore<T> : IResourceStore
     /// <inheritdoc/>
     public async Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Cache, this);
+        trace?.AddTag(TelemetryConstants.TagConstants.Scope, GetKey(scopeNames));
+
         var key = GetKey(scopeNames);
 
         var apis = await _apiScopeCache.GetAsync(key,

@@ -7,7 +7,7 @@ using Open.IdentityServer.Hosting;
 using Xunit;
 using static Open.IdentityServer.Constants;
 
-namespace IdentityServer.UnitTests.Extensions;
+namespace Open.IdentityServer.UnitTests.Extensions;
 
 public class EndpointOptionsExtensionsTests
 {

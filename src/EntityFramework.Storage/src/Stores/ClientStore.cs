@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -11,6 +12,7 @@ using Open.IdentityServer.Stores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Open.IdentityServer.EntityFramework.Mappers;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.EntityFramework.Stores;
 
@@ -26,6 +28,11 @@ public class ClientStore : IClientStore
     protected readonly IConfigurationDbContext Context;
 
     /// <summary>
+    /// The telemetry.
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
+
+    /// <summary>
     /// The logger.
     /// </summary>
     protected readonly ILogger<ClientStore> Logger;
@@ -34,11 +41,13 @@ public class ClientStore : IClientStore
     /// Initializes a new instance of the <see cref="ClientStore"/> class.
     /// </summary>
     /// <param name="context">The context.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
     /// <exception cref="ArgumentNullException">context</exception>
-    public ClientStore(IConfigurationDbContext context, ILogger<ClientStore> logger)
+    public ClientStore(IConfigurationDbContext context, ITelemetryService telemetry, ILogger<ClientStore> logger)
     {
         Context = context ?? throw new ArgumentNullException(nameof(context));
+        Telemetry = telemetry;
         Logger = logger;
     }
 
@@ -51,6 +60,9 @@ public class ClientStore : IClientStore
     /// </returns>
     public virtual async Task<Client> FindClientByIdAsync(string clientId)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        trace?.AddTag(TelemetryConstants.TagConstants.Client, clientId);
+        
         IQueryable<Entities.Client> baseQuery = Context.Clients
             .Where(x => x.ClientId == clientId);
 

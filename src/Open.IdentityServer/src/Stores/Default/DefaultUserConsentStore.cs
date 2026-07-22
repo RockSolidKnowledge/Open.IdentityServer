@@ -22,13 +22,15 @@ public class DefaultUserConsentStore : DefaultGrantStore<Consent>, IUserConsentS
     /// <param name="store">The store.</param>
     /// <param name="serializer">The serializer.</param>
     /// <param name="handleGenerationService">The handle generation service.</param>
+    /// <param name="telemetry">The telemetry service</param>
     /// <param name="logger">The logger.</param>
     public DefaultUserConsentStore(
         IPersistedGrantStore store, 
         IPersistentGrantSerializer serializer,
         IHandleGenerationService handleGenerationService,
+        ITelemetryService telemetry,
         ILogger<DefaultUserConsentStore> logger) 
-        : base(IdentityServerConstants.PersistedGrantTypes.UserConsent, store, serializer, handleGenerationService, logger)
+        : base(IdentityServerConstants.PersistedGrantTypes.UserConsent, store, serializer, handleGenerationService, telemetry, logger)
     {
     }
 
@@ -44,6 +46,8 @@ public class DefaultUserConsentStore : DefaultGrantStore<Consent>, IUserConsentS
     /// <param name="consent">The consent.</param>
     public Task StoreUserConsentAsync(Consent consent)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         var key = GetConsentKey(consent.SubjectId, consent.ClientId);
         return StoreItemAsync(key, consent, consent.ClientId, consent.SubjectId, null, null, consent.CreationTime, consent.Expiration);
     }
@@ -56,6 +60,10 @@ public class DefaultUserConsentStore : DefaultGrantStore<Consent>, IUserConsentS
     /// <returns>A task that resolves to the <see cref="Consent"/> record for the specified subject and client, or <see langword="null"/> if not found.</returns>
     public async Task<Consent> GetUserConsentAsync(string subjectId, string clientId)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        trace?.AddTag(TelemetryConstants.TagConstants.Subject, subjectId);
+        trace?.AddTag(TelemetryConstants.TagConstants.Client, clientId);
+
         var key = GetConsentKey(subjectId, clientId);
         var item = await GetItemAsync(key);
 
@@ -77,6 +85,10 @@ public class DefaultUserConsentStore : DefaultGrantStore<Consent>, IUserConsentS
     /// <param name="clientId">The client identifier.</param>/// <returns>A task that resolves to the <see cref="Consent"/> record for the specified subject and client, or <see langword="null"/> if not found.</returns>
     public Task RemoveUserConsentAsync(string subjectId, string clientId)
     {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        trace?.AddTag(TelemetryConstants.TagConstants.Subject, subjectId);
+        trace?.AddTag(TelemetryConstants.TagConstants.Client, clientId);
+
         var key = GetConsentKey(subjectId, clientId);
         return RemoveItemAsync(key);
     }

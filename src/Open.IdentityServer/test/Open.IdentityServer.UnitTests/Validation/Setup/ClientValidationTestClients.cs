@@ -5,12 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using static Open.IdentityServer.IdentityServerConstants;
 
-namespace IdentityServer.UnitTests.Validation.Setup;
+namespace Open.IdentityServer.UnitTests.Validation.Setup;
 
 internal static class ClientValidationTestClients
 {

@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -23,6 +25,7 @@ namespace Open.IdentityServer.Endpoints;
 internal abstract class AuthorizeEndpointBase : IEndpointHandler
 {
     private readonly IAuthorizeResponseGenerator _authorizeResponseGenerator;
+    private readonly ITelemetryService _telemetry;
 
     private readonly IEventService _events;
     private readonly IdentityServerOptions _options;
@@ -38,7 +41,8 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         IAuthorizeRequestValidator validator,
         IAuthorizeInteractionResponseGenerator interactionGenerator,
         IAuthorizeResponseGenerator authorizeResponseGenerator,
-        IUserSession userSession)
+        IUserSession userSession,
+        ITelemetryService telemetry)
     {
         _events = events;
         _options = options;
@@ -46,6 +50,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         _validator = validator;
         _interactionGenerator = interactionGenerator;
         _authorizeResponseGenerator = authorizeResponseGenerator;
+        _telemetry = telemetry;
         UserSession = userSession;
     }
 
@@ -171,6 +176,10 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
 
     private Task RaiseFailureEventAsync(ValidatedAuthorizeRequest request, string error, string errorDescription)
     {
+        _telemetry.CountTokenIssued(request?.ClientId ?? "unknown-client",
+            request?.GrantType ?? "unknown-grant-type",
+            false, false, false,
+            error);
         return _events.RaiseAsync(new TokenIssuedFailureEvent(request, error, errorDescription));
     }
 
@@ -179,9 +188,11 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         if (!response.IsError)
         {
             LogTokens(response);
+            _telemetry.CountTokenIssued(response.Request.ClientId, response.Request.GrantType,
+                response.AccessToken.IsPresent(), response.IdentityToken.IsPresent(), refreshTokenIssued: false);
             return _events.RaiseAsync(new TokenIssuedSuccessEvent(response));
         }
-
+        
         return RaiseFailureEventAsync(response.Request, response.Error, response.ErrorDescription);
     }
 }

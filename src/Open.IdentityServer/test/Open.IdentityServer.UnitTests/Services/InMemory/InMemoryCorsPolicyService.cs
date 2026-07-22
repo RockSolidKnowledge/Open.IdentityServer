@@ -1,16 +1,18 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Moq;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.InMemory;
+namespace Open.IdentityServer.UnitTests.Services.InMemory;
 
 public class InMemoryCorsPolicyServiceTests
 {
@@ -18,10 +20,39 @@ public class InMemoryCorsPolicyServiceTests
 
     private InMemoryCorsPolicyService _subject;
     private List<Client> _clients = new List<Client>();
+    private Mock<ITelemetryService> _telemetry = new();
+    private Mock<ITrace> _trace = new();
 
     public InMemoryCorsPolicyServiceTests()
     {
-        _subject = new InMemoryCorsPolicyService(TestLogger.Create<InMemoryCorsPolicyService>(), _clients);
+        _subject = new InMemoryCorsPolicyService(
+            TestLogger.Create<InMemoryCorsPolicyService>(), 
+            _clients, 
+            _telemetry.Object);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task is_origin_allowed_should_initiate_telemetry_trace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        _clients.Add(new Client
+        {
+            AllowedCorsOrigins = new List<string>
+            {
+                "http://foo"
+            }
+        });
+
+        await _subject.IsOriginAllowedAsync("http://foo");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            _subject,
+            "IsOriginAllowedAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
     }
 
     [Fact]

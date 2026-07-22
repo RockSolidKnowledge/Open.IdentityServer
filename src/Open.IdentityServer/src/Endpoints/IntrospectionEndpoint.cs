@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -23,6 +24,7 @@ namespace Open.IdentityServer.Endpoints;
 internal class IntrospectionEndpoint : IEndpointHandler
 {
     private readonly IIntrospectionResponseGenerator _responseGenerator;
+    private readonly ITelemetryService _telemetry;
     private readonly IEventService _events;
     private readonly ILogger _logger;
     private readonly IIntrospectionRequestValidator _requestValidator;
@@ -34,18 +36,21 @@ internal class IntrospectionEndpoint : IEndpointHandler
     /// <param name="apiSecretValidator">The API secret validator.</param>
     /// <param name="requestValidator">The request validator.</param>
     /// <param name="responseGenerator">The generator.</param>
+    /// <param name="telemetry">The telemetry service</param>
     /// <param name="events">The events.</param>
     /// <param name="logger">The logger.</param>
     public IntrospectionEndpoint(
         IApiSecretValidator apiSecretValidator,
         IIntrospectionRequestValidator requestValidator,
         IIntrospectionResponseGenerator responseGenerator,
+        ITelemetryService telemetry,
         IEventService events,
         ILogger<IntrospectionEndpoint> logger)
     {
         _apiSecretValidator = apiSecretValidator;
         _requestValidator = requestValidator;
         _responseGenerator = responseGenerator;
+        _telemetry = telemetry;
         _events = events;
         _logger = logger;
     }
@@ -57,6 +62,7 @@ internal class IntrospectionEndpoint : IEndpointHandler
     /// <returns>A task that resolves to an <see cref="IEndpointResult"/> representing either an introspection response or an error response.</returns>
     public async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
+        using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         _logger.LogTrace("Processing introspection request.");
 
         // validate HTTP
@@ -101,6 +107,7 @@ internal class IntrospectionEndpoint : IEndpointHandler
         var validationResult = await _requestValidator.ValidateAsync(body.AsNameValueCollection(), apiResult.Resource);
         if (validationResult.IsError)
         {
+            _telemetry.CountTokenIntrospection(apiResult.Resource.Name, error: validationResult.Error);
             LogFailure(validationResult.Error, apiResult.Resource.Name);
             await _events.RaiseAsync(new TokenIntrospectionFailureEvent(apiResult.Resource.Name, validationResult.Error));
 

@@ -17,38 +17,86 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.ResponseHandling.Default;
+namespace Open.IdentityServer.UnitTests.ResponseHandling.Default;
 
 public class DiscoveryResponseGeneratorTests
 {
     //ExtensionGrantValidator Mocks
-    private readonly IEnumerable<IExtensionGrantValidator> ExtensionGrantValidators = [];
-    private readonly ILogger<ExtensionGrantValidator> ExtensionGrantValidatorLogger = Mock.Of<ILogger<ExtensionGrantValidator>>();
+    private readonly IEnumerable<IExtensionGrantValidator> _extensionGrantValidators = [];
+    private readonly ILogger<ExtensionGrantValidator> _extensionGrantValidatorLogger = Mock.Of<ILogger<ExtensionGrantValidator>>();
 
-    private readonly IdentityServerOptions Options = new();
-    private ExtensionGrantValidator ExtensionGrants;
-    private readonly IKeyMaterialService Keys = Mock.Of<IKeyMaterialService>();
-    private readonly IResourceOwnerPasswordValidator ResourceOwnerValidator = Mock.Of<IResourceOwnerPasswordValidator>();
-    private readonly IResourceStore ResourceStore = Mock.Of<IResourceStore>();
-    private readonly ISecretsListParser SecretParsers = Mock.Of<ISecretsListParser>();
-    private readonly ILogger<DiscoveryResponseGenerator> Logger = NullLogger<DiscoveryResponseGenerator>.Instance;
+    private readonly IdentityServerOptions _options = new();
+    private ExtensionGrantValidator _extensionGrants;
+    private readonly IKeyMaterialService _keys = Mock.Of<IKeyMaterialService>();
+    private readonly IResourceOwnerPasswordValidator _resourceOwnerValidator = Mock.Of<IResourceOwnerPasswordValidator>();
+    private readonly IResourceStore _resourceStore = Mock.Of<IResourceStore>();
+    private readonly ISecretsListParser _secretParsers = Mock.Of<ISecretsListParser>();
+    private readonly ITelemetryService _telemetry = Mock.Of<ITelemetryService>();
+    private readonly ITrace _trace = Mock.Of<ITrace>();
+    private readonly ILogger<DiscoveryResponseGenerator> _logger = NullLogger<DiscoveryResponseGenerator>.Instance;
 
     private DiscoveryResponseGenerator CreateSut()
     {
-        ExtensionGrants = new ExtensionGrantValidator(ExtensionGrantValidators, ExtensionGrantValidatorLogger);
+        _extensionGrants = new ExtensionGrantValidator(_extensionGrantValidators, _extensionGrantValidatorLogger);
 
-        Mock.Get(ResourceStore)
+        Mock.Get(_resourceStore)
             .Setup(x => x.GetAllResourcesAsync())
             .ReturnsAsync(new Resources());
 
-        return new DiscoveryResponseGenerator(Options, ResourceStore, Keys, ExtensionGrants, SecretParsers,
-            ResourceOwnerValidator, Logger);
+        return new DiscoveryResponseGenerator(
+            _options, 
+            _resourceStore, 
+            _keys, 
+            _extensionGrants, 
+            _secretParsers,
+            _resourceOwnerValidator, 
+            _telemetry,
+            _logger);
+    }
+
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        Mock.Get(_telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace);
+        
+        var sut = CreateSut();
+
+        await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
+
+        Mock.Get(_telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Basic,
+                sut,
+                "CreateDiscoveryDocumentAsync"));
+        Mock.Get(_trace).Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateJwkDocumentASync_WhenCalled_ShouldInitiateTelemetryTrace()
+    { 
+        Mock.Get(_telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace);
+        Mock.Get(_keys)
+            .Setup(k => k.GetValidationKeysAsync())
+            .ReturnsAsync([]);
+        
+        var sut = CreateSut();
+
+        await sut.CreateJwkDocumentAsync();
+        
+        Mock.Get(_telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Basic,
+                sut,
+                "CreateJwkDocumentAsync"));
+        Mock.Get(_trace).Verify(t => t.Dispose(), Times.Once);
     }
 
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenAuthoriseEndpointDisabled_ShouldContainAuthorizationResponseIssParameterSupportedAsTrue()
     {
-        Options.Endpoints.EnableAuthorizeEndpoint = false;
+        _options.Endpoints.EnableAuthorizeEndpoint = false;
         
         var sut = CreateSut();
 
@@ -61,7 +109,7 @@ public class DiscoveryResponseGeneratorTests
     [InlineData(true), InlineData(false)]
     public async Task CreateDiscoveryDocumentAsync_WhenAuthoriseEndpointEnabled_ShouldContainAuthorizationResponseIssParameterSupported(bool value)
     {
-        Options.EnableAuthorizeResponseIssuerParam = value;
+        _options.EnableAuthorizeResponseIssuerParam = value;
         
         var sut = CreateSut();
 
@@ -86,7 +134,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabled_ShouldContainAuthorizationEndpoint()
     {
-        Options.Endpoints.EnableAuthorizeEndpoint = true;
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
 
         var sut = CreateSut();
 
@@ -98,7 +146,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointDisabled_ShouldNotContainAuthorizationEndpoint()
     {
-        Options.Endpoints.EnableAuthorizeEndpoint = false;
+        _options.Endpoints.EnableAuthorizeEndpoint = false;
 
         var sut = CreateSut();
 
@@ -110,7 +158,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenTokenEndpointEnabled_ShouldContainTokenEndpoint()
     {
-        Options.Endpoints.EnableTokenEndpoint = true;
+        _options.Endpoints.EnableTokenEndpoint = true;
 
         var sut = CreateSut();
 
@@ -122,7 +170,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenTokenEndpointDisabled_ShouldNotContainTokenEndpoint()
     {
-        Options.Endpoints.EnableTokenEndpoint = false;
+        _options.Endpoints.EnableTokenEndpoint = false;
 
         var sut = CreateSut();
 
@@ -134,7 +182,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenUserInfoEndpointEnabled_ShouldContainUserInfoEndpoint()
     {
-        Options.Endpoints.EnableUserInfoEndpoint = true;
+        _options.Endpoints.EnableUserInfoEndpoint = true;
 
         var sut = CreateSut();
 
@@ -146,7 +194,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenUserInfoEndpointDisabled_ShouldNotContainUserInfoEndpoint()
     {
-        Options.Endpoints.EnableUserInfoEndpoint = false;
+        _options.Endpoints.EnableUserInfoEndpoint = false;
 
         var sut = CreateSut();
 
@@ -158,7 +206,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenEndSessionEndpointEnabled_ShouldContainEndSessionEndpoint()
     {
-        Options.Endpoints.EnableEndSessionEndpoint = true;
+        _options.Endpoints.EnableEndSessionEndpoint = true;
 
         var sut = CreateSut();
 
@@ -170,7 +218,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenEndSessionEndpointDisabled_ShouldNotContainEndSessionEndpoint()
     {
-        Options.Endpoints.EnableEndSessionEndpoint = false;
+        _options.Endpoints.EnableEndSessionEndpoint = false;
 
         var sut = CreateSut();
 
@@ -182,7 +230,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenEndSessionEndpointEnabled_ShouldContainLogoutSupport()
     {
-        Options.Endpoints.EnableEndSessionEndpoint = true;
+        _options.Endpoints.EnableEndSessionEndpoint = true;
 
         var sut = CreateSut();
 
@@ -201,7 +249,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenEndSessionEndpointDisabled_ShouldNotContainLogoutSupport()
     {
-        Options.Endpoints.EnableEndSessionEndpoint = false;
+        _options.Endpoints.EnableEndSessionEndpoint = false;
 
         var sut = CreateSut();
 
@@ -214,7 +262,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenCheckSessionEndpointEnabled_ShouldContainCheckSessionIframe()
     {
-        Options.Endpoints.EnableCheckSessionEndpoint = true;
+        _options.Endpoints.EnableCheckSessionEndpoint = true;
 
         var sut = CreateSut();
 
@@ -226,7 +274,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenCheckSessionEndpointDisabled_ShouldNotContainCheckSessionIframe()
     {
-        Options.Endpoints.EnableCheckSessionEndpoint = false;
+        _options.Endpoints.EnableCheckSessionEndpoint = false;
 
         var sut = CreateSut();
 
@@ -238,7 +286,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenRevocationEndpointEnabled_ShouldContainRevocationEndpoint()
     {
-        Options.Endpoints.EnableTokenRevocationEndpoint = true;
+        _options.Endpoints.EnableTokenRevocationEndpoint = true;
 
         var sut = CreateSut();
 
@@ -250,7 +298,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenIntrospectionEndpointEnabled_ShouldContainIntrospectionEndpoint()
     {
-        Options.Endpoints.EnableIntrospectionEndpoint = true;
+        _options.Endpoints.EnableIntrospectionEndpoint = true;
 
         var sut = CreateSut();
 
@@ -262,7 +310,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenDeviceAuthorizationEndpointEnabled_ShouldContainDeviceAuthorizationEndpoint()
     {
-        Options.Endpoints.EnableDeviceAuthorizationEndpoint = true;
+        _options.Endpoints.EnableDeviceAuthorizationEndpoint = true;
 
         var sut = CreateSut();
 
@@ -274,7 +322,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowEndpointsDisabled_ShouldNotContainAnyEndpoints()
     {
-        Options.Discovery.ShowEndpoints = false;
+        _options.Discovery.ShowEndpoints = false;
 
         var sut = CreateSut();
 
@@ -288,7 +336,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowGrantTypesEnabled_ShouldContainStandardGrantTypes()
     {
-        Options.Discovery.ShowGrantTypes = true;
+        _options.Discovery.ShowGrantTypes = true;
 
         var sut = CreateSut();
 
@@ -305,7 +353,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowGrantTypesDisabled_ShouldNotContainGrantTypes()
     {
-        Options.Discovery.ShowGrantTypes = false;
+        _options.Discovery.ShowGrantTypes = false;
 
         var sut = CreateSut();
 
@@ -317,8 +365,8 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenDeviceEndpointEnabled_ShouldContainDeviceCodeGrantType()
     {
-        Options.Discovery.ShowGrantTypes = true;
-        Options.Endpoints.EnableDeviceAuthorizationEndpoint = true;
+        _options.Discovery.ShowGrantTypes = true;
+        _options.Endpoints.EnableDeviceAuthorizationEndpoint = true;
 
         var sut = CreateSut();
 
@@ -332,7 +380,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowResponseTypesEnabled_ShouldContainResponseTypes()
     {
-        Options.Discovery.ShowResponseTypes = true;
+        _options.Discovery.ShowResponseTypes = true;
 
         var sut = CreateSut();
 
@@ -344,7 +392,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowResponseTypesDisabled_ShouldNotContainResponseTypes()
     {
-        Options.Discovery.ShowResponseTypes = false;
+        _options.Discovery.ShowResponseTypes = false;
 
         var sut = CreateSut();
 
@@ -356,7 +404,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowResponseModesEnabled_ShouldContainResponseModes()
     {
-        Options.Discovery.ShowResponseModes = true;
+        _options.Discovery.ShowResponseModes = true;
 
         var sut = CreateSut();
 
@@ -368,7 +416,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowResponseModesDisabled_ShouldNotContainResponseModes()
     {
-        Options.Discovery.ShowResponseModes = false;
+        _options.Discovery.ShowResponseModes = false;
 
         var sut = CreateSut();
 
@@ -405,7 +453,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabled_ShouldContainRequestParameterSupported()
     {
-        Options.Endpoints.EnableAuthorizeEndpoint = true;
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
 
         var sut = CreateSut();
 
@@ -418,7 +466,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointDisabled_ShouldNotContainRequestParameterSupported()
     {
-        Options.Endpoints.EnableAuthorizeEndpoint = false;
+        _options.Endpoints.EnableAuthorizeEndpoint = false;
 
         var sut = CreateSut();
 
@@ -430,8 +478,8 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenJwtRequestUriEnabled_ShouldContainRequestUriParameterSupported()
     {
-        Options.Endpoints.EnableAuthorizeEndpoint = true;
-        Options.Endpoints.EnableJwtRequestUri = true;
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
+        _options.Endpoints.EnableJwtRequestUri = true;
 
         var sut = CreateSut();
 
@@ -444,8 +492,8 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenJwtRequestUriDisabled_ShouldNotContainRequestUriParameterSupported()
     {
-        Options.Endpoints.EnableAuthorizeEndpoint = true;
-        Options.Endpoints.EnableJwtRequestUri = false;
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
+        _options.Endpoints.EnableJwtRequestUri = false;
 
         var sut = CreateSut();
 
@@ -457,7 +505,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenMtlsEnabled_ShouldContainTlsClientCertificateBoundAccessTokens()
     {
-        Options.MutualTls.Enabled = true;
+        _options.MutualTls.Enabled = true;
 
         var sut = CreateSut();
 
@@ -470,7 +518,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenMtlsDisabled_ShouldNotContainTlsClientCertificateBoundAccessTokens()
     {
-        Options.MutualTls.Enabled = false;
+        _options.MutualTls.Enabled = false;
 
         var sut = CreateSut();
 
@@ -482,8 +530,8 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenMtlsEnabledWithTokenEndpoint_ShouldContainMtlsEndpointAliases()
     {
-        Options.MutualTls.Enabled = true;
-        Options.Endpoints.EnableTokenEndpoint = true;
+        _options.MutualTls.Enabled = true;
+        _options.Endpoints.EnableTokenEndpoint = true;
 
         var sut = CreateSut();
 
@@ -495,9 +543,9 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenMtlsEnabledWithDomainName_ShouldUseDomainBasedEndpoints()
     {
-        Options.MutualTls.Enabled = true;
-        Options.MutualTls.DomainName = "mtls.example.com";
-        Options.Endpoints.EnableTokenEndpoint = true;
+        _options.MutualTls.Enabled = true;
+        _options.MutualTls.DomainName = "mtls.example.com";
+        _options.Endpoints.EnableTokenEndpoint = true;
 
         var sut = CreateSut();
 
@@ -511,9 +559,9 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenMtlsEnabledWithSubDomainName_ShouldUseSubDomainBasedEndpoints()
     {
-        Options.MutualTls.Enabled = true;
-        Options.MutualTls.DomainName = "mtls";
-        Options.Endpoints.EnableTokenEndpoint = true;
+        _options.MutualTls.Enabled = true;
+        _options.MutualTls.DomainName = "mtls";
+        _options.Endpoints.EnableTokenEndpoint = true;
 
         var sut = CreateSut();
 
@@ -527,8 +575,8 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowKeySetEnabledAndKeysExist_ShouldContainJwksUri()
     {
-        Options.Discovery.ShowKeySet = true;
-        Mock.Get(Keys)
+        _options.Discovery.ShowKeySet = true;
+        Mock.Get(_keys)
             .Setup(x => x.GetValidationKeysAsync())
             .ReturnsAsync([new SecurityKeyInfo { Key = new RsaSecurityKey(System.Security.Cryptography.RSA.Create()) }]);
 
@@ -542,8 +590,8 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowKeySetEnabledAndNoKeys_ShouldNotContainJwksUri()
     {
-        Options.Discovery.ShowKeySet = true;
-        Mock.Get(Keys)
+        _options.Discovery.ShowKeySet = true;
+        Mock.Get(_keys)
             .Setup(x => x.GetValidationKeysAsync())
             .ReturnsAsync([]);
 
@@ -557,7 +605,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowKeySetDisabled_ShouldNotContainJwksUri()
     {
-        Options.Discovery.ShowKeySet = false;
+        _options.Discovery.ShowKeySet = false;
 
         var sut = CreateSut();
 
@@ -569,7 +617,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenCustomEntriesConfigured_ShouldContainCustomEntries()
     {
-        Options.Discovery.CustomEntries.Add("custom_key", "custom_value");
+        _options.Discovery.CustomEntries.Add("custom_key", "custom_value");
 
         var sut = CreateSut();
 
@@ -582,8 +630,8 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenCustomEntryWithRelativePath_ShouldExpandPath()
     {
-        Options.Discovery.CustomEntries.Add("custom_endpoint", "~/custom");
-        Options.Discovery.ExpandRelativePathsInCustomEntries = true;
+        _options.Discovery.CustomEntries.Add("custom_endpoint", "~/custom");
+        _options.Discovery.ExpandRelativePathsInCustomEntries = true;
 
         var sut = CreateSut();
 
@@ -596,7 +644,7 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenCustomEntryConflictsWithExistingKey_ShouldNotOverwrite()
     {
-        Options.Discovery.CustomEntries.Add(OidcConstants.Discovery.Issuer, "bad_issuer");
+        _options.Discovery.CustomEntries.Add(OidcConstants.Discovery.Issuer, "bad_issuer");
 
         var sut = CreateSut();
 
@@ -609,11 +657,11 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowIdentityScopesEnabled_ShouldContainScopesSupported()
     {
-        Options.Discovery.ShowIdentityScopes = true;
+        _options.Discovery.ShowIdentityScopes = true;
 
         var sut = CreateSut();
         
-        Mock.Get(ResourceStore)
+        Mock.Get(_resourceStore)
             .Setup(x => x.GetAllResourcesAsync())
             .ReturnsAsync(new Resources(
                 [
@@ -632,11 +680,11 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowApiScopesEnabled_ShouldContainOfflineAccess()
     {
-        Options.Discovery.ShowApiScopes = true;
+        _options.Discovery.ShowApiScopes = true;
 
         var sut = CreateSut();
 
-        Mock.Get(ResourceStore)
+        Mock.Get(_resourceStore)
             .Setup(x => x.GetAllResourcesAsync())
             .ReturnsAsync(new Resources(
                 [],
@@ -655,11 +703,11 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowClaimsEnabled_ShouldContainClaimsSupported()
     {
-        Options.Discovery.ShowClaims = true;
+        _options.Discovery.ShowClaims = true;
 
         var sut = CreateSut();
         
-        Mock.Get(ResourceStore)
+        Mock.Get(_resourceStore)
             .Setup(x => x.GetAllResourcesAsync())
             .ReturnsAsync(new Resources(
                 [
@@ -678,8 +726,8 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenShowTokenEndpointAuthMethodsEnabled_ShouldContainAuthMethods()
     {
-        Options.Discovery.ShowTokenEndpointAuthenticationMethods = true;
-        Mock.Get(SecretParsers)
+        _options.Discovery.ShowTokenEndpointAuthenticationMethods = true;
+        Mock.Get(_secretParsers)
             .Setup(x => x.GetAvailableAuthenticationMethods())
             .Returns(["client_secret_basic"]);
 
@@ -693,9 +741,9 @@ public class DiscoveryResponseGeneratorTests
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenMtlsEnabledAndShowAuthMethods_ShouldIncludeTlsAuthMethods()
     {
-        Options.Discovery.ShowTokenEndpointAuthenticationMethods = true;
-        Options.MutualTls.Enabled = true;
-        Mock.Get(SecretParsers)
+        _options.Discovery.ShowTokenEndpointAuthenticationMethods = true;
+        _options.MutualTls.Enabled = true;
+        Mock.Get(_secretParsers)
             .Setup(x => x.GetAvailableAuthenticationMethods())
             .Returns(["client_secret_basic"]);
 

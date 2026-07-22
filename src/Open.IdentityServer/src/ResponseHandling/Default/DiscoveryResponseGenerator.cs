@@ -56,6 +56,11 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
     protected readonly ISecretsListParser SecretParsers;
 
     /// <summary>
+    /// The telemetry
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
+    
+    /// <summary>
     /// The logger
     /// </summary>
     protected readonly ILogger Logger;
@@ -69,6 +74,7 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
     /// <param name="extensionGrants">The extension grants.</param>
     /// <param name="secretParsers">The secret parsers.</param>
     /// <param name="resourceOwnerValidator">The resource owner validator.</param>
+    /// <param name="telemetry">The telemetry service</param>
     /// <param name="logger">The logger.</param>
     public DiscoveryResponseGenerator(
         IdentityServerOptions options,
@@ -77,6 +83,7 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
         ExtensionGrantValidator extensionGrants,
         ISecretsListParser secretParsers,
         IResourceOwnerPasswordValidator resourceOwnerValidator,
+        ITelemetryService telemetry,
         ILogger<DiscoveryResponseGenerator> logger)
     {
         Options = options;
@@ -85,6 +92,7 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
         ExtensionGrants = extensionGrants;
         SecretParsers = secretParsers;
         ResourceOwnerValidator = resourceOwnerValidator;
+        Telemetry = telemetry;
         Logger = logger;
     }
 
@@ -95,6 +103,8 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
     /// <param name="issuerUri">The issuer URI.</param>
     public virtual async Task<Dictionary<string, object>> CreateDiscoveryDocumentAsync(string baseUrl, string issuerUri)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        
         var entries = new Dictionary<string, object>
         {
             { OidcConstants.Discovery.Issuer, issuerUri },
@@ -368,6 +378,8 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
     /// </summary>
     public virtual async Task<IEnumerable<Models.JsonWebKey>> CreateJwkDocumentAsync()
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+
         var webKeys = new List<Models.JsonWebKey>();
 
         foreach (var key in await Keys.GetValidationKeysAsync())

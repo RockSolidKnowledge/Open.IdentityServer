@@ -6,7 +6,7 @@ using Open.IdentityServer.Stores;
 using System;
 using System.Threading.Tasks;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 class MockReferenceTokenStore : IReferenceTokenStore
 {

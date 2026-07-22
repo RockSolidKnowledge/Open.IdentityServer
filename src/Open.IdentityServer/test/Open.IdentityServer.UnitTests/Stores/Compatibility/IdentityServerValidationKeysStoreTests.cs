@@ -13,11 +13,12 @@ using Moq;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.UnitTests;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Stores.Compatibility;
+namespace Open.IdentityServer.UnitTests.Stores.Compatibility;
 
 public class IdentityServerValidationKeysStoreTests
 {
@@ -27,6 +28,8 @@ public class IdentityServerValidationKeysStoreTests
     private readonly DataProtectedIdentityServerKeyMaterialConverter dataProtectedIdentityServerKeyMaterialConverter;
     private readonly FakeTimeProvider timeProvider = new();
     private readonly CompatibilityKeyStoreOptions fakeOptions = new();
+    private readonly ITelemetryService telemetry = Mock.Of<ITelemetryService>();
+    private readonly ITrace trace = Mock.Of<ITrace>();
 
     private readonly DateTime fakeNow = new(2026, 05, 01, 12, 00, 00, DateTimeKind.Utc);
     
@@ -47,7 +50,12 @@ public class IdentityServerValidationKeysStoreTests
             .Returns(dataProtector);
     }
     
-    private IdentityServerValidationKeysStore CreateSut() => new(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, fakeOptions);
+    private IdentityServerValidationKeysStore CreateSut() => new(
+        identityServerKeyStore, 
+        dataProtectedIdentityServerKeyMaterialConverter, 
+        timeProvider, 
+        fakeOptions,
+        telemetry);
     
     [Fact]
     public async Task GetValidationKeysAsync_WhenUnspecifiedDateTime_ShouldTreatAsUtcTime()
@@ -339,5 +347,24 @@ public class IdentityServerValidationKeysStoreTests
         var actual = await sut.GetValidationKeysAsync();
 
         actual.Should().BeEmpty();
+    }
+    
+    
+
+    [Fact]
+    public async Task GetValidationKeysAsync_WhenCalled_ShouldTelemetryTrace()
+    {
+        Mock.Get(telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(trace);
+        
+        var sut = CreateSut();
+        
+        await sut.GetValidationKeysAsync();
+
+        // Verify that the telemetry trace was called
+        Mock.Get(telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Stores, sut, "GetValidationKeysAsync"));
+        Mock.Get(trace).Verify(t => t.Dispose(), Times.Once);
     }
 }

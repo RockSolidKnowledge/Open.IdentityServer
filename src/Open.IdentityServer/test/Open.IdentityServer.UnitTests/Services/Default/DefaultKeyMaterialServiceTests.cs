@@ -6,6 +6,8 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
+using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
@@ -54,7 +56,12 @@ public class DefaultKeyMaterialServiceTests
     private static SecurityKeyInfo fakeSecurityKey8 = new() { Key = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP256)) , SigningAlgorithm = "ES256" };
     private static SecurityKeyInfo fakeSecurityKey9 = new() { Key = new ECDsaSecurityKey(ECDsa.Create(ECCurve.NamedCurves.nistP256)) , SigningAlgorithm = "ES384" };
 
-    private DefaultKeyMaterialService CreateSut() => new(validationKeysStores, signingCredentialStores);
+
+    private Mock<ITelemetryService> _telemetry = new();
+    private Mock<ITrace> _trace = new();
+
+
+    private DefaultKeyMaterialService CreateSut() => new(validationKeysStores, signingCredentialStores, _telemetry.Object);
 
     [Fact]
     public async Task GetSigningCredentialsAsync_WhenNoSigningCredentialStores_ShouldReturnNull()
@@ -152,5 +159,56 @@ public class DefaultKeyMaterialServiceTests
             fakeSecurityKey4, fakeSecurityKey5, fakeSecurityKey6,
             fakeSecurityKey7, fakeSecurityKey8, fakeSecurityKey9,
         ]);
+    }
+
+    [Fact]
+    public async Task GetValidationKeysAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        var subject = CreateSut();
+        
+        await subject.GetValidationKeysAsync();
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            subject,
+            "GetValidationKeysAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetSigningCredentialsAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        var subject = CreateSut();
+        
+        await subject.GetSigningCredentialsAsync();
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            subject,
+            "GetSigningCredentialsAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAllSigningCredentialsASync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        var subject = CreateSut();
+        
+        await subject.GetAllSigningCredentialsAsync();
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services,
+            subject,
+            "GetAllSigningCredentialsAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
     }
 }

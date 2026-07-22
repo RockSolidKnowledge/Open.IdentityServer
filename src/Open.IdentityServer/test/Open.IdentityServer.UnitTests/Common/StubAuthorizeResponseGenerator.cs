@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Validation;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 internal class StubAuthorizeResponseGenerator : IAuthorizeResponseGenerator
 {

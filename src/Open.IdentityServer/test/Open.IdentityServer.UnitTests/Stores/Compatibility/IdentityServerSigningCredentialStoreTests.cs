@@ -15,11 +15,12 @@ using Moq;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.UnitTests;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Stores.Compatibility;
+namespace Open.IdentityServer.UnitTests.Stores.Compatibility;
 
 public class IdentityServerSigningCredentialStoreTests
 {
@@ -29,6 +30,8 @@ public class IdentityServerSigningCredentialStoreTests
     private readonly DataProtectedIdentityServerKeyMaterialConverter dataProtectedIdentityServerKeyMaterialConverter;
     private readonly FakeTimeProvider timeProvider = new();
     private readonly CompatibilityKeyStoreOptions fakeOptions = new();
+    private readonly ITelemetryService telemetry = Mock.Of<ITelemetryService>();
+    private readonly ITrace trace = Mock.Of<ITrace>();
 
     private readonly DateTime fakeNow = new(2026, 05, 01, 12, 00, 00, DateTimeKind.Utc);
     
@@ -49,7 +52,12 @@ public class IdentityServerSigningCredentialStoreTests
         dataProtectedIdentityServerKeyMaterialConverter = new DataProtectedIdentityServerKeyMaterialConverter(dataProtectionProvider);
     }
     
-    private IdentityServerSigningCredentialStore CreateSut() => new(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, fakeOptions);
+    private IdentityServerSigningCredentialStore CreateSut() => new(
+        identityServerKeyStore, 
+        dataProtectedIdentityServerKeyMaterialConverter, 
+        timeProvider, 
+        fakeOptions,
+        telemetry);
 
     [Fact]
     public async Task GetSigningCredentialsAsync_WhenUnspecifiedDateTime_ShouldTreatAsUtcTime()
@@ -413,5 +421,22 @@ public class IdentityServerSigningCredentialStoreTests
         var actual = await sut.GetSigningCredentialsAsync();
 
         actual.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetSigningCredentialsAsync_WhenCalled_ShouldTelemetryTrace()
+    {
+        Mock.Get(telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(trace);
+        
+        var sut = CreateSut();
+        
+        await sut.GetSigningCredentialsAsync();
+
+        // Verify that the telemetry trace was called
+        Mock.Get(telemetry)
+            .Verify(t => t.Trace(
+                TelemetryConstants.TraceCategories.Stores, sut, "GetSigningCredentialsAsync"));
+        Mock.Get(trace).Verify(t => t.Dispose(), Times.Once);
     }
 }

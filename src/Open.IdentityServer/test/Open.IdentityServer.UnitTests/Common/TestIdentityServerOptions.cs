@@ -4,7 +4,7 @@
 
 using Open.IdentityServer.Configuration;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 internal class TestIdentityServerOptions
 {

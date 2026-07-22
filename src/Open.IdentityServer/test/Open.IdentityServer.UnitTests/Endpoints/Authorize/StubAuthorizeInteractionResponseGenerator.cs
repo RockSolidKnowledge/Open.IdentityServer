@@ -7,7 +7,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Validation;
 
-namespace IdentityServer.UnitTests.Endpoints.Authorize;
+namespace Open.IdentityServer.UnitTests.Endpoints.Authorize;
 
 internal class StubAuthorizeInteractionResponseGenerator : IAuthorizeInteractionResponseGenerator
 {

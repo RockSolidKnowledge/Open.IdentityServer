@@ -7,15 +7,17 @@ using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Moq;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.EndSessionRequestValidation;
+namespace Open.IdentityServer.UnitTests.Validation.EndSessionRequestValidation;
 
 public class EndSessionRequestValidatorTests
 {
@@ -27,6 +29,8 @@ public class EndSessionRequestValidatorTests
     private MockUserSession _userSession = new MockUserSession();
     private MockLogoutNotificationService _mockLogoutNotificationService = new MockLogoutNotificationService();
     private MockMessageStore<LogoutNotificationContext> _mockEndSessionMessageStore = new MockMessageStore<LogoutNotificationContext>();
+    private Mock<ITelemetryService> _telemetry = new();
+    private Mock<ITrace> _trace = new();
 
     private ClaimsPrincipal _user;
 
@@ -43,6 +47,7 @@ public class EndSessionRequestValidatorTests
             _userSession,
             _mockLogoutNotificationService,
             _mockEndSessionMessageStore,
+            _telemetry.Object,
             TestLogger.Create<EndSessionRequestValidator>());
     }
 
@@ -182,5 +187,49 @@ public class EndSessionRequestValidatorTests
         var result = await _subject.ValidateAsync(parameters, _user);
         result.IsError.Should().BeFalse();
         result.ValidatedRequest.Raw.Should().BeSameAs(parameters);
+    }
+
+    [Fact]
+    public async Task ValidateAsync_WhenCalled_ShouldTraceTelemetry()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        _stubTokenValidator.IdentityTokenValidationResult = new TokenValidationResult()
+        {
+            IsError = false,
+            Claims = new Claim[] { new Claim("sub", _user.GetSubjectId()) },
+            Client = new Client() { ClientId = "client"}
+        };
+        _stubRedirectUriValidator.IsPostLogoutRedirectUriValid = true;
+
+        var parameters = new NameValueCollection();
+        parameters.Add("id_token_hint", "id_token");
+        parameters.Add("post_logout_redirect_uri", "http://client/signout-cb");
+        parameters.Add("client_id", "client1");
+        parameters.Add("state", "foo");
+
+        await _subject.ValidateAsync(parameters, _user);
+
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Validation, _subject, "ValidateAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task ValidateCallbackAsync_WhenCalled_ShouldTraceTelemetry()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        var parameters = new NameValueCollection();
+
+        parameters[Constants.UIConstants.DefaultRoutePathParams.EndSessionCallback] = "end session callback";
+        
+        await _subject.ValidateCallbackAsync(parameters);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Validation, _subject, "ValidateCallbackAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
     }
 }

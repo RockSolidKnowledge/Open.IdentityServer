@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 
-namespace IdentityServer.UnitTests.Endpoints.EndSession;
+namespace Open.IdentityServer.UnitTests.Endpoints.EndSession;
 
 internal class StubBackChannelLogoutClient : IBackChannelLogoutService
 {

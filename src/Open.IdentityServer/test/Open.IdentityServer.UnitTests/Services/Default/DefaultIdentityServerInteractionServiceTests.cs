@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -6,7 +7,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Moq;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
@@ -14,7 +16,7 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.Default;
+namespace Open.IdentityServer.UnitTests.Services.Default;
 
 public class DefaultIdentityServerInteractionServiceTests
 {
@@ -29,6 +31,8 @@ public class DefaultIdentityServerInteractionServiceTests
     private readonly MockPersistedGrantService _mockPersistedGrantService = new();
     private readonly MockUserSession _mockUserSession = new();
     private readonly MockReturnUrlParser _mockReturnUrlParser = new();
+    private readonly Mock<ITelemetryService> _telemetry = new();
+    private readonly Mock<ITrace> _trace = new();
 
     private readonly ResourceValidationResult _resourceValidationResult;
 
@@ -44,6 +48,7 @@ public class DefaultIdentityServerInteractionServiceTests
             _mockPersistedGrantService,
             _mockUserSession,
             _mockReturnUrlParser,
+            _telemetry.Object,
             TestLogger.Create<DefaultIdentityServerInteractionService>()
         );
 
@@ -144,5 +149,173 @@ public class DefaultIdentityServerInteractionServiceTests
         _mockConsentStore.Messages.Should().NotBeEmpty();
         var consentRequest = new ConsentRequest(req, "bob");
         _mockConsentStore.Messages.First().Key.Should().Be(consentRequest.Id);
+    }
+
+    [Fact]
+    public async Task GetAuthorizationContextAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        await _subject.GetAuthorizationContextAsync("return-url");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.GetAuthorizationContextAsync)));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public void IsValidReturnUrl_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+
+        _subject.IsValidReturnUrl("return-url");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.IsValidReturnUrl)));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetErrorContextAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+
+        await _subject.GetErrorContextAsync("error-id");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.GetErrorContextAsync)));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetLogoutContextAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+
+        await _subject.GetLogoutContextAsync("logout-id");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.GetLogoutContextAsync)));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateLogoutContextAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+
+        await _subject.CreateLogoutContextAsync();
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.CreateLogoutContextAsync)));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GrantConsentAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+
+        var request = CreateValidRequest();
+        await _subject.GrantConsentAsync(request, new ConsentResponse(), "subject");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.GrantConsentAsync)));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+    
+    private AuthorizationRequest CreateValidRequest()
+    {
+        return new AuthorizationRequest()
+        {
+            Client = new Client { ClientId = "client" },
+            ValidatedResources = _resourceValidationResult
+        };
+    }
+
+    [Fact]
+    public async Task DenyAuthorizationAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        int stackDepth = 0;
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(() =>
+            {
+                var toReturn = _trace.Object;
+                if (stackDepth > 0) toReturn = Mock.Of<ITrace>();
+                stackDepth++;
+                return toReturn;
+            });
+
+        var request = CreateValidRequest();
+        await _subject.DenyAuthorizationAsync(request, AuthorizationError.AccessDenied);
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.DenyAuthorizationAsync)));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAllUserGrantsAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+
+        await _subject.GetAllUserGrantsAsync();
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.GetAllUserGrantsAsync)));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task RevokeUserConsentAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+
+        await _subject.RevokeUserConsentAsync("client-id");
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.RevokeUserConsentAsync)));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task RevokeTokensForCurrentSessionAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+
+        await _subject.RevokeTokensForCurrentSessionAsync();
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, 
+            _subject, 
+            nameof(_subject.RevokeTokensForCurrentSessionAsync)));
+        _trace.Verify(t => t.Dispose(), Times.Once);
     }
 }

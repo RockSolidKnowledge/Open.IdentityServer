@@ -8,7 +8,7 @@ using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 using Open.IdentityServer.DataProtection;
 
-namespace IdentityServer.UnitTests.Stores.Compatibility;
+namespace Open.IdentityServer.UnitTests.Stores.Compatibility;
 
 public static class FakeKeyData
 {

@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -12,6 +13,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.EntityFramework.Stores;
 
@@ -32,6 +34,11 @@ public class DeviceFlowStore : IDeviceFlowStore
     protected readonly IPersistentGrantSerializer Serializer;
 
     /// <summary>
+    /// The telemetry service.
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
+
+    /// <summary>
     /// The logger.
     /// </summary>
     protected readonly ILogger Logger;
@@ -40,15 +47,18 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// Initializes a new instance of the <see cref="DeviceFlowStore"/> class.
     /// </summary>
     /// <param name="context">The context.</param>
-    /// <param name="serializer">The serializer</param>
+    /// <param name="serializer">The serializer.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
     public DeviceFlowStore(
         IPersistedGrantDbContext context, 
-        IPersistentGrantSerializer serializer, 
+        IPersistentGrantSerializer serializer,
+        ITelemetryService telemetry,
         ILogger<DeviceFlowStore> logger)
     {
         Context = context;
         Serializer = serializer;
+        Telemetry = telemetry;
         Logger = logger;
     }
 
@@ -60,6 +70,8 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// <param name="data">The data.</param>
     public virtual async Task StoreDeviceAuthorizationAsync(string deviceCode, string userCode, DeviceCode data)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         Context.DeviceFlowCodes.Add(ToEntity(data, deviceCode, userCode));
 
         await Context.SaveChangesAsync();
@@ -75,6 +87,8 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// </returns>
     public virtual async Task<DeviceCode> FindByUserCodeAsync(string userCode)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         var deviceFlowCodes = (await Context.DeviceFlowCodes.AsNoTracking().Where(x => x.UserCode == userCode).ToArrayAsync())
             .SingleOrDefault(x => x.UserCode == userCode);
         var model = ToModel(deviceFlowCodes?.Data);
@@ -94,6 +108,8 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// </returns>
     public virtual async Task<DeviceCode> FindByDeviceCodeAsync(string deviceCode)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         var deviceFlowCodes = (await Context.DeviceFlowCodes.AsNoTracking().Where(x => x.DeviceCode == deviceCode).ToArrayAsync())
             .SingleOrDefault(x => x.DeviceCode == deviceCode);
         var model = ToModel(deviceFlowCodes?.Data);
@@ -110,6 +126,8 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// <param name="data">The data.</param>
     public virtual async Task UpdateByUserCodeAsync(string userCode, DeviceCode data)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         var existing = (await Context.DeviceFlowCodes.Where(x => x.UserCode == userCode).ToArrayAsync())
             .SingleOrDefault(x => x.UserCode == userCode);
         if (existing == null)
@@ -140,6 +158,8 @@ public class DeviceFlowStore : IDeviceFlowStore
     /// <param name="deviceCode">The device code.</param>
     public virtual async Task RemoveByDeviceCodeAsync(string deviceCode)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         var deviceFlowCodes = (await Context.DeviceFlowCodes.Where(x => x.DeviceCode == deviceCode).ToArrayAsync())
             .SingleOrDefault(x => x.DeviceCode == deviceCode);
 

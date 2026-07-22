@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Extensions;
@@ -21,7 +21,7 @@ using Moq;
 using Open.IdentityServer;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Endpoints.Results;
+namespace Open.IdentityServer.UnitTests.Endpoints.Results;
 
 public class AuthorizeResultTests
 {

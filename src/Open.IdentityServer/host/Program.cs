@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -9,6 +10,8 @@ using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using OpenTelemetry.Logs;
 
 namespace IdentityServerHost;
 
@@ -36,7 +39,7 @@ public class Program
             //    flushToDiskInterval: TimeSpan.FromSeconds(1))
             .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}", theme: AnsiConsoleTheme.Code)
             .CreateLogger();
-
+        
         try
         {
             Log.Information("Starting host...");
@@ -57,6 +60,14 @@ public class Program
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
             .UseSerilog()
+            .ConfigureLogging((ctx, logging) =>
+            {
+                logging.AddOpenTelemetry(opts =>
+                {
+                    opts.IncludeFormattedMessage = true;
+                    opts.AddConsoleExporter();
+                });
+            })
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();

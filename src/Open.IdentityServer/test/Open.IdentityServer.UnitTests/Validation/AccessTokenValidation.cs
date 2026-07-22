@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -7,15 +8,17 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
-using IdentityServer.UnitTests.Validation.Setup;
+using Moq;
+using Open.IdentityServer.UnitTests.Common;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation;
+namespace Open.IdentityServer.UnitTests.Validation;
 
 public class AccessTokenValidation
 {
@@ -239,5 +242,25 @@ public class AccessTokenValidation
         var result = await validator.ValidateAccessTokenAsync(handle);
 
         result.IsError.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AccessToken_Should_TraceTelemetry()
+    {
+        var telemetry = new Mock<ITelemetryService>();
+        var trace = new Mock<ITrace>();
+
+        telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(trace.Object);
+        
+        var signer = Factory.CreateDefaultTokenCreator();
+        var jwt = await signer.CreateTokenAsync(TokenFactory.CreateAccessToken(new Client { ClientId = "roclient" }, "valid", 600, "read", "write"));
+
+        var validator = Factory.CreateTokenValidator(telemetry: telemetry.Object);
+        await validator.ValidateAccessTokenAsync(jwt);
+        
+        telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Validation, validator, "ValidateAccessTokenAsync"));
+        trace.Verify(t => t.Dispose(), Times.Once);
     }
 }

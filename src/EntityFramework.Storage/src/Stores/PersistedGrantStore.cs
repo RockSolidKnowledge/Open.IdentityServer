@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using Open.IdentityServer.EntityFramework.Mappers;
 using Open.IdentityServer.Extensions;
+using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.EntityFramework.Stores;
 
@@ -28,6 +30,11 @@ public class PersistedGrantStore : IPersistedGrantStore
     protected readonly IPersistedGrantDbContext Context;
 
     /// <summary>
+    /// The telemetry service.
+    /// </summary>
+    protected readonly ITelemetryService Telemetry;
+
+    /// <summary>
     /// The logger.
     /// </summary>
     protected readonly ILogger Logger;
@@ -36,16 +43,20 @@ public class PersistedGrantStore : IPersistedGrantStore
     /// Initializes a new instance of the <see cref="PersistedGrantStore"/> class.
     /// </summary>
     /// <param name="context">The context.</param>
+    /// <param name="telemetry">The telemetry service.</param>
     /// <param name="logger">The logger.</param>
-    public PersistedGrantStore(IPersistedGrantDbContext context, ILogger<PersistedGrantStore> logger)
+    public PersistedGrantStore(IPersistedGrantDbContext context, ITelemetryService telemetry, ILogger<PersistedGrantStore> logger)
     {
         Context = context;
+        Telemetry = telemetry;
         Logger = logger;
     }
 
     /// <inheritdoc/>
     public virtual async Task StoreAsync(PersistedGrant token)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         var existing = (await Context.PersistedGrants.Where(x => x.Key == token.Key).ToArrayAsync())
             .SingleOrDefault(x => x.Key == token.Key);
         if (existing == null)
@@ -75,6 +86,8 @@ public class PersistedGrantStore : IPersistedGrantStore
     /// <inheritdoc/>
     public virtual async Task<PersistedGrant> GetAsync(string key)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         var persistedGrant = (await Context.PersistedGrants.AsNoTracking().Where(x => x.Key == key).ToArrayAsync())
             .SingleOrDefault(x => x.Key == key);
         var model = persistedGrant?.ToModel();
@@ -87,6 +100,9 @@ public class PersistedGrantStore : IPersistedGrantStore
     /// <inheritdoc/>
     public async Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        AddFilterTags(trace, filter);
+        
         filter.Validate();
 
         var persistedGrants = await Filter(Context.PersistedGrants.AsQueryable(), filter).ToArrayAsync();
@@ -102,6 +118,8 @@ public class PersistedGrantStore : IPersistedGrantStore
     /// <inheritdoc/>
     public virtual async Task RemoveAsync(string key)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         var persistedGrant = (await Context.PersistedGrants.Where(x => x.Key == key).ToArrayAsync())
             .SingleOrDefault(x => x.Key == key);
         if (persistedGrant!= null)
@@ -128,6 +146,9 @@ public class PersistedGrantStore : IPersistedGrantStore
     /// <inheritdoc/>
     public async Task RemoveAllAsync(PersistedGrantFilter filter)
     {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        AddFilterTags(trace, filter);
+        
         filter.Validate();
 
         var persistedGrants = await Filter(Context.PersistedGrants.AsQueryable(), filter).ToArrayAsync();
@@ -147,6 +168,23 @@ public class PersistedGrantStore : IPersistedGrantStore
         }
     }
 
+    private void AddFilterTags(ITrace trace, PersistedGrantFilter filter)
+    {
+        if (trace == null) return;
+
+        if (!String.IsNullOrWhiteSpace(filter.ClientId))
+        {
+            trace.AddTag(TelemetryConstants.TagConstants.Client, filter.ClientId);
+        }
+        if (!String.IsNullOrWhiteSpace(filter.SubjectId))
+        {
+            trace.AddTag(TelemetryConstants.TagConstants.Subject, filter.SubjectId);
+        }
+        if (!String.IsNullOrWhiteSpace(filter.Type))
+        {
+            trace.AddTag(TelemetryConstants.TagConstants.GrantType, filter.Type);
+        }
+    }
 
     private IQueryable<Entities.PersistedGrant> Filter(IQueryable<Entities.PersistedGrant> query, PersistedGrantFilter filter)
     {

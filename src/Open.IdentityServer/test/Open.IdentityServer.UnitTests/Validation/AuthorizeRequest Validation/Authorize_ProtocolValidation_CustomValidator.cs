@@ -6,12 +6,12 @@ using System;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Validation.Setup;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;
+namespace Open.IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;
 
 public class Authorize_ProtocolValidation_CustomValidator
 {

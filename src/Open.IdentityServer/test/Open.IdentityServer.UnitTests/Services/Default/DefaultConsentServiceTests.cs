@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -7,7 +8,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
+using Moq;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
@@ -15,7 +17,7 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.Default;
+namespace Open.IdentityServer.UnitTests.Services.Default;
 
 public class DefaultConsentServiceTests
 {
@@ -26,6 +28,8 @@ public class DefaultConsentServiceTests
     private Client _client;
     private TestUserConsentStore _userConsentStore = new TestUserConsentStore();
     private StubClock _clock = new StubClock();
+    private Mock<ITelemetryService> _telemetry = new();
+    private Mock<ITrace> _trace = new();
 
     private DateTime now;
 
@@ -52,7 +56,7 @@ public class DefaultConsentServiceTests
             }
         }.CreatePrincipal();
 
-        _subject = new DefaultConsentService(_clock, _userConsentStore, TestLogger.Create<DefaultConsentService>());
+        _subject = new DefaultConsentService(_clock, _userConsentStore,  _telemetry.Object, TestLogger.Create<DefaultConsentService>());
     }
 
     public DateTime UtcNow
@@ -205,5 +209,31 @@ public class DefaultConsentServiceTests
         var result = await _userConsentStore.GetUserConsentAsync(_user.GetSubjectId(), _client.ClientId);
 
         result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task UpdateConsentAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        await _subject.UpdateConsentAsync(_user, _client, new[] { new ParsedScopeValue("scope1"), new ParsedScopeValue("scope2") });
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, _subject, "UpdateConsentAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task RequireConsentAsync_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        await _subject.RequiresConsentAsync(_user, _client, new[] { new ParsedScopeValue("scope1"), new ParsedScopeValue("scope2") });
+        
+        _telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, _subject, "RequiresConsentAsync"));
+        _trace.Verify(t => t.Dispose(), Times.Once);
     }
 }

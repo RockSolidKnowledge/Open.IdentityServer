@@ -5,7 +5,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using System.Threading.Tasks;
 
-namespace IdentityServer.UnitTests.Common;
+namespace Open.IdentityServer.UnitTests.Common;
 
 class MockTokenCreationService : ITokenCreationService
 {

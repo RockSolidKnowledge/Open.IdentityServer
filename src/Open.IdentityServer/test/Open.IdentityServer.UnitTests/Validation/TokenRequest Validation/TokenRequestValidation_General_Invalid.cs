@@ -7,13 +7,13 @@ using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Validation.Setup;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation;
+namespace Open.IdentityServer.UnitTests.Validation.TokenRequest_Validation;
 
 public class TokenRequestValidation_General_Invalid
 {

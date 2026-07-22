@@ -6,17 +6,16 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Stores.Compatibility;
+using Open.IdentityServer.UnitTests.Stores.Compatibility;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
-using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Models;
 using Xunit;
 
-namespace IdentityServer.UnitTests.DataProtection;
+namespace Open.IdentityServer.UnitTests.DataProtection;
 
 public class DataProtectedIdentityServerKeyMaterialConverterTests
 {
