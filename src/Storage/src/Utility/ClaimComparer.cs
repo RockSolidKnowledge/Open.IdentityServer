@@ -12,7 +12,7 @@ namespace Open.IdentityServer;
 /// <summary>
 /// Compares two instances of Claim
 /// </summary>
-public class ClaimComparer : EqualityComparer<Claim>
+public class ClaimComparer: EqualityComparer<Claim>
 {
     /// <summary>
     /// Claim comparison options
@@ -72,9 +72,9 @@ public class ClaimComparer : EqualityComparer<Claim>
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode(Claim claim)
+    public override int GetHashCode(Claim? claim)
     {
-        // if (claim is null) return 0;
+        if (claim is null) return 0;
 
         int typeHash = claim.Type?.ToLowerInvariant().GetHashCode() ?? 0 ^ claim.ValueType?.GetHashCode() ?? 0;
         int valueHash;

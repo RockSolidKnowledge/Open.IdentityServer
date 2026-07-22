@@ -59,7 +59,7 @@ public class PersistentGrantSerializer: IPersistentGrantSerializer
 #pragma warning disable CS0618 // Type or member is obsolete
         if (refreshToken.AccessToken == null)
         {
-            throw new Exception();
+            throw new RefreshTokenNullAccessTokenException();
         }
 
         var user = new IdentityServerUser(refreshToken.AccessToken.SubjectId);
