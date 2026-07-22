@@ -174,7 +174,7 @@ public class IntrospectionTests : IDisposable
             ClientId = "api1",
             ClientSecret = "secret",
 
-            Token = tokenResponse.AccessToken
+            Token = tokenResponse.AccessToken ?? string.Empty
         }, TestContext.Current.CancellationToken);
 
         introspectionResponse.IsActive.Should().Be(true);
@@ -206,11 +206,12 @@ public class IntrospectionTests : IDisposable
             ClientId = "api1",
             ClientSecret = "secret",
 
-            Token = tokenResponse.AccessToken
+            Token = tokenResponse.AccessToken ?? string.Empty
         }, TestContext.Current.CancellationToken);
 
         var values = introspectionResponse.Json.Deserialize<Dictionary<string, object>>();
-            
+
+        values.Should().NotBeNull();
         ((JsonElement)values["aud"]).ValueKind.Should().Be(JsonValueKind.String);
         ((JsonElement)values["iss"]).ValueKind.Should().Be(JsonValueKind.String);
         ((JsonElement)values["nbf"]).ValueKind.Should().Be(JsonValueKind.Number);
@@ -245,11 +246,12 @@ public class IntrospectionTests : IDisposable
             ClientId = "api1",
             ClientSecret = "secret",
 
-            Token = tokenResponse.AccessToken
+            Token = tokenResponse.AccessToken ?? string.Empty
         }, TestContext.Current.CancellationToken);
 
         var values = introspectionResponse.Json.Deserialize<Dictionary<string, object>>();
             
+        values.Should().NotBeNull();
         ((JsonElement)values["aud"]).ValueKind.Should().Be(JsonValueKind.String);
         ((JsonElement)values["iss"]).ValueKind.Should().Be(JsonValueKind.String);
         ((JsonElement)values["nbf"]).ValueKind.Should().Be(JsonValueKind.Number);
@@ -284,11 +286,12 @@ public class IntrospectionTests : IDisposable
             ClientId = "api3",
             ClientSecret = "secret",
 
-            Token = tokenResponse.AccessToken
+            Token = tokenResponse.AccessToken ?? string.Empty
         }, TestContext.Current.CancellationToken);
 
         var values = introspectionResponse.Json.Deserialize<Dictionary<string, object>>();
 
+        values.Should().NotBeNull();
         values["aud"].GetType().Name.Should().Be("JsonElement");
 
         var audiences = ((JsonElement)values["aud"]).EnumerateArray();
@@ -329,11 +332,12 @@ public class IntrospectionTests : IDisposable
             ClientId = "api3",
             ClientSecret = "secret",
 
-            Token = tokenResponse.AccessToken
+            Token = tokenResponse.AccessToken ?? string.Empty
         }, TestContext.Current.CancellationToken);
 
         var values = introspectionResponse.Json.Deserialize<Dictionary<string, object>>();
             
+        values.Should().NotBeNull();
         ((JsonElement)values["aud"]).ValueKind.Should().Be(JsonValueKind.String);
         ((JsonElement)values["iss"]).ValueKind.Should().Be(JsonValueKind.String);
         ((JsonElement)values["nbf"]).ValueKind.Should().Be(JsonValueKind.Number);
@@ -367,17 +371,17 @@ public class IntrospectionTests : IDisposable
             ClientId = "api3",
             ClientSecret = "secret",
 
-            Token = tokenResponse.AccessToken
+            Token = tokenResponse.AccessToken ?? string.Empty
         }, TestContext.Current.CancellationToken);
 
         introspectionResponse.IsActive.Should().BeTrue();
         introspectionResponse.IsError.Should().BeFalse();
 
-        var scopes = from c in introspectionResponse.Claims
+        var scopes = (from c in introspectionResponse.Claims
             where c.Type == "scope"
-            select c.Value;
-
-        scopes.Count().Should().Be(1);
+            select c.Value).ToList();
+        
+        scopes.Count.Should().Be(1);
         scopes.First().Should().Be("api3-a");
     }
 
@@ -400,17 +404,17 @@ public class IntrospectionTests : IDisposable
             ClientId = "api1",
             ClientSecret = "secret",
 
-            Token = tokenResponse.AccessToken
+            Token = tokenResponse.AccessToken ?? string.Empty
         }, TestContext.Current.CancellationToken);
 
         introspectionResponse.IsActive.Should().Be(true);
         introspectionResponse.IsError.Should().Be(false);
 
-        var scopes = from c in introspectionResponse.Claims
+        var scopes = (from c in introspectionResponse.Claims
             where c.Type == "scope"
-            select c;
+            select c).ToList();
 
-        scopes.Count().Should().Be(1);
+        scopes.Count.Should().Be(1);
         scopes.First().Value.Should().Be("api1");
     }
 
@@ -433,7 +437,7 @@ public class IntrospectionTests : IDisposable
             ClientId = "api2",
             ClientSecret = "secret",
 
-            Token = tokenResponse.AccessToken
+            Token = tokenResponse.AccessToken ?? string.Empty
         }, TestContext.Current.CancellationToken);
 
         introspectionResponse.IsActive.Should().Be(false);

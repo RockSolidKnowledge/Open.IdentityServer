@@ -488,7 +488,7 @@ public class TokenResponseGeneratorTests_RefreshToken : TokenResponseGeneratorTe
         };
 
         var fakeTokenString = "some.token.string";
-        Token? updatedToken = null;
+        Token updatedToken = null;
         Mock.Get(tokenService)
             .Setup(x => x.CreateSecurityTokenAsync(It.IsAny<Token>()))
             .ReturnsAsync((Token token) =>

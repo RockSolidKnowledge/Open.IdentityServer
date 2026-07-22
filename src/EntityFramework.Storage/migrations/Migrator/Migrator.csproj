@@ -9,6 +9,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3"/>
         <ProjectReference Include="..\..\src\Open.IdentityServer.EntityFramework.Storage.csproj"/>
     </ItemGroup>
 

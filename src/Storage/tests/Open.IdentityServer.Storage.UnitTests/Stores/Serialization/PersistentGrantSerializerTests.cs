@@ -93,7 +93,9 @@ public class PersistentGrantSerializerTests
         result.Subject!.FindFirst("name")!.Value.Should().Be("Test User");
         result.Subject!.FindFirst("email")!.Value.Should().Be("test@example.com");
 
+#pragma warning disable CS0618 // Type or member is obsolete
         result.AccessToken.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         result.AccessTokens[string.Empty].Claims
             .Should().Contain(c => c.Type == "sid" && c.Value == "session1");
         
@@ -118,7 +120,9 @@ public class PersistentGrantSerializerTests
         var result = sut.Deserialize<RefreshToken>(json);
 
         result!.Version.Should().Be(5);
+#pragma warning disable CS0618 // Type or member is obsolete
         result.AccessToken.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     private static string CreateV4RefreshTokenJson() => """
@@ -141,6 +145,6 @@ public class PersistentGrantSerializerTests
 
     private class TestDto
     {
-        public string? Name { get; set; }
+        public string Name { get; set; }
     }
 }
