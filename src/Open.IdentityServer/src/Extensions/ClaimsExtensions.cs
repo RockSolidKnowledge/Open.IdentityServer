@@ -95,4 +95,9 @@ internal static class ClaimsExtensions
             Type = x.Type, Value = x.Value, ValueType = x.ValueType, Issuer = x.Issuer,
         }).ToArray();
     }
+    
+    public static Claim[] ToClaims(this ClaimLite[] claims)
+    {
+        return claims.Select(x => new Claim(x.Type, x.Value, x.ValueType, x.Issuer)).ToArray();
+    }
 }

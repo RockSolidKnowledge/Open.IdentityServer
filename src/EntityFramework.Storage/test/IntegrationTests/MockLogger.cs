@@ -8,7 +8,7 @@ public class MockLogger<T> : ILogger<T>
 {
     private readonly ILogger<T> _mock = Mock.Of<ILogger<T>>();
 
-    public static FakeLogger<T> Create() => new();
+    public static MockLogger<T> Create() => new();
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull
         => _mock.BeginScope(state);

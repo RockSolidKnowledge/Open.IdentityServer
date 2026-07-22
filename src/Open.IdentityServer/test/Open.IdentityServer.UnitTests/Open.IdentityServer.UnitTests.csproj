@@ -38,4 +38,10 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Open.IdentityServer.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\..\..\EntityFramework.Storage\test\IntegrationTests\MockLogger.cs">
+        <Link>MockLogger.cs</Link>
+      </Compile>
+    </ItemGroup>
 </Project>
