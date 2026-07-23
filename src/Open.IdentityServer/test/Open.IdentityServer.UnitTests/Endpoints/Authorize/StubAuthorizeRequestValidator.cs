@@ -12,9 +12,16 @@ namespace Open.IdentityServer.UnitTests.Endpoints.Authorize;
 public class StubAuthorizeRequestValidator : IAuthorizeRequestValidator
 {
     public AuthorizeRequestValidationResult Result { get; set; }
+    
+    public NameValueCollection PassedParameters { get; private set; }
+    
+    public ClaimsPrincipal PassedSubject { get; private set; }
 
     public Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal subject = null)
     {
+        PassedParameters = parameters;
+        PassedSubject = subject;
+        
         return Task.FromResult(Result);
     }
 }

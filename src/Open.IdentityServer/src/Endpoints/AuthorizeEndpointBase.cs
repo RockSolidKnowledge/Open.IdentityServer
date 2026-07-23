@@ -86,6 +86,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         LogRequest(request);
 
         // determine user interaction
+        // TODO: Check consent displays correct scopes with requested claims parameter
         var interactionResult = await _interactionGenerator.ProcessInteractionAsync(request, consent);
         if (interactionResult.IsError)
         {

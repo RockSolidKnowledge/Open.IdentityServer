@@ -77,6 +77,15 @@ public class AuthorizeEndpointBaseTests
     }
 
     [Fact]
+    public async Task authorize_should_pass_expected_parameters_to_request_validator()
+    {
+        await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+        
+        _stubAuthorizeRequestValidator.PassedParameters.Should().BeSameAs(_params);
+        _stubAuthorizeRequestValidator.PassedSubject.Should().BeSameAs(_user);
+    }
+
+    [Fact]
     [Trait("Category", Category)]
     public async Task authorize_request_validation_produces_error_should_display_error_page()
     {

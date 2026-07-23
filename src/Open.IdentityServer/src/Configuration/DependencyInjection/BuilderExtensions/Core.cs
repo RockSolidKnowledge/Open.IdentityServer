@@ -182,6 +182,7 @@ public static class IdentityServerBuilderExtensionsCore
         builder.Services.TryAddTransient<IBackChannelLogoutService, DefaultBackChannelLogoutService>();
         builder.Services.TryAddTransient<IResourceValidator, DefaultResourceValidator>();
         builder.Services.TryAddTransient<IScopeParser, DefaultScopeParser>();
+        builder.Services.TryAddTransient<IClaimRequestParser, DefaultClaimRequestParser>();
         
         builder.Services.TryAddSingleton<ITelemetryService, DefaultTelemetryService>();
 

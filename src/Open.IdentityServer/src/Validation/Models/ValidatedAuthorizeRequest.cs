@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Open.IdentityServer.Models;
 
 namespace Open.IdentityServer.Validation;
 
@@ -60,6 +61,16 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
     /// The request resource indicators
     /// </value>
     public List<string> RequestedResourceIndicators { get; set; }
+    
+    /// <summary>
+    /// Gets or Sets the Claim requests for inclusion in the ID token
+    /// </summary>
+    public Dictionary<string, ClaimRequest> RequestedIdTokenClaims { get; set; }
+    
+    /// <summary>
+    /// Gets or Sets the Claim requests for inclusion in the user info endpoint
+    /// </summary>
+    public Dictionary<string, ClaimRequest> RequestedUserInfoClaims { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether consent was shown.
@@ -210,5 +221,7 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
         RequestedScopes = [];
         RequestedResourceIndicators = [];
         AuthenticationContextReferenceClasses = [];
+        RequestedIdTokenClaims = new();
+        RequestedUserInfoClaims = new();
     }
 }

@@ -54,6 +54,25 @@ public static class OidcConstants
         public const string Resource = "resource";
         /// <summary>DPoP (Demonstration of Proof-of-Possession) key thumbprint. OPTIONAL for DPoP-bound access tokens.</summary>
         public const string DPoPKeyThumbprint = "dpop_jkt";
+        /// <summary>The claims request parameter. OPTIONAL for specifying requested claims in the ID token and/or UserInfo response.</summary>
+        public const string Claims = "claims";
+    }
+
+    /// <summary>
+    /// Keys used in the claims request parameter.
+    /// </summary>
+    public static class ClaimRequestKeys
+    {
+        /// <summary> Claims to request from the userinfo endpoint </summary>
+        public const string UserInfo = "userinfo";
+        /// <summary> Claims to request in the Id token </summary>
+        public const string IdToken = "id_token";
+        /// <summary> Indicates the claim is essential </summary>
+        public const string Essential = "essential";
+        /// <summary> A specific value to request for the claim </summary>
+        public const string Value = "value";
+        /// <summary> Requests a value for the claim from the set of values provided </summary>
+        public const string Values = "values";
     }
 
     /// <summary>

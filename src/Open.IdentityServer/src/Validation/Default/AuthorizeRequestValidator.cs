@@ -29,6 +29,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
     private readonly IUserSession _userSession;
     private readonly JwtRequestValidator _jwtRequestValidator;
     private readonly IJwtRequestUriHttpClient _jwtRequestUriHttpClient;
+    private readonly IClaimRequestParser _claimRequestParser;
     private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
 
@@ -44,6 +45,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         IUserSession userSession,
         JwtRequestValidator jwtRequestValidator,
         IJwtRequestUriHttpClient jwtRequestUriHttpClient,
+        IClaimRequestParser claimRequestParser,
         ITelemetryService telemetry,
         ILogger<AuthorizeRequestValidator> logger)
     {
@@ -55,6 +57,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         _jwtRequestValidator = jwtRequestValidator;
         _userSession = userSession;
         _jwtRequestUriHttpClient = jwtRequestUriHttpClient;
+        _claimRequestParser = claimRequestParser;
         _telemetry = telemetry;
         _logger = logger;
     }
@@ -113,6 +116,13 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         if (scopeResult.IsError)
         {
             return scopeResult;
+        }
+        
+        // claims parameter, to merge with scope claims
+        var claimsResult = await ValidateClaimsParameterAsync(request);
+        if (claimsResult.IsError)
+        {
+            return claimsResult;
         }
 
         // nonce, prompt, acr_values, login_hint etc.
@@ -691,6 +701,29 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
 
         request.ValidatedResources = validatedResources;
 
+        return Valid(request);
+    }
+
+    private async Task<AuthorizeRequestValidationResult> ValidateClaimsParameterAsync(
+        ValidatedAuthorizeRequest request)
+    {
+        //////////////////////////////////////////////////////////
+        // parse a claims request if presented as part of an oidc request
+        //////////////////////////////////////////////////////////
+        if (!request.IsOpenIdRequest) return Valid(request);
+        
+        var claims = request.Raw.Get(OidcConstants.AuthorizeRequest.Claims);
+        if (!claims.IsPresent()) return Valid(request);
+        
+        var parsedClaims = _claimRequestParser.Parse(claims);
+        if (!parsedClaims.IsValid)
+        {
+            return Invalid(request, parsedClaims.Error, description: "Invalid claims request");
+        }
+        
+        request.RequestedIdTokenClaims = parsedClaims.IdTokenClaims;
+        request.RequestedUserInfoClaims = parsedClaims.UserInfoClaims;
+        
         return Valid(request);
     }
 

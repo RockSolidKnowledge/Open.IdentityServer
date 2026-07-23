@@ -209,6 +209,7 @@ internal static class Factory
         IResourceValidator resourceValidator = null,
         JwtRequestValidator jwtRequestValidator = null,
         IJwtRequestUriHttpClient jwtRequestUriHttpClient = null,
+        IClaimRequestParser claimRequestParser = null,
         ITelemetryService telemetry = null)
     {
         if (options == null)
@@ -254,6 +255,8 @@ internal static class Factory
                 new NopTelemetryService(),
                 new LoggerFactory());
         }
+        
+        claimRequestParser ??= new DefaultClaimRequestParser(TestLogger.Create<DefaultClaimRequestParser>());
 
         if (telemetry == null)
         {
@@ -271,6 +274,7 @@ internal static class Factory
             userSession,
             jwtRequestValidator,
             jwtRequestUriHttpClient,
+            claimRequestParser,
             telemetry,
             TestLogger.Create<AuthorizeRequestValidator>());
     }

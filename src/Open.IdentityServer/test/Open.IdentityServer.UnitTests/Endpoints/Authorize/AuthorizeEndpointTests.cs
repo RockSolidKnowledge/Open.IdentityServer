@@ -3,7 +3,9 @@
 
 
 using System.Collections.Specialized;
+using System.IO;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Open.IdentityServer.UnitTests.Common;
@@ -15,6 +17,7 @@ using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Services;
 using Xunit;
 
@@ -92,6 +95,58 @@ public class AuthorizeEndpointTests
             _subject,
             "ProcessAsync"), Times.Once);
         _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_GET_with_query_should_map_to_name_value_collection_for_validation()
+    {
+        var parameters = new NameValueCollection
+        {
+            { "client_id", "client" },
+            { "response_type", "code" },
+            { "scope", "openid profile" },
+            { "redirect_uri", "http://client/callback" },
+            { "state", "123" }
+        };
+        
+        _context.Request.Method = "GET";
+        _context.Request.Path = new PathString("/connect/authorize");
+        _context.Request.QueryString = new QueryString("?" + parameters.ToQueryString());
+            
+        _mockUserSession.User = _user;
+        
+        await _subject.ProcessAsync(_context);
+        
+        _stubAuthorizeRequestValidator.PassedParameters
+            .Should().BeEquivalentTo(_context.Request.Query.AsNameValueCollection());
+    }
+
+    [Fact]
+    public async Task ProcessAsync_POST_with_form_body_should_map_to_name_value_collection_for_validation()
+    {
+        var parameters = new NameValueCollection
+        {
+            { "client_id", "client" },
+            { "response_type", "code" },
+            { "scope", "openid profile" },
+            { "redirect_uri", "http://client/callback" },
+            { "state", "123" }
+        };
+
+        var body = parameters.ToQueryString();
+        
+        _context.Request.Method = "POST";
+        _context.Request.ContentType = "application/x-www-form-urlencoded";
+        _context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        _context.Request.ContentLength = Encoding.UTF8.GetByteCount(body);
+        _context.Request.Path = new PathString("/connect/authorize");
+        _mockUserSession.User = _user;
+        
+        await _subject.ProcessAsync(_context);
+        
+        _stubAuthorizeRequestValidator.PassedParameters
+            .Should().BeEquivalentTo(_context.Request.Form.AsNameValueCollection());
+        
     }
 
     internal void Init()

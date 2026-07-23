@@ -757,11 +757,10 @@ public class DiscoveryResponseGeneratorTests
             .And.Contain(OidcConstants.EndpointAuthenticationMethods.SelfSignedTlsClientAuth);
     }
     
-    
     [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabled_ShouldContainClaimsParameterSupported()
     {
-        Options.Endpoints.EnableAuthorizeEndpoint = true;
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
 
         var sut = CreateSut();
 
@@ -772,9 +771,9 @@ public class DiscoveryResponseGeneratorTests
     }
     
     [Fact]
-    public async Task CreateDiscoveryDocumentAsync_WhenNAuthorizeEndpointNotEnabled_ShouldNotContainClaimsParameterSupported()
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointNotEnabled_ShouldNotContainClaimsParameterSupported()
     {
-        Options.Endpoints.EnableAuthorizeEndpoint = false;
+        _options.Endpoints.EnableAuthorizeEndpoint = false;
 
         var sut = CreateSut();
 
