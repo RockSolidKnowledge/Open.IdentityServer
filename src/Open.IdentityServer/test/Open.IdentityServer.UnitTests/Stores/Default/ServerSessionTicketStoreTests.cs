@@ -11,20 +11,17 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
-using Open.IdentityServer;
 using Open.IdentityServer.EntityFramework.IntegrationTests;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
-using Open.IdentityServer.UnitTests;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Stores.Default;
+namespace Open.IdentityServer.UnitTests.Stores.Default;
 
 public class ServerSessionTicketStoreTests
 {
@@ -124,21 +121,6 @@ public class ServerSessionTicketStoreTests
     }
 
     [Fact]
-    public async Task RenewAsync_WhenNoSessionWithKey_ShouldLogError()
-    {
-        const string authScheme = "FakeAuthScheme";
-        string subjectId = Guid.NewGuid().ToString();
-        string sessionId = Guid.NewGuid().ToString();
-
-        AuthenticationTicket authenticationTicket = GenerateAuthenticationTicket(authScheme, subjectId, sessionId);
-
-        ServerSessionTicketStore sut = CreateSut();
-
-        await sut.RenewAsync("non-existent-session", authenticationTicket);
-        logger.VerifyLog(LogLevel.Error, Times.Once());
-    }
-
-    [Fact]
     public async Task RenewAsync_WhenOptionalValuesNotProvided_ShouldUseCorrectDefaults()
     {
         IdentityServerServerSideSessions existingSession = new IdentityServerServerSideSessions
@@ -213,24 +195,60 @@ public class ServerSessionTicketStoreTests
             .Setup(x => x.GetSession(existingSession.Key))
             .ReturnsAsync(existingSession);
 
-        IdentityServerServerSideSessions? createdSessionModel = null;
+        IdentityServerServerSideSessions? updatedSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.UpdateSession(It.IsAny<IdentityServerServerSideSessions>()))
-            .Callback<IdentityServerServerSideSessions>((session) => { createdSessionModel = session; });
+            .Callback<IdentityServerServerSideSessions>((session) => { updatedSessionModel = session; });
 
         ServerSessionTicketStore sut = CreateSut();
 
         await sut.RenewAsync(existingSession.Key, authenticationTicket);
 
+        updatedSessionModel.Should().NotBeNull();
+        updatedSessionModel.Key.Should().NotBeNullOrWhiteSpace();
+        updatedSessionModel.Key.Should().Be(existingSession.Key);
+        updatedSessionModel.Scheme.Should().Be(authScheme);
+        updatedSessionModel.SessionId.Should().Be(sessionId);
+        updatedSessionModel.SubjectId.Should().Be(subjectId);
+        updatedSessionModel.DisplayName.Should().Be(displayName);
+        updatedSessionModel.Created.Should().Be(existingSession.Created);
+        updatedSessionModel.Renewed.Should().Be(issuedUtc);
+        updatedSessionModel.Expires.Should().Be(expiresUtc);
+
+        string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
+            ServerSessionTicketStore.JsonSettings);
+        dataProtector.ValidateProtectedData(updatedSessionModel.Data, expectedJson);
+    }
+    
+    [Fact]
+    public async Task RenewAsync_WhenNoExistingSessionWithKey_ShouldCreateNewSession()
+    {
+        const string authScheme = "FakeAuthScheme";
+        string subjectId = Guid.NewGuid().ToString();
+        string sessionId = Guid.NewGuid().ToString();
+
+        AuthenticationTicket authenticationTicket = GenerateAuthenticationTicket(authScheme, subjectId, sessionId);
+
+        IdentityServerServerSideSessions? createdSessionModel = null;
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.CreateSession(It.IsAny<IdentityServerServerSideSessions>()))
+            .Callback<IdentityServerServerSideSessions>((session) => { createdSessionModel = session; });
+
+        ServerSessionTicketStore sut = CreateSut();
+        
+        const string nonExistent = "NonExistentSession";
+        await sut.RenewAsync(nonExistent, authenticationTicket);
+
         createdSessionModel.Should().NotBeNull();
         createdSessionModel.Key.Should().NotBeNullOrWhiteSpace();
+        createdSessionModel.Key.Should().Be(nonExistent);
         createdSessionModel.Scheme.Should().Be(authScheme);
         createdSessionModel.SessionId.Should().Be(sessionId);
         createdSessionModel.SubjectId.Should().Be(subjectId);
-        createdSessionModel.DisplayName.Should().Be(displayName);
-        createdSessionModel.Created.Should().Be(existingSession.Created);
-        createdSessionModel.Renewed.Should().Be(issuedUtc);
-        createdSessionModel.Expires.Should().Be(expiresUtc);
+        createdSessionModel.DisplayName.Should().BeNull();
+        createdSessionModel.Created.Should().Be(FakeNow);
+        createdSessionModel.Renewed.Should().Be(FakeNow);
+        createdSessionModel.Expires.Should().BeNull();
 
         string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);

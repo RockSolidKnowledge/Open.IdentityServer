@@ -49,21 +49,26 @@ public class ServerSessionTicketStore(
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
-        string serializedTicket = JsonSerializer.Serialize(ticket.ToSerializableObj());
-
         string key = Guid.NewGuid().ToString();
-        string? subjectId = ticket.Principal.GetSubjectId();
-        string? sessionId = ticket.Properties.GetSessionId();
         trace?.AddTag(TelemetryConstants.TagConstants.Key, key);
-        trace?.AddTag(TelemetryConstants.TagConstants.Subject, subjectId);
-        trace?.AddTag(TelemetryConstants.TagConstants.Session, sessionId);
+        
+        IdentityServerServerSideSessions session = await StoreNewSession(key, ticket);
+        trace?.AddTag(TelemetryConstants.TagConstants.Subject, session.SubjectId);
+        trace?.AddTag(TelemetryConstants.TagConstants.Session, session.SessionId);
 
+        return session.Key;
+    }
+
+    private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)
+    {
+        string serializedTicket = JsonSerializer.Serialize(ticket.ToSerializableObj());
+        
         IdentityServerServerSideSessions serverSideSession = new IdentityServerServerSideSessions
         {
             Key = key,
             Scheme = ticket.AuthenticationScheme,
-            SubjectId = subjectId,
-            SessionId = sessionId,
+            SubjectId = ticket.Principal.GetSubjectId(),
+            SessionId = ticket.Properties.GetSessionId(),
             DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name), //Make configurable?
             Created = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
             Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
@@ -73,7 +78,7 @@ public class ServerSessionTicketStore(
 
         await serverServerSideSessionStore.CreateSession(serverSideSession);
 
-        return serverSideSession.Key;
+        return serverSideSession;
     }
 
     /// <inheritdoc />
@@ -88,7 +93,8 @@ public class ServerSessionTicketStore(
 
         if (existingSession == null)
         {
-            logger.LogError("failed renewing '{SessionKey}' session in database, session with key doesn't exists", key);
+            logger.LogInformation("failed renewing '{SessionKey}' session in database, session with key doesn't exists", key);
+            await StoreNewSession(key, ticket);
             return;
         }
         
