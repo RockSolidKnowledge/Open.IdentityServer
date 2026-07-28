@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
@@ -59,28 +60,6 @@ public class ServerSessionTicketStore(
         return session.Key;
     }
 
-    private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)
-    {
-        string serializedTicket = JsonSerializer.Serialize(ticket.ToSerializableObj());
-        
-        IdentityServerServerSideSessions serverSideSession = new IdentityServerServerSideSessions
-        {
-            Key = key,
-            Scheme = ticket.AuthenticationScheme,
-            SubjectId = ticket.Principal.GetSubjectId(),
-            SessionId = ticket.Properties.GetSessionId(),
-            DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name), //Make configurable?
-            Created = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
-            Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
-            Expires = ticket.Properties.ExpiresUtc?.UtcDateTime,
-            Data = dataProtector.Protect(serializedTicket),
-        };
-
-        await serverServerSideSessionStore.CreateSession(serverSideSession);
-
-        return serverSideSession;
-    }
-
     /// <inheritdoc />
     public async Task RenewAsync(string key, AuthenticationTicket ticket)
     {
@@ -102,8 +81,6 @@ public class ServerSessionTicketStore(
         string? sessionId = ticket.Properties.GetSessionId();
         trace?.AddTag(TelemetryConstants.TagConstants.Subject, subjectId);
         trace?.AddTag(TelemetryConstants.TagConstants.Session, sessionId);
-        
-        string serializedTicket = JsonSerializer.Serialize(ticket.ToSerializableObj());
 
         existingSession.Scheme = ticket.AuthenticationScheme;
         existingSession.SubjectId = subjectId;
@@ -111,7 +88,7 @@ public class ServerSessionTicketStore(
         existingSession.DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name);
         existingSession.Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
         existingSession.Expires = ticket.Properties.ExpiresUtc?.UtcDateTime;
-        existingSession.Data = dataProtector.Protect(serializedTicket);
+        existingSession.Data = ToProtectedDataString(ticket);
 
         await serverServerSideSessionStore.UpdateSession(existingSession);
     }
@@ -134,7 +111,15 @@ public class ServerSessionTicketStore(
 
         try
         {
-            string unprotectedData = dataProtector.Unprotect(existingSession.Data);
+            DataProtectedSessionData? dataProtectedSessionData = JsonSerializer.Deserialize<DataProtectedSessionData>(existingSession.Data, JsonSettings);
+
+            if (dataProtectedSessionData is not { Version: 1 })
+            {
+                logger.LogError("failed retrieving '{SessionKey}', deserialisation failed, incorrect version '{VersionOrNull}'", key, dataProtectedSessionData?.Version);
+                return null;
+            }
+            
+            string unprotectedData = dataProtector.Unprotect(dataProtectedSessionData.Payload);
 
             SerializedAuthenticationTicket? serializedAuthTicket =
                 JsonSerializer.Deserialize<SerializedAuthenticationTicket>(unprotectedData);
@@ -158,5 +143,35 @@ public class ServerSessionTicketStore(
 
         serverServerSideSessionStore.DeleteSession(key);
         return Task.CompletedTask;
+    }
+
+    private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)
+    {
+        IdentityServerServerSideSessions serverSideSession = new IdentityServerServerSideSessions
+        {
+            Key = key,
+            Scheme = ticket.AuthenticationScheme,
+            SubjectId = ticket.Principal.GetSubjectId(),
+            SessionId = ticket.Properties.GetSessionId(),
+            DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name), //Make configurable?
+            Created = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
+            Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
+            Expires = ticket.Properties.ExpiresUtc?.UtcDateTime,
+            Data = ToProtectedDataString(ticket),
+        };
+
+        await serverServerSideSessionStore.CreateSession(serverSideSession);
+
+        return serverSideSession;
+    }
+
+    private string ToProtectedDataString(AuthenticationTicket ticket)
+    {
+        string serializedTicket = JsonSerializer.Serialize(ticket.ToSerializableObj());
+
+        return JsonSerializer.Serialize(new DataProtectedSessionData
+        {
+            Payload = dataProtector.Protect(serializedTicket),
+        }, JsonSettings);
     }
 }
