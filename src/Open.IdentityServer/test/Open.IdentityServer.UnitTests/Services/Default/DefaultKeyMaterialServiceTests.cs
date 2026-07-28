@@ -7,13 +7,12 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
-using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Services.Default;
+namespace Open.IdentityServer.UnitTests.Services.Default;
 
 public class TestSigningCredentialStore(SigningCredentials signingCredentials): ISigningCredentialStore {
     public Task<SigningCredentials> GetSigningCredentialsAsync() => Task.FromResult(signingCredentials);
