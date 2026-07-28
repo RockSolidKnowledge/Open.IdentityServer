@@ -4,27 +4,30 @@
 #nullable enable
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Open.IdentityServer.EntityFramework.Interfaces;
 using Open.IdentityServer.EntityFramework.Mappers;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using IdentityServerServerSideSessions = Open.IdentityServer.Models.IdentityServerServerSideSessions;
 
 namespace Open.IdentityServer.EntityFramework.Stores;
 
 /// <summary>
-/// Storage and retrieval of server side sessions using entity framework core
+/// Storage and retrieval of server-side sessions using entity framework core
 /// </summary>
 public class IdentityServerServerSideSessionStore(
     IPersistedGrantDbContext dbContext,
+    ITelemetryService telemetry,
     ILogger<IdentityServerServerSideSessionStore> logger): IIdentityServerServerSideSessionStore
 {
     /// <inheritdoc />
     public async Task<IdentityServerServerSideSessions?> GetSession(string key)
     {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
         Entities.IdentityServerServerSideSessions? session = await dbContext.ServerSideSessions
@@ -36,6 +39,8 @@ public class IdentityServerServerSideSessionStore(
     /// <inheritdoc />
     public async Task CreateSession(IdentityServerServerSideSessions session)
     {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         ArgumentException.ThrowIfNullOrWhiteSpace(session.Key);
         
         Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
@@ -64,6 +69,8 @@ public class IdentityServerServerSideSessionStore(
     /// <inheritdoc />
     public async Task UpdateSession(IdentityServerServerSideSessions session)
     {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         ArgumentException.ThrowIfNullOrWhiteSpace(session.Key);
         
         Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
@@ -90,6 +97,8 @@ public class IdentityServerServerSideSessionStore(
     /// <inheritdoc />
     public async Task DeleteSession(string key)
     {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
         
         Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
