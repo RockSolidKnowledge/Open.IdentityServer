@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
+using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.EntityFramework.IntegrationTests;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
@@ -77,9 +78,15 @@ public class ServerSessionTicketStoreTests
         createdSessionModel.Renewed.Should().Be(FakeNow);
         createdSessionModel.Expires.Should().BeNull();
 
+        var jsonElement = JsonElement.Parse(createdSessionModel.Data);
+
+        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
+        var actualPayload = jsonElement.GetProperty("Payload").GetString();
+        actualPayload.Should().NotBeNull();
+
         string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(createdSessionModel.Data, expectedJson);
+        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
     }
 
     [Fact]
@@ -115,9 +122,15 @@ public class ServerSessionTicketStoreTests
         createdSessionModel.Renewed.Should().Be(issuedUtc);
         createdSessionModel.Expires.Should().Be(expiresUtc);
 
+        var jsonElement = JsonElement.Parse(createdSessionModel.Data);
+
+        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
+        var actualPayload = jsonElement.GetProperty("Payload").GetString();
+        actualPayload.Should().NotBeNull();
+        
         string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(createdSessionModel.Data, expectedJson);
+        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
     }
 
     [Fact]
@@ -163,9 +176,15 @@ public class ServerSessionTicketStoreTests
         createdSessionModel.Renewed.Should().Be(FakeNow);
         createdSessionModel.Expires.Should().BeNull();
 
+        var jsonElement = JsonElement.Parse(createdSessionModel.Data);
+
+        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
+        var actualPayload = jsonElement.GetProperty("Payload").GetString();
+        actualPayload.Should().NotBeNull();
+
         string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(createdSessionModel.Data, expectedJson);
+        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
     }
 
     [Fact]
@@ -215,9 +234,15 @@ public class ServerSessionTicketStoreTests
         updatedSessionModel.Renewed.Should().Be(issuedUtc);
         updatedSessionModel.Expires.Should().Be(expiresUtc);
 
+        var jsonElement = JsonElement.Parse(updatedSessionModel.Data);
+
+        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
+        var actualPayload = jsonElement.GetProperty("Payload").GetString();
+        actualPayload.Should().NotBeNull();
+
         string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(updatedSessionModel.Data, expectedJson);
+        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
     }
     
     [Fact]
@@ -250,9 +275,15 @@ public class ServerSessionTicketStoreTests
         createdSessionModel.Renewed.Should().Be(FakeNow);
         createdSessionModel.Expires.Should().BeNull();
 
+        var jsonElement = JsonElement.Parse(createdSessionModel.Data);
+
+        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
+        var actualPayload = jsonElement.GetProperty("Payload").GetString();
+        actualPayload.Should().NotBeNull();
+
         string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(createdSessionModel.Data, expectedJson);
+        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
     }
 
     [Theory]
@@ -278,6 +309,31 @@ public class ServerSessionTicketStoreTests
         actual.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData("{invalid.json}")]
+    [InlineData("{\"Version\": 2, Payload: \"SOMEDATA\"}")]
+    public async Task RetrieveAsync_WhenSessionDataDeserialisationFails_ShouldReturnNull(string data)
+    {
+        IdentityServerServerSideSessions existingSession = new IdentityServerServerSideSessions
+        {
+            Key = Guid.NewGuid().ToString(), Scheme = "AuthScheme", SessionId = Guid.NewGuid().ToString(),
+            SubjectId = Guid.NewGuid().ToString(), DisplayName = "John Doe",
+            Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
+            Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
+            Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
+            Data = data
+        };
+
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.GetSession(existingSession.Key))
+            .ReturnsAsync(existingSession);
+
+        ServerSessionTicketStore sut = CreateSut();
+        AuthenticationTicket? actual = await sut.RetrieveAsync(existingSession.Key);
+
+        actual.Should().BeNull();
+    }
+
     [Fact]
     public async Task RetrieveAsync_WhenSessionStoredForKey_ShouldReturnDeserializedAuthTicket()
     {
@@ -289,13 +345,10 @@ public class ServerSessionTicketStoreTests
             Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
             Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
         };
-        SerializedAuthenticationTicket authenticationTicket =
-            GenerateSerializedAuthenticationTicket(existingSession.Scheme, existingSession.SubjectId,
-                existingSession.SessionId, existingSession.DisplayName, existingSession.Renewed,
-                existingSession.Expires);
-        existingSession.Data =
-            dataProtector.GenerateFakeProtectedData(JsonSerializer.Serialize(authenticationTicket,
-                ServerSessionTicketStore.JsonSettings));
+        SerializedAuthenticationTicket authenticationTicket = GenerateSerializedAuthenticationTicket(
+            existingSession.Scheme, existingSession.SubjectId, existingSession.SessionId, 
+            existingSession.DisplayName, existingSession.Renewed, existingSession.Expires);
+        existingSession.Data = GenerateFakeData(authenticationTicket);
 
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.GetSession(existingSession.Key))
@@ -393,6 +446,17 @@ public class ServerSessionTicketStoreTests
         return new AuthenticationTicket(user.CreatePrincipal(), properties, authScheme);
     }
 
+    private string GenerateFakeData(SerializedAuthenticationTicket serializedAuthenticationTicket)
+    {
+        DataProtectedSessionData sessionData = new DataProtectedSessionData
+        {
+            Payload = dataProtector.GenerateFakeProtectedData(JsonSerializer.Serialize(serializedAuthenticationTicket,
+                    ServerSessionTicketStore.JsonSettings))
+        };
+
+        return JsonSerializer.Serialize(sessionData, ServerSessionTicketStore.JsonSettings);
+    }
+    
     private SerializedAuthenticationTicket GenerateSerializedAuthenticationTicket(string authScheme, string? subjectId,
         string? sessionId, string? displayName = null, DateTimeOffset? issuedUtc = null,
         DateTimeOffset? expiresUtc = null)
