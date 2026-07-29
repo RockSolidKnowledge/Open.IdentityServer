@@ -359,8 +359,13 @@ public class ServerSessionTicketStoreTests
 
         actual.Should().BeOfType<AuthenticationTicket>();
         actual.AuthenticationScheme.Should().Be(existingSession.Scheme);
+        actual.Principal.Identity.Should().NotBeNull();
         actual.Principal.Identity?.AuthenticationType.Should()
             .BeEquivalentTo(authenticationTicket.User.AuthenticationType);
+        actual.Principal.Identity?.Name.Should().BeEquivalentTo(existingSession.DisplayName);
+        actual.Principal.Identities.Should().Contain(x => 
+            x.NameClaimType == JwtClaimTypes.Name && 
+            x.RoleClaimType == JwtClaimTypes.Role);
         actual.Properties.Items.Should().BeEquivalentTo(authenticationTicket.Items);
     }
 
