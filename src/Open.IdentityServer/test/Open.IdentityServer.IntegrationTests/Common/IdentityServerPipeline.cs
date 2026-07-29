@@ -75,6 +75,9 @@ public class IdentityServerPipeline
     public event Action<IApplicationBuilder> OnPostConfigure = app => { };
 
     public Func<HttpContext, Task<bool>>? OnFederatedSignout;
+    
+    // Enableable Features
+    public bool EnableServerSideSessions { get; set; }
 
     public void Initialize(string? basePath = null, bool enableLogging = false)
     {
@@ -131,7 +134,7 @@ public class IdentityServerPipeline
             return handler;
         });
 
-        services.AddIdentityServer(options =>
+        var idsBuilder = services.AddIdentityServer(options =>
             {
                 Options = options;
 
@@ -149,6 +152,11 @@ public class IdentityServerPipeline
             .AddInMemoryApiScopes(ApiScopes)
             .AddTestUsers(Users)
             .AddDeveloperSigningCredential(persistKey: false);
+
+        if (EnableServerSideSessions)
+        {
+            idsBuilder.AddServerSideSessions();
+        }
 
         services.AddHttpClient(IdentityServerConstants.HttpClients.BackChannelLogoutHttpClient)
             .AddHttpMessageHandler(() => BackChannelMessageHandler);
