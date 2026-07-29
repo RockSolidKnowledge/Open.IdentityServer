@@ -9,19 +9,19 @@ using Open.IdentityServer.Models;
 namespace Open.IdentityServer.Stores;
 
 /// <summary>
-/// Storage and retrieval of server server side sessions
+/// Storage and retrieval of server-side sessions
 /// </summary>
 public interface IIdentityServerServerSideSessionStore
 {
     /// <summary>
-    /// Gets server side session using unique key
+    /// Gets server-side session using unique key
     /// </summary>
     /// <param name="key">unique key of session</param>
     /// <returns>found session or null if not found</returns>
     public Task<IdentityServerServerSideSessions?> GetSession(string key);
     
     /// <summary>
-    /// Stores the provides session model, must have a unique key set
+    /// Stores the provided session model, must have a unique key set
     /// </summary>
     /// <param name="session">session model to store</param>
     /// <returns>void</returns>
@@ -35,7 +35,7 @@ public interface IIdentityServerServerSideSessionStore
     public Task UpdateSession(IdentityServerServerSideSessions session);
     
     /// <summary>
-    /// Deletes server side session using unique key
+    /// Deletes server-side session using unique key
     /// </summary>
     /// <param name="key">unique key of session</param>
     /// <returns>void</returns>

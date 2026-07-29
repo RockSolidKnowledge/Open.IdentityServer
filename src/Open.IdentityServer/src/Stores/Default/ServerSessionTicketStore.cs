@@ -20,13 +20,14 @@ using Open.IdentityServer.Stores.Serialization;
 namespace Open.IdentityServer.Stores;
 
 /// <summary>
-/// 
+/// Implementation of <see cref="ITicketStore"/> for storing <see cref="AuthenticationTicket"/> for the server side sessions
+/// implementation in Open.IdentityServer
 /// </summary>
 /// <param name="serverServerSideSessionStore"></param>
-/// <param name="dataProtectionProvider"></param>
-/// <param name="timeProvider"></param>
-/// <param name="telemetry"></param>
-/// <param name="logger"></param>
+/// <param name="dataProtectionProvider">data prtection provider</param>
+/// <param name="timeProvider">time provider</param>
+/// <param name="telemetry">telemetry service</param>
+/// <param name="logger">the logger</param>
 public class ServerSessionTicketStore(
     IIdentityServerServerSideSessionStore serverServerSideSessionStore,
     IDataProtectionProvider dataProtectionProvider,
@@ -38,7 +39,7 @@ public class ServerSessionTicketStore(
         dataProtectionProvider.CreateProtector(DataProtectionConstants.ServerSideTicketStorePurpose);
 
     /// <summary>
-    /// 
+    /// <see cref="JsonSerializerOptions"/> to be used for storing server side sessions
     /// </summary>
     public static readonly JsonSerializerOptions JsonSettings = new()
     {
