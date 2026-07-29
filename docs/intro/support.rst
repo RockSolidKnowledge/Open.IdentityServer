@@ -52,9 +52,10 @@ We have a range of available `products <https://www.identityserver.com/products>
 * `AdminUI <https://www.identityserver.com/products/adminui>`_ - The most trusted and advanced management portal for IdentityServer. Secure, intuitive, built for extensibility and scale. Take the complexity out of identity.
 * `SAML2P <https://www.identityserver.com/products/saml2p>`_ - The only SAML plugin offering full IdentityProvider (IdP) and Service Prover(SP) support. With seamless IdentityServer integration and trusted for secure enterprise SSO across any platform.
 * `WS-Federation <https://www.identityserver.com/products/ws-federation>`_ - The best way to integrate WS-Fed supported applications (SharePoint) with IdentityServer. Perfect for Microsoft ecosystem and cross-protocol SSO (OIDC and WSFED)
-* `FIDO2 <https://www.identityserver.com/products/fido2-for-aspnet>`_ - Industry leading Passkey authentication for ASP.NET. FIDO2 certified, phishing-resistant, and ready for passwordless login. Passwordless, effortless and secure in only a few lines of code.
+* `FIDO2 <https://www.identityserver.com/products/fido2-for-aspnet>`_ - Industry-leading Passkey authentication for ASP.NET. FIDO2 certified, phishing-resistant, and ready for passwordless login. Passwordless, effortless and secure in only a few lines of code.
 * `SCIM <https://www.identityserver.com/products/scim-for-aspnet>`_ - SCIM 2.0-powered identity automation. Provision users and sync identities effortlessly across your enterprise. Fully integrated with IdentityServer for streamlined IAM and HR workflows.
 * `Dynamic Authentication Providers <https://www.identityserver.com/products/dynamic-authentication-providers>`_ - Ideal for adding and configuring external identity providers in ASP.NET Core.
 * `Enforcer <https://www.identityserver.com/products/enforcer>`_ - Enforcer allows you to write human-readable access control policies for your .NET applications.
+* `Key Rotation <https://www.identityserver.com/products/key-rotation>`_ - The Key Rotation component for IdentityServer allows your .NET IdentityServer to automatically generate and rotate Signing Keys, reducing the need for manual maintenance and redeployments.
 
 For any of the above, or if you have other needs, please `get in touch <mailto:sales@identityserver.com>`_ to discuss how we can help you.

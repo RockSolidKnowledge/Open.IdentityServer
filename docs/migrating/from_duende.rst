@@ -113,13 +113,16 @@ Migration Steps
        // Explicit key registration
        builder.Services.AddIdentityServer()
            .AddSigningCredential(certificate);
-           
+               
+   If you have a `Rsk.KeyRoation <https://www.identityserver.com/products/key-rotation>`_ license or an Open.IdentityServer 
+   supporter license, you will also be able to switch to using this product for your key rotation. Here is the 
+   `installation guide <https://docs.identityserver.com/key-rotation/installation/>`_ for Open.IdentityServer.
+   
    .. warning::
        If configuring the read-only key store, all keys created within a 90 days will be considered valid, and the newest 
        key within this timespan will be registered as a signing key. The extension method used to register the 
        compatibility store allows you to configure this ``.AddCompatibilityKeyStores(opt => opt.MaxLifetime = TimeSpan.FromDays(120))``.
        
-
 5. **Migrate the database schema (if applicable)**
 
    The Entity Framework schema for Open.IdentityServer is compatible with Duende.IdentityServer. In most cases no database migration is required. However, if your Duende version included tables for unsupported features (e.g. server-side sessions or dynamic providers), those tables can be safely left in place — they will simply be unused.
