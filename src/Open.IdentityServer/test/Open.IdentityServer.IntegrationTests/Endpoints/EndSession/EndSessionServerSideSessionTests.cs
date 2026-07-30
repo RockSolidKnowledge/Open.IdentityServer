@@ -1,27 +1,31 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
+#nullable enable
 
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.IntegrationTests.Common;
+using Microsoft.Extensions.DependencyInjection;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Stores;
 using Open.IdentityServer.Test;
 using Xunit;
 
-namespace IdentityServer.IntegrationTests.Endpoints.Authorize;
+namespace Open.IdentityServer.IntegrationTests.Endpoints.Login;
 
-public class SessionIdTests
+public class EndSessionServerSideSessionTests
 {
-    private const string Category = "SessionIdTests";
+    private const string Category = "EndSessionServerSideSessionTests";
 
     private IdentityServerPipeline _mockPipeline = new IdentityServerPipeline();
+    private IIdentityServerServerSideSessionStore? sessionStore = null;
 
-    public SessionIdTests()
+    public EndSessionServerSideSessionTests()
     {
-        _mockPipeline.Clients.AddRange(new Client[] {
+        _mockPipeline.EnableServerSideSessions = true;
+        
+        _mockPipeline.Clients.AddRange([
             new Client
             {
                 ClientId = "client1",
@@ -40,32 +44,32 @@ public class SessionIdTests
                 RedirectUris = new List<string> { "https://client2/callback" },
                 AllowAccessTokensViaBrowser = true
             }
-        });
+        ]);
 
         _mockPipeline.Users.Add(new TestUser
         {
             SubjectId = "bob",
             Username = "bob",
-            Claims = new Claim[]
-            {
+            Claims =
+            [
                 new Claim("name", "Bob Loblaw"),
                 new Claim("email", "bob@loblaw.com"),
                 new Claim("role", "Attorney")
-            }
+            ]
         });
 
-        _mockPipeline.IdentityScopes.AddRange(new IdentityResource[] {
+        _mockPipeline.IdentityScopes.AddRange([
             new IdentityResources.OpenId(),
             new IdentityResources.Profile(),
             new IdentityResources.Email()
-        });
-        _mockPipeline.ApiResources.AddRange(new ApiResource[] {
+        ]);
+        _mockPipeline.ApiResources.AddRange([
             new ApiResource
             {
                 Name = "api",
             }
-        });
-        _mockPipeline.ApiScopes.AddRange(new ApiScope[] {
+        ]);
+        _mockPipeline.ApiScopes.AddRange([
             new ApiScope
             {
                 Name = "api1"
@@ -74,25 +78,41 @@ public class SessionIdTests
             {
                 Name = "api2"
             }
-        });
+        ]);
+        
+        _mockPipeline.OnPreConfigure += app =>
+        {
+            sessionStore = app.ApplicationServices.GetRequiredService<IIdentityServerServerSideSessionStore>();
+        };
 
         _mockPipeline.Initialize();
     }
 
     [Fact]
     [Trait("Category", Category)]
-    public async Task session_id_should_be_reissued_if_session_cookie_absent()
+    public async Task EndSession_ShouldRemoveSession()
     {
+        sessionStore.Should().NotBeNull();
+        
         await _mockPipeline.LoginAsync("bob");
-        var sid1 = _mockPipeline.GetSessionCookie().Value;
-        sid1.Should().NotBeNull();
 
-        _mockPipeline.RemoveSessionCookie();
+        Cookie sessionCookie = _mockPipeline.GetSessionCookie();
+        
+        var authKey = _mockPipeline.GetTicketStoreKeyFromAuthCookie();
+        authKey.Should().NotBeNull();
+        
+        var storedSessionPreEndSession = await sessionStore.GetSession(authKey);
+        storedSessionPreEndSession.Should().NotBeNull();
+        storedSessionPreEndSession.SessionId.Should().Be(sessionCookie.Value);
+        storedSessionPreEndSession.SubjectId.Should().Be("bob");
+        
+        await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.EndSessionEndpoint, 
+            TestContext.Current.CancellationToken);
 
-        await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.DiscoveryEndpoint
-            , TestContext.Current.CancellationToken);
-
-        var sid2 = _mockPipeline.GetSessionCookie().Value;
-        sid2.Should().Be(sid1);
+        _mockPipeline.LogoutWasCalled.Should().BeTrue();
+        _mockPipeline.LogoutRequest.Should().NotBeNull();
+        
+        var storedSessionPostEndSession = await sessionStore.GetSession(authKey);
+        storedSessionPostEndSession.Should().BeNull();
     }
 }
