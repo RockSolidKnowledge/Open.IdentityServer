@@ -186,7 +186,6 @@ public class DefaultRefreshTokenStoreTests
             .Returns(_trace);
         
         const string baseHandle = "test_base_handle";
-        var expectedHandle = baseHandle + DefaultRefreshTokenStore.HexEncodingSuffix;
 
         Mock.Get(_handleGenerationService)
             .Setup(x => x.GenerateAsync())

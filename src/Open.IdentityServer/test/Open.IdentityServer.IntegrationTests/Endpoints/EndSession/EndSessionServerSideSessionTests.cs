@@ -1,3 +1,6 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 #nullable enable
 
 using System.Collections.Generic;
@@ -106,7 +109,7 @@ public class EndSessionServerSideSessionTests
         storedSessionPreEndSession.SessionId.Should().Be(sessionCookie.Value);
         storedSessionPreEndSession.SubjectId.Should().Be("bob");
         
-        await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.EndSessionEndpoint, 
+        await _mockPipeline.BrowserClient!.GetAsync(IdentityServerPipeline.EndSessionEndpoint, 
             TestContext.Current.CancellationToken);
 
         _mockPipeline.LogoutWasCalled.Should().BeTrue();

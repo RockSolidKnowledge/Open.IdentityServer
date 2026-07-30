@@ -151,7 +151,7 @@ public class IdentityServerMiddlewareTests
         {
             await InvokeSubjectMiddleware();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // intentionally swallowed
         }
@@ -175,7 +175,7 @@ public class IdentityServerMiddlewareTests
         {
             await InvokeSubjectMiddleware();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // intentionally swallowed
         }

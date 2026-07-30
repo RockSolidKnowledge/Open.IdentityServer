@@ -294,7 +294,7 @@ public class ServerSessionTicketStoreTests
     {
         ServerSessionTicketStore sut = CreateSut();
 
-        Func<Task> act = async () => await sut.RetrieveAsync(key);
+        Func<Task> act = async () => await sut.RetrieveAsync(key!);
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
