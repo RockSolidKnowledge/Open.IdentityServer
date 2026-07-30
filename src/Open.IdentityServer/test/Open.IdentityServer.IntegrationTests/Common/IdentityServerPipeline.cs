@@ -28,6 +28,8 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Options;
 
 namespace IdentityServer.IntegrationTests.Common;
 
@@ -333,7 +335,7 @@ public class IdentityServerPipeline
 
         Subject = subject;
         await BrowserClient.GetAsync(LoginPage);
-
+        
         BrowserClient.AllowAutoRedirect = old;
     }
 
@@ -353,6 +355,26 @@ public class IdentityServerPipeline
     public Cookie GetSessionCookie()
     {
         return BrowserClient!.GetCookie(BaseUrl, IdentityServerConstants.DefaultCheckSessionCookieName);
+    }
+
+    public Cookie GetLoginCookie()
+    {
+        return BrowserClient!.GetCookie(BaseUrl, IdentityServerConstants.DefaultCookieAuthenticationScheme);
+    }
+
+    public string? GetTicketStoreKeyFromAuthCookie()
+    {
+        var authCookie = GetLoginCookie();
+        if (authCookie == null || string.IsNullOrWhiteSpace(authCookie.Value))
+        {
+            return null;
+        }
+
+        var optionsMonitor = Server!.Services.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>();
+        var cookieOptions = optionsMonitor.Get(IdentityServerConstants.DefaultCookieAuthenticationScheme);
+
+        var ticket = cookieOptions.TicketDataFormat.Unprotect(authCookie.Value);
+        return ticket?.Principal?.FindFirst(AuthCookieSessionIdClaimType)?.Value;
     }
 
     public string CreateAuthorizeUrl(
