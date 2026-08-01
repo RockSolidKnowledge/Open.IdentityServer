@@ -1169,6 +1169,29 @@ public class AuthorizeTests
 
     [Fact]
     [Trait("Category", Category)]
+    public async Task prompt_login_and_create_should_return_error()
+    {
+        await _mockPipeline.LoginAsync("bob");
+
+        var url = _mockPipeline.CreateAuthorizeUrl(
+            clientId: "client1",
+            responseType: "id_token",
+            scope: "openid profile",
+            redirectUri: "https://client1/callback",
+            state: "123_state",
+            nonce: "123_nonce",
+            extra: new Parameters
+            {
+                { "prompt", "login create" },
+            }
+        );
+        await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+
+        _mockPipeline.ErrorWasCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
     public async Task prompt_login_should_show_login_page()
     {
         await _mockPipeline.LoginAsync("bob");
