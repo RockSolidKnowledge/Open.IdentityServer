@@ -746,7 +746,8 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
             }
             else
             {
-                _logger.LogDebug("Unsupported prompt mode - ignored: " + prompt);
+                LogError("prompt contains unsupported values " + prompt, request);
+                return Invalid(request, description: "Invalid prompt");
             }
         }
 

@@ -1169,6 +1169,27 @@ public class AuthorizeTests
 
     [Fact]
     [Trait("Category", Category)]
+    public async Task unsupported_prompt_should_return_error()
+    {
+        var url = _mockPipeline.CreateAuthorizeUrl(
+            clientId: "client1",
+            responseType: "id_token",
+            scope: "openid profile",
+            redirectUri: "https://client1/callback",
+            state: "123_state",
+            nonce: "123_nonce",
+            extra: new Parameters
+            {
+                { "prompt", "unsupported" },
+            }
+        );
+        await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+
+        _mockPipeline.ErrorWasCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
     public async Task prompt_create_and_login_should_return_error()
     {
         _mockPipeline.OnPreConfigureServices += services =>
