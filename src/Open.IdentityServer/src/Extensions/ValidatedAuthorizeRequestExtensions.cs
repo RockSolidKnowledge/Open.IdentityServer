@@ -29,6 +29,16 @@ public static class ValidatedAuthorizeRequestExtensions
     }
 
     /// <summary>
+    /// Removes the max_age parameter from the request.
+    /// </summary>
+    /// <param name="request">The validated authorize request.</param>
+    public static void RemoveMaxAge(this ValidatedAuthorizeRequest request)
+    {
+        request.MaxAge = null;
+        request.Raw.Remove(OidcConstants.AuthorizeRequest.MaxAge);
+    }
+
+    /// <summary>
     /// Gets the first ACR value that starts with the specified prefix, with the prefix removed.
     /// </summary>
     /// <param name="request">The validated authorize request.</param>

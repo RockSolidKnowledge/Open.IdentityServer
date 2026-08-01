@@ -187,6 +187,7 @@ public class IdentityServerPipeline
     }
 
     public bool LoginWasCalled { get; set; }
+    public string? LoginReturnUrl { get; set; }
     public AuthorizationRequest? LoginRequest { get; set; }
     public ClaimsPrincipal? Subject { get; set; }
     public bool FollowLoginReturnUrl { get; set; }
@@ -201,7 +202,8 @@ public class IdentityServerPipeline
     private async Task ReadLoginRequest(HttpContext ctx)
     {
         var interaction = ctx.RequestServices.GetRequiredService<IIdentityServerInteractionService>();
-        LoginRequest = await interaction.GetAuthorizationContextAsync(ctx.Request.Query["returnUrl"].FirstOrDefault());
+        LoginReturnUrl = ctx.Request.Query["returnUrl"].FirstOrDefault();
+        LoginRequest = await interaction.GetAuthorizationContextAsync(LoginReturnUrl);
     }
 
     private async Task IssueLoginCookie(HttpContext ctx)

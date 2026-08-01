@@ -1174,10 +1174,10 @@ public class AuthorizeTests
         await _mockPipeline.LoginAsync("bob");
 
         var url = _mockPipeline.CreateAuthorizeUrl(
-            clientId: "client3",
+            clientId: "client1",
             responseType: "id_token",
             scope: "openid profile",
-            redirectUri: "https://client3/callback",
+            redirectUri: "https://client1/callback",
             state: "123_state",
             nonce: "123_nonce",
             extra: new Parameters
@@ -1192,15 +1192,42 @@ public class AuthorizeTests
 
     [Fact]
     [Trait("Category", Category)]
+    public async Task prompt_login_should_allow_user_to_login_and_return()
+    {
+        await _mockPipeline.LoginAsync("bob");
+
+        var url = _mockPipeline.CreateAuthorizeUrl(
+            clientId: "client1",
+            responseType: "id_token",
+            scope: "openid profile",
+            redirectUri: "https://client1/callback",
+            state: "123_state",
+            nonce: "123_nonce",
+            extra: new Parameters
+            {
+                { "prompt", "login" },
+            }
+        );
+        await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+
+        _mockPipeline.BrowserClient.AllowAutoRedirect = false;
+        var response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.BaseUrl + _mockPipeline.LoginReturnUrl);
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location.ToString().Should().StartWith("https://client1/callback");
+        response.Headers.Location.ToString().Should().Contain("id_token=");
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
     public async Task max_age_0_should_show_login_page()
     {
         await _mockPipeline.LoginAsync("bob");
 
         var url = _mockPipeline.CreateAuthorizeUrl(
-            clientId: "client3",
+            clientId: "client1",
             responseType: "id_token",
             scope: "openid profile",
-            redirectUri: "https://client3/callback",
+            redirectUri: "https://client1/callback",
             state: "123_state",
             nonce: "123_nonce",
             extra: new Parameters
@@ -1211,5 +1238,32 @@ public class AuthorizeTests
         await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
         _mockPipeline.LoginWasCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task max_age_0_should_allow_user_to_login_and_return()
+    {
+        await _mockPipeline.LoginAsync("bob");
+
+        var url = _mockPipeline.CreateAuthorizeUrl(
+            clientId: "client1",
+            responseType: "id_token",
+            scope: "openid profile",
+            redirectUri: "https://client1/callback",
+            state: "123_state",
+            nonce: "123_nonce",
+            extra: new Parameters
+            {
+                { "max_age", "0" },
+            }
+        );
+        await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+
+        _mockPipeline.BrowserClient.AllowAutoRedirect = false;
+        var response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.BaseUrl + _mockPipeline.LoginReturnUrl);
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location.ToString().Should().StartWith("https://client1/callback");
+        response.Headers.Location.ToString().Should().Contain("id_token=");
     }
 }

@@ -192,6 +192,10 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
             {
                 Logger.LogInformation("Showing login: Requested MaxAge exceeded.");
 
+                // remove max_age so when we redirect back in from login page
+                // we won't think we need to force a max_age again
+                request.RemoveMaxAge();
+
                 return new InteractionResponse { IsLogin = true };
             }
         }
