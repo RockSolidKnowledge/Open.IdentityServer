@@ -134,10 +134,6 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
             request.PromptModes.Contains(OidcConstants.PromptModes.SelectAccount))
         {
             Logger.LogInformation("Showing login: request contains prompt={0}", request.PromptModes.ToSpaceSeparatedString());
-
-            // remove prompt so when we redirect back in from login page
-            // we won't think we need to force a prompt again
-            request.RemovePrompt();
                 
             return new InteractionResponse { IsLogin = true };
         }
@@ -191,10 +187,6 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
             if (Clock.GetUtcNow() > authTime.AddSeconds(request.MaxAge.Value))
             {
                 Logger.LogInformation("Showing login: Requested MaxAge exceeded.");
-
-                // remove max_age so when we redirect back in from login page
-                // we won't think we need to force a max_age again
-                request.RemoveMaxAge();
 
                 return new InteractionResponse { IsLogin = true };
             }
