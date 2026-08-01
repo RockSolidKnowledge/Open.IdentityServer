@@ -728,7 +728,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         if (prompt.IsPresent())
         {
             var prompts = prompt.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (prompts.All(p => Constants.SupportedPromptModes.Contains(p)))
+            if (prompts.All(p => _options.UserInteraction.SupportedPromptModes.Contains(p)))
             {
                 if (prompts.Contains(OidcConstants.PromptModes.None) && prompts.Length > 1)
                 {

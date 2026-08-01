@@ -36,6 +36,8 @@ public class IdentityServerPipeline
     public const string LoginPage = BaseUrl + "/account/login";
     public const string ConsentPage = BaseUrl + "/account/consent";
     public const string ErrorPage = BaseUrl + "/home/error";
+    public const string CreatePageRelative = "/account/create";
+    public const string CreatePage = BaseUrl + CreatePageRelative;
 
     public const string DeviceAuthorization = BaseUrl + "/connect/deviceauthorization";
     public const string DiscoveryEndpoint = BaseUrl + "/.well-known/openid-configuration";
@@ -182,6 +184,10 @@ public class IdentityServerPipeline
         {
             path.Run(ctx => OnError(ctx));
         });
+        app.Map(CreatePageRelative, path =>
+        {
+            path.Run(ctx => OnCreate(ctx));
+        });
 
         OnPostConfigure(app);
     }
@@ -277,6 +283,21 @@ public class IdentityServerPipeline
     {
         ErrorWasCalled = true;
         await ReadErrorMessage(ctx);
+    }
+
+    public bool CreateWasCalled { get; set; }
+    public AuthorizationRequest? CreateRequest { get; set; }
+
+    private async Task OnCreate(HttpContext ctx)
+    {
+        CreateWasCalled = true;
+        await ReadCreateMessage(ctx);
+    }
+
+    private async Task ReadCreateMessage(HttpContext ctx)
+    {
+        var interaction = ctx.RequestServices.GetRequiredService<IIdentityServerInteractionService>();
+        CreateRequest = await interaction.GetAuthorizationContextAsync(ctx.Request.Query["returnUrl"].FirstOrDefault());
     }
 
     private async Task ReadErrorMessage(HttpContext ctx)

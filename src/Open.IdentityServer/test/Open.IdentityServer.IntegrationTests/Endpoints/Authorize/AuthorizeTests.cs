@@ -18,6 +18,7 @@ using Open.IdentityServer.Stores.Default;
 using Open.IdentityServer.Test;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Open.IdentityServer.Configuration;
 
 namespace IdentityServer.IntegrationTests.Endpoints.Authorize;
 
@@ -1166,11 +1167,19 @@ public class AuthorizeTests
         _mockPipeline.LoginWasCalled.Should().BeTrue();
     }
 
-
     [Fact]
     [Trait("Category", Category)]
-    public async Task prompt_login_and_create_should_return_error()
+    public async Task prompt_create_and_login_should_return_error()
     {
+        _mockPipeline.OnPreConfigureServices += services =>
+        {
+            services.PostConfigure<IdentityServerOptions>(options =>
+            {
+                options.UserInteraction.SupportedPromptModes.Add(OidcConstants.PromptModes.Create);
+            });
+        };
+        _mockPipeline.Initialize();
+
         await _mockPipeline.LoginAsync("bob");
 
         var url = _mockPipeline.CreateAuthorizeUrl(
@@ -1182,12 +1191,43 @@ public class AuthorizeTests
             nonce: "123_nonce",
             extra: new Parameters
             {
-                { "prompt", "login create" },
+                { "prompt", "create login" },
             }
         );
         await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
         _mockPipeline.ErrorWasCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task prompt_create_should_show_login_page()
+    {
+        _mockPipeline.OnPreConfigureServices += services =>
+        {
+            services.PostConfigure<IdentityServerOptions>(options =>
+            {
+                options.UserInteraction.CreateAccountUrl = IdentityServerPipeline.CreatePageRelative;
+            });
+        };
+        _mockPipeline.Initialize();
+
+        var url = _mockPipeline.CreateAuthorizeUrl(
+            clientId: "client1",
+            responseType: "id_token",
+            scope: "openid profile",
+            redirectUri: "https://client1/callback",
+            state: "123_state",
+            nonce: "123_nonce",
+            extra: new Parameters
+            {
+                { "prompt", "create" },
+            }
+        );
+        await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+
+        _mockPipeline.CreateWasCalled.Should().BeTrue();
+        _mockPipeline.CreateRequest.PromptModes.Should().Contain("create");
     }
 
     [Fact]

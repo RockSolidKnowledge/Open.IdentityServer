@@ -177,6 +177,7 @@ internal static class Constants
         {
             public const string Error = "errorId";
             public const string Login = "returnUrl";
+            public const string CreateAccount = "returnUrl";
             public const string Consent = "returnUrl";
             public const string Logout = "logoutId";
             public const string EndSessionCallback = "endSessionId";

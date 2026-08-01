@@ -39,7 +39,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
     /// The clock
     /// </summary>
     protected readonly TimeProvider Clock;
-    
+
     /// <summary>
     /// The telemetry
     /// </summary>
@@ -56,7 +56,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
     public AuthorizeInteractionResponseGenerator(
         TimeProvider clock,
         ILogger<AuthorizeInteractionResponseGenerator> logger,
-        IConsentService consent, 
+        IConsentService consent,
         IProfileService profile,
         ITelemetryService telemetry)
     {
@@ -64,7 +64,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
         Logger = logger;
         Consent = consent;
         Profile = profile;
-        Telemetry =  telemetry;
+        Telemetry = telemetry;
     }
 
     /// <summary>
@@ -78,8 +78,8 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
         using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         Logger.LogTrace("ProcessInteractionAsync");
 
-        if (consent != null && 
-            consent.Granted == false && 
+        if (consent != null &&
+            consent.Granted == false &&
             consent.Error.HasValue)
         {
             // special case when anonymous user has issued an error prior to authenticating
@@ -93,7 +93,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
                 AuthorizationError.LoginRequired => OidcConstants.AuthorizeErrors.LoginRequired,
                 _ => OidcConstants.AuthorizeErrors.AccessDenied
             };
-                
+
             return new InteractionResponse
             {
                 Error = error,
@@ -101,11 +101,15 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
             };
         }
 
-        var result = await ProcessLoginAsync(request);
-            
-        if (!result.IsLogin && !result.IsError && !result.IsRedirect)
+        var result = await ProcessCreateAsync(request);
+        if (!result.IsCreateAccount && !result.IsError && !result.IsRedirect)
         {
-            result = await ProcessConsentAsync(request, consent);
+            result = await ProcessLoginAsync(request);
+
+            if (!result.IsLogin && !result.IsError && !result.IsRedirect)
+            {
+                result = await ProcessConsentAsync(request, consent);
+            }
         }
 
         if ((result.IsLogin || result.IsConsent || result.IsRedirect) && request.PromptModes.Contains(OidcConstants.PromptModes.None))
@@ -115,7 +119,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
             result = new InteractionResponse
             {
                 Error = result.IsLogin ? OidcConstants.AuthorizeErrors.LoginRequired :
-                    result.IsConsent ? OidcConstants.AuthorizeErrors.ConsentRequired : 
+                    result.IsConsent ? OidcConstants.AuthorizeErrors.ConsentRequired :
                     OidcConstants.AuthorizeErrors.InteractionRequired
             };
         }
@@ -134,13 +138,13 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
             request.PromptModes.Contains(OidcConstants.PromptModes.SelectAccount))
         {
             Logger.LogInformation("Showing login: request contains prompt={0}", request.PromptModes.ToSpaceSeparatedString());
-                
+
             return new InteractionResponse { IsLogin = true };
         }
 
         // unauthenticated user
         var isAuthenticated = request.Subject.IsAuthenticated();
-            
+
         // user de-activated
         bool isActive = false;
 
@@ -148,7 +152,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
         {
             var isActiveCtx = new IsActiveContext(request.Subject, request.Client, IdentityServerConstants.ProfileIsActiveCallers.AuthorizeEndpoint);
             await Profile.IsActiveAsync(isActiveCtx);
-                
+
             isActive = isActiveCtx.IsActive;
         }
 
@@ -202,7 +206,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
             }
         }
         // check external idp restrictions if user not using local idp
-        else if (request.Client.IdentityProviderRestrictions != null && 
+        else if (request.Client.IdentityProviderRestrictions != null &&
                  request.Client.IdentityProviderRestrictions.Any() &&
                  !request.Client.IdentityProviderRestrictions.Contains(currentIdp))
         {
@@ -225,6 +229,28 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
         }
 
         return new InteractionResponse();
+    }
+
+    /// <summary>
+    /// Processes the create account logic.
+    /// </summary>
+    /// <param name="request">The request.</param>
+    /// <returns>A task that resolves to an <see cref="InteractionResponse"/> indicating whether the create account screen should be shown.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="request"/> is <see langword="null"/>.</exception>
+    protected internal virtual Task<InteractionResponse> ProcessCreateAsync(ValidatedAuthorizeRequest request)
+    {
+        if (request == null) throw new ArgumentNullException(nameof(request));
+
+        var response = new InteractionResponse();
+
+        if (request.PromptModes.Contains(OidcConstants.PromptModes.Create))
+        {
+            Logger.LogInformation("Showing create account: request contains prompt=create");
+
+            response.IsCreateAccount = true;
+        }
+
+        return Task.FromResult(response);
     }
 
     /// <summary>
@@ -290,7 +316,7 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
                         AuthorizationError.LoginRequired => OidcConstants.AuthorizeErrors.LoginRequired,
                         _ => OidcConstants.AuthorizeErrors.AccessDenied
                     };
-                        
+
                     response.Error = error;
                     response.ErrorDescription = consent.ErrorDescription;
                 }
