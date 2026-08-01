@@ -1188,6 +1188,7 @@ public class AuthorizeTests
         await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
         _mockPipeline.LoginWasCalled.Should().BeTrue();
+        _mockPipeline.LoginRequest.PromptModes.Should().Contain("login");
     }
 
     [Fact]
@@ -1238,6 +1239,7 @@ public class AuthorizeTests
         await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
         _mockPipeline.LoginWasCalled.Should().BeTrue();
+        _mockPipeline.LoginRequest.Parameters.Get(OidcConstants.AuthorizeRequest.MaxAge).Should().Be("0");
     }
 
     [Fact]
