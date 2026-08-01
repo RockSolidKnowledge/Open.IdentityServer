@@ -1223,7 +1223,7 @@ public class AuthorizeTests
 
     [Fact]
     [Trait("Category", Category)]
-    public async Task prompt_create_should_show_login_page()
+    public async Task prompt_create_should_show_create_account_page()
     {
         _mockPipeline.OnPreConfigureServices += services =>
         {
