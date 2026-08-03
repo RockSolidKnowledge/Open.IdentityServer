@@ -76,8 +76,8 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
 
         try
         {
-            parameters.Remove(OidcConstants.AuthorizeRequest.Prompt);
-            parameters.Remove(OidcConstants.AuthorizeRequest.MaxAge);
+            parameters.Add(Constants.PromptProcessed, "true");
+            parameters.Add(Constants.MaxAgeProcessed, "true");
 
             var result = await ProcessAuthorizeRequestAsync(parameters, user, consent?.Data);
 

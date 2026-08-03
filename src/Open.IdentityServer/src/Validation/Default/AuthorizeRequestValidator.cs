@@ -727,27 +727,32 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         var prompt = request.Raw.Get(OidcConstants.AuthorizeRequest.Prompt);
         if (prompt.IsPresent())
         {
-            var prompts = prompt.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (prompts.All(p => _options.UserInteraction.SupportedPromptModes.Contains(p)))
+            var promptProcessed = request.Raw.Get(Constants.PromptProcessed);
+
+            if (!promptProcessed.IsPresent())
             {
-                if (prompts.Contains(OidcConstants.PromptModes.None) && prompts.Length > 1)
+                var prompts = prompt.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (prompts.All(p => _options.UserInteraction.SupportedPromptModes.Contains(p)))
                 {
-                    LogError("prompt contains 'none' and other values. 'none' should be used by itself.", request);
+                    if (prompts.Contains(OidcConstants.PromptModes.None) && prompts.Length > 1)
+                    {
+                        LogError("prompt contains 'none' and other values. 'none' should be used by itself.", request);
+                        return Invalid(request, description: "Invalid prompt");
+                    }
+
+                    if (prompts.Contains(OidcConstants.PromptModes.Create) && prompts.Length > 1)
+                    {
+                        LogError("prompt contains 'create' and other values. 'create' should be used by itself.", request);
+                        return Invalid(request, description: "Invalid prompt");
+                    }
+
+                    request.PromptModes = prompts;
+                }
+                else
+                {
+                    LogError("prompt contains unsupported values " + prompt, request);
                     return Invalid(request, description: "Invalid prompt");
                 }
-
-                if (prompts.Contains(OidcConstants.PromptModes.Create) && prompts.Length > 1)
-                {
-                    LogError("prompt contains 'create' and other values. 'create' should be used by itself.", request);
-                    return Invalid(request, description: "Invalid prompt");
-                }
-
-                request.PromptModes = prompts;
-            }
-            else
-            {
-                LogError("prompt contains unsupported values " + prompt, request);
-                return Invalid(request, description: "Invalid prompt");
             }
         }
 
@@ -786,22 +791,27 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         var maxAge = request.Raw.Get(OidcConstants.AuthorizeRequest.MaxAge);
         if (maxAge.IsPresent())
         {
-            if (int.TryParse(maxAge, out var seconds))
+            var maxAgeProcessed = request.Raw.Get(Constants.MaxAgeProcessed);
+
+            if (!maxAgeProcessed.IsPresent())
             {
-                if (seconds >= 0)
+                if (int.TryParse(maxAge, out var seconds))
                 {
-                    request.MaxAge = seconds;
+                    if (seconds >= 0)
+                    {
+                        request.MaxAge = seconds;
+                    }
+                    else
+                    {
+                        LogError("Invalid max_age.", request);
+                        return Invalid(request, description: "Invalid max_age");
+                    }
                 }
                 else
                 {
                     LogError("Invalid max_age.", request);
                     return Invalid(request, description: "Invalid max_age");
                 }
-            }
-            else
-            {
-                LogError("Invalid max_age.", request);
-                return Invalid(request, description: "Invalid max_age");
             }
         }
 
