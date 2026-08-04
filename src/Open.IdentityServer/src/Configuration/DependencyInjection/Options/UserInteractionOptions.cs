@@ -131,5 +131,5 @@ public class UserInteractionOptions
     /// <value>
     /// The supported prompt modes.
     /// </value>
-    public List<string> SupportedPromptModes { get; set; } = Constants.SupportedPromptModes;
+    public List<string> SupportedPromptModes { get; set; } = new(Constants.SupportedPromptModes);
 }
