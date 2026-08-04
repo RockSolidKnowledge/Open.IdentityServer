@@ -73,19 +73,14 @@ public class ServerSessionTicketStore(
 
         if (existingSession == null)
         {
-            logger.LogInformation("failed renewing '{SessionKey}' session in database, session with key doesn't exists", key);
+            logger.LogWarning("failed renewing '{SessionKey}' session in database, session with key doesn't exist", key);
             await StoreNewSession(key, ticket);
             return;
         }
-        
-        string? subjectId = ticket.Principal.GetSubjectId();
-        string? sessionId = ticket.Properties.GetSessionId();
-        trace?.AddTag(TelemetryConstants.TagConstants.Subject, subjectId);
-        trace?.AddTag(TelemetryConstants.TagConstants.Session, sessionId);
 
         existingSession.Scheme = ticket.AuthenticationScheme;
-        existingSession.SubjectId = subjectId;
-        existingSession.SessionId = sessionId;
+        existingSession.SubjectId = ticket.Principal.GetSubjectId();
+        existingSession.SessionId = ticket.Properties.GetSessionId();
         existingSession.DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name);
         existingSession.Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
         existingSession.Expires = ticket.Properties.ExpiresUtc?.UtcDateTime;
@@ -106,7 +101,7 @@ public class ServerSessionTicketStore(
 
         if (existingSession == null)
         {
-            logger.LogInformation("session with key '{SessionKey}' doesn't exist", key);
+            logger.LogWarning("session with key '{SessionKey}' doesn't exist", key);
             return null;
         }
 
@@ -138,7 +133,6 @@ public class ServerSessionTicketStore(
     public Task RemoveAsync(string key)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
-        trace?.AddTag(TelemetryConstants.TagConstants.Key, key);
 
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 

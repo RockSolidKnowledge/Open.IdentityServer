@@ -15,10 +15,17 @@ namespace Open.IdentityServer.UnitTests.Stores;
 
 public class InMemorySessionStoreTests
 {
-    private InMemorySessionStore CreateSut(IDictionary<string, IdentityServerServerSideSessions>? seedDictionary = null) => 
-        seedDictionary == null ? 
-            new InMemorySessionStore() : 
-            new InMemorySessionStore(seedDictionary);
+    private InMemorySessionStore CreateSut(IEnumerable<IdentityServerServerSideSessions>? seedSessions = null)
+    {
+        InMemorySessionStore sut = new InMemorySessionStore();
+
+        foreach (var seedSession in seedSessions ?? [])
+        {
+            sut.CreateSession(seedSession);
+        }
+
+        return sut;
+    }
     
     [Fact]
     public async Task GetSession_WhenSessionWithKeyIsntStored_ShouldReturnNull()
@@ -33,20 +40,20 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task GetSession_WhenSessionWithKeyStored_ShouldReturnSession()
     {
-        Dictionary<string, IdentityServerServerSideSessions> seededSessions = new Dictionary<string, IdentityServerServerSideSessions>
-        {
-            ["session-0"] = new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-            ["session-1"] = new() { Key = "session-1", DisplayName = "Session 1", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-            ["session-2"] = new() { Key = "session-2", DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-            ["session-3"] = new() { Key = "session-3", DisplayName = "Session 3", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-        };
+        const string testKey = "session-2";
+        IdentityServerServerSideSessions testSession = new() { Key = testKey, DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() };
+        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+            new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
+            new() { Key = "session-1", DisplayName = "Session 1", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
+            testSession,
+            new() { Key = "session-3", DisplayName = "Session 3", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
+        ];
         
         InMemorySessionStore sut = CreateSut(seededSessions);
 
-        const string testKey = "session-2";
         IdentityServerServerSideSessions? actual = await sut.GetSession(testKey);
 
-        actual.Should().BeEquivalentTo(seededSessions[testKey]);
+        actual.Should().BeEquivalentTo(testSession);
     }
     
     [Fact]
@@ -62,10 +69,7 @@ public class InMemorySessionStoreTests
             Key = existingSession.Key, DisplayName = "Session 0 Updated", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
 
-        InMemorySessionStore sut = CreateSut(new Dictionary<string, IdentityServerServerSideSessions>
-        {
-            [existingSession.Key] = existingSession,
-        });
+        InMemorySessionStore sut = CreateSut([existingSession]);
         IdentityServerServerSideSessions? preTestMethodsCall = await sut.GetSession(newSession.Key);
         preTestMethodsCall.Should().BeEquivalentTo(existingSession);
         
@@ -87,10 +91,7 @@ public class InMemorySessionStoreTests
             Key = existingSession.Key, DisplayName = "Session 0 Updated", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
 
-        InMemorySessionStore sut = CreateSut(new Dictionary<string, IdentityServerServerSideSessions>
-        {
-            [existingSession.Key] = existingSession,
-        });
+        InMemorySessionStore sut = CreateSut([existingSession]);
         
         Func<Task> act = async () => await sut.CreateSession(newSession);
         await act.Should().NotThrowAsync();
@@ -159,10 +160,7 @@ public class InMemorySessionStoreTests
             Key = testKey, DisplayName = "Session 0 Updated", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
 
-        InMemorySessionStore sut = CreateSut(new Dictionary<string, IdentityServerServerSideSessions>
-        {
-            [testKey] = existingSession,
-        });
+        InMemorySessionStore sut = CreateSut([existingSession]);
         IdentityServerServerSideSessions? preTestMethodsCall = await sut.GetSession(testKey);
         preTestMethodsCall.Should().BeEquivalentTo(existingSession);
         
@@ -174,13 +172,12 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task DeleteSession_WhenSessionDoesntExists_ShouldNotThrow()
     {
-        Dictionary<string, IdentityServerServerSideSessions> seededSessions = new Dictionary<string, IdentityServerServerSideSessions>
-        {
-            ["session-0"] = new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-            ["session-1"] = new() { Key = "session-1", DisplayName = "Session 1", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-            ["session-2"] = new() { Key = "session-2", DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-            ["session-3"] = new() { Key = "session-3", DisplayName = "Session 3", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-        };
+        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+            new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
+            new() { Key = "session-1", DisplayName = "Session 1", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
+            new() { Key = "session-2", DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
+            new() { Key = "session-3", DisplayName = "Session 3", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
+        ];
         InMemorySessionStore sut = CreateSut(seededSessions);
         
         Func<Task> act = async () => await sut.DeleteSession("non-exitsnt-session");
@@ -192,17 +189,17 @@ public class InMemorySessionStoreTests
     public async Task DeleteSession_WhenSessionExists_ShouldBeRemoved()
     {
         const string testKey = "session-2";
-        Dictionary<string, IdentityServerServerSideSessions> seededSessions = new Dictionary<string, IdentityServerServerSideSessions>
-        {
-            ["session-0"] = new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-            ["session-1"] = new() { Key = "session-1", DisplayName = "Session 1", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-            ["session-2"] = new() { Key = "session-2", DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-            ["session-3"] = new() { Key = "session-3", DisplayName = "Session 3", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
-        };
+        IdentityServerServerSideSessions testSession = new() { Key = testKey, DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() };
+        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+            new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
+            new() { Key = "session-1", DisplayName = "Session 1", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
+            testSession,
+            new() { Key = "session-3", DisplayName = "Session 3", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
+        ];
         
         InMemorySessionStore sut = CreateSut(seededSessions);
         IdentityServerServerSideSessions? preTestMethodsCall = await sut.GetSession(testKey);
-        preTestMethodsCall.Should().BeEquivalentTo(seededSessions[testKey]);
+        preTestMethodsCall.Should().BeEquivalentTo(testSession);
         
         await sut.DeleteSession(testKey);
 
