@@ -1170,59 +1170,6 @@ public class AuthorizeTests
 
     [Fact]
     [Trait("Category", Category)]
-    public async Task unsupported_prompt_should_return_error()
-    {
-        var url = _mockPipeline.CreateAuthorizeUrl(
-            clientId: "client1",
-            responseType: "id_token",
-            scope: "openid profile",
-            redirectUri: "https://client1/callback",
-            state: "123_state",
-            nonce: "123_nonce",
-            extra: new Parameters
-            {
-                { "prompt", "unsupported" },
-            }
-        );
-        await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
-
-        _mockPipeline.ErrorWasCalled.Should().BeTrue();
-    }
-
-    [Fact]
-    [Trait("Category", Category)]
-    public async Task prompt_create_and_login_should_return_error()
-    {
-        _mockPipeline.OnPreConfigureServices += services =>
-        {
-            services.PostConfigure<IdentityServerOptions>(options =>
-            {
-                options.UserInteraction.SupportedPromptModes.Add(OidcConstants.PromptModes.Create);
-            });
-        };
-        _mockPipeline.Initialize();
-
-        await _mockPipeline.LoginAsync("bob");
-
-        var url = _mockPipeline.CreateAuthorizeUrl(
-            clientId: "client1",
-            responseType: "id_token",
-            scope: "openid profile",
-            redirectUri: "https://client1/callback",
-            state: "123_state",
-            nonce: "123_nonce",
-            extra: new Parameters
-            {
-                { "prompt", "create login" },
-            }
-        );
-        await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
-
-        _mockPipeline.ErrorWasCalled.Should().BeTrue();
-    }
-
-    [Fact]
-    [Trait("Category", Category)]
     public async Task prompt_create_should_show_create_account_page()
     {
         _mockPipeline.OnPreConfigureServices += services =>

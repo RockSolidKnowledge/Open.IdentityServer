@@ -445,4 +445,46 @@ public class Authorize_ProtocolValidation_Invalid
         result.IsError.Should().BeTrue();
         result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
     }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task prompt_create_and_other_values_should_fail()
+    {
+        var parameters = new NameValueCollection
+        {
+            { OidcConstants.AuthorizeRequest.ClientId, "codeclient" },
+            { OidcConstants.AuthorizeRequest.Scope, "openid" },
+            { OidcConstants.AuthorizeRequest.RedirectUri, "https://server/cb" },
+            { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
+            { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
+            { OidcConstants.AuthorizeRequest.Prompt, "create login" }
+        };
+
+        var validator = Factory.CreateAuthorizeRequestValidator();
+        var result = await validator.ValidateAsync(parameters);
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task prompt_unsupported_values_should_fail()
+    {
+        var parameters = new NameValueCollection
+        {
+            { OidcConstants.AuthorizeRequest.ClientId, "codeclient" },
+            { OidcConstants.AuthorizeRequest.Scope, "openid" },
+            { OidcConstants.AuthorizeRequest.RedirectUri, "https://server/cb" },
+            { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
+            { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
+            { OidcConstants.AuthorizeRequest.Prompt, "unsupported" }
+        };
+
+        var validator = Factory.CreateAuthorizeRequestValidator();
+        var result = await validator.ValidateAsync(parameters);
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+    }
 }
