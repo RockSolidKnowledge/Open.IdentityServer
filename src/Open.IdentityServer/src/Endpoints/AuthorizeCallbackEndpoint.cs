@@ -76,8 +76,9 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
 
         try
         {
-            parameters.Add(Constants.PromptProcessed, "true");
-            parameters.Add(Constants.MaxAgeProcessed, "true");
+            // Add processed parameters to indicate that they have been processed
+            parameters.Add(Constants.ProcessedParameters.PromptProcessed, "true");
+            parameters.Add(Constants.ProcessedParameters.MaxAgeProcessed, "true");
 
             var result = await ProcessAuthorizeRequestAsync(parameters, user, consent?.Data);
 

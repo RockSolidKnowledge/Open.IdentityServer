@@ -113,8 +113,11 @@ internal static class Constants
         OidcConstants.PromptModes.SelectAccount
     };
 
-    public const string PromptProcessed = OidcConstants.AuthorizeRequest.Prompt + "_processed";
-    public const string MaxAgeProcessed = OidcConstants.AuthorizeRequest.MaxAge + "_processed";
+    public class ProcessedParameters
+    {
+        public const string PromptProcessed = OidcConstants.AuthorizeRequest.Prompt + "_processed";
+        public const string MaxAgeProcessed = OidcConstants.AuthorizeRequest.MaxAge + "_processed";
+    }
 
     public static class KnownAcrValues
     {

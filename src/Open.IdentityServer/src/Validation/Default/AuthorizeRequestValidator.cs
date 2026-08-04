@@ -727,7 +727,9 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         var prompt = request.Raw.Get(OidcConstants.AuthorizeRequest.Prompt);
         if (prompt.IsPresent())
         {
-            var promptProcessed = request.Raw.Get(Constants.PromptProcessed);
+            // if prompt have been processed, aka validation is called in callback,
+            // then we don't want to prompt the user again, so skip handling of the parameter
+            var promptProcessed = request.Raw.Get(Constants.ProcessedParameters.PromptProcessed);
 
             if (!promptProcessed.IsPresent())
             {
@@ -791,7 +793,9 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         var maxAge = request.Raw.Get(OidcConstants.AuthorizeRequest.MaxAge);
         if (maxAge.IsPresent())
         {
-            var maxAgeProcessed = request.Raw.Get(Constants.MaxAgeProcessed);
+            // if max_age have been processed, aka validation is called in callback,
+            // then we don't want to prompt the user again, so skip handling of the parameter
+            var maxAgeProcessed = request.Raw.Get(Constants.ProcessedParameters.MaxAgeProcessed);
 
             if (!maxAgeProcessed.IsPresent())
             {
