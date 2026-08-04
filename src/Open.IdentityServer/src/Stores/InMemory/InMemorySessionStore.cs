@@ -17,15 +17,6 @@ namespace Open.IdentityServer.Stores;
 public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
 {
     private readonly ConcurrentDictionary<string, IdentityServerServerSideSessions> repo = new();
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="seedData"></param>
-    public InMemorySessionStore(IDictionary<string, IdentityServerServerSideSessions> seedData): this()
-    {
-        repo = new ConcurrentDictionary<string, IdentityServerServerSideSessions>(seedData.ToList() ?? []);
-    }
     
     /// <inheritdoc />
     public Task<IdentityServerServerSideSessions?> GetSession(string key)
