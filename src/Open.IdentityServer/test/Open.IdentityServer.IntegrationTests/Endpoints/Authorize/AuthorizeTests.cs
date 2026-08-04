@@ -1297,7 +1297,7 @@ public class AuthorizeTests
         await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
-        var response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.BaseUrl + _mockPipeline.LoginReturnUrl);
+        var response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.BaseUrl + _mockPipeline.LoginReturnUrl, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
         response.Headers.Location.ToString().Should().StartWith("https://client1/callback");
         response.Headers.Location.ToString().Should().Contain("id_token=");
@@ -1348,7 +1348,7 @@ public class AuthorizeTests
         await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
-        var response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.BaseUrl + _mockPipeline.LoginReturnUrl);
+        var response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.BaseUrl + _mockPipeline.LoginReturnUrl, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
         response.Headers.Location.ToString().Should().StartWith("https://client1/callback");
         response.Headers.Location.ToString().Should().Contain("id_token=");
