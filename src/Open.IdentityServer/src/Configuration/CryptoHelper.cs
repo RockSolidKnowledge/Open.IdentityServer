@@ -123,7 +123,7 @@ public static class CryptoHelper
     /// <param name="algorithm">The algorithm to get the curve name for.</param>
     /// <returns>The name of the curve corresponding to the algorithm.</returns>
     /// <exception cref="NotSupportedException"></exception>
-    public static string? GetCurveNameForAlgorithm(this string algorithm)
+    public static string GetCurveNameForAlgorithm(this string algorithm)
     {
         return algorithm switch
         {
