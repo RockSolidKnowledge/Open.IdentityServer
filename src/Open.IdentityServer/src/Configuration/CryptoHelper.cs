@@ -98,6 +98,43 @@ public static class CryptoHelper
     }
 
     /// <summary>
+    /// Returns <see langword="true"/> if the algorithm is an RSA algorithm (RSxxx or PSxxx)
+    /// </summary>
+    /// <param name="algorithm">The algorithm to check.</param>
+    /// <returns><see langword="true"/> if the algorithm is an RSA algorithm; otherwise, <see langword="false"/>.</returns>
+    public static bool IsRsaAlgorithm(this string algorithm)
+    {
+        return algorithm.StartsWith('R') || algorithm.StartsWith('P');
+    }
+
+    /// <summary>
+    /// Returns <see langword="true"/> if the algorithm is an EC algorithm (Exxx)
+    /// </summary>
+    /// <param name="algorithm">The algorithm to check.</param>
+    /// <returns><see langword="true"/> if the algorithm is an EC algorithm; otherwise, <see langword="false"/>.</returns>
+    public static bool IsEcAlgorithm(this string algorithm)
+    {
+        return algorithm.StartsWith('E');
+    }
+
+    /// <summary>
+    /// Returns the matching named curve for a given algorithm
+    /// </summary>
+    /// <param name="algorithm">The algorithm to get the curve name for.</param>
+    /// <returns>The name of the curve corresponding to the algorithm.</returns>
+    /// <exception cref="NotSupportedException"></exception>
+    public static string? GetCurveNameForAlgorithm(this string algorithm)
+    {
+        return algorithm switch
+        {
+            "ES256" => "P-256",
+            "ES384" => "P-384",
+            "ES512" => "P-521",
+            _ => throw new ArgumentOutOfRangeException(nameof(algorithm), "Unexpected algorithm value for EC Curve")
+        };
+    }
+
+    /// <summary>
     /// Returns the matching named curve for RFC 7518 crv value
     /// </summary>
     internal static ECCurve GetCurveFromCrvValue(string crv)
