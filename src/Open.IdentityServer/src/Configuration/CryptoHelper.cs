@@ -129,7 +129,7 @@ public static class CryptoHelper
         {
             "ES256" => "P-256",
             "ES384" => "P-384",
-            "ES512" => "P-521",
+            "ES521" => "P-521",
             _ => throw new ArgumentOutOfRangeException(nameof(algorithm), "Unexpected algorithm value for EC Curve")
         };
     }

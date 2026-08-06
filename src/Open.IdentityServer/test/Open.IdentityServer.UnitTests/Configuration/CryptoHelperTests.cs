@@ -33,7 +33,7 @@ public class CryptoHelperTests
     [Theory]
     [InlineData("ES256")]
     [InlineData("ES384")]
-    [InlineData("ES512")]
+    [InlineData("ES521")]
     public void IsEcAlgorithm_ShouldReturnTrueForEcAlgorithms(string algorithm)
     {
         algorithm.IsEcAlgorithm().Should().BeTrue();
@@ -56,7 +56,7 @@ public class CryptoHelperTests
     [Theory]
     [InlineData("ES256", "P-256")]
     [InlineData("ES384", "P-384")]
-    [InlineData("ES512", "P-521")]
+    [InlineData("ES521", "P-521")]
     public void GetCurveNameForAlgorithm_ShouldReturnCorrectCurveNameForEcAlgorithms(string algorithm, string expectedCurveName)
     {
         algorithm.GetCurveNameForAlgorithm().Should().Be(expectedCurveName);
