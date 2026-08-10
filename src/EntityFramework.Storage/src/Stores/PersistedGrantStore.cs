@@ -172,37 +172,41 @@ public class PersistedGrantStore : IPersistedGrantStore
     {
         if (trace == null) return;
 
-        if (!String.IsNullOrWhiteSpace(filter.ClientId))
+        var clientIds = filter.ClientIds.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        if (clientIds.Any())
         {
-            trace.AddTag(TelemetryConstants.TagConstants.Client, filter.ClientId);
+            trace.AddTag(TelemetryConstants.TagConstants.Client, string.Join(",", filter.ClientIds));
         }
-        if (!String.IsNullOrWhiteSpace(filter.SubjectId))
+        if (!string.IsNullOrWhiteSpace(filter.SubjectId))
         {
             trace.AddTag(TelemetryConstants.TagConstants.Subject, filter.SubjectId);
         }
-        if (!String.IsNullOrWhiteSpace(filter.Type))
+        var types = filter.Types.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        if (types.Any())
         {
-            trace.AddTag(TelemetryConstants.TagConstants.GrantType, filter.Type);
+            trace.AddTag(TelemetryConstants.TagConstants.GrantType, string.Join(",", filter.Types));
         }
     }
 
     private IQueryable<Entities.PersistedGrant> Filter(IQueryable<Entities.PersistedGrant> query, PersistedGrantFilter filter)
     {
-        if (!String.IsNullOrWhiteSpace(filter.ClientId))
+        var clientIds = filter.ClientIds.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        if (clientIds.Any())
         {
-            query = query.Where(x => x.ClientId == filter.ClientId);
+            query = query.Where(x => clientIds.Contains(x.ClientId));
         }
-        if (!String.IsNullOrWhiteSpace(filter.SessionId))
+        if (!string.IsNullOrWhiteSpace(filter.SessionId))
         {
             query = query.Where(x => x.SessionId == filter.SessionId);
         }
-        if (!String.IsNullOrWhiteSpace(filter.SubjectId))
+        if (!string.IsNullOrWhiteSpace(filter.SubjectId))
         {
             query = query.Where(x => x.SubjectId == filter.SubjectId);
         }
-        if (!String.IsNullOrWhiteSpace(filter.Type))
+        var types = filter.Types.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        if (types.Any())
         {
-            query = query.Where(x => x.Type == filter.Type);
+            query = query.Where(x => types.Contains(x.Type));
         }
 
         return query;
