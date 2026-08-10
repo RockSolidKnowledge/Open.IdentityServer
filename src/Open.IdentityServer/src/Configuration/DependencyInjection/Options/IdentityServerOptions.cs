@@ -2,7 +2,6 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
 namespace Open.IdentityServer.Configuration;
 
 /// <summary>
@@ -54,7 +53,7 @@ public class IdentityServerOptions
     /// <value>
     /// The endpoints configuration.
     /// </value>
-    public EndpointsOptions Endpoints { get; set; } = new EndpointsOptions();
+    public EndpointsOptions Endpoints { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the discovery endpoint configuration.
@@ -62,7 +61,7 @@ public class IdentityServerOptions
     /// <value>
     /// The discovery endpoint configuration.
     /// </value>
-    public DiscoveryOptions Discovery { get; set; } = new DiscoveryOptions();
+    public DiscoveryOptions Discovery { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the authentication options.
@@ -70,7 +69,7 @@ public class IdentityServerOptions
     /// <value>
     /// The authentication options.
     /// </value>
-    public AuthenticationOptions Authentication { get; set; } = new AuthenticationOptions();
+    public AuthenticationOptions Authentication { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the events options.
@@ -78,7 +77,7 @@ public class IdentityServerOptions
     /// <value>
     /// The events options.
     /// </value>
-    public EventsOptions Events { get; set; } = new EventsOptions();
+    public EventsOptions Events { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the max input length restrictions.
@@ -86,7 +85,7 @@ public class IdentityServerOptions
     /// <value>
     /// The length restrictions.
     /// </value>
-    public InputLengthRestrictions InputLengthRestrictions { get; set; } = new InputLengthRestrictions();
+    public InputLengthRestrictions InputLengthRestrictions { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the options for the user interaction.
@@ -94,7 +93,7 @@ public class IdentityServerOptions
     /// <value>
     /// The user interaction options.
     /// </value>
-    public UserInteractionOptions UserInteraction { get; set; } = new UserInteractionOptions();
+    public UserInteractionOptions UserInteraction { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the caching options.
@@ -102,7 +101,7 @@ public class IdentityServerOptions
     /// <value>
     /// The caching options.
     /// </value>
-    public CachingOptions Caching { get; set; } = new CachingOptions();
+    public CachingOptions Caching { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the cors options.
@@ -110,35 +109,40 @@ public class IdentityServerOptions
     /// <value>
     /// The cors options.
     /// </value>
-    public CorsOptions Cors { get; set; } = new CorsOptions();
+    public CorsOptions Cors { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the Content Security Policy options.
     /// </summary>
-    public CspOptions Csp { get; set; } = new CspOptions();
+    public CspOptions Csp { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the validation options.
     /// </summary>
-    public ValidationOptions Validation { get; set; } = new ValidationOptions();
+    public ValidationOptions Validation { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the device flow options.
     /// </summary>
-    public DeviceFlowOptions DeviceFlow { get; set; } = new DeviceFlowOptions();
+    public DeviceFlowOptions DeviceFlow { get; set; } = new();
         
     /// <summary>
     /// Gets or sets the logging options
     /// </summary>
-    public LoggingOptions Logging { get; set; } = new LoggingOptions();
+    public LoggingOptions Logging { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the mutual TLS options.
     /// </summary>
-    public MutualTlsOptions MutualTls { get; set; } = new MutualTlsOptions();
+    public MutualTlsOptions MutualTls { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the enable authorise response issuer param option
     /// </summary>
     public bool EnableAuthorizeResponseIssuerParam { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the server-side session options
+    /// </summary>
+    public ServerSideSessionsOptions ServerSideSessions { get; set; } = new();
 }

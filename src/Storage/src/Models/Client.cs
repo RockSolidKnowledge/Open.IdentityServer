@@ -431,8 +431,12 @@ public class Client
         }
     }
     
-    //Unused Compatibility Properties
+    /// <summary>
+    /// Gets or sets the coordinate lifetime with the user session
+    /// </summary>
+    public bool? CoordinateLifetimeWithUserSession { get; set; }
     
+    //Unused Compatibility Properties
     /// <summary>
     /// Gets or sets CIBA lifetime (Unused, added for compatibility)
     /// </summary>
@@ -442,11 +446,6 @@ public class Client
     /// Gets or sets polling interval (Unused, added for compatibility)
     /// </summary>
     public int? PollingInterval { get; set; }
-    
-    /// <summary>
-    /// Gets or sets coordinate lifetime with user session (Unused, added for compatibility)
-    /// </summary>
-    public bool? CoordinateLifetimeWithUserSession { get; set; }
     
     /// <summary>
     /// Gets or sets initiate login URI (Unused, added for compatibility)
