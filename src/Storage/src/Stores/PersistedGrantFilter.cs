@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System.Linq;
+
 namespace Open.IdentityServer.Stores;
 
 /// <summary>
@@ -19,14 +21,32 @@ public class PersistedGrantFilter
     /// Session id used for the grant.
     /// </summary>
     public string SessionId { get; set; }
-        
+
     /// <summary>
-    /// Client id the grant was issued to.
+    /// Client id the grant was issued to. For backwards compatibility.
     /// </summary>
-    public string ClientId { get; set; }
-        
+    public string ClientId
+    {
+        init => ClientIds = [value];
+        get => ClientIds.FirstOrDefault();
+    }
+    
     /// <summary>
-    /// The type of grant.
+    /// Client ids the grant was issued to. Multiple elements in array interpreted as a logic 'OR' for the client id property.
     /// </summary>
-    public string Type { get; set; }
+    public string[] ClientIds { get; set; } = [];
+    
+    /// <summary>
+    /// The type of grant. For backwards compatibility.
+    /// </summary>
+    public string Type
+    {
+        init => Types = [value];
+        get => Types.FirstOrDefault();
+    }
+    
+    /// <summary>
+    /// The type of grant. Multiple elements in array interpreted as a logic 'OR' for the type property.
+    /// </summary>
+    public string[] Types { get; set; } = [];
 }
