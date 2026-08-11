@@ -17,9 +17,9 @@ public class UserSessionEventContext
     /// Session identifier of the session the event has been triggered for
     /// </summary>
     public string SessionId { get; set; }
-    
+
     /// <summary>
     /// ClientIds logged into with the user session
     /// </summary>
-    public string[] ClientIds { get; set; }
+    public string[] ClientIds { get; set; } = [];
 }
