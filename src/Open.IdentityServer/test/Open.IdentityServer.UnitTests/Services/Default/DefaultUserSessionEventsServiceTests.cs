@@ -3,9 +3,11 @@
 
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Open.IdentityServer.Configuration;
@@ -24,10 +26,40 @@ public class DefaultUserSessionEventsServiceTests
     private readonly IClientStore clientStore = Mock.Of<IClientStore>();
     private readonly IPersistedGrantStore persistedGrantStore = Mock.Of<IPersistedGrantStore>();
     private readonly IdentityServerOptions idsOptions = new();
+    private readonly ITelemetryService telemetry = Mock.Of<ITelemetryService>();
+    private readonly ITrace trace = Mock.Of<ITrace>();
     private readonly ILogger<DefaultUserSessionEventsService> logger = TestLogger.Create<DefaultUserSessionEventsService>();
     
-    private DefaultUserSessionEventsService CreateSut() => new(clientStore, persistedGrantStore, backChannelLogoutService, idsOptions, logger);
+    private DefaultUserSessionEventsService CreateSut() => new(clientStore, persistedGrantStore, backChannelLogoutService, idsOptions, telemetry, logger);
 
+    [Theory]
+    [InlineData("subjectId", null)]
+    [InlineData("subjectId", "")]
+    [InlineData("subjectId", "  ")]
+    [InlineData(null, "subjectId")]
+    [InlineData("", "subjectId")]
+    [InlineData("  ", "subjectId")]
+    public async Task HandleUserSessionLogout_WhenInvalidSubjectId_ShouldThrowArgumentException(string subjectId, string sessionId)
+    {
+        UserSessionEventContext userSessionCtx = new()
+        {
+            SubjectId = subjectId,
+            SessionId = sessionId,
+            ClientIds = []
+        };
+        
+        DefaultUserSessionEventsService sut = CreateSut();
+
+        Func<Task> act = async () => await sut.HandleUserSessionLogout(userSessionCtx);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+        
+        Mock.Get(persistedGrantStore)
+            .Verify(x => x.RemoveAllAsync(It.IsAny<PersistedGrantFilter>()), Times.Never);
+        Mock.Get(backChannelLogoutService)
+            .Verify(x => x.SendLogoutNotificationsAsync(It.IsAny<LogoutNotificationContext>()), Times.Never);
+    }
+    
     [Fact]
     public async Task HandleUserSessionLogout_WhenNoClientIdsInSession_ShouldDoNothing()
     {
@@ -75,11 +107,11 @@ public class DefaultUserSessionEventsServiceTests
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(x => 
                 x.SubjectId == "fakeSubject" &&
                 x.SessionId == "fakeSession" &&
-                x.ClientIds.Contains("fake-client-one") &&
-                x.ClientIds.Contains("fake-client-two") &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
+                Enumerable.Contains(x.ClientIds, "fake-client-one") &&
+                Enumerable.Contains(x.ClientIds, "fake-client-two") &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
         
         Mock.Get(backChannelLogoutService)
             .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(x =>
@@ -117,10 +149,10 @@ public class DefaultUserSessionEventsServiceTests
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(x => 
                 x.SubjectId == "fakeSubject" &&
                 x.SessionId == "fakeSession" &&
-                x.ClientIds.Contains("fake-client-two") &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
+                Enumerable.Contains(x.ClientIds, "fake-client-two") &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
         
         Mock.Get(backChannelLogoutService)
             .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(x =>
@@ -156,10 +188,10 @@ public class DefaultUserSessionEventsServiceTests
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(x => 
                 x.SubjectId == "fakeSubject" &&
                 x.SessionId == "fakeSession" &&
-                x.ClientIds.Contains("fake-client-one") &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
+                Enumerable.Contains(x.ClientIds, "fake-client-one") &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
         
         Mock.Get(backChannelLogoutService)
             .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(x =>
@@ -167,6 +199,34 @@ public class DefaultUserSessionEventsServiceTests
                 x.SessionId == "fakeSession" &&
                 x.ClientIds.Contains("fake-client-one") &&
                 x.ClientIds.Contains("fake-non-found"))));
+    }
+
+    [Theory]
+    [InlineData("subjectId", null)]
+    [InlineData("subjectId", "")]
+    [InlineData("subjectId", "  ")]
+    [InlineData(null, "subjectId")]
+    [InlineData("", "subjectId")]
+    [InlineData("  ", "subjectId")]
+    public async Task HandleUserSessionExpiry_WhenInvalidSubjectId_ShouldThrowArgumentException(string subjectId, string sessionId)
+    {
+        UserSessionEventContext userSessionCtx = new()
+        {
+            SubjectId = subjectId,
+            SessionId = sessionId,
+            ClientIds = []
+        };
+        
+        DefaultUserSessionEventsService sut = CreateSut();
+
+        Func<Task> act = async () => await sut.HandleUserSessionExpiry(userSessionCtx);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+        
+        Mock.Get(persistedGrantStore)
+            .Verify(x => x.RemoveAllAsync(It.IsAny<PersistedGrantFilter>()), Times.Never);
+        Mock.Get(backChannelLogoutService)
+            .Verify(x => x.SendLogoutNotificationsAsync(It.IsAny<LogoutNotificationContext>()), Times.Never);
     }
     
     [Fact]
@@ -216,11 +276,11 @@ public class DefaultUserSessionEventsServiceTests
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(x => 
                 x.SubjectId == "fakeSubject" &&
                 x.SessionId == "fakeSession" &&
-                x.ClientIds.Contains("fake-client-one") &&
-                x.ClientIds.Contains("fake-client-two") &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
+                Enumerable.Contains(x.ClientIds, "fake-client-one") &&
+                Enumerable.Contains(x.ClientIds, "fake-client-two") &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
         
         Mock.Get(backChannelLogoutService)
             .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(x =>
@@ -257,10 +317,10 @@ public class DefaultUserSessionEventsServiceTests
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(x => 
                 x.SubjectId == "fakeSubject" &&
                 x.SessionId == "fakeSession" &&
-                x.ClientIds.Contains("fake-client-two") &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
+                Enumerable.Contains(x.ClientIds, "fake-client-two") &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
         
         Mock.Get(backChannelLogoutService)
             .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(x =>
@@ -296,10 +356,10 @@ public class DefaultUserSessionEventsServiceTests
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(x => 
                 x.SubjectId == "fakeSubject" &&
                 x.SessionId == "fakeSession" &&
-                x.ClientIds.Contains("fake-client-two") &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
-                x.Types.Contains(IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
+                Enumerable.Contains(x.ClientIds, "fake-client-two") &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
+                Enumerable.Contains(x.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
         
         Mock.Get(backChannelLogoutService)
             .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(x =>
@@ -329,6 +389,40 @@ public class DefaultUserSessionEventsServiceTests
         
         Mock.Get(backChannelLogoutService)
             .Verify(x => x.SendLogoutNotificationsAsync(It.IsAny<LogoutNotificationContext>()), Times.Never);
+    }
+    
+    [Fact]
+    public async Task HandleUserSessionLogout_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        Mock.Get(telemetry)
+            .Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(trace);
+        
+        DefaultUserSessionEventsService sut = CreateSut();
+        await sut.HandleUserSessionLogout(new UserSessionEventContext { SessionId = "session", SubjectId = "subject" });
+        
+        Mock.Get(telemetry)
+            .Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, sut, "HandleUserSessionLogout"));
+        Mock.Get(trace)
+            .Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleUserSessionExpiry_WhenCalled_ShouldInitiateTelemetryTrace()
+    {
+        Mock.Get(telemetry)
+            .Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(trace);
+        
+        DefaultUserSessionEventsService sut = CreateSut();
+        await sut.HandleUserSessionExpiry(new UserSessionEventContext { SessionId = "session", SubjectId = "subject" });
+        
+        Mock.Get(telemetry)
+            .Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Services, sut, "HandleUserSessionExpiry"));
+        Mock.Get(trace)
+            .Verify(t => t.Dispose(), Times.Once);
     }
 
     private void SetupClientStore(IEnumerable<Client> clients)

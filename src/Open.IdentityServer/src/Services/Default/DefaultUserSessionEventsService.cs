@@ -3,6 +3,7 @@
 
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,19 +21,27 @@ namespace Open.IdentityServer.Services.Default;
 /// <param name="persistedGrantStore">persisted grant store</param>
 /// <param name="backChannelLogoutService">back channel logout service</param>
 /// <param name="idsOptions">IdentityServer options</param>
+/// <param name="telemetry">telemetry service</param>
 /// <param name="logger">logger</param>
 public class DefaultUserSessionEventsService(
     IClientStore clientStore,
     IPersistedGrantStore persistedGrantStore,
     IBackChannelLogoutService backChannelLogoutService,
     IdentityServerOptions idsOptions,
+    ITelemetryService telemetry,
     ILogger<DefaultUserSessionEventsService> logger) : IUserSessionEventsService
 {
     /// <inheritdoc />
     public async Task HandleUserSessionLogout(UserSessionEventContext sessionEventContext)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SessionId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SubjectId);
+        
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
+        
         if (sessionEventContext.ClientIds.Length == 0)
         {
+            logger.LogInformation("no clients linked to session, nothing to be done");
             return;
         }
         
@@ -49,6 +58,11 @@ public class DefaultUserSessionEventsService(
     /// <inheritdoc />
     public async Task HandleUserSessionExpiry(UserSessionEventContext sessionEventContext)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SessionId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SubjectId);
+        
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
+        
         var clientToNotify = await EndSessionForClients(sessionEventContext);
 
         var backChannelClients = (idsOptions.ServerSideSessions.ExpiredSessionsTriggerBackchannelLogout
@@ -57,6 +71,7 @@ public class DefaultUserSessionEventsService(
 
         if (backChannelClients.Count == 0)
         {
+            logger.LogInformation("no backchannel clients to notify");
             return;
         }
         
@@ -74,6 +89,7 @@ public class DefaultUserSessionEventsService(
 
         if (clientIds.Length == 0)
         {
+            logger.LogInformation("no clients to remove grants for");
             return null;
         }
 
@@ -88,16 +104,14 @@ public class DefaultUserSessionEventsService(
         return clientIds;
     }
 
-    private bool ShouldCoordinate(Client client) => client.CoordinateLifetimeWithUserSession ??
-                                                     idsOptions.Authentication.CoordinateClientLifetimesWithUserSession;
-
     private async IAsyncEnumerable<string> ClientIdsToCoordinate(UserSessionEventContext sessionEventContext)
     {
-        foreach (string clientId in sessionEventContext.ClientIds)
+        foreach (string clientId in sessionEventContext.ClientIds ?? [])
         {
             var client = await clientStore.FindClientByIdAsync(clientId);
 
-            if (client != null && ShouldCoordinate(client))
+            if (client != null && (client.CoordinateLifetimeWithUserSession ??
+                                   idsOptions.Authentication.CoordinateClientLifetimesWithUserSession))
             {
                 yield return client.ClientId;
             }
