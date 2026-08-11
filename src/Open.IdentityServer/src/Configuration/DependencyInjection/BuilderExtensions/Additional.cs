@@ -16,6 +16,7 @@ using Open.IdentityServer.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services.Default;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -473,6 +474,7 @@ public static class IdentityServerBuilderExtensionsAdditional
     {
         builder.Services.AddSingleton<IPostConfigureOptions<CookieAuthenticationOptions>, PostConfigureSessionStoreCookieAuthOptions>();
         builder.Services.AddScoped<ITicketStore, ServerSessionTicketStore>();
+        builder.Services.AddScoped<IUserSessionEventsService, DefaultUserSessionEventsService>();
         
         // provide default in-memory implementation, not suitable for most production scenarios (following pattern implemented with existing stores)
         builder.Services.TryAddSingleton<IIdentityServerServerSideSessionStore, InMemorySessionStore>();
