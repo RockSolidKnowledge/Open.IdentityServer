@@ -1,13 +1,20 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+#nullable enable
+
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Hosting;
+using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Xunit;
 
@@ -25,6 +32,7 @@ public class IdentityServerMiddlewareTests
     private readonly Mock<IUserSession> _userSession;
     private readonly Mock<IEventService> _eventService;
     private readonly Mock<IBackChannelLogoutService> _backChannelLogoutService;
+    private readonly IUserSessionEventsService userSessionEventsService;
     private readonly Mock<ITelemetryService> _telemetryService;
     private readonly Mock<ITrace> _trace;
     private readonly DefaultHttpContext _context;
@@ -41,6 +49,7 @@ public class IdentityServerMiddlewareTests
         _userSession = new Mock<IUserSession>();
         _eventService = new Mock<IEventService>();
         _backChannelLogoutService = new Mock<IBackChannelLogoutService>();
+        userSessionEventsService = Mock.Of<IUserSessionEventsService>();
         _telemetryService = new Mock<ITelemetryService>();
         _trace = new Mock<ITrace>();
         _telemetryService.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<string>()))
@@ -57,7 +66,7 @@ public class IdentityServerMiddlewareTests
     private async Task InvokeSubjectMiddleware()
     {
         await _subject.Invoke(_context, _router.Object, _userSession.Object, 
-            _eventService.Object, _backChannelLogoutService.Object, _telemetryService?.Object);
+            _eventService.Object, _backChannelLogoutService.Object, userSessionEventsService, _telemetryService?.Object);
     }
 
     [Fact]
@@ -207,5 +216,51 @@ public class IdentityServerMiddlewareTests
             _context.Request.Path.ToString()), 
             Times.Once);
         activeRequestDisposable.Verify(x => x.Dispose(), Times.Once);
+    }
+    
+    [Fact]
+    public async Task Invoke_WhenSignOutCalled_ShouldCallHandleUserSessionLogout_OnIUserSessionEventsService()
+    {
+        string sessionId = "session-id";
+        string subjectId = "subject-id";
+        string[] clientIds = ["clientId1", "clientId2", "clientId3"];
+        ClaimsPrincipal user = new ClaimsPrincipal(new ClaimsIdentity([
+            new Claim(JwtClaimTypes.Subject, subjectId, ClaimValueTypes.String, "FakeIssuer"),
+        ]));
+        
+        // Manually invoke the OnStarting callback to test that user session events service is called
+        var responseFeatureMock = Mock.Of<IHttpResponseFeature>();
+        Mock.Get(responseFeatureMock)
+            .Setup(x => x.OnStarting(It.IsAny<Func<object, Task>>(), It.IsAny<object>()))
+            .Callback<Func<object, Task>, object>((callback, state) => { callback.Invoke(state); });
+        _context.Features[typeof(IHttpResponseFeature)] = responseFeatureMock;
+        
+        _context.SetSignOutCalled();
+
+        _userSession.Setup(x => x.GetClientListAsync())
+            .ReturnsAsync(clientIds);
+        _userSession.Setup(x => x.GetSessionIdAsync())
+            .ReturnsAsync(sessionId);
+        _userSession.Setup(x => x.GetUserAsync())
+            .ReturnsAsync(user);
+
+        _userSession.Setup(x => x.RemoveSessionIdCookieAsync()).Returns(Task.CompletedTask);
+
+        UserSessionEventContext? actualUserSessionEventCtx = null;
+        Mock.Get(userSessionEventsService)
+            .Setup(x => x.HandleUserSessionLogout(It.IsAny<UserSessionEventContext>()))
+            .Callback<UserSessionEventContext>((sessionEventContext) => { actualUserSessionEventCtx = sessionEventContext; });
+        
+        await InvokeSubjectMiddleware();
+
+        _userSession.Verify(x => x.RemoveSessionIdCookieAsync(), Times.Once);
+        
+        Mock.Get(userSessionEventsService)
+            .Verify(x => x.HandleUserSessionLogout(It.IsAny<UserSessionEventContext>()), Times.Once);
+
+        actualUserSessionEventCtx.Should().NotBeNull();
+        actualUserSessionEventCtx.SessionId.Should().BeEquivalentTo(sessionId);
+        actualUserSessionEventCtx.SubjectId.Should().BeEquivalentTo(subjectId);
+        actualUserSessionEventCtx.ClientIds.Should().BeEquivalentTo(clientIds);
     }
 }

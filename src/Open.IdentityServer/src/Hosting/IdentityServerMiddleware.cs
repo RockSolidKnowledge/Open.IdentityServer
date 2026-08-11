@@ -9,7 +9,9 @@ using Open.IdentityServer.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Open.IdentityServer.Models;
 
 namespace Open.IdentityServer.Hosting;
 
@@ -40,6 +42,7 @@ public class IdentityServerMiddleware
     /// <param name="session">The user session.</param>
     /// <param name="events">The event service.</param>
     /// <param name="backChannelLogoutService">The service used to send back-channel logout notifications to clients when the user signs out.</param>
+    /// <param name="userSessionEventsService">The service for handling user session events</param>
     /// <param name="telemetryService">The telemetry service</param>
     /// <returns>A task that completes when the request has been handled by an IdentityServer endpoint or passed to the next middleware in the pipeline.</returns>
     public async Task Invoke(
@@ -47,7 +50,8 @@ public class IdentityServerMiddleware
         IEndpointRouter router, 
         IUserSession session, 
         IEventService events, 
-        IBackChannelLogoutService backChannelLogoutService, 
+        IBackChannelLogoutService backChannelLogoutService,
+        IUserSessionEventsService userSessionEventsService,
         ITelemetryService telemetryService)
     {
         // this will check the authentication session and from it emit the check session
@@ -62,13 +66,16 @@ public class IdentityServerMiddleware
 
                 // this clears our session id cookie so JS clients can detect the user has signed out
                 await session.RemoveSessionIdCookieAsync();
-
-                // back channel logout
-                var logoutContext = await session.GetLogoutNotificationContext();
-                if (logoutContext != null)
+                
+                // notify other services of logout when required
+                var user = await session.GetUserAsync();
+                var clientIds = await session.GetClientListAsync();
+                await userSessionEventsService.HandleUserSessionLogout(new UserSessionEventContext
                 {
-                    await backChannelLogoutService.SendLogoutNotificationsAsync(logoutContext);
-                }
+                    SessionId = await session.GetSessionIdAsync(),
+                    SubjectId = user.GetSubjectId(),
+                    ClientIds = clientIds.ToArray(),
+                });
             }
         });
 
