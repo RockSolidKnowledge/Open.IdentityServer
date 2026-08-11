@@ -3,7 +3,13 @@
 
 namespace Open.IdentityServer.Configuration;
 
+/// <summary>
+/// 
+/// </summary>
 public class ServerSideSessionsOptions
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public bool ExpiredSessionsTriggerBackchannelLogout { get; set; }
 }
