@@ -5,7 +5,7 @@
         <ExtensionsVersion>10.0.5</ExtensionsVersion>
         <EntityFrameworkVersion>10.0.10</EntityFrameworkVersion>
 
-        <IdentityServerVersion>2.0.0-*</IdentityServerVersion>
+        <IdentityServerVersion>2.1.0-*</IdentityServerVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -61,7 +61,8 @@
         <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkVersion)" PrivateAssets="All"/>
         
         <!--other entity framework-->
-        <PackageReference Update="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+        <PackageReference Update="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+        <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
         <PackageReference Update="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
     </ItemGroup>
 

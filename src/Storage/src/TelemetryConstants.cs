@@ -52,6 +52,7 @@ public static class TelemetryConstants
         public const string Resource = "resource";
         public const string Subject = "subject";
         public const string Session = "session";
+        public const string Key = "key";
     }
     
     public static class TraceCategories
