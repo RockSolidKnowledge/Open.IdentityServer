@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Open.IdentityServer.Models;
@@ -205,5 +206,57 @@ public class InMemorySessionStoreTests
 
         IdentityServerServerSideSessions? actual = await sut.GetSession(testKey);
         actual.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task FilterSessions_WhenSessionDontMatch_ShouldReturnEmptySet()
+    {
+        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+            new() { Key = "key-0", SubjectId = "bob", SessionId = "session-0" },
+            new() { Key = "key-1", SubjectId = "alice", SessionId = "session-1" },
+            new() { Key = "key-2", SubjectId = "bob", SessionId = "session-2" },
+            new() { Key = "key-3", SubjectId = "alice", SessionId = "session-3" },
+            new() { Key = "key-4", SubjectId = "bob", SessionId = "session-0" },
+            new() { Key = "key-5", SubjectId = "bob", SessionId = "session-2" },
+            new() { Key = "key-6", SubjectId = "alice", SessionId = "session-1" },
+        ];
+        
+        InMemorySessionStore sut = CreateSut(seededSessions);
+        
+        var actual = (await sut.FilterSessions("john", "session-x")).ToList();
+
+        actual.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task FilterSessions_WhenNoSessionsStored_ShouldReturnEmptySet()
+    {
+        InMemorySessionStore sut = CreateSut();
+        
+        var actual = (await sut.FilterSessions("john", "session-x")).ToList();
+
+        actual.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task FilterSessions_WhenSessionMatch_ShouldReturnMatchingSessions()
+    {
+        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+            new() { Key = "key-0", SubjectId = "bob", SessionId = "session-0" },
+            new() { Key = "key-1", SubjectId = "alice", SessionId = "session-1" },
+            new() { Key = "key-2", SubjectId = "bob", SessionId = "session-2" },
+            new() { Key = "key-3", SubjectId = "alice", SessionId = "session-3" },
+            new() { Key = "key-4", SubjectId = "bob", SessionId = "session-0" },
+            new() { Key = "key-5", SubjectId = "bob", SessionId = "session-2" },
+            new() { Key = "key-6", SubjectId = "alice", SessionId = "session-1" },
+        ];
+        
+        InMemorySessionStore sut = CreateSut(seededSessions);
+
+        var actual = (await sut.FilterSessions("alice", "session-1")).ToList();
+
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == "key-1");
+        actual.Should().Contain(x => x.Key == "key-6");
     }
 }

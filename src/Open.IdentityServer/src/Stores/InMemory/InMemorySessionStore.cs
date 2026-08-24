@@ -4,6 +4,8 @@
 #nullable enable
 
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 
@@ -42,5 +44,12 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
     {
         repo.TryRemove(key, out IdentityServerServerSideSessions? value);
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId)
+    {
+        return Task.FromResult(repo.Values
+            .Where(x => x.SubjectId == subjectId && x.SessionId == sessionId));
     }
 }

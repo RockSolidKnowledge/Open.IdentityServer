@@ -4,6 +4,8 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -33,7 +35,7 @@ public class ServerSessionTicketStore(
     IDataProtectionProvider dataProtectionProvider,
     TimeProvider timeProvider,
     ITelemetryService telemetry,
-    ILogger<ServerSessionTicketStore> logger) : ITicketStore
+    ILogger<ServerSessionTicketStore> logger): IServerSessionTicketStore
 {
     private readonly IDataProtector dataProtector =
         dataProtectionProvider.CreateProtector(DataProtectionConstants.ServerSideTicketStorePurpose);
@@ -107,20 +109,7 @@ public class ServerSessionTicketStore(
 
         try
         {
-            DataProtectedSessionData? dataProtectedSessionData = JsonSerializer.Deserialize<DataProtectedSessionData>(existingSession.Data, JsonSettings);
-
-            if (dataProtectedSessionData is not { Version: 1 })
-            {
-                logger.LogError("failed retrieving '{SessionKey}', deserialisation failed, incorrect version '{VersionOrNull}'", key, dataProtectedSessionData?.Version);
-                return null;
-            }
-            
-            string unprotectedData = dataProtector.Unprotect(dataProtectedSessionData.Payload);
-
-            SerializedAuthenticationTicket? serializedAuthTicket =
-                JsonSerializer.Deserialize<SerializedAuthenticationTicket>(unprotectedData);
-
-            return serializedAuthTicket?.ToAuthTicket();
+            return DeserializeAuthTicket(existingSession);
         }
         catch (Exception ex)
         {
@@ -138,6 +127,20 @@ public class ServerSessionTicketStore(
 
         serverServerSideSessionStore.DeleteSession(key);
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string subjectId, string sessionId)
+    {
+        using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
+        IEnumerable<IdentityServerServerSideSessions> sessions = await serverServerSideSessionStore.FilterSessions(subjectId, sessionId);
+        
+        return sessions.Select(x => new AuthenticationTicketFilterResult
+        {
+            Session = x,
+            AuthTicket = DeserializeAuthTicket(x),
+        }).Where(x => x.AuthTicket != null);
     }
 
     private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)
@@ -168,5 +171,33 @@ public class ServerSessionTicketStore(
         {
             Payload = dataProtector.Protect(serializedTicket),
         }, JsonSettings);
+    }
+    
+    private AuthenticationTicket? DeserializeAuthTicket(IdentityServerServerSideSessions existingSession)
+    {
+        DataProtectedSessionData? dataProtectedSessionData;
+
+        try
+        {
+            dataProtectedSessionData = JsonSerializer.Deserialize<DataProtectedSessionData>(existingSession.Data, JsonSettings);
+        }
+        catch (JsonException exception)
+        {
+            logger.LogError(exception, "failed deserialising auth ticket data");
+            return null;
+        }
+        
+        if (dataProtectedSessionData is not { Version: 1 })
+        {
+            logger.LogError("failed retrieving '{SessionKey}', deserialisation failed, incorrect version '{VersionOrNull}'", existingSession.Key, dataProtectedSessionData?.Version);
+            return null;
+        }
+            
+        string unprotectedData = dataProtector.Unprotect(dataProtectedSessionData.Payload);
+
+        SerializedAuthenticationTicket? serializedAuthTicket =
+            JsonSerializer.Deserialize<SerializedAuthenticationTicket>(unprotectedData);
+
+        return serializedAuthTicket?.ToAuthTicket();
     }
 }

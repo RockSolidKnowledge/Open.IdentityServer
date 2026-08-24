@@ -4,6 +4,8 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -120,5 +122,21 @@ public class IdentityServerServerSideSessionStore(
         {
             logger.LogError(ex, "exception deleting '{SessionKey}' session in database", key);
         }
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
+        ArgumentException.ThrowIfNullOrWhiteSpace(subjectId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sessionId);
+
+        var result = dbContext.ServerSideSessions.ToList();
+        
+        return await dbContext.ServerSideSessions
+            .Where(x => x.SubjectId == subjectId && x.SessionId == sessionId)
+            .Select(x => x.ToModel())
+            .ToListAsync();
     }
 }
