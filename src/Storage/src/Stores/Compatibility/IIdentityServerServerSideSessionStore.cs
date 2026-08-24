@@ -3,6 +3,7 @@
 
 #nullable enable
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 
@@ -28,7 +29,7 @@ public interface IIdentityServerServerSideSessionStore
     public Task CreateSession(IdentityServerServerSideSessions session);
     
     /// <summary>
-    /// Updates the provided server side session model, model with unique key must already exist in store
+    /// Updates the provided server-side session model. The model with a unique key must already exist in the store
     /// </summary>
     /// <param name="session">session model to update</param>
     /// <returns>void</returns>
@@ -40,4 +41,12 @@ public interface IIdentityServerServerSideSessionStore
     /// <param name="key">unique key of session</param>
     /// <returns>void</returns>
     public Task DeleteSession(string key);
+
+    /// <summary>
+    /// Filters auth tickets stored in server-side sessions using the provided filters
+    /// </summary>
+    /// <param name="subjectId">subject id filter to apply</param>
+    /// <param name="sessionId">session id filter to apply</param>
+    /// <returns>collection of session entities matching filter</returns>
+    public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId);
 }

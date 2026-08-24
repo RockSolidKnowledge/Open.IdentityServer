@@ -75,7 +75,7 @@ public class IdentityServerMiddleware
                     return;
                 }
                 
-                await userSessionEventsService.HandleUserSessionLogout(new UserSessionEventContext
+                await userSessionEventsService.HandleUserSessionLogout(new EndUserSessionEventContext
                 {
                     SessionId = await session.GetSessionIdAsync(),
                     SubjectId = user.GetSubjectId(),
