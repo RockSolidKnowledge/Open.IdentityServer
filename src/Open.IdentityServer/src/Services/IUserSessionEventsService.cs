@@ -9,21 +9,28 @@ using Open.IdentityServer.Models;
 namespace Open.IdentityServer.Services;
 
 /// <summary>
-/// Service responsible handling user session events
+/// Service responsible for handling user session events
 /// </summary>
 public interface IUserSessionEventsService
 {
     /// <summary>
-    /// Triggered when session logout occurs
+    /// Triggered when the session logout occurs
     /// </summary>
     /// <param name="sessionEventContext">context needed for handling logout event</param>
     /// <returns></returns>
-    public Task HandleUserSessionLogout(UserSessionEventContext sessionEventContext);
+    public Task HandleUserSessionLogout(EndUserSessionEventContext sessionEventContext);
     
     /// <summary>
-    /// Triggered when session expires
+    /// Triggered when the session expires
     /// </summary>
     /// <param name="sessionEventContext">context needed for handling logout event</param>
     /// <returns></returns>
-    public Task HandleUserSessionExpiry(UserSessionEventContext sessionEventContext);
+    public Task HandleUserSessionExpiry(EndUserSessionEventContext sessionEventContext);
+    
+    /// <summary>
+    /// Checks for a valid session using the provided context
+    /// </summary>
+    /// <param name="sessionEventContext">context needed for handling session validation</param>
+    /// <returns>boolean value to indicate if valid session exists</returns>
+    public Task<bool> ValidateSession(ValidateUserSessionEventContext sessionEventContext);
 }

@@ -20,19 +20,25 @@ namespace Open.IdentityServer.Services.Default;
 /// <param name="clientStore">client store</param>
 /// <param name="persistedGrantStore">persisted grant store</param>
 /// <param name="backChannelLogoutService">back channel logout service</param>
+/// <param name="serverSessionTicketStore">server side auth ticket store</param>
+/// <param name="identityServerServerSideSessionStore">server side session entity store</param>
 /// <param name="idsOptions">IdentityServer options</param>
 /// <param name="telemetry">telemetry service</param>
+/// <param name="timeProvider">time provider</param>
 /// <param name="logger">logger</param>
 public class DefaultUserSessionEventsService(
     IClientStore clientStore,
     IPersistedGrantStore persistedGrantStore,
     IBackChannelLogoutService backChannelLogoutService,
+    IServerSessionTicketStore? serverSessionTicketStore,
+    IIdentityServerServerSideSessionStore? identityServerServerSideSessionStore,
     IdentityServerOptions idsOptions,
     ITelemetryService telemetry,
+    TimeProvider timeProvider,
     ILogger<DefaultUserSessionEventsService> logger) : IUserSessionEventsService
 {
     /// <inheritdoc />
-    public async Task HandleUserSessionLogout(UserSessionEventContext sessionEventContext)
+    public async Task HandleUserSessionLogout(EndUserSessionEventContext sessionEventContext)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SessionId);
         ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SubjectId);
@@ -56,7 +62,7 @@ public class DefaultUserSessionEventsService(
     }
 
     /// <inheritdoc />
-    public async Task HandleUserSessionExpiry(UserSessionEventContext sessionEventContext)
+    public async Task HandleUserSessionExpiry(EndUserSessionEventContext sessionEventContext)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SessionId);
         ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SubjectId);
@@ -83,7 +89,51 @@ public class DefaultUserSessionEventsService(
         });
     }
 
-    private async Task<string[]?> EndSessionForClients(UserSessionEventContext sessionEventContext)
+    /// <inheritdoc />
+    public async Task<bool> ValidateSession(ValidateUserSessionEventContext sessionEventContext)
+    {
+        if (serverSessionTicketStore == null || identityServerServerSideSessionStore == null ||
+            !ShouldCoordinateLifetimes(sessionEventContext.Client))
+        {
+            return true;
+        }
+
+        var sessions =
+            (await serverSessionTicketStore.FilterServerAuthenticationTickets(sessionEventContext.SubjectId,
+                sessionEventContext.SessionId))
+            .ToList();
+
+        if (sessions.Count == 0 || sessions.All(x => x.Session.Expires.HasValue &&
+                                                     x.Session.Expires < timeProvider.GetUtcNow()))
+        {
+            logger.LogDebug("");
+            return false;
+        }
+
+        foreach (var session in sessions)
+        {
+            var diff = session.Session.Expires - session.Session.Renewed;
+            session.Session.Renewed = timeProvider.GetUtcNow().UtcDateTime;
+            session.Session.Expires = session.Session.Renewed + diff;
+
+            if (idsOptions.Authentication.CookieSlidingExpiration &&
+                session.AuthTicket?.Properties is { IsPersistent: true, AllowRefresh: true or null })
+            {
+                session.AuthTicket.Properties.IssuedUtc = session.Session.Renewed;
+                session.AuthTicket.Properties.ExpiresUtc = session.Session.Expires;
+                session.AuthTicket.Properties.SetString(IdentityServerConstants.ForceCookieRefresh, string.Empty);
+                await serverSessionTicketStore.RenewAsync(session.Session.Key, session.AuthTicket);
+            }
+            else
+            {
+                await identityServerServerSideSessionStore.UpdateSession(session.Session);
+            }
+        }
+
+        return true;
+    }
+
+    private async Task<string[]?> EndSessionForClients(EndUserSessionEventContext sessionEventContext)
     {
         var clientIds = await ClientIdsToCoordinate(sessionEventContext).ToArrayAsync();
 
@@ -104,17 +154,19 @@ public class DefaultUserSessionEventsService(
         return clientIds;
     }
 
-    private async IAsyncEnumerable<string> ClientIdsToCoordinate(UserSessionEventContext sessionEventContext)
+    private async IAsyncEnumerable<string> ClientIdsToCoordinate(EndUserSessionEventContext sessionEventContext)
     {
         foreach (string clientId in sessionEventContext.ClientIds ?? [])
         {
             var client = await clientStore.FindClientByIdAsync(clientId);
 
-            if (client != null && (client.CoordinateLifetimeWithUserSession ??
-                                   idsOptions.Authentication.CoordinateClientLifetimesWithUserSession))
+            if (ShouldCoordinateLifetimes(client))
             {
                 yield return client.ClientId;
             }
         }
     }
+
+    private bool ShouldCoordinateLifetimes(Client? client) => client != null && (client.CoordinateLifetimeWithUserSession ?? 
+        idsOptions.Authentication.CoordinateClientLifetimesWithUserSession);
 }
