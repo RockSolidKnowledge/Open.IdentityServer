@@ -38,6 +38,8 @@ internal class ConfigureInternalCookieOptions : IConfigureNamedOptions<CookieAut
             {
                 options.ReturnUrlParameter = _idsrv.UserInteraction.LoginReturnUrlParameter;
             }
+            
+            // options.Events.OnCheckSlidingExpiration = TODO implement to use a flag in the auth ticket properties to decide if the cookie needs refreshing
         }
 
         if (name == IdentityServerConstants.ExternalCookieAuthenticationScheme)
