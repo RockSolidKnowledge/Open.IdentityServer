@@ -22,4 +22,24 @@ public class IdentityResourcesMappersTests
         Assert.NotNull(mappedModel);
         Assert.NotNull(mappedEntity);
     }
+
+    [Fact]
+    public void ToEntity_maps_all_properties()
+    {
+        new MappingVerifier<IdentityResource, Entities.IdentityResource>()
+            .ExcludeDestinationProperties(
+                // Database-assigned or entity-managed fields not sourced from the model
+                nameof(Entities.IdentityResource.Id),
+                nameof(Entities.IdentityResource.Created),
+                nameof(Entities.IdentityResource.Updated),
+                nameof(Entities.IdentityResource.NonEditable))
+            .Verify(model => model.ToEntity());
+    }
+
+    [Fact]
+    public void ToModel_maps_all_properties()
+    {
+        new MappingVerifier<Entities.IdentityResource, IdentityResource>()
+            .Verify(entity => entity.ToModel());
+    }
 }
