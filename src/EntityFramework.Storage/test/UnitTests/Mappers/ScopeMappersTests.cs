@@ -65,4 +65,25 @@ public class ScopesMappersTests
         mappedModel.Properties["x"].Should().Be("xx");
         mappedModel.Properties["y"].Should().Be("yy");
     }
+
+    [Fact]
+    public void ToEntity_maps_all_properties()
+    {
+        new MappingVerifier<ApiScope, Entities.ApiScope>()
+            .ExcludeDestinationProperties(
+                // Database-assigned or entity-managed fields not sourced from the model
+                nameof(Entities.ApiScope.Id),
+                nameof(Entities.ApiScope.Created),
+                nameof(Entities.ApiScope.Updated),
+                nameof(Entities.ApiScope.LastAccessed),
+                nameof(Entities.ApiScope.NonEditable))
+            .Verify(model => model.ToEntity());
+    }
+
+    [Fact]
+    public void ToModel_maps_all_properties()
+    {
+        new MappingVerifier<Entities.ApiScope, ApiScope>()
+            .Verify(entity => entity.ToModel());
+    }
 }

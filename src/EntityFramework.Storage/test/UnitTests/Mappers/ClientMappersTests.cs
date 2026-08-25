@@ -97,4 +97,46 @@ public class ClientMappersTests
         model.ProtocolType.Should().Be(def.ProtocolType);
         model.ClientSecrets.First().Type.Should().Be(def.ClientSecrets.First().Type);
     }
+
+    [Fact]
+    public void ToEntity_maps_all_properties()
+    {
+        new MappingVerifier<Client, Entities.Client>()
+            .ExcludeDestinationProperties(
+                // Database-assigned or entity-managed fields not sourced from the model
+                nameof(Entities.Client.Id),
+                nameof(Entities.Client.Created),
+                nameof(Entities.Client.Updated),
+                nameof(Entities.Client.LastAccessed),
+                nameof(Entities.Client.NonEditable),
+                // Compatibility properties intentionally not mapped
+                nameof(Entities.Client.CibaLifetime),
+                nameof(Entities.Client.PollingInterval),
+                nameof(Entities.Client.CoordinateLifetimeWithUserSession),
+                nameof(Entities.Client.InitiateLoginUri),
+                nameof(Entities.Client.DPoPClockSkew),
+                nameof(Entities.Client.DPoPValidationMode),
+                nameof(Entities.Client.RequireDPoP),
+                nameof(Entities.Client.PushedAuthorizationLifetime),
+                nameof(Entities.Client.RequirePushedAuthorization))
+            .Verify(model => model.ToEntity());
+    }
+
+    [Fact]
+    public void ToModel_maps_all_properties()
+    {
+        new MappingVerifier<Entities.Client, Client>()
+            .ExcludeDestinationProperties(
+                // Compatibility properties intentionally not mapped
+                nameof(Client.CibaLifetime),
+                nameof(Client.PollingInterval),
+                nameof(Client.CoordinateLifetimeWithUserSession),
+                nameof(Client.InitiateLoginUri),
+                nameof(Client.DPoPClockSkew),
+                nameof(Client.DPoPValidationMode),
+                nameof(Client.RequireDPoP),
+                nameof(Client.PushedAuthorizationLifetime),
+                nameof(Client.RequirePushedAuthorization))
+            .Verify(entity => entity.ToModel());
+    }
 }
