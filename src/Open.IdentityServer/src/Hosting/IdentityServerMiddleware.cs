@@ -2,7 +2,6 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
 using Open.IdentityServer.Events;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Services;
@@ -70,6 +69,12 @@ public class IdentityServerMiddleware
                 // notify other services of logout when required
                 var user = await session.GetUserAsync();
                 var clientIds = await session.GetClientListAsync();
+
+                if (user == null)
+                {
+                    return;
+                }
+                
                 await userSessionEventsService.HandleUserSessionLogout(new UserSessionEventContext
                 {
                     SessionId = await session.GetSessionIdAsync(),
