@@ -62,7 +62,7 @@ public class AccessTokenValidation
         var result = await validator.ValidateAccessTokenAsync(handle);
 
         result.IsError.Should().BeFalse();
-        result.Claims.Count().Should().Be(8);
+        result.Claims.Count().Should().Be(9);
         result.Claims.First(c => c.Type == JwtClaimTypes.ClientId).Value.Should().Be("roclient");
     }
 
