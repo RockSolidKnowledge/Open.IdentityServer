@@ -163,7 +163,7 @@ public static class IdentityServerBuilderExtensionsInMemory
     {
         builder.Services.TryAddSingleton<IPersistedGrantStore, InMemoryPersistedGrantStore>();
         builder.Services.TryAddSingleton<IDeviceFlowStore, InMemoryDeviceFlowStore>();
-
+        builder.Services.TryAddSingleton<IPushedAuthorizationRequestStore,InMemoryPushedAuthorizationRequestStore>();
         return builder;
     }
 }

@@ -13,12 +13,12 @@ public class PushedAuthorizationResponse(Uri uri , long lifetime)
        /// <summary>
        /// The URN to send to the authorization endpoint to obtain the authcode, instead of parametes
        /// </summary>
-       [JsonPropertyName("request_uri")]
+       [JsonPropertyName(OidcConstants.AuthorizeRequest.RequestUri)]
        public string Uri { get; } = uri.ToString();
        
        /// <summary>
        /// The lifetime in seconds of the URN
        /// </summary>
-       [JsonPropertyName("expires_in")]
+       [JsonPropertyName(OidcConstants.AuthorizeResponse.ExpiresIn)]
        public long Lifetime { get; } = lifetime;
 }
