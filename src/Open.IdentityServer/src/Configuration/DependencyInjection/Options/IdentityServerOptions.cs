@@ -145,5 +145,5 @@ public class IdentityServerOptions
     /// <summary>
     /// Enforce PAR for all authorization code flow requests
     /// </summary>
-    public bool RequirePushedAuthorization { get; set; } = false;
+    public PushedAuthorizationOptions PushedAuthorization {get;} = new PushedAuthorizationOptions();
 }

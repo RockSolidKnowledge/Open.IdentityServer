@@ -219,7 +219,7 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
         {
             entries.Add(
                 OidcConstants.Discovery.RequirePushedAuthorizationRequests,
-                Options.RequirePushedAuthorization
+                Options.PushedAuthorization.Required
                 );
         }
 
