@@ -23,60 +23,14 @@ public class PushedAuthorizationResponseGeneratorTests
     private readonly Mock<IPushedAuthorizationRequestStore> _store = new();
     private readonly Mock<IHandleGenerationService> _handleGenerationService = new();
     private Mock<ILogger<PushedAuthorizationResponseGenerator>> _logger = new();
-    private ValidatedAuthorizeRequest _request;
+    private Mock<TimeProvider> clock = new Mock<TimeProvider>();
+    private IdentityServerOptions options = new IdentityServerOptions();
+
+    private ValidatedAuthorizeRequest _request = new ValidatedAuthorizeRequest() { Raw = new NameValueCollection() };
 
     public PushedAuthorizationResponseGeneratorTests()
     {
-        _request = new ValidatedAuthorizeRequest
-        {
-            ClientId = "dfui",
-            GrantType = "code",
-            Description = "skdvibjsd",
-            LoginHint = "jdsfbivufe",
-            IsApiResourceRequest = true,
-            IsOpenIdRequest = true,
-            MaxAge = 100,
-            Nonce = "jdsfbivufe",
-            RedirectUri = "https://foo.bar",
-            CodeChallenge = "kdsjfbvj",
-            CodeChallengeMethod = "skjdehfoub",
-            DisplayMode = "dfjbvjk",
-            ResponseMode = "shjdbvhb",
-            ResponseType = "skjdfhvb",
-            State = "wrger",
-            UiLocales = "skjdfhvb",
-            RequestObject = "kjsbdvkbjj",
-            WasConsentShown = true,
-            AccessTokenLifetime = 200,
-            Client = new(),
-            Confirmation = "dsfifvbuo",
-            SessionId = "djcbiud",
-            Subject = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim("sub", "123") })),
-            AccessTokenType = AccessTokenType.Jwt,
-            Secret = new ParsedSecret(),
-            AuthenticationContextReferenceClasses = new List<string> { "hvsdvc", "bsdfu" },
-            RequestedResourceIndicators = new List<string> { "efe", "ergberb" },
-            RequestedScopes = new List<string> { "yhrehq", "asdgfrh" },
-            PromptModes = new List<string> { "aerh", "gfrea" },
-            ClientClaims = new List<Claim>{ new Claim("foo", "bar"), new Claim("baz", "qux") },
-            Options = new IdentityServerOptions(),
-            Raw = new NameValueCollection(),
-            RequestObjectValues = new Dictionary<string, string> { ["jdbsv"] = "sdbvbudv" },
-            ValidatedResources = new ResourceValidationResult
-            {
-                Resources = new Resources
-                {
-                    OfflineAccess = true,
-                    ApiScopes = [new ApiScope("api")],
-                }
-            },
-        };
-    }
-    
-    
-    private PushedAuthorizationResponseGenerator CreateSut()
-    {
-        return new PushedAuthorizationResponseGenerator(_store.Object, _handleGenerationService.Object, _logger.Object);
+      
     }
     
     [Fact]
@@ -84,10 +38,10 @@ public class PushedAuthorizationResponseGeneratorTests
     {
         var sut = CreateSut();
         
-        PushedAuthorizationStoredInformation? storedInfo = null;
+        PushedAuthorizationMemento? storedInfo = null;
         
-        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationStoredInformation>()))
-            .Callback<string, PushedAuthorizationStoredInformation>((_, info) => storedInfo = info);
+        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationMemento>()))
+            .Callback<string, PushedAuthorizationMemento>((_, info) => storedInfo = info);
         
         await sut.CreateResponseAsync(_request);
         
@@ -105,13 +59,73 @@ public class PushedAuthorizationResponseGeneratorTests
 
         string? passedId = null;
         
-        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationStoredInformation>()))
-            .Callback<string, PushedAuthorizationStoredInformation>((id,  _) => passedId = id);
+        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationMemento>()))
+            .Callback<string, PushedAuthorizationMemento>((id,  _) => passedId = id);
         
         await sut.CreateResponseAsync(_request);
         
         passedId.Should().NotBeNull();
         passedId.Should().Be(IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + generatedUniquePart);
+    }
+    
+    [Fact]
+    public async Task CreateResponseAsync_WhenCalled_ShouldSetExpirationBasedOnOptions()
+    {
+        string generatedUniquePart = "sdufbsibdvibv";
+
+        _request.Client = new Client();
+        
+        DateTime expectedExpiration;
+        DateTime now = new DateTime(2027, 3, 2, 13, 10, 20);
+        DateTimeOffset spiedExpiration = now;
+        
+        options.PushedAuthorization.Expiration = TimeSpan.FromSeconds(90);
+
+        clock.Setup(c => c.GetUtcNow()).Returns(now);
+        expectedExpiration = now.Add(options.PushedAuthorization.Expiration);
+        
+        _handleGenerationService.Setup(g => g.GenerateAsync()).ReturnsAsync(generatedUniquePart);
+        
+        var sut = CreateSut();
+       
+        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationMemento>()))
+            .Callback<string, PushedAuthorizationMemento>((id,  memento) => spiedExpiration = memento.ValidUntil);
+        
+        await sut.CreateResponseAsync(_request);
+
+        spiedExpiration.Should().Be(expectedExpiration);
+    }
+    
+    [Fact]
+    public async Task CreateResponseAsync_WhenCalled_ShouldSetExpirationBasedOnClientProperties()
+    {
+        string generatedUniquePart = "sdufbsibdvibv";
+
+        _request.Client = new Client()
+        {
+            PushedAuthorizationLifetime = TimeSpan.FromSeconds(30).Seconds
+        };
+        
+        DateTime expectedExpiration;
+        DateTime now = new DateTime(2027, 3, 2, 13, 10, 20);
+        DateTimeOffset spiedExpiration = now;
+
+        clock.Setup(c => c.GetUtcNow()).Returns(now);
+        int expectedDuration = (int)_request.Client.PushedAuthorizationLifetime;
+        expectedExpiration = now.AddSeconds(expectedDuration);
+        
+        _handleGenerationService.Setup(g => g.GenerateAsync()).ReturnsAsync(generatedUniquePart);
+        
+        var sut = CreateSut();
+       
+        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationMemento>()))
+            .Callback<string, PushedAuthorizationMemento>((id,  memento) => spiedExpiration = memento.ValidUntil);
+        
+        var response = await sut.CreateResponseAsync(_request);
+
+        response.Should().NotBeNull();
+        spiedExpiration.Should().Be(expectedExpiration);
+        response.Lifetime.Should().Be(expectedDuration);
     }
 
     [Fact]
@@ -135,7 +149,7 @@ public class PushedAuthorizationResponseGeneratorTests
     [Fact]
     public async Task CreateResponseAsync_WhenCalledAndStoreThrowsException_ShouldReturnNull()
     {
-        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationStoredInformation>()))
+        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationMemento>()))
             .ThrowsAsync(new Exception());
 
         var sut = CreateSut();
@@ -144,37 +158,20 @@ public class PushedAuthorizationResponseGeneratorTests
 
         response.Should().BeNull();
     }
-
-    private void VerifyPushedAuthorizeRequestMapping(PushedAuthorizationStoredInformation? storedInfo, ValidatedAuthorizeRequest request)
+    
+    private void VerifyPushedAuthorizeRequestMapping(PushedAuthorizationMemento? storedInfo, ValidatedAuthorizeRequest request)
     {
         storedInfo.Should().NotBeNull();
-        storedInfo.AccessTokenLifetime.Should().Be(request.AccessTokenLifetime);
-        storedInfo.RequestObjectValues.Should().BeEquivalentTo(request.RequestObjectValues);
-        storedInfo.ValidatedResources.ApiScopes.Should().BeEquivalentTo(request.ValidatedResources.Resources.ApiScopes);
-        storedInfo.ValidatedResources.OfflineAccess.Should().Be(request.ValidatedResources.Resources.OfflineAccess);
-        storedInfo.CodeChallenge.Should().Be(request.CodeChallenge);
-        storedInfo.CodeChallengeMethod.Should().Be(request.CodeChallengeMethod);
-        storedInfo.Nonce.Should().Be(request.Nonce);
-        storedInfo.RedirectUri.Should().Be(request.RedirectUri);
-        storedInfo.ClientId.Should().Be(request.ClientId);
-        storedInfo.Description.Should().Be(request.Description);
-        storedInfo.DisplayMode.Should().Be(request.DisplayMode);
-        storedInfo.GrantType.Should().Be(request.GrantType);
-        storedInfo.IsApiResourceRequest.Should().Be(request.IsApiResourceRequest);
-        storedInfo.LoginHint.Should().Be(request.LoginHint);
-        storedInfo.ResponseMode.Should().Be(request.ResponseMode);
-        storedInfo.Subject.Should().Be(request.Subject);
-        storedInfo.SessionId.Should().Be(request.SessionId);
-        storedInfo.WasConsentShown.Should().Be(request.WasConsentShown);
-        storedInfo.IsOpenIdRequest.Should().Be(request.IsOpenIdRequest);
-        storedInfo.ClientSecretVerified.Should().Be(request.Secret != null);
-        storedInfo.AuthenticationContextReferenceClasses.Should().BeEquivalentTo(request.AuthenticationContextReferenceClasses);
-        storedInfo.PromptModes.Should().BeEquivalentTo(request.PromptModes);
-        storedInfo.RequestedResourceIndicators.Should().BeEquivalentTo(request.RequestedResourceIndicators);
-        storedInfo.RequestedScopes.Should().BeEquivalentTo(request.RequestedScopes);
-        storedInfo.ResponseType.Should().Be(request.ResponseType);
-        storedInfo.State.Should().Be(request.State);
-        storedInfo.MaxAge.Should().Be(request.MaxAge);
-        storedInfo.UiLocales.Should().BeEquivalentTo(request.UiLocales);
+        storedInfo.Parameters.Should().BeEquivalentTo(request.Raw);
+        storedInfo.Key.Should().NotBeEmpty();
+    }
+    
+    private PushedAuthorizationResponseGenerator CreateSut()
+    {
+        return new PushedAuthorizationResponseGenerator(_store.Object, 
+            _handleGenerationService.Object, 
+            clock.Object,
+            options,
+            _logger.Object);
     }
 }

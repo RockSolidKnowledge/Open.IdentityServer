@@ -17,7 +17,7 @@ public interface IPushedAuthorizationRequestStore
     /// <param name="id">The request id to act as the key for the storage</param>
     /// <param name="requestInformation">The pushed authorization request information to store</param>
     /// <returns>A task indicating the async lifetime of the method</returns>
-    Task StorePushedAuthorizationRequestAsync(string id, PushedAuthorizationStoredInformation requestInformation);
+    Task StorePushedAuthorizationRequestAsync(string id, PushedAuthorizationMemento requestInformation);
     
     
     /// <summary>
@@ -25,5 +25,5 @@ public interface IPushedAuthorizationRequestStore
     /// </summary>
     /// <param name="id">The id of the stored request to retrieve</param>
     /// <returns>The stored request of null if no consumable request matches the passed id</returns>
-    Task<PushedAuthorizationStoredInformation?> ConsumePushedAuthorizationRequestAsync(string id);
+    Task<PushedAuthorizationMemento?> ConsumePushedAuthorizationRequestAsync(string id);
 }

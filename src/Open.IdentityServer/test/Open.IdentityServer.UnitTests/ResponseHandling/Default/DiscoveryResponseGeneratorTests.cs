@@ -795,7 +795,7 @@ public class DiscoveryResponseGeneratorTests
     {
         var sut = CreateSut();
         Options.Endpoints.EnablePushedAuthorizationRequestEndpoint = true;
-        Options.RequirePushedAuthorization = isEnforced;
+        Options.PushedAuthorization.Required = isEnforced;
        
         var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
 

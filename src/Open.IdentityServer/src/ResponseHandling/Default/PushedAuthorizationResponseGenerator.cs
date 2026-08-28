@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Storage.Models;
 using Open.IdentityServer.Stores;
@@ -16,9 +17,13 @@ namespace Open.IdentityServer.ResponseHandling;
 /// </summary>
 /// <param name="store">The store used to save the pushed authorization request for later retrieval</param>
 /// <param name="handleGenerationService">The service used to generate the ID for the stored state</param>
+/// <param name="clock">Used to calculate absolute expiration</param>
+///  <param name="options">Used to calculate expiration</param>
 /// <param name="logger">The logger to record errors and debug inforation</param>
 public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestStore store, 
                                                   IHandleGenerationService handleGenerationService,
+                                                  TimeProvider clock,
+                                                  IdentityServerOptions options,
                                                   ILogger<PushedAuthorizationResponseGenerator> logger) : IPushedAuthorizationResponseGenerator
 {
    /// <summary>
@@ -33,57 +38,36 @@ public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestSto
     /// <returns>The generated response</returns>
     public async Task<PushedAuthorizationResponse?> CreateResponseAsync(ValidatedAuthorizeRequest request)
     {
-        PushedAuthorizationStoredInformation storeInfo = MapRequestInformation(request);
-        
         string generatedUniquePart = await handleGenerationService.GenerateAsync();
         
         string id = IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + generatedUniquePart;
 
+        TimeSpan validFor = RequestValidFor(request);
+        DateTimeOffset validUntil  = clock.GetUtcNow().Add(validFor);
+        
+        var storeInfo = new PushedAuthorizationMemento(id, validUntil, request.Raw);
+        
         try
         {
             await store.StorePushedAuthorizationRequestAsync(id, storeInfo);
-
-            return new PushedAuthorizationResponse(new Uri(id), DefaultRequestLifetimeInSeconds);
+            
+            return new PushedAuthorizationResponse(new Uri(id), (int)validFor.TotalSeconds);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return null;
         }
-       
+        
     }
 
-    private PushedAuthorizationStoredInformation MapRequestInformation(ValidatedAuthorizeRequest request)
+    private TimeSpan RequestValidFor(ValidatedAuthorizeRequest request)
     {
-        return new PushedAuthorizationStoredInformation
+        TimeSpan duration =  options.PushedAuthorization.Expiration;
+        if (request.Client?.PushedAuthorizationLifetime != null)
         {
-            AccessTokenLifetime = request.AccessTokenLifetime,
-            ClientId = request.ClientId,
-            ClientSecretVerified = request.Secret != null, // If the secret is passed then it will already have been validated
-            CodeChallenge = request.CodeChallenge,
-            CodeChallengeMethod = request.CodeChallengeMethod,
-            RedirectUri = request.RedirectUri,
-            RequestedScopes = request.RequestedScopes,
-            Subject = request.Subject,
-            Confirmation = request.Confirmation,
-            Description = request.Description,
-            DisplayMode = request.DisplayMode,
-            GrantType = request.GrantType,
-            IsApiResourceRequest = request.IsApiResourceRequest,
-            IsOpenIdRequest = request.IsOpenIdRequest,
-            LoginHint = request.LoginHint,
-            MaxAge = request.MaxAge,
-            Nonce = request.Nonce,
-            ResponseMode = request.ResponseMode,
-            ResponseType = request.ResponseType,
-            State = request.State,
-            UiLocales = request.UiLocales,
-            SessionId = request.SessionId,
-            WasConsentShown = request.WasConsentShown,
-            ValidatedResources = request.ValidatedResources.Resources,
-            RequestedResourceIndicators = request.RequestedResourceIndicators,
-            AuthenticationContextReferenceClasses = request.AuthenticationContextReferenceClasses,
-            PromptModes = request.PromptModes,
-            RequestObjectValues = request.RequestObjectValues,
-        };
+            duration = TimeSpan.FromSeconds((int)request.Client.PushedAuthorizationLifetime);
+        }
+
+        return duration;
     }
 }
