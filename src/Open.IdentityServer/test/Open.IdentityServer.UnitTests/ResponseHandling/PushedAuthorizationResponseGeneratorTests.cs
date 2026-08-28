@@ -9,7 +9,6 @@ using Moq;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.ResponseHandling;
-using Open.IdentityServer.ResponseHandling.Default;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Storage.Models;
 using Open.IdentityServer.Stores;
@@ -112,7 +111,7 @@ public class PushedAuthorizationResponseGeneratorTests
         await sut.CreateResponseAsync(_request);
         
         passedId.Should().NotBeNull();
-        passedId.Should().Be(PushedAuthorizationResponseGenerator.PushedAuthorizationRequestPrefix + generatedUniquePart);
+        passedId.Should().Be(IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + generatedUniquePart);
     }
 
     [Fact]
@@ -120,7 +119,7 @@ public class PushedAuthorizationResponseGeneratorTests
     {
         string generatedUniquePart = "sdufbsibdvibv";
         string expectedUri =
-            $"{PushedAuthorizationResponseGenerator.PushedAuthorizationRequestPrefix}{generatedUniquePart}";
+            $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{generatedUniquePart}";
 
         _handleGenerationService.Setup(g => g.GenerateAsync()).ReturnsAsync(generatedUniquePart);
 

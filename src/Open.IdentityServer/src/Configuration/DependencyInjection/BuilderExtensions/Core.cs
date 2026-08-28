@@ -241,7 +241,8 @@ public static class IdentityServerBuilderExtensionsCore
         builder.Services.TryAddTransient<IDiscoveryResponseGenerator, DiscoveryResponseGenerator>();
         builder.Services.TryAddTransient<ITokenRevocationResponseGenerator, TokenRevocationResponseGenerator>();
         builder.Services.TryAddTransient<IDeviceAuthorizationResponseGenerator, DeviceAuthorizationResponseGenerator>();
-
+        builder.Services.TryAddTransient<IPushedAuthorizationResponseGenerator,PushedAuthorizationResponseGenerator>();
+        
         return builder;
     }
 

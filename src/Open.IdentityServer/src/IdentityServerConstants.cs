@@ -17,6 +17,14 @@ public static class IdentityServerConstants
     public const string DefaultCheckSessionCookieName = "idsrv.session";
     public const string AccessTokenAudience = "{0}resources";
 
+    public static class PushedAuthorizationRequest
+    {
+        /// <summary>
+        /// Standard prefix for the generated URI for a Pushed Authorization Request
+        /// </summary>
+        public static readonly string UriRequestPrefix = "urn:ietf:params:oauth:request_uri:";
+    }
+
     public const string JwtRequestClientKey = "idsrv.jwtrequesturi.client";
 
     /// <summary>

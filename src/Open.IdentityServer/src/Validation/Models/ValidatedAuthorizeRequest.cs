@@ -211,4 +211,5 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
         RequestedResourceIndicators = [];
         AuthenticationContextReferenceClasses = [];
     }
+    
 }

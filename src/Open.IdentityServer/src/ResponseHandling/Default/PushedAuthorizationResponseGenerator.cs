@@ -7,7 +7,7 @@ using Open.IdentityServer.Storage.Models;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 
-namespace Open.IdentityServer.ResponseHandling.Default;
+namespace Open.IdentityServer.ResponseHandling;
 
 #nullable enable
 
@@ -21,12 +21,7 @@ public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestSto
                                                   IHandleGenerationService handleGenerationService,
                                                   ILogger<PushedAuthorizationResponseGenerator> logger) : IPushedAuthorizationResponseGenerator
 {
-    /// <summary>
-    /// Standard prefix for the generated URI for a Pushed Authorization Request
-    /// </summary>
-    public static readonly string PushedAuthorizationRequestPrefix = "urn:ietf:params:oauth:request_uri:";
-    
-    /// <summary>
+   /// <summary>
     /// Default lifetime for a Pushed Authorization Request
     /// </summary>
     public static readonly int DefaultRequestLifetimeInSeconds = 60;
@@ -42,7 +37,7 @@ public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestSto
         
         string generatedUniquePart = await handleGenerationService.GenerateAsync();
         
-        string id = PushedAuthorizationRequestPrefix + generatedUniquePart;
+        string id = IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + generatedUniquePart;
 
         try
         {
