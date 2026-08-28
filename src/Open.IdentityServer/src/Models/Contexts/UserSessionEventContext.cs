@@ -4,22 +4,22 @@
 namespace Open.IdentityServer.Models;
 
 /// <summary>
-/// Provides the context necessary to handle user session events
+/// Provides the context for handling user session events
 /// </summary>
 public class UserSessionEventContext
 {
     /// <summary>
-    /// Subject identifier of the user of the session the event has been triggered for
+    /// Subject identifier of the User of the session for which the event has been triggered.
     /// </summary>
     public string SubjectId { get; set; }
     
     /// <summary>
-    /// Session identifier of the session the event has been triggered for
+    /// Session identifier for the event that has been triggered.
     /// </summary>
     public string SessionId { get; set; }
 
     /// <summary>
-    /// ClientIds logged into with the user session
+    /// Collection of ClientId active within the session.
     /// </summary>
     public string[] ClientIds { get; set; } = [];
 }

@@ -101,7 +101,6 @@ public class PersistedGrantStore : IPersistedGrantStore
     public async Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
     {
         using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
-        AddFilterTags(trace, filter);
         
         filter.Validate();
 
@@ -147,7 +146,6 @@ public class PersistedGrantStore : IPersistedGrantStore
     public async Task RemoveAllAsync(PersistedGrantFilter filter)
     {
         using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
-        AddFilterTags(trace, filter);
         
         filter.Validate();
 
@@ -165,26 +163,6 @@ public class PersistedGrantStore : IPersistedGrantStore
         catch (DbUpdateConcurrencyException ex)
         {
             Logger.LogInformation("removing {persistedGrantCount} persisted grants from database for subject {@filter}: {error}", persistedGrants.Length, filter, ex.Message);
-        }
-    }
-
-    private void AddFilterTags(ITrace trace, PersistedGrantFilter filter)
-    {
-        if (trace == null) return;
-
-        var clientIds = filter.ClientIds.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-        if (clientIds.Any())
-        {
-            trace.AddTag(TelemetryConstants.TagConstants.Client, string.Join(",", filter.ClientIds));
-        }
-        if (!string.IsNullOrWhiteSpace(filter.SubjectId))
-        {
-            trace.AddTag(TelemetryConstants.TagConstants.Subject, filter.SubjectId);
-        }
-        var types = filter.Types.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-        if (types.Any())
-        {
-            trace.AddTag(TelemetryConstants.TagConstants.GrantType, string.Join(",", filter.Types));
         }
     }
 
