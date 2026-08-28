@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Moq;
+using Open.IdentityServer.Configuration.DependencyInjection;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
@@ -24,7 +25,7 @@ public class DefaultServerSideSessionTokenValidatorTests
     private ITelemetryService telemetry = Mock.Of<ITelemetryService>();
 
     private DefaultServerSideSessionTokenValidator CreateSut() =>
-        new(decoratedService, userSessionEventsService, telemetry);
+        new(new Decorator<ITokenValidator>(decoratedService), userSessionEventsService, telemetry);
 
 
     [Fact]

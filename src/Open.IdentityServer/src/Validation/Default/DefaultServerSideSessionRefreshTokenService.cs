@@ -3,7 +3,9 @@
 
 #nullable enable
 
+using System;
 using System.Threading.Tasks;
+using Open.IdentityServer.Configuration.DependencyInjection;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 
@@ -12,14 +14,16 @@ namespace Open.IdentityServer.Validation;
 /// <summary>
 /// 
 /// </summary>
-/// <param name="decoratedService"></param>
+/// <param name="decorator"></param>
 /// <param name="userSessionEventsService"></param>
 /// <param name="telemetry"></param>
-public class DefaultServerSideSessionRefreshTokenService(
-    IRefreshTokenService decoratedService,
+internal class DefaultServerSideSessionRefreshTokenService(
+    Decorator<IRefreshTokenService> decorator,
     IUserSessionEventsService userSessionEventsService,
     ITelemetryService telemetry): IRefreshTokenService
 {
+    private IRefreshTokenService decoratedService = decorator.Instance ?? throw new ArgumentNullException(nameof(decorator));
+    
     /// <summary>
     /// 
     /// </summary>
