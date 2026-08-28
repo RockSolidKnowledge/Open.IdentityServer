@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
@@ -20,8 +21,7 @@ namespace Open.IdentityServer.Services.Default;
 /// <param name="clientStore">client store</param>
 /// <param name="persistedGrantStore">persisted grant store</param>
 /// <param name="backChannelLogoutService">back channel logout service</param>
-/// <param name="serverSessionTicketStore">server side auth ticket store</param>
-/// <param name="identityServerServerSideSessionStore">server side session entity store</param>
+/// <param name="serviceProvider">service provider</param>
 /// <param name="idsOptions">IdentityServer options</param>
 /// <param name="telemetry">telemetry service</param>
 /// <param name="timeProvider">time provider</param>
@@ -30,8 +30,7 @@ public class DefaultUserSessionEventsService(
     IClientStore clientStore,
     IPersistedGrantStore persistedGrantStore,
     IBackChannelLogoutService backChannelLogoutService,
-    IServerSessionTicketStore? serverSessionTicketStore,
-    IIdentityServerServerSideSessionStore? identityServerServerSideSessionStore,
+    IServiceProvider serviceProvider,
     IdentityServerOptions idsOptions,
     ITelemetryService telemetry,
     TimeProvider timeProvider,
@@ -40,10 +39,10 @@ public class DefaultUserSessionEventsService(
     /// <inheritdoc />
     public async Task HandleUserSessionLogout(EndUserSessionEventContext sessionEventContext)
     {
+        using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
+        
         ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SessionId);
         ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SubjectId);
-        
-        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
         
         if (sessionEventContext.ClientIds.Length == 0)
         {
@@ -64,14 +63,14 @@ public class DefaultUserSessionEventsService(
     /// <inheritdoc />
     public async Task HandleUserSessionExpiry(EndUserSessionEventContext sessionEventContext)
     {
+        using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
+        
         ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SessionId);
         ArgumentException.ThrowIfNullOrWhiteSpace(sessionEventContext.SubjectId);
         
-        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
-        
-        var clientToNotify = await EndSessionForClients(sessionEventContext);
+        string[]? clientToNotify = await EndSessionForClients(sessionEventContext);
 
-        var backChannelClients = (idsOptions.ServerSideSessions.ExpiredSessionsTriggerBackchannelLogout
+        List<string> backChannelClients = (idsOptions.ServerSideSessions.ExpiredSessionsTriggerBackchannelLogout
             ? sessionEventContext.ClientIds
             : clientToNotify ?? []).ToList();
 
@@ -92,13 +91,18 @@ public class DefaultUserSessionEventsService(
     /// <inheritdoc />
     public async Task<bool> ValidateSession(ValidateUserSessionEventContext sessionEventContext)
     {
+        using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
+        
+        IServerSessionTicketStore? serverSessionTicketStore = serviceProvider.GetService<IServerSessionTicketStore>();
+        IIdentityServerServerSideSessionStore? identityServerServerSideSessionStore = serviceProvider.GetService<IIdentityServerServerSideSessionStore>();
+        
         if (serverSessionTicketStore == null || identityServerServerSideSessionStore == null ||
             !ShouldCoordinateLifetimes(sessionEventContext.Client))
         {
             return true;
         }
 
-        var sessions =
+        List<AuthenticationTicketFilterResult> sessions =
             (await serverSessionTicketStore.FilterServerAuthenticationTickets(sessionEventContext.SubjectId,
                 sessionEventContext.SessionId))
             .ToList();
@@ -110,9 +114,9 @@ public class DefaultUserSessionEventsService(
             return false;
         }
 
-        foreach (var session in sessions)
+        foreach (AuthenticationTicketFilterResult session in sessions)
         {
-            var diff = session.Session.Expires - session.Session.Renewed;
+            TimeSpan? diff = session.Session.Expires - session.Session.Renewed;
             session.Session.Renewed = timeProvider.GetUtcNow().UtcDateTime;
             session.Session.Expires = session.Session.Renewed + diff;
 
@@ -135,7 +139,7 @@ public class DefaultUserSessionEventsService(
 
     private async Task<string[]?> EndSessionForClients(EndUserSessionEventContext sessionEventContext)
     {
-        var clientIds = await ClientIdsToCoordinate(sessionEventContext).ToArrayAsync();
+        string[] clientIds = await ClientIdsToCoordinate(sessionEventContext).ToArrayAsync();
 
         if (clientIds.Length == 0)
         {
@@ -158,7 +162,7 @@ public class DefaultUserSessionEventsService(
     {
         foreach (string clientId in sessionEventContext.ClientIds ?? [])
         {
-            var client = await clientStore.FindClientByIdAsync(clientId);
+            Client? client = await clientStore.FindClientByIdAsync(clientId);
 
             if (ShouldCoordinateLifetimes(client))
             {

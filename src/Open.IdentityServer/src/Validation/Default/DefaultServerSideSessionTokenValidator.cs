@@ -3,9 +3,11 @@
 
 #nullable enable
 
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Open.IdentityServer.Configuration.DependencyInjection;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 
@@ -14,14 +16,16 @@ namespace Open.IdentityServer.Validation;
 /// <summary>
 /// 
 /// </summary>
-/// <param name="decoratedService"></param>
+/// <param name="decorator"></param>
 /// <param name="userSessionEventsService"></param>
 /// <param name="telemetry"></param>
-public class DefaultServerSideSessionTokenValidator(
-    ITokenValidator decoratedService,
+internal class DefaultServerSideSessionTokenValidator(
+    Decorator<ITokenValidator> decorator,
     IUserSessionEventsService userSessionEventsService,
-    ITelemetryService telemetry) : ITokenValidator
+    ITelemetryService telemetry): ITokenValidator
 {
+    private ITokenValidator decoratedService = decorator?.Instance ?? throw new ArgumentNullException(nameof(decorator));
+    
     /// <summary>
     /// 
     /// </summary>

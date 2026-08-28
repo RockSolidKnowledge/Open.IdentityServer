@@ -475,6 +475,10 @@ public static class IdentityServerBuilderExtensionsAdditional
         builder.Services.AddSingleton<IPostConfigureOptions<CookieAuthenticationOptions>, PostConfigureSessionStoreCookieAuthOptions>();
         builder.Services.AddScoped<ITicketStore, ServerSessionTicketStore>();
         
+        // Token Validators
+        builder.Services.AddTransientDecorator<ITokenValidator, DefaultServerSideSessionTokenValidator>();
+        builder.Services.AddTransientDecorator<IRefreshTokenService, DefaultServerSideSessionRefreshTokenService>();
+        
         // provide default in-memory implementation, not suitable for most production scenarios (following pattern implemented with existing stores)
         builder.Services.TryAddSingleton<IIdentityServerServerSideSessionStore, InMemorySessionStore>();
 
