@@ -6,7 +6,7 @@ namespace Open.IdentityServer.Models;
 public class ValidateUserSessionEventContext: UserSessionEventContext
 {
     /// <summary>
-    /// 
+    /// Client of the user session the event has been triggered for
     /// </summary>
     public Client Client { get; set; }
 }
