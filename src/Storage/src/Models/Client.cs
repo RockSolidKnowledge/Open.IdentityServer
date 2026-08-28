@@ -432,8 +432,13 @@ public class Client
     }
     
     /// <summary>
-    /// Gets or sets the coordinate lifetime with the user session
+    /// Used to override the server default value configured with IdentityServerOptions.Authentication.CoordinateClientLifetimesWithUserSession.
+    /// Specifies if the user session ending should revoke client revocable tokens, and also if token validation should
+    /// check for a valid user session.
     /// </summary>
+    /// <value>
+    /// <c>true</c> if coordination enabled; <c>false</c> if coordination disabled; otherwise, <c>null</c>.
+    /// </value>
     public bool? CoordinateLifetimeWithUserSession { get; set; }
     
     //Unused Compatibility Properties

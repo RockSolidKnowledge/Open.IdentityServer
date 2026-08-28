@@ -62,7 +62,7 @@ public class AuthenticationOptions
     public bool RequireCspFrameSrcForSignout { get; set; } = true;
     
     /// <summary>
-    /// If set, refresh token lifetimes will be tied to the users' session. This setting can be overridden at a client
+    /// If set, refresh token lifetimes will be tied to the users' session. This setting can be overridden at the client
     /// level. 
     /// </summary>
     public bool CoordinateClientLifetimesWithUserSession { get; set; }
