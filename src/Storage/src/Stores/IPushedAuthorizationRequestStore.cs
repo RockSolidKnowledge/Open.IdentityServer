@@ -20,7 +20,6 @@ public interface IPushedAuthorizationRequestStore
     /// <returns>A task indicating the async lifetime of the method</returns>
     Task StorePushedAuthorizationRequestAsync(PushedAuthorizationMemento requestInformation);
     
-    
     /// <summary>
     /// Retrieves and consumes a pushed authorization request. The stored request cannot be retrieved again.
     /// </summary>
