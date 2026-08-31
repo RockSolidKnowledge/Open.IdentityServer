@@ -40,8 +40,8 @@ public class PushedAuthorizationResponseGeneratorTests
         
         PushedAuthorizationMemento? storedInfo = null;
         
-        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationMemento>()))
-            .Callback<string, PushedAuthorizationMemento>((_, info) => storedInfo = info);
+        _store.Setup(s => s.StorePushedAuthorizationRequestAsync( It.IsAny<PushedAuthorizationMemento>()))
+            .Callback<PushedAuthorizationMemento>(info => storedInfo = info);
         
         await sut.CreateResponseAsync(_request);
         
@@ -59,8 +59,8 @@ public class PushedAuthorizationResponseGeneratorTests
 
         string? passedId = null;
         
-        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationMemento>()))
-            .Callback<string, PushedAuthorizationMemento>((id,  _) => passedId = id);
+        _store.Setup(s => s.StorePushedAuthorizationRequestAsync( It.IsAny<PushedAuthorizationMemento>()))
+            .Callback<PushedAuthorizationMemento>(memento => passedId = memento.Key);
         
         await sut.CreateResponseAsync(_request);
         
@@ -88,8 +88,8 @@ public class PushedAuthorizationResponseGeneratorTests
         
         var sut = CreateSut();
        
-        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationMemento>()))
-            .Callback<string, PushedAuthorizationMemento>((id,  memento) => spiedExpiration = memento.ValidUntil);
+        _store.Setup(s => s.StorePushedAuthorizationRequestAsync( It.IsAny<PushedAuthorizationMemento>()))
+            .Callback<PushedAuthorizationMemento>(memento => spiedExpiration = memento.ValidUntil);
         
         await sut.CreateResponseAsync(_request);
 
@@ -118,8 +118,8 @@ public class PushedAuthorizationResponseGeneratorTests
         
         var sut = CreateSut();
        
-        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationMemento>()))
-            .Callback<string, PushedAuthorizationMemento>((id,  memento) => spiedExpiration = memento.ValidUntil);
+        _store.Setup(s => s.StorePushedAuthorizationRequestAsync( It.IsAny<PushedAuthorizationMemento>()))
+            .Callback<PushedAuthorizationMemento>( memento => spiedExpiration = memento.ValidUntil);
         
         var response = await sut.CreateResponseAsync(_request);
 
@@ -149,7 +149,7 @@ public class PushedAuthorizationResponseGeneratorTests
     [Fact]
     public async Task CreateResponseAsync_WhenCalledAndStoreThrowsException_ShouldReturnNull()
     {
-        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<string>(), It.IsAny<PushedAuthorizationMemento>()))
+        _store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<PushedAuthorizationMemento>()))
             .ThrowsAsync(new Exception());
 
         var sut = CreateSut();

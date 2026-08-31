@@ -226,7 +226,7 @@ public static class IdentityServerBuilderExtensionsCore
         // PAR support
         builder.Services
             .AddTransientDecorator<IAuthorizeRequestValidator,AuthorizeUsingPushedAuthorizationRequestValidator>();
-        
+        //
         return builder;
     }
 

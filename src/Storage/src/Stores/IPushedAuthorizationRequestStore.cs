@@ -14,10 +14,9 @@ public interface IPushedAuthorizationRequestStore
     /// <summary>
     /// Stores the passed pushed authorization request against the id used as a key.
     /// </summary>
-    /// <param name="id">The request id to act as the key for the storage</param>
     /// <param name="requestInformation">The pushed authorization request information to store</param>
     /// <returns>A task indicating the async lifetime of the method</returns>
-    Task StorePushedAuthorizationRequestAsync(string id, PushedAuthorizationMemento requestInformation);
+    Task StorePushedAuthorizationRequestAsync(PushedAuthorizationMemento requestInformation);
     
     
     /// <summary>

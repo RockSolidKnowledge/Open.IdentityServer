@@ -363,7 +363,7 @@ public class IdentityServerPipeline
     {
         var url = new RequestUrl(AuthorizeEndpoint).CreateAuthorizeUrl(
             clientId: clientId,
-            responseType: responseType,
+            responseType: responseType ?? "",
             scope: scope,
             redirectUri: redirectUri,
             state: state,
@@ -416,6 +416,18 @@ public class IdentityServerPipeline
         }
 
         return new AuthorizeResponse(redirect);
+    }
+
+    public string? CreateParUrl(string clientId, string requestUri)
+    {
+        var url = new RequestUrl(AuthorizeEndpoint);
+
+        var requestUriParam = new KeyValuePair<string, string>(OidcConstants.AuthorizeRequest.RequestUri, requestUri);
+        var clientIdParam = new KeyValuePair<string, string>(OidcConstants.AuthorizeRequest.ClientId, clientId);
+        
+        IEnumerable<KeyValuePair<string, string>> parameters = [ clientIdParam,requestUriParam];
+
+        return url.Create(new Parameters(parameters));
     }
 }
 
