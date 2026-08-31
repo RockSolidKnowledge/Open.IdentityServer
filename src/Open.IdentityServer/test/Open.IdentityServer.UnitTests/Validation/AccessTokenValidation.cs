@@ -11,12 +11,12 @@ using AwesomeAssertions;
 using Moq;
 using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.UnitTests.Validation.Setup;
-using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Xunit;
+using System.Security.Claims;
 
 namespace Open.IdentityServer.UnitTests.Validation;
 
@@ -80,6 +80,29 @@ public class AccessTokenValidation
         var result = await validator.ValidateAccessTokenAsync(handle, "read");
 
         result.IsError.Should().BeFalse();
+    }
+
+    [Theory()]
+    [InlineData(JwtClaimTypes.Issuer)]
+    [InlineData(JwtClaimTypes.NotBefore)]
+    [InlineData(JwtClaimTypes.IssuedAt)]
+    [InlineData(JwtClaimTypes.Expiration)]
+    [Trait("Category", Category)]
+    public async Task Valid_Reference_Token_with_protocol_claims_should_not_be_duplicated(string claimType)
+    {
+        var store = Factory.CreateReferenceTokenStore();
+        var validator = Factory.CreateTokenValidator(store);
+
+        var token = TokenFactory.CreateAccessToken(new Client { ClientId = "roclient" }, "valid", 600, "read", "write");
+        var protocolClaim = new Claim(claimType, "value");
+        token.Claims.Add(protocolClaim);
+
+        var handle = await store.StoreReferenceTokenAsync(token);
+
+        var result = await validator.ValidateAccessTokenAsync(handle);
+
+        result.IsError.Should().BeFalse();
+        result.Claims.Should().NotContain(c => c.Type == protocolClaim.Type && c.Value == protocolClaim.Value);
     }
 
     [Fact]
