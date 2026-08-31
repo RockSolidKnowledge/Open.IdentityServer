@@ -41,7 +41,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Open.IdentityServer"/>
+<!--        <PackageReference Include="Open.IdentityServer"/>-->
+        <ProjectReference Include="../../../src/Open.IdentityServer/src/Open.IdentityServer.csproj"/>
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>

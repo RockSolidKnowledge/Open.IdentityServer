@@ -45,11 +45,11 @@ public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestSto
         TimeSpan validFor = RequestValidFor(request);
         DateTimeOffset validUntil  = clock.GetUtcNow().Add(validFor);
         
-        var storeInfo = new PushedAuthorizationMemento(id, validUntil, request.Raw);
+        var memento = new PushedAuthorizationMemento(id, validUntil, request.Raw);
         
         try
         {
-            await store.StorePushedAuthorizationRequestAsync(id, storeInfo);
+            await store.StorePushedAuthorizationRequestAsync(memento);
             
             return new PushedAuthorizationResponse(new Uri(id), (int)validFor.TotalSeconds);
         }
