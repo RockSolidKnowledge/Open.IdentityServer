@@ -17,6 +17,7 @@ using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Hosting;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.ResponseHandling;
+using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Validation;
 using Xunit;
 
