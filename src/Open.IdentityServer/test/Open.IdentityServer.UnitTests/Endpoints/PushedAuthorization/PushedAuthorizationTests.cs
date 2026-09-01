@@ -17,6 +17,7 @@ using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Hosting;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.ResponseHandling;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Validation;
 using Xunit;
@@ -30,8 +31,9 @@ public class PushedAuthorizationTests
     private readonly Mock<IPushedAuthorizationResponseGenerator> pushedAuthorizationResponseGenerator = new();
     private readonly Mock<IClientSecretValidator> clientSecretValidator = new();
     private readonly Mock<ILogger<PushedAuthorizationRequestEndpoint>> logger = new();
+    private readonly Mock<ITelemetryService> telemetry = new();
     private readonly MockHttpContextAccessor mockHttpContext = new();
-    
+    private readonly Mock<ITrace> trace = new();
     private readonly PushAuthorizationRequestValidationResult parErrorValidationResult = new ("error", "error_description");
     private readonly PushAuthorizationRequestValidationResult validatedAuthorizeRequest = new (new ValidatedAuthorizeRequest());
 
@@ -43,6 +45,9 @@ public class PushedAuthorizationTests
                 IsError = false,
                 Client = new Client()
             });
+
+        telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(trace.Object);
     }
 
     [Fact]
@@ -104,7 +109,7 @@ public class PushedAuthorizationTests
     }
     
     [Fact]
-    public async Task ProcessAsync_should_will_support_http_verb_post()
+    public async Task ProcessAsync_should_support_http_verb_post()
     {
         var sut = CreateSut();
         var context = CreateHttpContext("POST");
@@ -188,21 +193,102 @@ public class PushedAuthorizationTests
         var context = CreateHttpContext();
         var requestValidatorResult = new PushAuthorizationRequestValidationResult(new ValidatedAuthorizeRequest());
         var expectedResult = new PushedAuthorizationResponse(new Uri("urn:foo"), 10);
-        var parameters = new NameValueCollection();
-
-        AddRequest(parameters);
-        pushedAuthorizationRequestValidator
-            .Setup(parv =>
-                parv.ValidateAsync(It.IsAny<PushedAuthorizationRequestValidationContext>(), context.RequestAborted))
-                    .ReturnsAsync(requestValidatorResult);
-
-        pushedAuthorizationResponseGenerator
-            .Setup(parg => parg.CreateResponseAsync(requestValidatorResult.ValidatedAuthorizeRequest))
-            .ReturnsAsync(expectedResult);
         
+        SetupRequestResponse(context, requestValidatorResult, expectedResult);
+
         PushedAuthorizationResult result = (PushedAuthorizationResult)await sut.ProcessAsync(context);
 
         result.Response.Should().Be(expectedResult);
+    }
+    
+    [Fact]
+    public async Task ProcessAsync_when_called_with_valid_request_should_increment_par_count_no_error()
+    {
+        string expectedClientId = "parClient";
+        
+        var sut = CreateSut();
+        var context = CreateHttpContext();
+        var requestValidatorResult = new PushAuthorizationRequestValidationResult(new ValidatedAuthorizeRequest()
+        {
+            ClientId = expectedClientId
+        });
+        var expectedResult = new PushedAuthorizationResponse(new Uri("urn:foo"), 10);
+        
+        SetupRequestResponse(context, requestValidatorResult, expectedResult);
+
+        PushedAuthorizationResult result = (PushedAuthorizationResult)await sut.ProcessAsync(context);
+
+        telemetry.Verify(t=>t.CountPushedAuthorizationRequest(expectedClientId),Times.Once);
+    }
+    
+    [Fact]
+    public async Task ProcessAsync_when_called_with_invalid_request_should_increment_par_count_with_error()
+    {
+        string expectedClientId = "parClient";
+        string expectedError = "very bad request";
+        
+        var sut = CreateSut();
+        var context = CreateHttpContext();
+        var requestValidatorResult = new PushAuthorizationRequestValidationResult(new ValidatedAuthorizeRequest()
+        {
+            ClientId = expectedClientId
+        })
+        {
+            IsError = true,
+            Error = expectedError
+        };
+        
+        var expectedResult = new PushedAuthorizationResponse(new Uri("urn:foo"), 10);
+        
+        SetupRequestResponse(context, requestValidatorResult, expectedResult);
+
+        var result = (BadRequestResult)await sut.ProcessAsync(context);
+
+        telemetry.Verify(t=>t.CountPushedAuthorizationRequest(expectedClientId,expectedError),Times.Once);
+    }
+    
+    [Fact]
+    public async Task ProcessAsync_when_called_should_begin_telemetry()
+    {
+        var sut = CreateSut();
+
+        _ = await sut.ProcessAsync(CreateHttpContext());
+        
+        telemetry.Verify(t => t.Trace(
+            TelemetryConstants.TraceCategories.Basic,
+            It.IsAny<PushedAuthorizationRequestEndpoint>(),nameof(PushedAuthorizationRequestEndpoint.ProcessAsync)),
+            Times.Once);
+        
+        trace.Verify(t=>t.Dispose(),Times.Once);
+    }
+    
+    [Fact]
+    public async Task ProcessAsync_when_called_with_valid_client_id_should_add_trace_tag()
+    {
+        string expectedClientId = "parClient";
+        var sut = CreateSut();
+        HttpContext requestContext = CreateHttpContext();
+
+        clientSecretValidator.Setup(csv => csv.ValidateAsync(requestContext)).ReturnsAsync(
+            new ClientSecretValidationResult()
+            {
+                IsError = false,
+                Client = new Client() { ClientId = expectedClientId}
+            });
+        _ = await sut.ProcessAsync(requestContext);
+        
+        trace.Verify(t=>t.AddTag(TelemetryConstants.TagConstants.Client,expectedClientId),Times.Once);
+    }
+    
+    private void SetupRequestResponse(HttpContext context, PushAuthorizationRequestValidationResult requestValidatorResult,
+        PushedAuthorizationResponse expectedResult)
+    {
+        AddRequest(new NameValueCollection());
+        StubValidateAsync(context,requestValidatorResult);
+       
+        pushedAuthorizationResponseGenerator
+            .Setup(parg => parg.CreateResponseAsync(requestValidatorResult.ValidatedAuthorizeRequest))
+            .ReturnsAsync(expectedResult);
     }
     
     private void StubValidateAsync(HttpContext context , PushAuthorizationRequestValidationResult result)
@@ -259,6 +345,7 @@ public class PushedAuthorizationTests
             clientSecretValidator.Object,
             pushedAuthorizationRequestValidator.Object,
             pushedAuthorizationResponseGenerator.Object,
+            telemetry.Object,
             logger.Object);
     }
 }
