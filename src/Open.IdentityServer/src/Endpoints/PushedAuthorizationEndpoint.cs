@@ -13,6 +13,7 @@ using Open.IdentityServer.Endpoints.Results;
 using Open.IdentityServer.Hosting;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.ResponseHandling;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 
 #nullable  enable
@@ -23,10 +24,13 @@ internal class PushedAuthorizationRequestEndpoint(
     IClientSecretValidator clientSecretValidator,
     IPushedAuthorizationRequestValidator validator ,
     IPushedAuthorizationResponseGenerator responseGenerator,
+    ITelemetryService telemetry,
     ILogger<PushedAuthorizationRequestEndpoint> logger) : IEndpointHandler
 {
     public async Task<IEndpointResult> ProcessAsync(HttpContext requestContext)
     {
+        using ITrace trace = telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        
         if ( options.Endpoints.EnablePushedAuthorizationRequestEndpoint == false)
         {
             return new StatusCodeResult(HttpStatusCode.NotFound);
@@ -44,6 +48,8 @@ internal class PushedAuthorizationRequestEndpoint(
             return Error(OidcConstants.TokenErrors.InvalidClient);
         }
 
+        trace?.AddTag(TelemetryConstants.TagConstants.Client, clientValidationResult.Client.ClientId);
+
         NameValueCollection? parParameters = await ParseForm(requestContext.Request);
         if (parParameters == null)
         {
@@ -60,6 +66,11 @@ internal class PushedAuthorizationRequestEndpoint(
         PushAuthorizationRequestValidationResult result = await validator
             .ValidateAsync(validationContext, requestContext.RequestAborted);
 
+        telemetry.CountPushedAuthorizationRequest(
+            result.ValidatedAuthorizeRequest.ClientId ,
+            result.IsError ? result.Error : null);
+
+        
         if (result.IsError)
         {
             return new BadRequestResult(result.Error, result.ErrorDescription);
