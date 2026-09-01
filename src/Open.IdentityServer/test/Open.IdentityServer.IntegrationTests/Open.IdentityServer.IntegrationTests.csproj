@@ -24,6 +24,8 @@
         <PackageReference Include="xunit.v3"/>
         <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="All"/>
         <PackageReference Include="AwesomeAssertions"/>
+        <PackageReference Include="Moq"/>
+
     </ItemGroup>
 
     <ItemGroup>
