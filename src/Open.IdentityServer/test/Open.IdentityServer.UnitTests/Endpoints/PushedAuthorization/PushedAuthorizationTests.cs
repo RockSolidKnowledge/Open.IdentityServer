@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using IdentityServer.UnitTests.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -22,6 +21,7 @@ using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Validation;
 using Xunit;
 
+#nullable enable
 namespace Open.IdentityServer.UnitTests.Endpoints.PushedAuthorization;
 
 public class PushedAuthorizationTests
@@ -208,10 +208,7 @@ public class PushedAuthorizationTests
         
         var sut = CreateSut();
         var context = CreateHttpContext();
-        var requestValidatorResult = new PushAuthorizationRequestValidationResult(new ValidatedAuthorizeRequest()
-        {
-            ClientId = expectedClientId
-        });
+        var requestValidatorResult = CreatePushAuthorizationRequestValidationResult(expectedClientId);
         var expectedResult = new PushedAuthorizationResponse(new Uri("urn:foo"), 10);
         
         SetupRequestResponse(context, requestValidatorResult, expectedResult);
@@ -229,24 +226,27 @@ public class PushedAuthorizationTests
         
         var sut = CreateSut();
         var context = CreateHttpContext();
-        var requestValidatorResult = new PushAuthorizationRequestValidationResult(new ValidatedAuthorizeRequest()
-        {
-            ClientId = expectedClientId
-        })
-        {
-            IsError = true,
-            Error = expectedError
-        };
+        var requestValidatorResult = CreatePushAuthorizationRequestValidationResult(expectedClientId, expectedError);
         
-        var expectedResult = new PushedAuthorizationResponse(new Uri("urn:foo"), 10);
-        
-        SetupRequestResponse(context, requestValidatorResult, expectedResult);
+        SetupRequestResponse(context, requestValidatorResult, null);
 
         var result = (BadRequestResult)await sut.ProcessAsync(context);
 
         telemetry.Verify(t=>t.CountPushedAuthorizationRequest(expectedClientId,expectedError),Times.Once);
     }
     
+    private static PushAuthorizationRequestValidationResult CreatePushAuthorizationRequestValidationResult(string clientId, string? error = null)
+    {
+        return new PushAuthorizationRequestValidationResult(new ValidatedAuthorizeRequest()
+        {
+            ClientId = clientId
+        })
+        {
+            IsError = error != null,
+            Error = error
+        };
+    }
+
     [Fact]
     public async Task ProcessAsync_when_called_should_begin_telemetry()
     {
@@ -281,7 +281,7 @@ public class PushedAuthorizationTests
     }
     
     private void SetupRequestResponse(HttpContext context, PushAuthorizationRequestValidationResult requestValidatorResult,
-        PushedAuthorizationResponse expectedResult)
+        PushedAuthorizationResponse? expectedResult)
     {
         AddRequest(new NameValueCollection());
         StubValidateAsync(context,requestValidatorResult);

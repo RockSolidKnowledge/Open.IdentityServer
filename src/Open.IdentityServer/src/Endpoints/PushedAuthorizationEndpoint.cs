@@ -69,16 +69,18 @@ internal class PushedAuthorizationRequestEndpoint(
         telemetry.CountPushedAuthorizationRequest(
             result.ValidatedAuthorizeRequest.ClientId ,
             result.IsError ? result.Error : null);
-
         
         if (result.IsError)
         {
+            logger.LogError("Bad PAR request from {0}: {1}",
+                result.ValidatedAuthorizeRequest.ClientId,
+                result.Error);
+            
             return new BadRequestResult(result.Error, result.ErrorDescription);
         }
     
         PushedAuthorizationResponse response = await responseGenerator
             .CreateResponseAsync(result.ValidatedAuthorizeRequest);
-        
         
         logger.LogTrace("End processing pushed authorization request");
         return new PushedAuthorizationResult(response);
