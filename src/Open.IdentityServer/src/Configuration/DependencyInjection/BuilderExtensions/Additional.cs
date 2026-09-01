@@ -16,6 +16,7 @@ using Open.IdentityServer.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services.Default;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

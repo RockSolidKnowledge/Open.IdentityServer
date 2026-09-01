@@ -136,6 +136,8 @@ public static class IdentityServerBuilderExtensionsCore
 
         builder.Services.AddCors();
         builder.Services.AddTransientDecorator<ICorsPolicyProvider, CorsPolicyProvider>();
+        
+        builder.Services.AddScoped<IUserSessionEventsService, DefaultUserSessionEventsService>();
 
         return builder;
     }
