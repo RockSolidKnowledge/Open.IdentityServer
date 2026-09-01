@@ -71,9 +71,9 @@ public class CryptoHelperTests
     [InlineData("PS512")]
     [InlineData("HS256")]
     [InlineData("AES256")]
-    public void GetCurveNameForAlgorithm_ShouldThrowArgumentOutOfRangeExceptionForNonEcAlgorithms(string algorithm)
+    public void GetCurveNameForAlgorithm_ShouldThrowNotSupportedExceptionForNonEcAlgorithms(string algorithm)
     {
         Action act = () => algorithm.GetCurveNameForAlgorithm();
-        act.Should().Throw<ArgumentOutOfRangeException>();
+        act.Should().Throw<NotSupportedException>();
     }
 }

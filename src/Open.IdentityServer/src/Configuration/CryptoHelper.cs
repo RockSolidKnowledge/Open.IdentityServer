@@ -122,7 +122,7 @@ public static class CryptoHelper
     /// </summary>
     /// <param name="algorithm">The algorithm to get the curve name for.</param>
     /// <returns>The name of the curve corresponding to the algorithm.</returns>
-    /// <exception cref="NotSupportedException"></exception>
+    /// <exception cref="NotSupportedException">The supplied <paramref name="algorithm"/> is not supported.</exception>
     public static string GetCurveNameForAlgorithm(this string algorithm)
     {
         return algorithm switch
@@ -130,7 +130,7 @@ public static class CryptoHelper
             "ES256" => "P-256",
             "ES384" => "P-384",
             "ES521" => "P-521",
-            _ => throw new ArgumentOutOfRangeException(nameof(algorithm), "Unexpected algorithm value for EC Curve")
+            _ => throw new NotSupportedException($"Unexpected algorithm value for EC Curve: {algorithm}")
         };
     }
 
