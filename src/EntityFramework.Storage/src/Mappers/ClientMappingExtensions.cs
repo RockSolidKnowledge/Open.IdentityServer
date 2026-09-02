@@ -177,6 +177,7 @@ public static class ClientMappingExtensions
                 ClientClaimsPrefix = clientModel.ClientClaimsPrefix,
                 PairWiseSubjectSalt = clientModel.PairWiseSubjectSalt,
                 UserSsoLifetime = clientModel.UserSsoLifetime,
+                UserCodeType = clientModel.UserCodeType,
                 DeviceCodeLifetime = clientModel.DeviceCodeLifetime,
                 AllowedCorsOrigins = clientModel.AllowedCorsOrigins?.Select(x => new ClientCorsOrigin { Origin = x }).ToList() ?? [],
                 Properties = clientModel.Properties.ToEntityList<Entities.ClientProperty>(),

@@ -139,4 +139,25 @@ public class ApiResourceMappersTests
         var model = entity.ToModel();
         model.ApiSecrets.First().Type.Should().Be(def.ApiSecrets.First().Type);
     }
+
+    [Fact]
+    public void ToEntity_maps_all_properties()
+    {
+        new MappingVerifier<ApiResource, Entities.ApiResource>()
+            .ExcludeDestinationProperties(
+                // Database-assigned or entity-managed fields not sourced from the model
+                nameof(Entities.ApiResource.Id),
+                nameof(Entities.ApiResource.Created),
+                nameof(Entities.ApiResource.Updated),
+                nameof(Entities.ApiResource.LastAccessed),
+                nameof(Entities.ApiResource.NonEditable))
+            .Verify(model => model.ToEntity());
+    }
+
+    [Fact]
+    public void ToModel_maps_all_properties()
+    {
+        new MappingVerifier<Entities.ApiResource, ApiResource>()
+            .Verify(entity => entity.ToModel());
+    }
 }
