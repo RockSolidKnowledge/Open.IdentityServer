@@ -405,13 +405,14 @@ internal class TokenValidator : ITokenValidator
             new Claim(JwtClaimTypes.IssuedAt, new DateTimeOffset(token.CreationTime).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
             new Claim(JwtClaimTypes.Expiration, new DateTimeOffset(token.CreationTime).AddSeconds(token.Lifetime).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };
+        var ignoreClaimTypes = claims.Select(c => c.Type).ToArray();
 
         foreach (var aud in token.Audiences)
         {
             claims.Add(new Claim(JwtClaimTypes.Audience, aud));
         }
 
-        claims.AddRange(token.Claims);
+        claims.AddRange(token.Claims.Where(c => !ignoreClaimTypes.Contains(c.Type)));
         return claims;
     }
 
