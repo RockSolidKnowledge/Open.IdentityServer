@@ -18,15 +18,9 @@ namespace Open.IdentityServer.ResponseHandling;
 /// <summary>
 /// Default implementation of the pushed authorization response generator
 /// </summary>
-/// <param name="store">The store used to save the pushed authorization request for later retrieval</param>
-/// <param name="handleGenerationService">The service used to generate the ID for the stored state</param>
-/// <param name="clock">Used to calculate absolute expiration</param>
-///  <param name="options">Used to calculate expiration</param>
+/// <param name="service">The service used to manage the storing of the pushed authorization request for later retrieval</param>
 /// <param name="logger">The logger to record errors and debug inforation</param>
-public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestStore store, 
-                                                  IHandleGenerationService handleGenerationService,
-                                                  TimeProvider clock,
-                                                  IdentityServerOptions options,
+public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestService service, 
                                                   ILogger<PushedAuthorizationResponseGenerator> logger) : IPushedAuthorizationResponseGenerator
 {
    /// <summary>
@@ -41,36 +35,26 @@ public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestSto
     /// <returns>The generated response</returns>
     public async Task<PushedAuthorizationResponse?> CreateResponseAsync(ValidatedAuthorizeRequest request)
     {
-        string generatedUniquePart = await handleGenerationService.GenerateAsync();
-        
-        string id = IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + generatedUniquePart;
-
-        TimeSpan validFor = RequestValidFor(request);
-        DateTimeOffset validUntil  = clock.GetUtcNow().Add(validFor);
-        
-        var memento = new PushedAuthorizationMemento(id, validUntil, request.Raw);
-        
         try
         {
-            await store.StorePushedAuthorizationRequestAsync(memento);
+            PushedAuthorization response = await service.CreateAsync(request.Client,request.Raw);
             
-            return new PushedAuthorizationResponse(new Uri(id), (int)validFor.TotalSeconds);
+            return new PushedAuthorizationResponse(response.Key, (long)response.ExpiresIn.TotalSeconds);
         }
         catch (Exception)
         {
             return null;
         }
-        
     }
 
-    private TimeSpan RequestValidFor(ValidatedAuthorizeRequest request)
-    {
-        TimeSpan duration =  options.PushedAuthorization.Expiration;
-        if (request.Client?.PushedAuthorizationLifetime != null)
-        {
-            duration = TimeSpan.FromSeconds((int)request.Client.PushedAuthorizationLifetime);
-        }
-
-        return duration;
-    }
+    // private TimeSpan RequestValidFor(ValidatedAuthorizeRequest request)
+    // {
+    //     TimeSpan duration =  options.PushedAuthorization.Expiration;
+    //     if (request.Client?.PushedAuthorizationLifetime != null)
+    //     {
+    //         duration = TimeSpan.FromSeconds((int)request.Client.PushedAuthorizationLifetime);
+    //     }
+    //
+    //     return duration;
+    // }
 }
