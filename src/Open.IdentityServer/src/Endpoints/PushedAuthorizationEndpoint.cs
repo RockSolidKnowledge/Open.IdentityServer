@@ -49,7 +49,7 @@ internal class PushedAuthorizationRequestEndpoint(
         }
 
         trace?.AddTag(TelemetryConstants.TagConstants.Client, clientValidationResult.Client.ClientId);
-
+      
         NameValueCollection? parParameters = await ParseForm(requestContext.Request);
         if (parParameters == null)
         {
