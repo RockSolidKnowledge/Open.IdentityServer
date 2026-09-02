@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -57,8 +58,15 @@ public class IntrospectionRequestValidatorTests
 
         result.IsError.Should().Be(false);
         result.IsActive.Should().Be(true);
-        result.Claims.Count().Should().Be(5);
+        result.Claims.Count().Should().Be(6);
         result.Token.Should().Be(handle);
+
+        var claimTypes = result.Claims.Select(x => x.Type).ToArray();
+        claimTypes.Should().Contain(JwtClaimTypes.IssuedAt);
+        claimTypes.Should().Contain(JwtClaimTypes.Issuer);
+        claimTypes.Should().Contain(JwtClaimTypes.NotBefore);
+        claimTypes.Should().Contain(JwtClaimTypes.Expiration);
+        claimTypes.Should().Contain(JwtClaimTypes.Scope);
     }
 
     [Fact]
