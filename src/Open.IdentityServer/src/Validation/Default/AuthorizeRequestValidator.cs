@@ -727,34 +727,38 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         var prompt = request.Raw.Get(OidcConstants.AuthorizeRequest.Prompt);
         if (prompt.IsPresent())
         {
+            var prompts = prompt.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (prompts.All(p => _options.UserInteraction.SupportedPromptModes.Contains(p)))
+            {
+                if (prompts.Contains(OidcConstants.PromptModes.None) && prompts.Length > 1)
+                {
+                    LogError("prompt contains 'none' and other values. 'none' should be used by itself.", request);
+                    return Invalid(request, description: "Invalid prompt");
+                }
+
+                if (prompts.Contains(OidcConstants.PromptModes.Create) && prompts.Length > 1)
+                {
+                    LogError("prompt contains 'create' and other values. 'create' should be used by itself.", request);
+                    return Invalid(request, description: "Invalid prompt");
+                }
+            }
+            else
+            {
+                LogError("prompt contains unsupported values " + prompt, request);
+                return Invalid(request, description: "Invalid prompt");
+            }
+
             // if prompt have been processed, aka validation is called in callback,
             // then we don't want to prompt the user again, so skip handling of the parameter
             var promptProcessed = request.Raw.Get(Constants.ProcessedParameters.PromptProcessed);
 
-            if (!promptProcessed.IsPresent())
+            if (promptProcessed.IsPresent())
             {
-                var prompts = prompt.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (prompts.All(p => _options.UserInteraction.SupportedPromptModes.Contains(p)))
-                {
-                    if (prompts.Contains(OidcConstants.PromptModes.None) && prompts.Length > 1)
-                    {
-                        LogError("prompt contains 'none' and other values. 'none' should be used by itself.", request);
-                        return Invalid(request, description: "Invalid prompt");
-                    }
-
-                    if (prompts.Contains(OidcConstants.PromptModes.Create) && prompts.Length > 1)
-                    {
-                        LogError("prompt contains 'create' and other values. 'create' should be used by itself.", request);
-                        return Invalid(request, description: "Invalid prompt");
-                    }
-
-                    request.PromptModes = prompts;
-                }
-                else
-                {
-                    LogError("prompt contains unsupported values " + prompt, request);
-                    return Invalid(request, description: "Invalid prompt");
-                }
+                request.ProcessedPromptModes = prompts;
+            }
+            else
+            {
+                request.PromptModes = prompts;
             }
         }
 
@@ -803,7 +807,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
                     var maxAgeProcessed = request.Raw.Get(Constants.ProcessedParameters.MaxAgeProcessed);
 
                     if (!(seconds == 0 && maxAgeProcessed.IsPresent()))
-                    { 
+                    {
                         request.MaxAge = seconds;
                     }
                 }
