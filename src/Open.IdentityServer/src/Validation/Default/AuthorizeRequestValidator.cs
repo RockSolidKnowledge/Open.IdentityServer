@@ -793,22 +793,18 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         var maxAge = request.Raw.Get(OidcConstants.AuthorizeRequest.MaxAge);
         if (maxAge.IsPresent())
         {
-            // if max_age have been processed, aka validation is called in callback,
-            // then we don't want to prompt the user again, so skip handling of the parameter
-            var maxAgeProcessed = request.Raw.Get(Constants.ProcessedParameters.MaxAgeProcessed);
-
-            if (!maxAgeProcessed.IsPresent())
+            if (int.TryParse(maxAge, out var seconds))
             {
-                if (int.TryParse(maxAge, out var seconds))
+                if (seconds >= 0)
                 {
-                    if (seconds >= 0)
-                    {
+                    // if max_age have been processed, aka validation is called in callback,
+                    // then we don't want to prompt the user again in the case where max_age = 0,
+                    // so skip handling of the parameter
+                    var maxAgeProcessed = request.Raw.Get(Constants.ProcessedParameters.MaxAgeProcessed);
+
+                    if (!(seconds == 0 && maxAgeProcessed.IsPresent()))
+                    { 
                         request.MaxAge = seconds;
-                    }
-                    else
-                    {
-                        LogError("Invalid max_age.", request);
-                        return Invalid(request, description: "Invalid max_age");
                     }
                 }
                 else
@@ -816,6 +812,11 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
                     LogError("Invalid max_age.", request);
                     return Invalid(request, description: "Invalid max_age");
                 }
+            }
+            else
+            {
+                LogError("Invalid max_age.", request);
+                return Invalid(request, description: "Invalid max_age");
             }
         }
 
