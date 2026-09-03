@@ -6,7 +6,7 @@ namespace Open.IdentityServer.Models;
 public class EndUserSessionEventContext: UserSessionEventContext
 {
     /// <summary>
-    /// Collection of ClientId active within the session.
+    /// Collection of ClientIds active within the session.
     /// </summary>
     public string[] ClientIds { get; set; } = [];
 }

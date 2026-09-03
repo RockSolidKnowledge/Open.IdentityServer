@@ -14,7 +14,7 @@ public class UserSessionEventContext
     public string SubjectId { get; set; }
     
     /// <summary>
-    /// Session identifier of the session the event has been triggered for
+    /// Session identifier for the event that has been triggered.
     /// </summary>
     public string SessionId { get; set; }
 }
