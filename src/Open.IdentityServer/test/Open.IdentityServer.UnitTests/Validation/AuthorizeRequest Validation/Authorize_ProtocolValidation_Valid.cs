@@ -217,7 +217,7 @@ public class Authorize_ProtocolValidation_Valid
             { OidcConstants.AuthorizeRequest.RedirectUri, "https://server/cb" },
             { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
             { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
-            { OidcConstants.AuthorizeRequest.Prompt, "login" },
+            { OidcConstants.AuthorizeRequest.Prompt, OidcConstants.PromptModes.Login },
             { Constants.ProcessedParameters.PromptProcessed, "true" }
         };
 
@@ -226,11 +226,12 @@ public class Authorize_ProtocolValidation_Valid
 
         result.IsError.Should().BeFalse();
         result.ValidatedRequest.PromptModes.Should().BeEmpty();
+        result.ValidatedRequest.ProcessedPromptModes.Should().Contain(OidcConstants.PromptModes.Login);
     }
 
     [Fact]
     [Trait("Category", Category)]
-    public async Task processed_max_age_should_not_be_processed_again()
+    public async Task processed_max_age_should_not_be_processed_again_when_zero()
     {
         var parameters = new NameValueCollection
         {
@@ -248,5 +249,27 @@ public class Authorize_ProtocolValidation_Valid
 
         result.IsError.Should().BeFalse();
         result.ValidatedRequest.MaxAge.Should().BeNull();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task processed_max_age_should_be_processed_again_when_not_zero()
+    {
+        var parameters = new NameValueCollection
+        {
+            { OidcConstants.AuthorizeRequest.ClientId, "codeclient" },
+            { OidcConstants.AuthorizeRequest.Scope, "openid" },
+            { OidcConstants.AuthorizeRequest.RedirectUri, "https://server/cb" },
+            { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
+            { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
+            { OidcConstants.AuthorizeRequest.MaxAge, "10" },
+            { Constants.ProcessedParameters.MaxAgeProcessed, "true" }
+        };
+
+        var validator = Factory.CreateAuthorizeRequestValidator();
+        var result = await validator.ValidateAsync(parameters);
+
+        result.IsError.Should().BeFalse();
+        result.ValidatedRequest.MaxAge.Should().Be(10);
     }
 }
