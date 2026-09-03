@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -48,7 +49,13 @@ public class DefaultPushedAuthorizationRequestServiceTests
         Client client = new Client();
         DateTimeOffset now = new DateTimeOffset(2026, 6, 2, 15, 0, 0, TimeSpan.FromSeconds(0));
         DateTimeOffset expectedExpiration = now.Add(options.PushedAuthorization.Expiration);
-        NameValueCollection parameters = new();
+        NameValueCollection parameters = new()
+        {
+            ["scope"] = "api1",
+            ["scope"] = "api2",
+            ["client_id"] = "123445"
+        };
+        
         string expectedHandle = "someHandle";
         string expectedKey = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{expectedHandle}";
         
@@ -61,9 +68,11 @@ public class DefaultPushedAuthorizationRequestServiceTests
         var result = await sut.CreateAsync(client,parameters);
 
         store.Verify(s => s.StorePushedAuthorizationRequestAsync(
-            new PushedAuthorizationMemento(
-                expectedKey,expectedExpiration,parameters
-                )),Times.Once);
+            It.Is<PushedAuthorizationMemento>(pam =>
+                pam.Key == expectedKey && pam.ValidUntil == expectedExpiration &&
+                pam.Parameters.AllKeys.SequenceEqual(parameters.AllKeys)
+            )),Times.Once());
+        
         
         result.ExpiresIn.Should().Be(options.PushedAuthorization.Expiration);
     }
@@ -89,11 +98,46 @@ public class DefaultPushedAuthorizationRequestServiceTests
         var result = await sut.CreateAsync(client,parameters);
 
         store.Verify(s => s.StorePushedAuthorizationRequestAsync(
-            new PushedAuthorizationMemento(
-                expectedKey,expectedExpiration,parameters
-            )),Times.Once);
+            It.Is<PushedAuthorizationMemento>(pam =>
+                pam.Key == expectedKey && pam.ValidUntil == expectedExpiration &&
+                pam.Parameters.AllKeys.SequenceEqual(parameters.AllKeys)
+            )),Times.Once());
 
         result.ExpiresIn.Should().Be(TimeSpan.FromSeconds(client.PushedAuthorizationLifetime.Value));
+    }
+    
+    [Fact]
+    public async Task CreateResponse_when_called_should_ensure_no_authentication_artifcats_are_stored()
+    {
+        Client client = new Client();
+        string secretValue = "SECRET";
+        
+        DateTimeOffset now = new DateTimeOffset(2026, 6, 2, 15, 0, 0, TimeSpan.FromSeconds(0));
+        NameValueCollection parameters = new()
+        {
+            ["client_secret"] = secretValue,
+            ["client_assertion"] = secretValue,
+            ["client_assertion_type"] = secretValue
+        };
+        
+        string expectedHandle = "someHandle";
+        string expectedKey = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{expectedHandle}";
+        NameValueCollection spiedParameters = parameters;
+        
+        clock.Setup(c => c.GetUtcNow()).Returns(now);
+        
+        handleGeneration.Setup(hg => hg.GenerateAsync()).ReturnsAsync(expectedHandle);
+        store.Setup(s => s.StorePushedAuthorizationRequestAsync(It.IsAny<PushedAuthorizationMemento>()))
+            .Callback<PushedAuthorizationMemento>(pam =>
+            {
+                spiedParameters = pam.Parameters;
+            });
+        
+        var sut = CreateSut();
+
+        var result = await sut.CreateAsync(client,parameters);
+
+        spiedParameters.AllKeys.All(k => spiedParameters[k] != secretValue).Should().BeTrue();
     }
     
     [Fact]
