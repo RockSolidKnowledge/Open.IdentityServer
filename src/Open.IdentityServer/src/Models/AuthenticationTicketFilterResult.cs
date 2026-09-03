@@ -9,13 +9,12 @@ using Open.IdentityServer.Stores;
 namespace Open.IdentityServer.Models;
 
 /// <summary>
-/// Object for containing the session object and deseriakised auth ticket from the
-/// <see cref="IServerSessionTicketStore"/> FilterServerAuthenticationTickets methods
+/// Container for the session model and deserialized auth ticket from the <see cref="IServerSessionTicketStore"/> FilterServerAuthenticationTickets method
 /// </summary>
 public class AuthenticationTicketFilterResult
 {
     /// <summary>
-    /// Session entity from the database
+    /// Session model returned from filtering
     /// </summary>
     public IdentityServerServerSideSessions Session { get; set; } = null!;
     

@@ -96,6 +96,9 @@ public class DefaultUserSessionEventsService(
         IServerSessionTicketStore? serverSessionTicketStore = serviceProvider.GetService<IServerSessionTicketStore>();
         IIdentityServerServerSideSessionStore? identityServerServerSideSessionStore = serviceProvider.GetService<IIdentityServerServerSideSessionStore>();
         
+        // Checking if server-side sessions have been configured by the presence of registered server-side session stores
+        // also checking if client lifetime coordination has been enabled. If any of these conditions are not met, then
+        // the validate session methods should exit early without validating.
         if (serverSessionTicketStore == null || identityServerServerSideSessionStore == null ||
             !ShouldCoordinateLifetimes(sessionEventContext.Client))
         {

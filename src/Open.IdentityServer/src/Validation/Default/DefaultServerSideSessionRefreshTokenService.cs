@@ -12,11 +12,11 @@ using Open.IdentityServer.Services;
 namespace Open.IdentityServer.Validation;
 
 /// <summary>
-/// 
+/// Decorator for <see cref="IRefreshTokenService"/>, adds server side sessions functionality to refresh token validation
 /// </summary>
-/// <param name="decorator"></param>
-/// <param name="userSessionEventsService"></param>
-/// <param name="telemetry"></param>
+/// <param name="decorator">existing implementation of <see cref="IRefreshTokenService"/> to be decorated</param>
+/// <param name="userSessionEventsService">user session event service</param>
+/// <param name="telemetry">telemetry service</param>
 internal class DefaultServerSideSessionRefreshTokenService(
     Decorator<IRefreshTokenService> decorator,
     IUserSessionEventsService userSessionEventsService,
@@ -25,11 +25,12 @@ internal class DefaultServerSideSessionRefreshTokenService(
     private IRefreshTokenService decoratedService = decorator.Instance ?? throw new ArgumentNullException(nameof(decorator));
     
     /// <summary>
-    /// 
+    /// Validates refresh token as normal using the decorated service, then if successfull validates that there are valid
+    /// sessions associated with the refresh token.
     /// </summary>
-    /// <param name="token"></param>
-    /// <param name="client"></param>
-    /// <returns></returns>
+    /// <param name="token">refresh token to be validated</param>
+    /// <param name="client">client to validate refresh token against</param>
+    /// <returns>A task that resolves to a <see cref="TokenValidationResult"/> indicating whether the refresh token is valid for the specified client.</returns>
     public async Task<TokenValidationResult?> ValidateRefreshTokenAsync(string token, Client client)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
