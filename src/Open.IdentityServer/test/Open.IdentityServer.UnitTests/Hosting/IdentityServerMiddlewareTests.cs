@@ -246,17 +246,17 @@ public class IdentityServerMiddlewareTests
 
         _userSession.Setup(x => x.RemoveSessionIdCookieAsync()).Returns(Task.CompletedTask);
 
-        UserSessionEventContext? actualUserSessionEventCtx = null;
+        EndUserSessionEventContext? actualUserSessionEventCtx = null;
         Mock.Get(userSessionEventsService)
-            .Setup(x => x.HandleUserSessionLogout(It.IsAny<UserSessionEventContext>()))
-            .Callback<UserSessionEventContext>((sessionEventContext) => { actualUserSessionEventCtx = sessionEventContext; });
+            .Setup(x => x.HandleUserSessionLogout(It.IsAny<EndUserSessionEventContext>()))
+            .Callback<EndUserSessionEventContext>((sessionEventContext) => { actualUserSessionEventCtx = sessionEventContext; });
         
         await InvokeSubjectMiddleware();
 
         _userSession.Verify(x => x.RemoveSessionIdCookieAsync(), Times.Once);
         
         Mock.Get(userSessionEventsService)
-            .Verify(x => x.HandleUserSessionLogout(It.IsAny<UserSessionEventContext>()), Times.Once);
+            .Verify(x => x.HandleUserSessionLogout(It.IsAny<EndUserSessionEventContext>()), Times.Once);
 
         actualUserSessionEventCtx.Should().NotBeNull();
         actualUserSessionEventCtx.SessionId.Should().BeEquivalentTo(sessionId);

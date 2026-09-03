@@ -3,6 +3,7 @@
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
+using Open.IdentityServer.Stores;
 
 namespace Open.IdentityServer.Configuration;
 
@@ -14,7 +15,7 @@ namespace Open.IdentityServer.Configuration;
 /// <param name="idsOptions">Open.IdentityServer options</param>
 /// <param name="authOptions">Authentication options</param>
 public class PostConfigureSessionStoreCookieAuthOptions(
-    ITicketStore ticketStore,
+    IServerSessionTicketStore ticketStore,
     IdentityServerOptions idsOptions,
     IOptions<Microsoft.AspNetCore.Authentication.AuthenticationOptions> authOptions): IPostConfigureOptions<CookieAuthenticationOptions>
 {

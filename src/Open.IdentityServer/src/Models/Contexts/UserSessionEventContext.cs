@@ -17,9 +17,4 @@ public class UserSessionEventContext
     /// Session identifier for the event that has been triggered.
     /// </summary>
     public string SessionId { get; set; }
-
-    /// <summary>
-    /// Collection of ClientId active within the session.
-    /// </summary>
-    public string[] ClientIds { get; set; } = [];
 }

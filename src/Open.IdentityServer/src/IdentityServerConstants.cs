@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 #pragma warning disable 1591
@@ -16,6 +17,7 @@ public static class IdentityServerConstants
     public const string ExternalCookieAuthenticationScheme = "idsrv.external";
     public const string DefaultCheckSessionCookieName = "idsrv.session";
     public const string AccessTokenAudience = "{0}resources";
+    public const string ForceCookieRefresh = "Open.IdentityServer.ForceCookieRefresh";
 
     public const string JwtRequestClientKey = "idsrv.jwtrequesturi.client";
 
