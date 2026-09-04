@@ -1,4 +1,5 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
@@ -7,10 +8,10 @@ using System.Collections.Specialized;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Open.IdentityServer.UnitTests.Validation.Setup;
-using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Xunit;
+using Open.IdentityServer.Configuration;
 
 namespace Open.IdentityServer.UnitTests.Validation.TokenRequest_Validation;
 
@@ -477,6 +478,26 @@ public class TokenRequestValidation_ResourceIndicators
 
     [Fact]
     [Trait("Category", Category)]
+    public async Task Invalid_ClientCredentials_WithResourceIndicatorToLong()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("client");
+
+        var validator = Factory.CreateTokenRequestValidator();
+
+        var parameters = new NameValueCollection
+        {
+            { OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.ClientCredentials },
+            { OidcConstants.TokenRequest.Scope, "urn:valid.resource:All" },
+            { OidcConstants.TokenRequest.Resource, "urn:valid.resource." + new string('a', new IdentityServerOptions().InputLengthRestrictions.ResourceIndicatorMaxLength) },
+        };
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeTrue();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
     public async Task Valid_ClientCredentials_WithResourceIndicator()
     {
         var client = await _clients.FindEnabledClientByIdAsync("client");
@@ -494,7 +515,7 @@ public class TokenRequestValidation_ResourceIndicators
 
         result.IsError.Should().BeFalse();
     }
-        
+
     [Fact]
     [Trait("Category", Category)]
     public async Task Invalid_DeviceCode_WithResourceIndicator()

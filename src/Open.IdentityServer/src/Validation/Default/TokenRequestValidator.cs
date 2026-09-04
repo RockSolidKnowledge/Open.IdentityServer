@@ -160,6 +160,13 @@ internal class TokenRequestValidator : ITokenRequestValidator
         var resources = _validatedRequest.GetResourceIndicators();
         if (resources.Count != 0)
         {
+            if (resources.Any(x => x.Length > _options.InputLengthRestrictions.ResourceIndicatorMaxLength))
+            {
+                LogError("resource(s) are too long", _validatedRequest); 
+                return Invalid(OidcConstants.AuthorizeErrors.InvalidTarget, 
+                    "Resource indicator maximum length exceeded.");
+            }
+
             if (_validatedRequest.GrantType == OidcConstants.GrantTypes.DeviceCode)
             {
                 LogError("resource provided with DeviceCode grant type");

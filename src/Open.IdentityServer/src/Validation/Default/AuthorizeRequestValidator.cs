@@ -605,6 +605,13 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         var resources = request.GetResourceIndicators();
         if (resources.Count != 0)
         {
+            if (resources.Any(x => x.Length > _options.InputLengthRestrictions.ResourceIndicatorMaxLength))
+            {
+                LogError("resource(s) are too long", request);
+                return Invalid(request, OidcConstants.AuthorizeErrors.InvalidTarget,
+                    "Resource indicator maximum length exceeded.");
+            }
+
             if (resources.Any(x => x.InValidResourceIndicatorString()))
             {
                 LogError("resource(s) invalid", request);
