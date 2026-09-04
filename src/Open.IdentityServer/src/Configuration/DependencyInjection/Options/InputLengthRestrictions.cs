@@ -131,5 +131,5 @@ public class InputLengthRestrictions
     /// <summary>
     /// Max length for resource indicator parameter
     /// </summary>
-    public int ResourceIndicatorMaxLength { get; } = 400;
+    public int ResourceIndicatorMaxLength { get; } = 512;
 }
