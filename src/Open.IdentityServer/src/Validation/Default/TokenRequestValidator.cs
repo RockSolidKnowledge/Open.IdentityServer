@@ -162,6 +162,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         {
             if (resources.Any(x => x.Length > _options.InputLengthRestrictions.ResourceIndicatorMaxLength))
             {
+                LogError("resource(s) are too long", _validatedRequest); 
                 return Invalid(OidcConstants.AuthorizeErrors.InvalidTarget, 
                     "Resource indicator maximum length exceeded.");
             }
