@@ -138,4 +138,9 @@ public class FakeIdentityServerServerSideSessionStore: IIdentityServerServerSide
     {
         throw new System.NotImplementedException();
     }
+
+    public Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    {
+        throw new System.NotImplementedException();
+    }
 }
