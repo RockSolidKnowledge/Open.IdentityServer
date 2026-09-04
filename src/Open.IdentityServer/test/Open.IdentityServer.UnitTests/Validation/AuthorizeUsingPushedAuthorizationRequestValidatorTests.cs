@@ -9,6 +9,7 @@ using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Configuration.DependencyInjection;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Storage.Models;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
@@ -21,7 +22,7 @@ public class AuthorizeUsingPushedAuthorizationRequestValidatorTests
 {
     private readonly Mock<IAuthorizeRequestValidator> authorizeRequestValidator = new();
     private readonly Mock<ILogger<AuthorizeRequestValidator>> logger = new();
-    private readonly Mock<IPushedAuthorizationRequestStore> store = new();
+    private readonly Mock<IPushedAuthorizationRequestService> parService = new();
     private readonly IdentityServerOptions options = new IdentityServerOptions();
 
     public AuthorizeUsingPushedAuthorizationRequestValidatorTests()
@@ -120,8 +121,8 @@ public class AuthorizeUsingPushedAuthorizationRequestValidatorTests
         var parameters = new NameValueCollection();
         
         string unknownRequestUri = IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + "blah";
-        store.Setup(s=>s.ConsumePushedAuthorizationRequestAsync(unknownRequestUri))
-            .ReturnsAsync((PushedAuthorizationMemento?)null);
+        parService.Setup(s=>s.ConsumeAsync(unknownRequestUri))
+            .ReturnsAsync((NameValueCollection?)null);
 
         parameters.Add(OidcConstants.AuthorizeRequest.RequestUri,unknownRequestUri);
         
@@ -143,13 +144,10 @@ public class AuthorizeUsingPushedAuthorizationRequestValidatorTests
             { "client_id", "clientOne" },
             { OidcConstants.AuthorizeRequest.RequestUri,requestUri}
         };
-        var memento = new PushedAuthorizationMemento(
-            requestUri,
-            new DateTimeOffset(new DateTime(2027, 3, 10, 12, 3, 10)),
-            new NameValueCollection() { {"client_id","different" }});
+        var request = new NameValueCollection() { {"client_id","different" }};
         
-        store.Setup(s=>s.ConsumePushedAuthorizationRequestAsync(requestUri))
-            .ReturnsAsync(memento);
+        parService.Setup(s=>s.ConsumeAsync(requestUri))
+            .ReturnsAsync(request);
         
         var sut = CreateSut();
 
@@ -170,12 +168,12 @@ public class AuthorizeUsingPushedAuthorizationRequestValidatorTests
             { OidcConstants.AuthorizeRequest.RequestUri, requestUri }
         };
 
-        var stored = new PushedAuthorizationMemento(String.Empty, DateTime.Now, new NameValueCollection());
+        var stored = new NameValueCollection();
 
-        store.Setup(s => s.ConsumePushedAuthorizationRequestAsync(requestUri))
+        parService.Setup(s => s.ConsumeAsync(requestUri))
             .ReturnsAsync(stored);
 
-        SetupAuthorizeRequestValidationResult(stored.Parameters, new ValidatedAuthorizeRequest());
+        SetupAuthorizeRequestValidationResult(stored, new ValidatedAuthorizeRequest());
 
         var sut = CreateSut();
 
@@ -201,6 +199,6 @@ public class AuthorizeUsingPushedAuthorizationRequestValidatorTests
         return new AuthorizeUsingPushedAuthorizationRequestValidator(
             decorator,
             options,
-            store.Object);
+            parService.Object);
     }
 }

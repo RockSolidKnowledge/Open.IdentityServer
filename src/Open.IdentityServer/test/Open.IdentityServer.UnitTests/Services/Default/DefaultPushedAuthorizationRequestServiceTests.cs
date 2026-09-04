@@ -57,7 +57,8 @@ public class DefaultPushedAuthorizationRequestServiceTests
         };
         
         string expectedHandle = "someHandle";
-        string expectedKey = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{expectedHandle}";
+        string expectedKey = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{expectedHandle}"
+            .Sha256();
         
         clock.Setup(c => c.GetUtcNow()).Returns(now);
         
@@ -88,6 +89,7 @@ public class DefaultPushedAuthorizationRequestServiceTests
         string expectedHandle = "someHandle";
         string expectedKey = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{expectedHandle}";
 
+        expectedKey = expectedKey.Sha256();
         
         clock.Setup(c => c.GetUtcNow()).Returns(now);
         
@@ -150,14 +152,15 @@ public class DefaultPushedAuthorizationRequestServiceTests
         
         NameValueCollection parameters = new();
         string expectedHandle = "someHandle";
-        string expectedKey = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{expectedHandle}";
+        string key = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{expectedHandle}";
+        string expectedKey = key.Sha256();
         
         store.Setup(s => s.ConsumePushedAuthorizationRequestAsync(expectedKey))
             .ReturnsAsync(new PushedAuthorizationMemento(expectedKey,expectedExpiration,parameters));
         
         var sut = CreateSut();
 
-        var result = await sut.ConsumeAsync(expectedKey);
+        var result = await sut.ConsumeAsync(key);
 
         result.Should().Be(parameters);
     }

@@ -27,7 +27,7 @@ internal class DefaultPushedAuthorizationRequestService(
             
             string keyBody = await handleGeneration.GenerateAsync();
             string key = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{keyBody}";
-
+               
             TimeSpan duration = options.PushedAuthorization.Expiration;
             if (client.PushedAuthorizationLifetime != null)
             {
@@ -36,7 +36,7 @@ internal class DefaultPushedAuthorizationRequestService(
 
             await store.StorePushedAuthorizationRequestAsync(
                 new PushedAuthorizationMemento(
-                    key,
+                    key.Sha256(),
                     clock.GetUtcNow().Add(duration),
                     parameters));
 
@@ -71,7 +71,7 @@ internal class DefaultPushedAuthorizationRequestService(
     {
         try
         {
-            PushedAuthorizationMemento? memento = await store.ConsumePushedAuthorizationRequestAsync(key);
+            PushedAuthorizationMemento? memento = await store.ConsumePushedAuthorizationRequestAsync(key.Sha256());
 
             if (memento?.ValidUntil < clock.GetUtcNow())
             {
