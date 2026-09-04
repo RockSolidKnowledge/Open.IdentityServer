@@ -73,12 +73,14 @@ Allows setting length restrictions on various protocol parameters like client id
 UserInteraction
 ^^^^^^^^^^^^^^^
 
-* ``LoginUrl``, ``LogoutUrl``, ``ConsentUrl``, ``ErrorUrl``, ``DeviceVerificationUrl``
-    Sets the URLs for the login, logout, consent, error and device verification pages.
+* ``LoginUrl``, ``LogoutUrl``, ``CreateAccountUrl``, ``ConsentUrl``, ``ErrorUrl``, ``DeviceVerificationUrl``
+    Sets the URLs for the login, logout, create account, consent, error and device verification pages.
 * ``LoginReturnUrlParameter``
     Sets the name of the return URL parameter passed to the login page. Defaults to *returnUrl*.
 * ``LogoutIdParameter``
     Sets the name of the logout message id parameter passed to the logout page. Defaults to *logoutId*.
+* ``CreateAccountIdParameter``
+    Sets the name of the return URL parameter passed to the create account page. Defaults to *returnUrl*.
 * ``ConsentReturnUrlParameter``
     Sets the name of the return URL parameter passed to the consent page. Defaults to *returnUrl*.
 * ``ErrorIdParameter``
@@ -93,6 +95,10 @@ UserInteraction
     The value sets the maximum number of message cookies of any type that will be created.
     The oldest message cookies will be purged once the limit has been reached.
     This effectively indicates how many tabs can be opened by a user when using IdentityServer.
+* ``SupportedPromptModes``
+    Sets the prompt modes that are supported by IdentityServer. 
+    Defaults to *login*, *consent*, *select_account* and *none*.
+    When *CreateAccountUrl* is set, then *create* is also added to the supported prompt modes.
 
 Caching
 ^^^^^^^

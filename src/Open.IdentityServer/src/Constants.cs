@@ -113,6 +113,12 @@ internal static class Constants
         OidcConstants.PromptModes.SelectAccount
     };
 
+    public class ProcessedParameters
+    {
+        public const string PromptProcessed = OidcConstants.AuthorizeRequest.Prompt + "_processed";
+        public const string MaxAgeProcessed = OidcConstants.AuthorizeRequest.MaxAge + "_processed";
+    }
+
     public static class KnownAcrValues
     {
         public const string HomeRealm = "idp:";
@@ -177,6 +183,7 @@ internal static class Constants
         {
             public const string Error = "errorId";
             public const string Login = "returnUrl";
+            public const string CreateAccount = "returnUrl";
             public const string Consent = "returnUrl";
             public const string Logout = "logoutId";
             public const string EndSessionCallback = "endSessionId";

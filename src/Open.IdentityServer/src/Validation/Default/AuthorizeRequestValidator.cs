@@ -728,7 +728,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         if (prompt.IsPresent())
         {
             var prompts = prompt.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (prompts.All(p => Constants.SupportedPromptModes.Contains(p)))
+            if (prompts.All(p => _options.UserInteraction.SupportedPromptModes.Contains(p)))
             {
                 if (prompts.Contains(OidcConstants.PromptModes.None) && prompts.Length > 1)
                 {
@@ -736,11 +736,29 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
                     return Invalid(request, description: "Invalid prompt");
                 }
 
-                request.PromptModes = prompts;
+                if (prompts.Contains(OidcConstants.PromptModes.Create) && prompts.Length > 1)
+                {
+                    LogError("prompt contains 'create' and other values. 'create' should be used by itself.", request);
+                    return Invalid(request, description: "Invalid prompt");
+                }
             }
             else
             {
-                _logger.LogDebug("Unsupported prompt mode - ignored: " + prompt);
+                LogError("prompt contains unsupported values " + prompt, request);
+                return Invalid(request, description: "Invalid prompt");
+            }
+
+            // if prompt have been processed, aka validation is called in callback,
+            // then we don't want to prompt the user again, so skip handling of the parameter
+            var promptProcessed = request.Raw.Get(Constants.ProcessedParameters.PromptProcessed);
+
+            if (promptProcessed.IsPresent())
+            {
+                request.ProcessedPromptModes = prompts;
+            }
+            else
+            {
+                request.PromptModes = prompts;
             }
         }
 
@@ -783,7 +801,15 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
             {
                 if (seconds >= 0)
                 {
-                    request.MaxAge = seconds;
+                    // if max_age have been processed, aka validation is called in callback,
+                    // then we don't want to prompt the user again in the case where max_age = 0,
+                    // so skip handling of the parameter
+                    var maxAgeProcessed = request.Raw.Get(Constants.ProcessedParameters.MaxAgeProcessed);
+
+                    if (!(seconds == 0 && maxAgeProcessed.IsPresent()))
+                    {
+                        request.MaxAge = seconds;
+                    }
                 }
                 else
                 {

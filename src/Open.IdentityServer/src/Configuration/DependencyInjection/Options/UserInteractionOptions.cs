@@ -1,8 +1,10 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
 using Open.IdentityServer.Extensions;
+using System.Collections.Generic;
 
 namespace Open.IdentityServer.Configuration;
 
@@ -106,4 +108,28 @@ public class UserInteractionOptions
     /// The device verification user code parameter.
     /// </value>
     public string DeviceVerificationUserCodeParameter { get; set; } = Constants.UIConstants.DefaultRoutePathParams.UserCode;
+
+    /// <summary>
+    /// Gets or sets the create account URL. If a local URL, the value must start with a leading slash.
+    /// </summary>
+    /// <value>
+    /// The create account URL.
+    /// </value>
+    public string CreateAccountUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the create account return URL parameter.
+    /// </summary>
+    /// <value>
+    /// The create account return URL parameter.
+    /// </value>
+    public string CreateAccountReturnUrlParameter { get; set; } = Constants.UIConstants.DefaultRoutePathParams.CreateAccount;
+
+    /// <summary>
+    /// Gets or sets the supported prompt modes.
+    /// </summary>
+    /// <value>
+    /// The supported prompt modes.
+    /// </value>
+    public List<string> SupportedPromptModes { get; set; } = new(Constants.SupportedPromptModes);
 }

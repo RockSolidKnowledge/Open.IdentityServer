@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -18,16 +19,6 @@ namespace Open.IdentityServer.Validation;
 /// </summary>
 public static class ValidatedAuthorizeRequestExtensions
 {
-    /// <summary>
-    /// Removes the prompt parameter from the request.
-    /// </summary>
-    /// <param name="request">The validated authorize request.</param>
-    public static void RemovePrompt(this ValidatedAuthorizeRequest request)
-    {
-        request.PromptModes = Enumerable.Empty<string>();
-        request.Raw.Remove(OidcConstants.AuthorizeRequest.Prompt);
-    }
-
     /// <summary>
     /// Gets the first ACR value that starts with the specified prefix, with the prefix removed.
     /// </summary>

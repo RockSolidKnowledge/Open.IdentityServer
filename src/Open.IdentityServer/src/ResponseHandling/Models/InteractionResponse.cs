@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -18,6 +19,14 @@ public class InteractionResponse
     ///   <c>true</c> if this instance is login; otherwise, <c>false</c>.
     /// </value>
     public bool IsLogin { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the user should create an account.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this instance is create; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsCreateAccount { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the user must consent.

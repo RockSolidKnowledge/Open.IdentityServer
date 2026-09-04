@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using Open.IdentityServer;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -131,6 +133,12 @@ public static class IdentityServerApplicationBuilderExtensions
         if (options.UserInteraction.ConsentUrl.IsMissing()) throw new InvalidOperationException("ConsentUrl is not configured");
         if (options.UserInteraction.ConsentReturnUrlParameter.IsMissing()) throw new InvalidOperationException("ConsentReturnUrlParameter is not configured");
         if (options.UserInteraction.CustomRedirectReturnUrlParameter.IsMissing()) throw new InvalidOperationException("CustomRedirectReturnUrlParameter is not configured");
+
+        if (options.UserInteraction.CreateAccountUrl.IsPresent())
+        {
+            if (options.UserInteraction.CreateAccountReturnUrlParameter.IsMissing()) throw new InvalidOperationException("CreateAccountReturnUrlParameter is not configured");
+            options.UserInteraction.SupportedPromptModes.Add(OidcConstants.PromptModes.Create);
+        }
 
         if (options.Authentication.CheckSessionCookieName.IsMissing()) throw new InvalidOperationException("CheckSessionCookieName is not configured");
 
