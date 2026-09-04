@@ -1,7 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace Open.IdentityServer.EntityFramework;
 
 /// <summary>
-/// Helper to cleanup stale persisted grants and device codes.
+/// Helper to clean up stale persisted grants and device codes.
 /// </summary>
 public class TokenCleanupService
 {
@@ -94,8 +93,7 @@ public class TokenCleanupService
             }
         }
     }
-
-
+    
     /// <summary>
     /// Removes the stale device codes.
     /// </summary>

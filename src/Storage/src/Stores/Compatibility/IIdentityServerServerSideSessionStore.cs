@@ -3,6 +3,7 @@
 
 #nullable enable
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 
@@ -40,4 +41,11 @@ public interface IIdentityServerServerSideSessionStore
     /// <param name="key">unique key of session</param>
     /// <returns>void</returns>
     public Task DeleteSession(string key);
+
+    /// <summary>
+    /// Removes expired sessions and returns a collection of sessions that were removed
+    /// </summary>
+    /// <param name="batchSize">optional batch size value, defaults to 100</param>
+    /// <returns>removed expired sessions</returns>
+    public Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100);
 }

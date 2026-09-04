@@ -4,6 +4,7 @@
 #nullable enable
 
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 
@@ -42,5 +43,11 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
     {
         repo.TryRemove(key, out IdentityServerServerSideSessions? value);
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    {
+        throw new System.NotImplementedException();
     }
 }

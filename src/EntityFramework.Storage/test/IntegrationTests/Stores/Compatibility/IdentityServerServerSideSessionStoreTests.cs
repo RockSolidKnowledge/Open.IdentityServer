@@ -39,7 +39,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [InlineData("  ")]
     public async Task GetSession_WhenKeyNullOrEmpty_ShouldThrowArgumentException(string key)
     {
-        await using var context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         Func<Task> act = async () => await sut.GetSession(key);
@@ -50,7 +50,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task GetSession_WhenDoesntExist_ShouldReturnNull(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using var context = await CreateCleanContext(options);
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
         SessionModel result = await sut.GetSession("missing-key");
@@ -61,7 +61,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task GetSession_WhenExist_ShouldReturnValue(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using var context = await CreateCleanContext(options);
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "session-key-1";
         IdentityServerServerSideSessions seeded = new IdentityServerServerSideSessions
@@ -102,10 +102,10 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [InlineData("  ")]
     public async Task CreateSession_WhenKeyNullOrEmpty_ShouldThrowArgumentException(string key)
     {
-        await using var context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
-        var newSession = BuildSessionModel(key, "sub-new", "sid-new", "new");
+        SessionModel newSession = BuildSessionModel(key, "sub-new", "sid-new", "new");
         
         Func<Task> act = async () => await sut.CreateSession(newSession);
 
@@ -115,7 +115,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task CreateSession_WhenSessionAlreadyExistsWithKey_ShouldLogError(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using var context = await CreateCleanContext(options);
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "duplicate-key";
         context.ServerSideSessions.Add(new IdentityServerServerSideSessions
@@ -133,7 +133,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await context.SaveChangesAsync();
 
         IdentityServerServerSideSessionStore sut = CreateSut(context);
-        var newSession = BuildSessionModel(key, "sub-new", "sid-new", "new");
+        SessionModel newSession = BuildSessionModel(key, "sub-new", "sid-new", "new");
 
         await sut.CreateSession(newSession);
         
@@ -143,16 +143,16 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task CreateSession_WhenSessionDoesntExistsWithKey_ShouldStoreSessionInDatabase(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using var context = await CreateCleanContext(options);
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "new-key";
-        var session = BuildSessionModel(key, "sub-123", "sid-123", "display-123");
+        SessionModel session = BuildSessionModel(key, "sub-123", "sid-123", "display-123");
 
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
         await sut.CreateSession(session);
 
-        var stored = await context.ServerSideSessions
+        IdentityServerServerSideSessions stored = await context.ServerSideSessions
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.Key == key, cancellationToken: TestContext.Current.CancellationToken);
         
@@ -174,10 +174,10 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [InlineData("  ")]
     public async Task UpdateSession_WhenKeyNullOrEmpty_ShouldThrowArgumentException(string key)
     {
-        await using var context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
-        var session = BuildSessionModel(key, "sub-new", "sid-new", "new");
+        SessionModel session = BuildSessionModel(key, "sub-new", "sid-new", "new");
         
         Func<Task> act = async () => await sut.UpdateSession(session);
 
@@ -187,10 +187,10 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task UpdateSession_WhenSessionDoesntExistsWithKey_ShouldLogError(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using var context = await CreateCleanContext(options);
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
-        var session = BuildSessionModel("missing-update-key", "sub", "sid", "display");
+        SessionModel session = BuildSessionModel("missing-update-key", "sub", "sid", "display");
 
         await sut.UpdateSession(session);
         
@@ -200,7 +200,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task UpdateSession_WhenSessionExistsWithKey_ShouldUpdateStoredSession(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using var context = await CreateCleanContext(options);
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "update-key";
         context.ServerSideSessions.Add(new IdentityServerServerSideSessions
@@ -217,7 +217,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         });
         await context.SaveChangesAsync();
 
-        var updated = BuildSessionModel(key, "new-sub", "new-sid", "new-display");
+        SessionModel updated = BuildSessionModel(key, "new-sub", "new-sid", "new-display");
         updated.Scheme = "new-scheme";
         updated.Data = "{\"version\":2}";
         updated.Created = DateTime.UtcNow.AddHours(-3);
@@ -228,7 +228,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         await sut.UpdateSession(updated);
 
-        var stored = await context.ServerSideSessions
+        IdentityServerServerSideSessions stored = await context.ServerSideSessions
             .AsNoTracking()
             .SingleAsync(x => x.Key == key, cancellationToken: TestContext.Current.CancellationToken);
         
@@ -249,7 +249,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [InlineData("  ")]
     public async Task DeleteSession_WhenKeyNullOrEmpty_ShouldThrowArgumentException(string key)
     {
-        await using var context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         Func<Task> act = async () => await sut.DeleteSession(key);
@@ -260,7 +260,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task DeleteSession_WhenSessionDoesntExistsWithKey_ShouldLogError(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using var context = await CreateCleanContext(options);
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
         await sut.DeleteSession("missing-delete-key");
@@ -271,7 +271,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task DeleteSession_WhenSessionExistsWithKey_ShouldDeleteStoredSession(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using var context = await CreateCleanContext(options);
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "delete-key";
         context.ServerSideSessions.Add(new IdentityServerServerSideSessions
@@ -292,11 +292,73 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         await sut.DeleteSession(key);
 
-        var stored = await context.ServerSideSessions
+        IdentityServerServerSideSessions stored = await context.ServerSideSessions
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.Key == key, cancellationToken: TestContext.Current.CancellationToken);
         
         stored.Should().BeNull();
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task GetAndRemoveExpiredSessions_WhenNoExpiredSessionsExist_ShouldRemoveNothingAndReturnEmptyCollection(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+        
+        IdentityServerServerSideSessions validSession0 = FakeSessionSession("123", "session1");
+        IdentityServerServerSideSessions validSession1 = FakeSessionSession("456", "session2");
+        context.ServerSideSessions.Add(validSession0);
+        context.ServerSideSessions.Add(validSession1);
+        await context.SaveChangesAsync();
+
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+
+        List<SessionModel> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
+
+        actual.Should().BeEmpty();
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task GetAndRemoveExpiredSessions_WhenExpiredSessionsExist_AndUnderBatchSize_ShouldDeleteExpiredSessionsAndReturnACollectionContainingRemovedSessions(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+        
+        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
+        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
+        context.ServerSideSessions.Add(expiredSession0);
+        context.ServerSideSessions.Add(expiredSession1);
+        await context.SaveChangesAsync();
+
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+
+        List<SessionModel> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
+
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == expiredSession0.Key);
+        actual.Should().Contain(x => x.Key == expiredSession1.Key);
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task GetAndRemoveExpiredSessions_WhenExpiredSessionsExist_AndExceedBatchSize_ShouldDeleteAndReturnExpiredSessions_WithACountOfBatchSize(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+        
+        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
+        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
+        IdentityServerServerSideSessions expiredSession2 = FakeSessionSession("789", "session3", true);
+        IdentityServerServerSideSessions validSession0 = FakeSessionSession("234", "session4");
+        context.ServerSideSessions.Add(expiredSession0);
+        context.ServerSideSessions.Add(expiredSession1);
+        context.ServerSideSessions.Add(expiredSession2);
+        context.ServerSideSessions.Add(validSession0);
+        await context.SaveChangesAsync();
+
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+
+        List<SessionModel> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
+
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == expiredSession0.Key);
+        actual.Should().Contain(x => x.Key == expiredSession1.Key);
     }
     
     [Theory, MemberData(nameof(TestDatabaseProviders))]
@@ -311,9 +373,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
                 (store => store.DeleteSession("FAKE_SESSION_KEY"), "DeleteSession"),
             };
 
-        foreach (var method in methods)
+        foreach ((Func<IdentityServerServerSideSessionStore, Task> actMethod, string traceMethodName) method in methods)
         {
-            var trace = Mock.Of<ITrace>();
+            ITrace trace = Mock.Of<ITrace>();
             Mock.Get(telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
                 .Returns(trace);
             Mock.Get(trace).Setup(t => t.AddTag(It.IsAny<string>(), It.IsAny<string>())).Returns(trace);
@@ -321,7 +383,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
             await using PersistedGrantDbContext context = new PersistedGrantDbContext(options, StoreOptions);
             
-            var store = CreateSut(context);
+            IdentityServerServerSideSessionStore store = CreateSut(context);
                 
             await method.actMethod(store);
 
@@ -362,5 +424,30 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             Expires = DateTime.UtcNow.AddHours(1),
             Data = "{\"payload\":\"value\"}"
         };
+    }
+
+    private static IdentityServerServerSideSessions FakeSessionSession(string subject, string sessionId, bool expired = false)
+    {
+        IdentityServerServerSideSessions session = new IdentityServerServerSideSessions
+        {
+            Key = Guid.NewGuid().ToString(),
+            Scheme = Guid.NewGuid().ToString(),
+            SubjectId = subject,
+            SessionId = sessionId,
+            DisplayName = "user" + subject,
+            Created = DateTime.UtcNow.AddDays(-3),
+            Renewed = DateTime.UtcNow.AddDays(-3),
+            Expires = DateTime.UtcNow.AddDays(2),
+            Data = "{!}"
+        };
+
+        if (expired)
+        {
+            session.Created = DateTime.UtcNow.AddDays(-5);
+            session.Renewed = DateTime.UtcNow.AddDays(-4);
+            session.Expires = DateTime.UtcNow.AddDays(-3);
+        }
+
+        return session;
     }
 }

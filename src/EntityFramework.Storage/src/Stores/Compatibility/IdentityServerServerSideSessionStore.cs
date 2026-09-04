@@ -4,6 +4,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -120,5 +121,11 @@ public class IdentityServerServerSideSessionStore(
         {
             logger.LogError(ex, "exception deleting '{SessionKey}' session in database", key);
         }
+    }
+    
+    /// <inheritdoc />
+    public Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    {
+        throw new NotImplementedException();
     }
 }

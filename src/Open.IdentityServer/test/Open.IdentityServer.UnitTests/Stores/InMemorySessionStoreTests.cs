@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Open.IdentityServer.Models;
@@ -205,5 +206,99 @@ public class InMemorySessionStoreTests
 
         IdentityServerServerSideSessions? actual = await sut.GetSession(testKey);
         actual.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetAndRemoveExpiredSessions_WhenNoExpiredSessionsExist_ShouldRemoveNothingAndReturnEmptyCollection()
+    {
+        IdentityServerServerSideSessions validSession0 = FakeSessionSession("123", "session1");
+        IdentityServerServerSideSessions validSession1 = FakeSessionSession("456", "session2");
+        
+        InMemorySessionStore sut = CreateSut([validSession0, validSession1]);
+
+        (await sut.GetSession(validSession0.Key)).Should().NotBeNull();
+        (await sut.GetSession(validSession1.Key)).Should().NotBeNull();
+
+        List<IdentityServerServerSideSessions> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
+
+        actual.Should().BeEmpty();
+
+        (await sut.GetSession(validSession0.Key)).Should().NotBeNull();
+        (await sut.GetSession(validSession1.Key)).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task GetAndRemoveExpiredSessions_WhenExpiredSessionsExist_AndUnderBatchSize_ShouldDeleteExpiredSessionsAndReturnACollectionContainingRemovedSessions()
+    {
+        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
+        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
+        
+        InMemorySessionStore sut = CreateSut([expiredSession0, expiredSession1]);
+
+        (await sut.GetSession(expiredSession0.Key)).Should().NotBeNull();
+        (await sut.GetSession(expiredSession1.Key)).Should().NotBeNull();
+
+        List<IdentityServerServerSideSessions> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
+
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == expiredSession0.Key);
+        actual.Should().Contain(x => x.Key == expiredSession1.Key);
+        
+        (await sut.GetSession(expiredSession0.Key)).Should().BeNull();
+        (await sut.GetSession(expiredSession1.Key)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetAndRemoveExpiredSessions_WhenExpiredSessionsExist_AndExceedBatchSize_ShouldDeleteAndReturnExpiredSessions_WithACountOfBatchSize()
+    {
+        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
+        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
+        IdentityServerServerSideSessions expiredSession2 = FakeSessionSession("789", "session3", true);
+        IdentityServerServerSideSessions validSession0 = FakeSessionSession("234", "session4");
+        
+        InMemorySessionStore sut = CreateSut([expiredSession0, expiredSession1, expiredSession2, validSession0]);
+
+        (await sut.GetSession(expiredSession0.Key)).Should().NotBeNull();
+        (await sut.GetSession(expiredSession1.Key)).Should().NotBeNull();
+        (await sut.GetSession(expiredSession2.Key)).Should().NotBeNull();
+        (await sut.GetSession(validSession0.Key)).Should().NotBeNull();
+
+        List<IdentityServerServerSideSessions> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
+
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == expiredSession0.Key);
+        actual.Should().Contain(x => x.Key == expiredSession1.Key);
+        actual.Should().NotContain(x => x.Key == expiredSession2.Key);
+        actual.Should().NotContain(x => x.Key == validSession0.Key);
+        
+        (await sut.GetSession(expiredSession0.Key)).Should().BeNull();
+        (await sut.GetSession(expiredSession1.Key)).Should().BeNull();
+        (await sut.GetSession(expiredSession2.Key)).Should().NotBeNull();
+        (await sut.GetSession(validSession0.Key)).Should().NotBeNull();
+    }
+
+    private static IdentityServerServerSideSessions FakeSessionSession(string subject, string sessionId, bool expired = false)
+    {
+        IdentityServerServerSideSessions session = new IdentityServerServerSideSessions
+        {
+            Key = Guid.NewGuid().ToString(),
+            Scheme = Guid.NewGuid().ToString(),
+            SubjectId = subject,
+            SessionId = sessionId,
+            DisplayName = "user" + subject,
+            Created = DateTime.UtcNow.AddDays(-3),
+            Renewed = DateTime.UtcNow.AddDays(-3),
+            Expires = DateTime.UtcNow.AddDays(2),
+            Data = "{!}"
+        };
+
+        if (expired)
+        {
+            session.Created = DateTime.UtcNow.AddDays(-5);
+            session.Renewed = DateTime.UtcNow.AddDays(-4);
+            session.Expires = DateTime.UtcNow.AddDays(-3);
+        }
+
+        return session;
     }
 }
