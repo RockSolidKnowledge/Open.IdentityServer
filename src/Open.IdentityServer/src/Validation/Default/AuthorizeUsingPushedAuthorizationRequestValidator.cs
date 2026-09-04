@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Configuration.DependencyInjection;
+using Open.IdentityServer.Services;
 using Open.IdentityServer.Storage.Models;
 using Open.IdentityServer.Stores;
 
@@ -15,7 +16,7 @@ namespace Open.IdentityServer.Validation;
 internal class AuthorizeUsingPushedAuthorizationRequestValidator(
     Decorator<IAuthorizeRequestValidator> toDecorate,
     IdentityServerOptions options,
-    IPushedAuthorizationRequestStore store)
+    IPushedAuthorizationRequestService parService)
     : IAuthorizeRequestValidator
 {
     public async Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal? subject = null)
@@ -34,19 +35,19 @@ internal class AuthorizeUsingPushedAuthorizationRequestValidator(
                 "Only one request uri is allowed");
         }
         
-        PushedAuthorizationMemento? request = await store.ConsumePushedAuthorizationRequestAsync(requestUris[0]);
+        NameValueCollection? request = await parService.ConsumeAsync(requestUris[0]);
         if (request == null)
         {
             return new AuthorizeRequestValidationResult(OidcConstants.AuthorizeErrors.InvalidRequest);
         }
 
-        if (request.Parameters.Get(OidcConstants.AuthorizeRequest.ClientId) !=
+        if (request.Get(OidcConstants.AuthorizeRequest.ClientId) !=
             parameters.Get(OidcConstants.AuthorizeRequest.ClientId))
         {
             return new AuthorizeRequestValidationResult(OidcConstants.AuthorizeErrors.InvalidRequest);
         }
         
-        AuthorizeRequestValidationResult result = await toDecorate.Instance.ValidateAsync(request.Parameters, subject);
+        AuthorizeRequestValidationResult result = await toDecorate.Instance.ValidateAsync(request, subject);
         
         return result;
     }
