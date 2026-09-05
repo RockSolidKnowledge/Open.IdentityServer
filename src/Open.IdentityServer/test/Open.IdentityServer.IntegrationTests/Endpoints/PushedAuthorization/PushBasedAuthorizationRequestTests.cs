@@ -18,12 +18,13 @@ using Open.IdentityServer.Test;
 using Xunit;
 using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Open.IdentityServer;
 // using Open.IdentityServer.ResponseHandling;
 using Open.IdentityServer.Validation;
 
 #nullable enable
 
-namespace Open.IdentityServer.IntegrationTests.Endpoints.PushedAuthorization;
+namespace IdentityServer.IntegrationTests.Endpoints.PushedAuthorization;
 
 public class PushBasedAuthorizationRequestTests
 {
