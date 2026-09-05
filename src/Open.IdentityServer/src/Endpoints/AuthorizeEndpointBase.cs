@@ -83,6 +83,11 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         }
 
         var request = result.ValidatedRequest;
+        return await ProcessValidatedRequest(consent, request);
+    }
+
+    private async Task<IEndpointResult> ProcessValidatedRequest(ConsentResponse consent, ValidatedAuthorizeRequest request)
+    {
         LogRequest(request);
 
         // determine user interaction
