@@ -23,11 +23,6 @@ namespace Open.IdentityServer.ResponseHandling;
 public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestService service, 
                                                   ILogger<PushedAuthorizationResponseGenerator> logger) : IPushedAuthorizationResponseGenerator
 {
-   /// <summary>
-    /// Default lifetime for a Pushed Authorization Request
-    /// </summary>
-    public static readonly int DefaultRequestLifetimeInSeconds = 60;
-    
     /// <summary>
     /// Generates the Pushed Authorization Request response
     /// </summary>
@@ -46,15 +41,4 @@ public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestSer
             return null;
         }
     }
-
-    // private TimeSpan RequestValidFor(ValidatedAuthorizeRequest request)
-    // {
-    //     TimeSpan duration =  options.PushedAuthorization.Expiration;
-    //     if (request.Client?.PushedAuthorizationLifetime != null)
-    //     {
-    //         duration = TimeSpan.FromSeconds((int)request.Client.PushedAuthorizationLifetime);
-    //     }
-    //
-    //     return duration;
-    // }
 }
