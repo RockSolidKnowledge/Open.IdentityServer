@@ -20,8 +20,7 @@ namespace Open.IdentityServer.EntityFramework.Stores;
 /// <summary>
 /// Implementation of IResourceStore that uses EF.
 /// </summary>
-/// <seealso cref="Open.IdentityServer.Stores.IResourceStore" />
-
+/// <seealso cref="IResourceStore" />
 public class ResourceStore : IResourceStore
 {
     /// <summary>
@@ -166,7 +165,20 @@ public class ResourceStore : IResourceStore
 
         Logger.LogDebug("Found {scopes} identity scopes in database", results.Select(x => x.Name));
 
-        return results.Select(x => x.ToModel()).ToArray();
+        return results.Select(ToIdentityResourceModel).ToArray();
+    }
+
+    /// <summary>
+    /// Maps the <see cref="Entities.IdentityResource"/> to the <see cref="IdentityResource"/>.
+    /// </summary>
+    /// <param name="resource">The <see cref="Entities.IdentityResource"/>.</param>
+    /// <returns>The <see cref="IdentityResource"/> or an object extending IdentityResource.</returns>
+    /// <remarks>
+    /// Makes it possible to return an extended model.
+    /// </remarks>
+    protected virtual IdentityResource ToIdentityResourceModel(Entities.IdentityResource resource)
+    {
+        return resource.ToModel();
     }
 
     /// <summary>
@@ -237,7 +249,7 @@ public class ResourceStore : IResourceStore
             .AsNoTracking();
 
         var result = new Resources(
-            (await identity.ToArrayAsync()).Select(x => x.ToModel()),
+            (await identity.ToArrayAsync()).Select(ToIdentityResourceModel),
             (await apis.ToArrayAsync()).Select(ToApiResourceModel),
             (await scopes.ToArrayAsync()).Select(ToApiScopeModel)
         );

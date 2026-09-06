@@ -280,6 +280,33 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FindIdentityResourcesByScopeNameAsync_WhenResourceExists_ExpectExtendedResourceReturned(DbContextOptions<ConfigurationDbContext> options)
+    {
+        var resource = CreateIdentityTestResource();
+        resource.Properties.Add("x", "xx");
+
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            context.IdentityResources.Add(resource.ToEntity());
+            context.SaveChanges();
+        }
+
+        IList<IdentityResource> resources;
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            var store = new ExtendedResourceStore(context, _telemetry, FakeLogger<ExtendedResourceStore>.Create());
+            resources = (await store.FindIdentityResourcesByScopeNameAsync(new List<string>
+            {
+                resource.Name
+            })).ToList();
+        }
+
+        Assert.NotNull(resources);
+        var foundScope = resources.Single() as ExtendedIdentityResource;
+        Assert.NotNull(foundScope);
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task FindIdentityResourcesByScopeNameAsync_WhenResourcesExist_ExpectOnlyRequestedReturned(DbContextOptions<ConfigurationDbContext> options)
     {
         var resource = CreateIdentityTestResource();

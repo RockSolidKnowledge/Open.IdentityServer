@@ -24,6 +24,16 @@ internal class ExtendedResourceStore : ResourceStore
         return model;
     }
 
+    protected override Models.IdentityResource ToIdentityResourceModel(Entities.IdentityResource resource)
+    {
+        var model = resource.ToModel<ExtendedIdentityResource>();
+
+        model.Created = resource.Created;
+        model.Updated = resource.Updated;
+
+        return model;
+    }
+
     protected override Models.ApiScope ToApiScopeModel(Entities.ApiScope scope)
     {
         var model = scope.ToModel<ExtendedApiScope>();

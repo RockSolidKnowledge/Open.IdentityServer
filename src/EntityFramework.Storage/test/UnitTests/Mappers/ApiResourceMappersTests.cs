@@ -142,7 +142,7 @@ public class ApiResourceMappersTests
     }
 
     [Fact]
-    public void CanMapToExtendedScopeModel()
+    public void CanMapToExtendedApiResourceModel()
     {
         var entity = new Entities.ApiResource
         {
