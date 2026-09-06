@@ -3,11 +3,12 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using System;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Distributed;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
-using Microsoft.Extensions.Caching.Distributed;
+using Open.IdentityServer.Stores;
+using System;
+using System.Threading.Tasks;
 
 namespace Open.IdentityServer.Services;
 
@@ -18,6 +19,7 @@ namespace Open.IdentityServer.Services;
 public class DistributedDeviceFlowThrottlingService : IDeviceFlowThrottlingService
 {
     private readonly IDistributedCache _cache;
+    private readonly IClientStore _clientStore;
     private readonly TimeProvider _clock;
     private readonly IdentityServerOptions _options;
     private readonly ITelemetryService _telemetry;
@@ -28,16 +30,19 @@ public class DistributedDeviceFlowThrottlingService : IDeviceFlowThrottlingServi
     /// Initializes a new instance of the <see cref="DistributedDeviceFlowThrottlingService"/> class.
     /// </summary>
     /// <param name="cache">The cache.</param>
+    /// <param name="clientStore">The client store.</param>
     /// <param name="clock">The clock.</param>
     /// <param name="options">The options.</param>
     /// <param name="telemetry">The telemetry</param>
     public DistributedDeviceFlowThrottlingService(
         IDistributedCache cache,
+        IClientStore clientStore,
         TimeProvider clock,
         IdentityServerOptions options, 
         ITelemetryService telemetry)
     {
         _cache = cache;
+        _clientStore = clientStore;
         _clock = clock;
         _options = options;
         _telemetry = telemetry;
@@ -70,7 +75,8 @@ public class DistributedDeviceFlowThrottlingService : IDeviceFlowThrottlingServi
         // check interval
         if (DateTime.TryParse(lastSeenAsString, out var lastSeen))
         {
-            if (_clock.GetUtcNow() < lastSeen.AddSeconds(_options.DeviceFlow.Interval))
+            var client = await _clientStore.FindEnabledClientByIdAsync(details.ClientId);
+            if (_clock.GetUtcNow() < lastSeen.AddSeconds(client?.PollingInterval ?? _options.DeviceFlow.Interval))
             {
                 await _cache.SetStringAsync(key, _clock.GetUtcNow().ToString("O"), options);
                 return true;

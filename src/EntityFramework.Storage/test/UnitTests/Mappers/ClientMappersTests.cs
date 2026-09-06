@@ -111,7 +111,6 @@ public class ClientMappersTests
                 nameof(Entities.Client.NonEditable),
                 // Compatibility properties intentionally not mapped
                 nameof(Entities.Client.CibaLifetime),
-                nameof(Entities.Client.PollingInterval),
                 nameof(Entities.Client.CoordinateLifetimeWithUserSession),
                 nameof(Entities.Client.InitiateLoginUri),
                 nameof(Entities.Client.DPoPClockSkew),
@@ -129,7 +128,6 @@ public class ClientMappersTests
             .ExcludeDestinationProperties(
                 // Compatibility properties intentionally not mapped
                 nameof(Client.CibaLifetime),
-                nameof(Client.PollingInterval),
                 nameof(Client.CoordinateLifetimeWithUserSession),
                 nameof(Client.InitiateLoginUri),
                 nameof(Client.DPoPClockSkew),
