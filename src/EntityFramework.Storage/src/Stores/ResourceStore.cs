@@ -20,8 +20,7 @@ namespace Open.IdentityServer.EntityFramework.Stores;
 /// <summary>
 /// Implementation of IResourceStore that uses EF.
 /// </summary>
-/// <seealso cref="Open.IdentityServer.Stores.IResourceStore" />
-
+/// <seealso cref="IResourceStore" />
 public class ResourceStore : IResourceStore
 {
     /// <summary>
@@ -79,7 +78,7 @@ public class ResourceStore : IResourceStore
 
         var result = (await apis.ToArrayAsync())
             .Where(x => apiResourceNames.Contains(x.Name))
-            .Select(x => x.ToModel()).ToArray();
+            .Select(ToApiResourceModel).ToArray();
 
         if (result.Any())
         {
@@ -107,7 +106,7 @@ public class ResourceStore : IResourceStore
 
         var query =
             from api in Context.ApiResources
-            where api.Scopes.Where(x => names.Contains(x.Scope)).Any()
+            where api.Scopes.Any(x => names.Contains(x.Scope))
             select api;
 
         var apis = query
@@ -119,11 +118,24 @@ public class ResourceStore : IResourceStore
 
         var results = (await apis.ToArrayAsync())
             .Where(api => api.Scopes.Any(x => names.Contains(x.Scope)));
-        var models = results.Select(x => x.ToModel()).ToArray();
+        var models = results.Select(ToApiResourceModel).ToArray();
 
         Logger.LogDebug("Found {apis} API resources in database", models.Select(x => x.Name));
 
         return models;
+    }
+
+    /// <summary>
+    /// Maps the <see cref="Entities.ApiResource"/> to the <see cref="ApiResource"/>.
+    /// </summary>
+    /// <param name="resource">The <see cref="Entities.ApiResource"/>.</param>
+    /// <returns>The <see cref="ApiResource"/> or an object extending ApiScope.</returns>
+    /// <remarks>
+    /// Makes it possible to return an extended model.
+    /// </remarks>
+    protected virtual ApiResource ToApiResourceModel(Entities.ApiResource resource)
+    {
+        return resource.ToModel();
     }
 
     /// <summary>
@@ -153,7 +165,20 @@ public class ResourceStore : IResourceStore
 
         Logger.LogDebug("Found {scopes} identity scopes in database", results.Select(x => x.Name));
 
-        return results.Select(x => x.ToModel()).ToArray();
+        return results.Select(ToIdentityResourceModel).ToArray();
+    }
+
+    /// <summary>
+    /// Maps the <see cref="Entities.IdentityResource"/> to the <see cref="IdentityResource"/>.
+    /// </summary>
+    /// <param name="resource">The <see cref="Entities.IdentityResource"/>.</param>
+    /// <returns>The <see cref="IdentityResource"/> or an object extending IdentityResource.</returns>
+    /// <remarks>
+    /// Makes it possible to return an extended model.
+    /// </remarks>
+    protected virtual IdentityResource ToIdentityResourceModel(Entities.IdentityResource resource)
+    {
+        return resource.ToModel();
     }
 
     /// <summary>
@@ -183,7 +208,20 @@ public class ResourceStore : IResourceStore
 
         Logger.LogDebug("Found {scopes} scopes in database", results.Select(x => x.Name));
 
-        return results.Select(x => x.ToModel()).ToArray();
+        return results.Select(ToApiScopeModel).ToArray();
+    }
+
+    /// <summary>
+    /// Maps the <see cref="Entities.ApiScope"/> to the <see cref="ApiScope"/>.
+    /// </summary>
+    /// <param name="scope">The <see cref="Entities.ApiScope"/>.</param>
+    /// <returns>The <see cref="ApiScope"/> or an object extending ApiScope.</returns>
+    /// <remarks>
+    /// Makes it possible to return an extended model.
+    /// </remarks>
+    protected virtual ApiScope ToApiScopeModel(Entities.ApiScope scope)
+    {
+        return scope.ToModel();
     }
 
     /// <summary>
@@ -211,9 +249,9 @@ public class ResourceStore : IResourceStore
             .AsNoTracking();
 
         var result = new Resources(
-            (await identity.ToArrayAsync()).Select(x => x.ToModel()),
-            (await apis.ToArrayAsync()).Select(x => x.ToModel()),
-            (await scopes.ToArrayAsync()).Select(x => x.ToModel())
+            (await identity.ToArrayAsync()).Select(ToIdentityResourceModel),
+            (await apis.ToArrayAsync()).Select(ToApiResourceModel),
+            (await scopes.ToArrayAsync()).Select(ToApiScopeModel)
         );
 
         Logger.LogDebug("Found {scopes} as all scopes, and {apis} as API resources", 
