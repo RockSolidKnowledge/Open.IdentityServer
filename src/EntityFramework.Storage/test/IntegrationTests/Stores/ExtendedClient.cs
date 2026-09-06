@@ -10,7 +10,7 @@ internal class ExtendedClient : Client
 {
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
-    public DateTime? LastAccessed { get; internal set; }
+    public DateTime? LastAccessed { get; set; }
 
     public string? X
     {
