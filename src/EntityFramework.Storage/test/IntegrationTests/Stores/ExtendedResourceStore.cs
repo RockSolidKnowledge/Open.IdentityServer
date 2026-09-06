@@ -13,6 +13,17 @@ internal class ExtendedResourceStore : ResourceStore
     {
     }
 
+    protected override Models.ApiResource ToApiResourceModel(Entities.ApiResource resource)
+    {
+        var model = resource.ToModel<ExtendedApiResource>();
+
+        model.Created = resource.Created;
+        model.Updated = resource.Updated;
+        model.LastAccessed = resource.LastAccessed;
+
+        return model;
+    }
+
     protected override Models.ApiScope ToApiScopeModel(Entities.ApiScope scope)
     {
         var model = scope.ToModel<ExtendedApiScope>();

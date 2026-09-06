@@ -3,20 +3,20 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using AwesomeAssertions;
+using Microsoft.EntityFrameworkCore;
+using Moq;
+using Open.IdentityServer.EntityFramework.DbContexts;
+using Open.IdentityServer.EntityFramework.Mappers;
+using Open.IdentityServer.EntityFramework.Options;
+using Open.IdentityServer.EntityFramework.Stores;
+using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
+using Open.IdentityServer.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AwesomeAssertions;
-using Open.IdentityServer.EntityFramework.DbContexts;
-using Open.IdentityServer.EntityFramework.Options;
-using Open.IdentityServer.EntityFramework.Stores;
-using Open.IdentityServer.Models;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using Open.IdentityServer.EntityFramework.Mappers;
-using Open.IdentityServer.Services;
-using Open.IdentityServer.Utility;
 using Xunit;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores;
@@ -108,6 +108,28 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FindApiResourcesByNameAsync_WhenResourceExists_ExpectExtendedResourceReturned(DbContextOptions<ConfigurationDbContext> options)
+    {
+        var resource = CreateApiResourceTestResource();
+        resource.Properties.Add("x", "xx");
+
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            context.ApiResources.Add(resource.ToEntity());
+            context.SaveChanges();
+        }
+
+        ExtendedApiResource foundResource;
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            var store = new ExtendedResourceStore(context, _telemetry, FakeLogger<ExtendedResourceStore>.Create());
+            foundResource = (await store.FindApiResourcesByNameAsync([resource.Name])).SingleOrDefault() as ExtendedApiResource;
+        }
+
+        Assert.NotNull(foundResource);
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task FindApiResourcesByNameAsync_WhenResourcesExist_ExpectOnlyResourcesRequestedReturned(DbContextOptions<ConfigurationDbContext> options)
     {
         var resource = CreateApiResourceTestResource();
@@ -164,6 +186,36 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
         Assert.NotNull(resources);
         Assert.NotEmpty(resources);
         Assert.NotNull(resources.Single(x => x.Name == testApiResource.Name));
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FindApiResourcesByScopeNameAsync_WhenResourcesExist_ExpectExtendedApiScopeReturned(DbContextOptions<ConfigurationDbContext> options)
+    {
+        var testApiResource = CreateApiResourceTestResource();
+        var testApiScope = CreateApiScopeTestResource();
+        testApiResource.Scopes.Add(testApiScope.Name);
+        testApiResource.Properties.Add("x", "xx");
+
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            context.ApiResources.Add(testApiResource.ToEntity());
+            context.ApiScopes.Add(testApiScope.ToEntity());
+            context.SaveChanges();
+        }
+
+        IEnumerable<ApiResource> resources;
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            var store = new ExtendedResourceStore(context, _telemetry, FakeLogger<ExtendedResourceStore>.Create());
+            resources = await store.FindApiResourcesByScopeNameAsync(
+            [
+                testApiScope.Name
+            ]);
+        }
+
+        Assert.NotNull(resources);
+        var extendedApiResource = resources.SingleOrDefault(x => x.Name == testApiResource.Name) as ExtendedApiResource;
+        Assert.NotNull(extendedApiResource);
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
