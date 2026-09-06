@@ -80,10 +80,24 @@ public class ClientStore : IClientStore
         await baseQuery.Include(x => x.Properties).SelectMany(c => c.Properties).LoadAsync();
         await baseQuery.Include(x => x.RedirectUris).SelectMany(c => c.RedirectUris).LoadAsync();
 
-        var model = client.ToModel();
+        var model = ToModel(client);
 
         Logger.LogDebug("{clientId} found in database: {clientIdFound}", clientId, model != null);
 
         return model;
     }
+
+    /// <summary>
+    /// Maps the <see cref="Entities.Client"/> to the <see cref="Client"/>.
+    /// </summary>
+    /// <param name="client">The <see cref="Entities.Client"/>.</param>
+    /// <returns>The <see cref="Client"/> or an object extending Client.</returns>
+    /// <remarks>
+    /// Makes it possible to return an extended model.
+    /// </remarks>
+    protected virtual Client ToModel(Entities.Client client)
+    {
+        return client.ToModel();
+    }
+
 }

@@ -6,10 +6,11 @@ using System;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores;
 
-internal class ExtendedIdentityResource : IdentityResource
+internal class ExtendedClient : Client
 {
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
+    public DateTime? LastAccessed { get; internal set; }
 
     public string? X
     {

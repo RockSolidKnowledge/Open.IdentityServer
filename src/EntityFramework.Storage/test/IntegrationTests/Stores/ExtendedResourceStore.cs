@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+using Microsoft.Extensions.Logging;
 using Open.IdentityServer.EntityFramework.Interfaces;
 using Open.IdentityServer.EntityFramework.Mappers;
 using Open.IdentityServer.EntityFramework.Stores;
