@@ -183,7 +183,20 @@ public class ResourceStore : IResourceStore
 
         Logger.LogDebug("Found {scopes} scopes in database", results.Select(x => x.Name));
 
-        return results.Select(x => x.ToModel()).ToArray();
+        return results.Select(ToApiScopeModel).ToArray();
+    }
+
+    /// <summary>
+    /// Maps the <see cref="Entities.ApiScope"/> to the <see cref="ApiScope"/>.
+    /// </summary>
+    /// <param name="scope">The <see cref="Entities.ApiScope"/>.</param>
+    /// <returns>The <see cref="ApiScope"/> or an object extending ApiScope.</returns>
+    /// <remarks>
+    /// Makes it possible to return an extended model.
+    /// </remarks>
+    protected virtual ApiScope ToApiScopeModel(Entities.ApiScope scope)
+    {
+        return scope.ToModel();
     }
 
     /// <summary>

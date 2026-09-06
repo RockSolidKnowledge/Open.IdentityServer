@@ -314,6 +314,33 @@ public class ScopeStoreTests : IntegrationTest<ScopeStoreTests, ConfigurationDbC
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FindApiScopesByNameAsync_WhenResourcesExist_ExpectExtendedApiScopeReturned(DbContextOptions<ConfigurationDbContext> options)
+    {
+        var resource = CreateApiScopeTestResource();
+        resource.Properties.Add("x", "xx");
+
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            context.ApiScopes.Add(resource.ToEntity());
+            context.SaveChanges();
+        }
+
+        IList<ApiScope> resources;
+        using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            var store = new ExtendedResourceStore(context, _telemetry, FakeLogger<ExtendedResourceStore>.Create());
+            resources = (await store.FindApiScopesByNameAsync(new List<string>
+            {
+                resource.Name
+            })).ToList();
+        }
+
+        Assert.NotNull(resources);
+        var extendedApiScope = resources.SingleOrDefault(x => x.Name == resource.Name) as ExtendedApiScope;
+        Assert.NotNull(extendedApiScope);
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task GetAllResources_WhenAllResourcesRequested_ExpectAllResourcesIncludingHidden(DbContextOptions<ConfigurationDbContext> options)
     {
         var visibleIdentityResource = CreateIdentityTestResource();

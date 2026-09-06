@@ -20,7 +20,17 @@ public static class ScopeMappingExtensions
         /// <returns>mapped instance of <see cref="Models.ApiScope"/></returns>
         public Models.ApiScope ToModel()
         {
-            return new Models.ApiScope
+            return apiScopeEntity.ToModel<Models.ApiScope>();
+        }
+
+        /// <summary>
+        /// Mapper for <see cref="Entities.ApiScope"/> to convert into an instance of <see cref="Models.ApiScope"/>
+        /// </summary>
+        /// <returns>mapped instance of <see cref="Models.ApiScope"/></returns>
+        public T ToModel<T>()
+            where T : Models.ApiScope, new()
+        {
+            return new T
             {
                 Enabled = apiScopeEntity.Enabled,
                 Name = apiScopeEntity.Name,
