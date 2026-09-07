@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using Moq;
 using Open.IdentityServer.Configuration;
+using Open.IdentityServer.Stores;
 using Xunit;
 using AuthenticationOptions = Microsoft.AspNetCore.Authentication.AuthenticationOptions;
 
@@ -13,7 +14,7 @@ namespace Open.IdentityServer.UnitTests.Configuration;
 
 public class PostConfigureSessionStoreCookieAuthOptionsTests
 {
-    private ITicketStore ticketStore = Mock.Of<ITicketStore>();
+    private IServerSessionTicketStore ticketStore = Mock.Of<IServerSessionTicketStore>();
     private IdentityServerOptions idsOptions = new();
     private IOptions<AuthenticationOptions> authOptions = 
         Mock.Of<IOptions<AuthenticationOptions>>();

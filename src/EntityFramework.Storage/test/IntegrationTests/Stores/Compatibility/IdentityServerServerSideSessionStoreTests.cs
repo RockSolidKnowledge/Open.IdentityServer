@@ -298,18 +298,64 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         
         stored.Should().BeNull();
     }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenSessionDontMatch_ShouldReturnEmptySet(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+
+        var actual = (await sut.FilterSessions("john", "session-x")).ToList();
+
+        actual.Should().BeEmpty();
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenSessionMatch_ShouldReturnMatchingSessions(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+
+        var actual = (await sut.FilterSessions("alice", "session-1")).ToList();
+
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == "key-1");
+        actual.Should().Contain(x => x.Key == "key-6");
+    }
     
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace(DbContextOptions<PersistedGrantDbContext> options)
     {
         List<(Func<IdentityServerServerSideSessionStore, Task> actMethod, string traceMethodName)> methods
-            = new()
-            {
+            = [
                 (store => store.CreateSession(new SessionModel { Key = "FAKE_SESSION_KEY" }), "CreateSession"),
                 (store => store.GetSession("FAKE_SESSION_KEY"), "GetSession"),
                 (store => store.UpdateSession(new SessionModel { Key = "FAKE_SESSION_KEY" }), "UpdateSession"),
                 (store => store.DeleteSession("FAKE_SESSION_KEY"), "DeleteSession"),
-            };
+                (store => store.FilterSessions("FAKE_SUBJECT_KEY", "FAKE_SESSION_KEY"), "FilterSessions"),
+            ];
 
         foreach (var method in methods)
         {

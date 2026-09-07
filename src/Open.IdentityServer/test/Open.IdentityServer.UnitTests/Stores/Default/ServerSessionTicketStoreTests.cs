@@ -394,6 +394,78 @@ public class ServerSessionTicketStoreTests
             .Verify(x => x.DeleteSession(keyId));
     }
 
+    [Theory]
+    [InlineData("{invalid.json}")]
+    [InlineData("{\"Version\": 2, Payload: \"SOMEDATA\"}")]
+    public async Task FilterServerAuthenticationTickets_WhenSessionDataDeserialisationFails_ShouldReturnSkipFailingAuthTicket(string data)
+    {
+        const string testSubjectId = "bob";
+        const string testSessionId = "session-0";
+        
+        IEnumerable<IdentityServerServerSideSessions> sessions = [
+            FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: data),
+            FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+        ];
+
+        List<SerializedAuthenticationTicket> expectedAuthTickets = [];
+        sessions = sessions.Select(session => GenerateSerialisedData(expectedAuthTickets, session));
+        
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.FilterSessions(testSubjectId, testSessionId))
+            .ReturnsAsync(sessions);
+        
+        ServerSessionTicketStore sut = CreateSut();
+        IEnumerable<AuthenticationTicketFilterResult> actual =
+            (await sut.FilterServerAuthenticationTickets(testSubjectId, testSessionId)).ToList();
+
+        actual.Should().NotBeNullOrEmpty();
+        actual.Should().HaveCount(expectedAuthTickets.Count);
+    }
+
+    [Fact]
+    public async Task FilterServerAuthenticationTickets_WhenNotingReturnedByStore_ShouldReturnEmptyCollection()
+    {
+        const string testSubjectId = "bob";
+        const string testSessionId = "session-0";
+        
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.FilterSessions(testSubjectId, testSessionId))
+            .ReturnsAsync([]);
+        
+        ServerSessionTicketStore sut = CreateSut();
+        IEnumerable<AuthenticationTicketFilterResult> actual = await sut.FilterServerAuthenticationTickets(testSubjectId, testSessionId);
+
+        actual.Should().BeEmpty();
+    }
+    
+    [Fact]
+    public async Task FilterServerAuthenticationTickets_WhenSessionReturnedFromStore_ShouldReturnExtractedAuthTickets()
+    {
+        const string testSubjectId = "bob";
+        const string testSessionId = "session-0";
+        
+        IEnumerable<IdentityServerServerSideSessions> sessions = [
+            FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+        ];
+
+        List<SerializedAuthenticationTicket> expectedAuthTickets = [];
+        sessions = sessions.Select(x => GenerateSerialisedData(expectedAuthTickets, x));
+        
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.FilterSessions(testSubjectId, testSessionId))
+            .ReturnsAsync(sessions);
+        
+        ServerSessionTicketStore sut = CreateSut();
+        IEnumerable<AuthenticationTicketFilterResult> actual =
+            (await sut.FilterServerAuthenticationTickets(testSubjectId, testSessionId)).ToList();
+
+        actual.Should().NotBeNullOrEmpty();
+        actual.Should().HaveCount(expectedAuthTickets.Count);
+    }
+
     [Fact]
     public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace()
     {
@@ -401,12 +473,12 @@ public class ServerSessionTicketStoreTests
             GenerateAuthenticationTicket("FakeScheme", Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
 
         List<(Func<ServerSessionTicketStore, Task> actMethod, string traceMethodName)> methods
-            =
-            [
+            = [
                 (store => store.StoreAsync(authTicket), "StoreAsync"),
                 (store => store.RenewAsync("FAKE_KEY", authTicket), "RenewAsync"),
                 (store => store.RetrieveAsync("FAKE_KEY"), "RetrieveAsync"),
-                (store => store.RemoveAsync("FAKE_KEY"), "RemoveAsync")
+                (store => store.RemoveAsync("FAKE_KEY"), "RemoveAsync"),
+                (store => store.FilterServerAuthenticationTickets("FAKE_SUB_KEY", "FAKE_SESSION_KEY"), "FilterServerAuthenticationTickets"),
             ];
 
         var sut = CreateSut();
@@ -435,6 +507,23 @@ public class ServerSessionTicketStoreTests
             .Distinct()
             .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
     }
+
+    private IdentityServerServerSideSessions GenerateSerialisedData(
+        List<SerializedAuthenticationTicket> expectedAuthTickets,
+        IdentityServerServerSideSessions identityServerServerSideSessions)
+    {
+        if (string.IsNullOrWhiteSpace(identityServerServerSideSessions.Data))
+        {
+            SerializedAuthenticationTicket authenticationTicket = GenerateSerializedAuthenticationTicket(
+                identityServerServerSideSessions.Scheme, identityServerServerSideSessions.SubjectId, identityServerServerSideSessions.SessionId,
+                identityServerServerSideSessions.DisplayName, identityServerServerSideSessions.Renewed, identityServerServerSideSessions.Expires);
+            identityServerServerSideSessions.Data = GenerateFakeData(authenticationTicket);
+            
+            expectedAuthTickets.Add(authenticationTicket);
+        }
+            
+        return identityServerServerSideSessions;
+    } 
 
     private AuthenticationTicket GenerateAuthenticationTicket(string authScheme, string? subjectId, string? sessionId,
         string? displayName = null, DateTimeOffset? issuedUtc = null, DateTimeOffset? expiresUtc = null)
@@ -504,6 +593,26 @@ public class ServerSessionTicketStoreTests
                 Claims = claims.ToArray(),
             },
             Items = items,
+        };
+    }
+
+    private IdentityServerServerSideSessions FakeSession(
+        string key,
+        string scheme, 
+        string sessionId, 
+        string subjectId,
+        string displayName,
+        string? data = null,
+        DateTime? created = null,
+        DateTime? renewed = null,
+        DateTime? expires = null)
+    {
+        return new IdentityServerServerSideSessions
+        {
+            Key = key, Scheme = scheme, SessionId = sessionId, SubjectId = subjectId, DisplayName = displayName, Data = data ?? string.Empty,
+            Created = created ?? new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
+            Renewed = renewed ?? new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
+            Expires = expires ?? new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
         };
     }
 }

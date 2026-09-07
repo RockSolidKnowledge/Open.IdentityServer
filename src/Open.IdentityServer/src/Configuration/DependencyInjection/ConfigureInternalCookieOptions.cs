@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -6,18 +7,13 @@ using Open.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using CookieAuthenticationEvents = Open.IdentityServer.Events.CookieAuthenticationEvents;
 
 namespace Open.IdentityServer.Configuration;
 
-internal class ConfigureInternalCookieOptions : IConfigureNamedOptions<CookieAuthenticationOptions>
+internal class ConfigureInternalCookieOptions(IdentityServerOptions idsrv)
+    : IConfigureNamedOptions<CookieAuthenticationOptions>
 {
-    private readonly IdentityServerOptions _idsrv;
-
-    public ConfigureInternalCookieOptions(IdentityServerOptions idsrv)
-    {
-        _idsrv = idsrv;
-    }
-
     public void Configure(CookieAuthenticationOptions options)
     {
     }
@@ -26,18 +22,21 @@ internal class ConfigureInternalCookieOptions : IConfigureNamedOptions<CookieAut
     {
         if (name == IdentityServerConstants.DefaultCookieAuthenticationScheme)
         {
-            options.SlidingExpiration = _idsrv.Authentication.CookieSlidingExpiration;
-            options.ExpireTimeSpan = _idsrv.Authentication.CookieLifetime;
+            options.SlidingExpiration = idsrv.Authentication.CookieSlidingExpiration;
+            options.ExpireTimeSpan = idsrv.Authentication.CookieLifetime;
             options.Cookie.Name = IdentityServerConstants.DefaultCookieAuthenticationScheme;
             options.Cookie.IsEssential = true;
-            options.Cookie.SameSite = _idsrv.Authentication.CookieSameSiteMode;
+            options.Cookie.SameSite = idsrv.Authentication.CookieSameSiteMode;
 
-            options.LoginPath = ExtractLocalUrl(_idsrv.UserInteraction.LoginUrl);
-            options.LogoutPath = ExtractLocalUrl(_idsrv.UserInteraction.LogoutUrl);
-            if (_idsrv.UserInteraction.LoginReturnUrlParameter != null)
+            options.LoginPath = ExtractLocalUrl(idsrv.UserInteraction.LoginUrl);
+            options.LogoutPath = ExtractLocalUrl(idsrv.UserInteraction.LogoutUrl);
+            if (idsrv.UserInteraction.LoginReturnUrlParameter != null)
             {
-                options.ReturnUrlParameter = _idsrv.UserInteraction.LoginReturnUrlParameter;
+                options.ReturnUrlParameter = idsrv.UserInteraction.LoginReturnUrlParameter;
             }
+            
+            options.Events.OnCheckSlidingExpiration = context => CookieAuthenticationEvents
+                .ServerSessionOnCheckSlidingExpiration(context, options.Events.OnCheckSlidingExpiration);
         }
 
         if (name == IdentityServerConstants.ExternalCookieAuthenticationScheme)
@@ -50,7 +49,7 @@ internal class ConfigureInternalCookieOptions : IConfigureNamedOptions<CookieAut
             // so we need to make those cookies issued without same-site, thus the browser will
             // hold onto them and send on the next redirect to the callback page.
             // see: https://brockallen.com/2019/01/11/same-site-cookies-asp-net-core-and-external-authentication-providers/
-            options.Cookie.SameSite = _idsrv.Authentication.CookieSameSiteMode;
+            options.Cookie.SameSite = idsrv.Authentication.CookieSameSiteMode;
         }
     }
 
