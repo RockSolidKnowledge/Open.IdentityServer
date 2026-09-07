@@ -16,6 +16,7 @@ using Open.IdentityServer.EntityFramework;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
+using Open.IdentityServer.Services.Default;
 using Open.IdentityServer.Stores;
 using Xunit;
 

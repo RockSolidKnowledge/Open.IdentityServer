@@ -8,13 +8,12 @@ using Microsoft.Extensions.Logging;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
-using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 
-namespace Open.IdentityServer.EntityFramework;
+namespace Open.IdentityServer.Services;
 
 /// <summary>
-/// Helper to clean up expired server-side sessions
+/// Service to clean up expired server-side sessions
 /// </summary>
 /// <param name="options">IdentityServer options</param>
 /// <param name="serverSideSessionStore">server side sessions store</param>
@@ -26,7 +25,7 @@ public class SessionCleanupService(
     IServerSessionTicketStore serverSideSessionStore,
     IUserSessionEventsService userSessionEventsService,
     ITelemetryService telemetry,
-    ILogger<SessionCleanupService> logger)
+    ILogger<SessionCleanupService> logger): ISessionCleanupService
 {
     /// <summary>
     /// Method to clear expired server-side sessions.
