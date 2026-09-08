@@ -26,7 +26,7 @@ public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestSer
         {
            PushedAuthorization response = await service.CreateAsync(request.Client,request.Raw);
             
-            return new PushedAuthorizationResponse(response.Key, (long)response.ExpiresIn.TotalSeconds);
+           return new PushedAuthorizationResponse(response.Key, (long)response.ExpiresIn.TotalSeconds);
         }
         catch (Exception)
         {

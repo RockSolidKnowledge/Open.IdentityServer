@@ -214,15 +214,6 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
             AddPushedAuthorizationRequestEndpoint(baseUrl, entries);
         }
         
-        // If PAR is enabled
-        if (Options.Endpoints.EnablePushedAuthorizationRequestEndpoint)
-        {
-            entries.Add(
-                OidcConstants.Discovery.RequirePushedAuthorizationRequests,
-                Options.PushedAuthorization.Required
-                );
-        }
-
         // logout
         if (Options.Endpoints.EnableEndSessionEndpoint)
         {
@@ -396,6 +387,15 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
         string parPath = $"{baseUrl}{Constants.ProtocolRoutePaths.PushedAuthorizationRequest}";
         
         entries.Add(OidcConstants.Discovery.PushedAuthorizationRequestEndpoint, parPath);
+        
+        // If PAR is enabled
+        if (Options.Endpoints.EnablePushedAuthorizationRequestEndpoint)
+        {
+            entries.Add(
+                OidcConstants.Discovery.RequirePushedAuthorizationRequests,
+                Options.PushedAuthorization.Required
+            );
+        }
     }
 
     /// <summary>
