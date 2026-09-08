@@ -182,7 +182,7 @@ public static class IdentityServerBuilderExtensionsCore
         builder.Services.TryAddTransient<IBackChannelLogoutService, DefaultBackChannelLogoutService>();
         builder.Services.TryAddTransient<IResourceValidator, DefaultResourceValidator>();
         builder.Services.TryAddTransient<IScopeParser, DefaultScopeParser>();
-        builder.Services.TryAddTransient<IPushedAuthorizationRequestService,DefaultPushedAuthorizationRequestService>();
+        builder.Services.TryAddTransient<IPushedAuthorizationRequestService, DefaultPushedAuthorizationRequestService>();
         
         builder.Services.TryAddSingleton<ITelemetryService, DefaultTelemetryService>();
 
@@ -227,7 +227,7 @@ public static class IdentityServerBuilderExtensionsCore
         // PAR support
         builder.Services
             .AddTransientDecorator<IAuthorizeRequestValidator,AuthorizeUsingPushedAuthorizationRequestValidator>();
-        //
+        
         return builder;
     }
 
@@ -246,7 +246,7 @@ public static class IdentityServerBuilderExtensionsCore
         builder.Services.TryAddTransient<IDiscoveryResponseGenerator, DiscoveryResponseGenerator>();
         builder.Services.TryAddTransient<ITokenRevocationResponseGenerator, TokenRevocationResponseGenerator>();
         builder.Services.TryAddTransient<IDeviceAuthorizationResponseGenerator, DeviceAuthorizationResponseGenerator>();
-        builder.Services.TryAddTransient<IPushedAuthorizationResponseGenerator,PushedAuthorizationResponseGenerator>();
+        builder.Services.TryAddTransient<IPushedAuthorizationResponseGenerator, PushedAuthorizationResponseGenerator>();
         
         return builder;
     }

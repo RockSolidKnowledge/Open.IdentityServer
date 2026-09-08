@@ -1,3 +1,5 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 using System;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
@@ -48,85 +50,6 @@ public class PushedAuthorizationResponseGeneratorTests
         response.Uri.Should().Be(expectedKey.ToString());
     }
     
-    
-    // [Fact]
-    // public async Task CreateResponseAsync_WhenCalled_ShouldSetExpirationBasedOnOptions()
-    // {
-    //     string generatedUniquePart = "sdufbsibdvibv";
-    //
-    //     _request.Client = new Client();
-    //     
-    //     DateTime expectedExpiration;
-    //     DateTime now = new DateTime(2027, 3, 2, 13, 10, 20);
-    //     DateTimeOffset spiedExpiration = now;
-    //     
-    //     options.PushedAuthorization.Expiration = TimeSpan.FromSeconds(90);
-    //
-    //     clock.Setup(c => c.GetUtcNow()).Returns(now);
-    //     expectedExpiration = now.Add(options.PushedAuthorization.Expiration);
-    //     
-    //     _handleGenerationService.Setup(g => g.GenerateAsync()).ReturnsAsync(generatedUniquePart);
-    //     
-    //     var sut = CreateSut();
-    //    
-    //     _store.Setup(s => s.StorePushedAuthorizationRequestAsync( It.IsAny<PushedAuthorizationMemento>()))
-    //         .Callback<PushedAuthorizationMemento>(memento => spiedExpiration = memento.ValidUntil);
-    //     
-    //     await sut.CreateResponseAsync(_request);
-    //
-    //     spiedExpiration.Should().Be(expectedExpiration);
-    // }
-    
-    // [Fact]
-    // public async Task CreateResponseAsync_WhenCalled_ShouldSetExpirationBasedOnClientProperties()
-    // {
-    //     string generatedUniquePart = "sdufbsibdvibv";
-    //
-    //     _request.Client = new Client()
-    //     {
-    //         PushedAuthorizationLifetime = TimeSpan.FromSeconds(30).Seconds
-    //     };
-    //     
-    //     DateTime expectedExpiration;
-    //     DateTime now = new DateTime(2027, 3, 2, 13, 10, 20);
-    //     DateTimeOffset spiedExpiration = now;
-    //
-    //     clock.Setup(c => c.GetUtcNow()).Returns(now);
-    //     int expectedDuration = (int)_request.Client.PushedAuthorizationLifetime;
-    //     expectedExpiration = now.AddSeconds(expectedDuration);
-    //     
-    //     _handleGenerationService.Setup(g => g.GenerateAsync()).ReturnsAsync(generatedUniquePart);
-    //     
-    //     var sut = CreateSut();
-    //    
-    //     _store.Setup(s => s.StorePushedAuthorizationRequestAsync( It.IsAny<PushedAuthorizationMemento>()))
-    //         .Callback<PushedAuthorizationMemento>( memento => spiedExpiration = memento.ValidUntil);
-    //     
-    //     var response = await sut.CreateResponseAsync(_request);
-    //
-    //     response.Should().NotBeNull();
-    //     spiedExpiration.Should().Be(expectedExpiration);
-    //     response.Lifetime.Should().Be(expectedDuration);
-    // }
-
-    // [Fact]
-    // public async Task CreateResponseAsync_WhenCalled_ShouldGenerateResponseCorrectly()
-    // {
-    //     string generatedUniquePart = "sdufbsibdvibv";
-    //     string expectedUri =
-    //         $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{generatedUniquePart}";
-    //
-    //     _handleGenerationService.Setup(g => g.GenerateAsync()).ReturnsAsync(generatedUniquePart);
-    //
-    //     var sut = CreateSut();
-    //
-    //     PushedAuthorizationResponse? response = await sut.CreateResponseAsync(_request);
-    //
-    //     response.Should().NotBeNull();
-    //     response.Uri.Should().Be(expectedUri);
-    //     response.Lifetime.Should().Be(PushedAuthorizationResponseGenerator.DefaultRequestLifetimeInSeconds);
-    // }
-    
     [Fact]
     public async Task CreateResponseAsync_WhenCalledAndServiceThrowsException_ShouldReturnNull()
     {
@@ -142,6 +65,6 @@ public class PushedAuthorizationResponseGeneratorTests
     
     private PushedAuthorizationResponseGenerator CreateSut()
     {
-        return new PushedAuthorizationResponseGenerator(service.Object, _logger.Object);
+        return new PushedAuthorizationResponseGenerator(service.Object);
     }
 }
