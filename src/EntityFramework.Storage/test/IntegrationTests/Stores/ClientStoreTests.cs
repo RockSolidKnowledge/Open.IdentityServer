@@ -76,6 +76,34 @@ public class ClientStoreTests : IntegrationTest<ClientStoreTests, ConfigurationD
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FindClientByIdAsync_WhenClientExists_ExpectExtendedClientReturned(
+        DbContextOptions<ConfigurationDbContext> options)
+    {
+        var testClient = new Client
+        {   
+            ClientId = "test_extended_client",
+            ClientName = "Test Extended Client",
+            Properties = { { "x", "xx" } }
+        };
+
+        await using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            context.Clients.Add(testClient.ToEntity());
+            await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        ExtendedClient client;
+        await using (var context = new ConfigurationDbContext(options, StoreOptions))
+        {
+            var store = new ExtendedClientStore(context, _telemetry, FakeLogger<ExtendedClientStore>.Create());
+            client = await store.FindClientByIdAsync(testClient.ClientId) as ExtendedClient;
+        }
+
+        client.Should().NotBeNull();
+        client.X.Should().Be("xx");
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task FindClientByIdAsync_WhenClientExistsWithCollections_ExpectClientReturnedCollections(
         DbContextOptions<ConfigurationDbContext> options)
     {

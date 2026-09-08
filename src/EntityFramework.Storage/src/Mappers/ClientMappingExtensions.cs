@@ -27,7 +27,18 @@ public static class ClientMappingExtensions
         /// <returns>mapped instance of <see cref="Models.Client"/></returns>
         public Models.Client ToModel()
         {
-            return new Models.Client
+            return clientEntity.ToModel<Models.Client>();
+        }
+
+        /// <summary>
+        /// Mapper for <see cref="Entities.Client"/> to convert into an instance of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of <see cref="Models.Client"/> model to map to.</typeparam>
+        /// <returns>mapped instance of <typeparamref name="T"/>.</returns>
+        public T ToModel<T>() 
+            where T : Models.Client, new()
+        {
+            return new T
             {
                 Enabled = clientEntity.Enabled,
                 ClientId = clientEntity.ClientId,
