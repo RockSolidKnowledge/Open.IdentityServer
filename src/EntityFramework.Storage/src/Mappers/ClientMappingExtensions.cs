@@ -77,6 +77,7 @@ public static class ClientMappingExtensions
                 DeviceCodeLifetime = clientEntity.DeviceCodeLifetime,
                 AllowedCorsOrigins = clientEntity.AllowedCorsOrigins.ToStringCollection(),
                 Properties = clientEntity.Properties.ToModelDictionary(),
+                PollingInterval = clientEntity.PollingInterval,
             };
         }
     }
@@ -181,6 +182,7 @@ public static class ClientMappingExtensions
                 DeviceCodeLifetime = clientModel.DeviceCodeLifetime,
                 AllowedCorsOrigins = clientModel.AllowedCorsOrigins?.Select(x => new ClientCorsOrigin { Origin = x }).ToList() ?? [],
                 Properties = clientModel.Properties.ToEntityList<Entities.ClientProperty>(),
+                PollingInterval = clientModel.PollingInterval,
             };
         }
     }

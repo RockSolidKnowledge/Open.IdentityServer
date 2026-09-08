@@ -2,18 +2,19 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using AwesomeAssertions;
+using Microsoft.Extensions.Caching.Distributed;
+using Moq;
+using Open.IdentityServer.Configuration;
+using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
+using Open.IdentityServer.Stores;
+using Open.IdentityServer.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AwesomeAssertions;
-using Open.IdentityServer.UnitTests.Common;
-using Open.IdentityServer.Configuration;
-using Open.IdentityServer.Models;
-using Open.IdentityServer.Services;
-using Microsoft.Extensions.Caching.Distributed;
-using Moq;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Services.Default;
@@ -34,7 +35,20 @@ public class DistributedDeviceFlowThrottlingServiceTests
 
     private Mock<ITelemetryService> _telemetry = new();
     private Mock<ITrace> _trace = new();
-    
+    private Mock<IClientStore> _clientStore;
+    private Client _client;
+
+    public DistributedDeviceFlowThrottlingServiceTests()
+    {
+        _clientStore = new Mock<IClientStore>();
+        _client = new Client
+        {
+            ClientId = "client"
+        };
+        _clientStore.Setup(x => x.FindClientByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(_client);
+    }
+
     [Fact]
     public async Task First_Poll()
     {
@@ -52,6 +66,7 @@ public class DistributedDeviceFlowThrottlingServiceTests
     {
         return new DistributedDeviceFlowThrottlingService(
             cache, 
+            _clientStore.Object,
             new StubClock {UtcNowFunc = () => testDate}, 
             options, 
             _telemetry.Object);
@@ -76,10 +91,11 @@ public class DistributedDeviceFlowThrottlingServiceTests
     }
 
     [Fact]
-    public async Task Second_Poll_Too_Fast()
+    public async Task Second_Poll_Too_Fast_For_Options()
     {
         var handle = Guid.NewGuid().ToString();
         var service = CreateSubject();
+        _client.PollingInterval = null;
 
         await cache.SetAsync(
             CacheKey + handle, 
@@ -94,15 +110,55 @@ public class DistributedDeviceFlowThrottlingServiceTests
     }
 
     [Fact]
-    public async Task Second_Poll_After_Interval()
+    public async Task Second_Poll_Too_Fast_For_Client()
+    {
+        var handle = Guid.NewGuid().ToString();
+        var service = CreateSubject();
+        _client.PollingInterval = 4;
+
+        await cache.SetAsync(
+            CacheKey + handle,
+            Encoding.UTF8.GetBytes(testDate.AddSeconds(-2).ToString("O")),
+            TestContext.Current.CancellationToken);
+
+        var result = await service.ShouldSlowDown(handle, deviceCode);
+
+        result.Should().BeTrue();
+
+        CheckCacheEntry(handle);
+    }
+
+    [Fact]
+    public async Task Second_Poll_After_Options_Interval()
     {
         var handle = Guid.NewGuid().ToString();
             
         var service = CreateSubject();
+        _client.PollingInterval = null;
 
         await cache.SetAsync(
             $"devicecode_{handle}", 
             Encoding.UTF8.GetBytes(testDate.AddSeconds(-deviceCode.Lifetime - 1).ToString("O")), 
+            TestContext.Current.CancellationToken);
+
+        var result = await service.ShouldSlowDown(handle, deviceCode);
+
+        result.Should().BeFalse();
+
+        CheckCacheEntry(handle);
+    }
+
+    [Fact]
+    public async Task Second_Poll_After_Client_Interval()
+    {
+        var handle = Guid.NewGuid().ToString();
+
+        var service = CreateSubject();
+        _client.PollingInterval = 4;
+
+        await cache.SetAsync(
+            $"devicecode_{handle}",
+            Encoding.UTF8.GetBytes(testDate.AddSeconds(-deviceCode.Lifetime - 2).ToString("O")),
             TestContext.Current.CancellationToken);
 
         var result = await service.ShouldSlowDown(handle, deviceCode);
