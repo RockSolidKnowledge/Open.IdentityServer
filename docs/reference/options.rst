@@ -99,6 +99,7 @@ UserInteraction
     Sets the prompt modes that are supported by IdentityServer. 
     Defaults to *login*, *consent*, *select_account* and *none*.
     When *CreateAccountUrl* is set, then *create* is also added to the supported prompt modes.
+    Prompts that are not in this list will cause authorization requests to fail with an invalid_request error.
 
 Caching
 ^^^^^^^

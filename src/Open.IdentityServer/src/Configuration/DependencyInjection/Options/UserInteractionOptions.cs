@@ -126,7 +126,7 @@ public class UserInteractionOptions
     public string CreateAccountReturnUrlParameter { get; set; } = Constants.UIConstants.DefaultRoutePathParams.CreateAccount;
 
     /// <summary>
-    /// Gets or sets the supported prompt modes.
+    /// Gets or sets the supported prompt modes. Prompts that are not in this list will cause authorization requests to fail with an invalid_request error.
     /// </summary>
     /// <value>
     /// The supported prompt modes.
