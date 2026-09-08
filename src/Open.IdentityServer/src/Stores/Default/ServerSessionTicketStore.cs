@@ -143,6 +143,20 @@ public class ServerSessionTicketStore(
         }).Where(x => x.AuthTicket != null);
     }
 
+    /// <inheritdoc />
+    public async Task<IEnumerable<AuthenticationTicketFilterResult>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    {
+        using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
+        var sessionRemoved = await serverServerSideSessionStore.GetAndRemoveExpiredSessions(batchSize);
+        
+        return sessionRemoved.Select(x => new AuthenticationTicketFilterResult
+        {
+            Session = x,
+            AuthTicket = DeserializeAuthTicket(x),
+        }).Where(x => x.AuthTicket != null);
+    }
+
     private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)
     {
         IdentityServerServerSideSessions serverSideSession = new IdentityServerServerSideSessions

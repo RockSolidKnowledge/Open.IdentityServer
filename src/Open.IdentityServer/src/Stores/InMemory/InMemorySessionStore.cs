@@ -3,6 +3,7 @@
 
 #nullable enable
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,5 +52,23 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
     {
         return Task.FromResult(repo.Values
             .Where(x => x.SubjectId == subjectId && x.SessionId == sessionId));
+    }
+
+    /// <inheritdoc />
+    public Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    {
+        IEnumerable<IdentityServerServerSideSessions> sessions = repo
+            .Select(x => x.Value)
+            .Where(x => x.Expires < DateTime.UtcNow)
+            .OrderBy(x => x.Expires)
+            .Take(batchSize)
+            .ToList();
+
+        foreach (var session in sessions)
+        {
+            repo.TryRemove(session.Key, out _);
+        }
+
+        return Task.FromResult(sessions);
     }
 }
