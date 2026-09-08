@@ -14,6 +14,8 @@ internal record PushedAuthorizationResult(PushedAuthorizationResponse Response) 
     {
         context.Response.StatusCode = StatusCodes.Status201Created;
         context.Response.ContentType = "application/json";
+        context.Response.Headers.CacheControl = "no-cache, no-store";
+        
         await context.Response.WriteAsJsonAsync(Response);
     }
 }
