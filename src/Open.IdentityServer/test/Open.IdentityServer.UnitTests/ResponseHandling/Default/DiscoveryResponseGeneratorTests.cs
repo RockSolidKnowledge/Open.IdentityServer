@@ -764,10 +764,9 @@ public class DiscoveryResponseGeneratorTests
         var sut = CreateSut();
         _options.Endpoints.EnablePushedAuthorizationRequestEndpoint = true;
 
-        string expectedParEndpoint = $"https://open.ids.url/somepath/{Constants.ProtocolRoutePaths.ConnectPathPrefix}/{Constants.ProtocolRoutePaths.PushedAuthorizationRequest}";
+        string expectedParEndpoint = $"https://open.ids.url/somepath/{Constants.ProtocolRoutePaths.PushedAuthorizationRequest}";
         
-        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
-
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath/", "https://open.ids.url");
         
         actual.
             Should()

@@ -393,7 +393,7 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
             return;
         }
         
-        string parPath = $"{baseUrl}/{Constants.ProtocolRoutePaths.ConnectPathPrefix}/{Constants.ProtocolRoutePaths.PushedAuthorizationRequest}";
+        string parPath = $"{baseUrl}{Constants.ProtocolRoutePaths.PushedAuthorizationRequest}";
         
         entries.Add(OidcConstants.Discovery.PushedAuthorizationRequestEndpoint, parPath);
     }
