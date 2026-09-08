@@ -1,5 +1,6 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
@@ -19,6 +20,9 @@ internal class DefaultPushedAuthorizationRequestService(
     IPushedAuthorizationRequestStore store,
     ILogger<DefaultPushedAuthorizationRequestService> logger) : IPushedAuthorizationRequestService
 {
+    private static readonly List<string> AuthenticationParameters = 
+        ["client_secret", "client_assertion","client_assertion_type"];
+    
     public async Task<PushedAuthorization> CreateAsync(Client client , NameValueCollection parameters)
     {
         try
@@ -54,9 +58,6 @@ internal class DefaultPushedAuthorizationRequestService(
         }
        
     }
-
-    private static readonly List<string> AuthenticationParameters = 
-        ["client_secret", "client_assertion","client_assertion_type"];
     
     private NameValueCollection RemoveAnyAuthenticationParameters(NameValueCollection src)
     {

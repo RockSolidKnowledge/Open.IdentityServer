@@ -31,7 +31,7 @@ internal class PushedAuthorizationRequestEndpoint(
     {
         using ITrace trace = telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         
-        if ( options.Endpoints.EnablePushedAuthorizationRequestEndpoint == false)
+        if (options.Endpoints.EnablePushedAuthorizationRequestEndpoint == false)
         {
             return new StatusCodeResult(HttpStatusCode.NotFound);
         }
@@ -43,7 +43,7 @@ internal class PushedAuthorizationRequestEndpoint(
         }
 
         ClientSecretValidationResult? clientValidationResult = await clientSecretValidator.ValidateAsync(requestContext);
-        if ( clientValidationResult.IsError)
+        if (clientValidationResult.IsError)
         {
             return Error(OidcConstants.TokenErrors.InvalidClient);
         }

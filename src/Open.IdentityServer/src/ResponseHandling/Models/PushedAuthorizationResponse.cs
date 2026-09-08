@@ -1,10 +1,12 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 using System;
 using System.Text.Json.Serialization;
 
 namespace Open.IdentityServer.ResponseHandling;
 
 /// <summary>
-/// 
+/// Represents the JSON object for a successful PAR result
 /// </summary>
 /// <param name="uri">The URI that represents the PAR</param>
 /// <param name="lifetime">The lifetime of the URI in seconds</param>

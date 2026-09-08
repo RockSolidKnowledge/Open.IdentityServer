@@ -143,7 +143,7 @@ public class IdentityServerOptions
     public bool EnableAuthorizeResponseIssuerParam { get; set; } = false;
     
     /// <summary>
-    /// Enforce PAR for all authorization code flow requests
+    /// PAR authorization options
     /// </summary>
     public PushedAuthorizationOptions PushedAuthorization {get;} = new PushedAuthorizationOptions();
 }
