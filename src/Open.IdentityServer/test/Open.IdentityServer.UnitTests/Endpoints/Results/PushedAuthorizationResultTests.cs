@@ -24,7 +24,7 @@ public class PushedAuthorizationResultTests
 
         await sut.ExecuteAsync(context);
         
-        context.Response.Headers.CacheControl.Single().Should().Be("no-cache, no-store");
+        context.Response.Headers.CacheControl.Single().Should().Be("no-store, no-cache, max-age=0");
     }
     
     PushedAuthorizationResult CreateSut()
