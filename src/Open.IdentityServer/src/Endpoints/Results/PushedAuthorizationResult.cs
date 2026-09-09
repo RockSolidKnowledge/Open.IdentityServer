@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Hosting;
 using Open.IdentityServer.ResponseHandling;
 
@@ -14,7 +15,7 @@ internal record PushedAuthorizationResult(PushedAuthorizationResponse Response) 
     {
         context.Response.StatusCode = StatusCodes.Status201Created;
         context.Response.ContentType = "application/json";
-        context.Response.Headers.CacheControl = "no-cache, no-store";
+        context.Response.SetNoCache();
         
         await context.Response.WriteAsJsonAsync(Response);
     }
