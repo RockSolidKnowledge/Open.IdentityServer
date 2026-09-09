@@ -155,3 +155,24 @@ Mutual TLS
     Specifies whether a cnf claim gets emitted for access tokens if a client certificate was present.
     Normally the cnf claims only gets emitted if the client used the client certificate for authentication,
     setting this to true, will set the claim regardless of the authentication method. (defaults to false).
+
+Server-Side Sessions
+^^^^^^^^^^^^^^^^^^^^
+
+* ``ExpiredSessionsTriggerBackchannelLogout``
+    Specifies if session expiry should trigger back channel logout, this will override any other settings that may
+    cause back channel logout such as AuthenticationOptions.CoordinateClientLifetimesWithUserSession or
+    Client.CoordinateLifetimeWithUserSession.
+
+* ``RemoveExpiredSessions``
+    Specifies if expired sessions should be cleaned up automatically by Open.IdentityServer. The default value is true.
+
+* ``RemoveExpiredSessionsFrequency``
+    Specifies the frequency with which expired sessions are looked for and removed. The default value is a TimeSpan of 10 minutes.
+
+* ``FuzzExpiredSessionsFrequency``
+    Specifies if the start time of the hosted service should be randomised to avoid limiting the occurrences of jobs
+    running simultaneously in scenarios with multiple instances of Open.IdentityServer are running. The default value is true.
+
+* ``RemoveExpiredSessionsBatchSize``
+    Specifies how many expired sessions should be removed in a single pass. The default value is 100.
