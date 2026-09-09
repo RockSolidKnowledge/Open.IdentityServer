@@ -258,13 +258,13 @@ public class AuthorizeInteractionResponseGeneratorTests_Login
     }
 
     [Fact]
-    public async Task prompt_for_signin_should_remove_prompt_from_raw_url()
+    public async Task prompt_for_signin_should_not_remove_prompt_from_raw_url()
     {
         var request = new ValidatedAuthorizeRequest
         {
             ClientId = "foo",
             Subject = new IdentityServerUser("123").CreatePrincipal(),
-            PromptModes = new[] { OidcConstants.PromptModes.Login },
+            PromptModes = [OidcConstants.PromptModes.Login],
             Raw = new NameValueCollection
             {
                 { OidcConstants.AuthorizeRequest.Prompt, OidcConstants.PromptModes.Login }
@@ -273,6 +273,6 @@ public class AuthorizeInteractionResponseGeneratorTests_Login
 
         var result = await _subject.ProcessLoginAsync(request);
 
-        request.Raw.AllKeys.Should().NotContain(OidcConstants.AuthorizeRequest.Prompt);
+        request.Raw.AllKeys.Should().Contain(OidcConstants.AuthorizeRequest.Prompt);
     }
 }

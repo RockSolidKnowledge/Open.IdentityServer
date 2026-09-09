@@ -2,25 +2,26 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using AwesomeAssertions;
+using IdentityServer.IntegrationTests.Common;
+using IdentityServer.IntegrationTests.Utility;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Open.IdentityServer;
+using Open.IdentityServer.Configuration;
+using Open.IdentityServer.Models;
+using Open.IdentityServer.Test;
+using Open.IdentityServer.Utility;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Threading.Tasks;
-using AwesomeAssertions;
-using IdentityServer.IntegrationTests.Common;
-using IdentityServer.IntegrationTests.Utility;
-using Open.IdentityServer;
-using Open.IdentityServer.Configuration;
-using Open.IdentityServer.Models;
-using Open.IdentityServer.Test;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
-using Open.IdentityServer.Utility;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Endpoints.Authorize;
@@ -1168,5 +1169,45 @@ public class JwtRequestAuthorizeTests
         _mockPipeline.LoginRequest.Should().BeNull();
 
         _mockPipeline.JwtRequestMessageHandler.InvokeWasCalled.Should().BeFalse();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task prompt_login_should_allow_user_to_login_and_return()
+    {
+        _mockPipeline.Options.Endpoints.EnableJwtRequestUri = true;
+
+        var requestJwt = CreateRequestJwt(
+            issuer: _client.ClientId,
+            audience: IdentityServerPipeline.BaseUrl,
+            credential: new X509SigningCredentials(TestCert.Load()),
+            claims:
+            [
+                new Claim("client_id", _client.ClientId),
+                new Claim("response_type", "id_token"),
+                new Claim("scope", "openid profile"),
+                new Claim("state", "123state"),
+                new Claim("nonce", "123nonce"),
+                new Claim("redirect_uri", "https://client/callback"),
+                new Claim("prompt", "login")
+            ]);
+        _mockPipeline.JwtRequestMessageHandler.Response.Content = new StringContent(requestJwt);
+
+        await _mockPipeline.LoginAsync("bob");
+
+        var url = _mockPipeline.CreateAuthorizeUrl(
+            clientId: _client.ClientId,
+            responseType: "id_token",
+            extra: new Parameters
+            {
+                { "request", requestJwt }
+            });
+        var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+
+        _mockPipeline.BrowserClient.AllowAutoRedirect = false;
+        response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.BaseUrl + _mockPipeline.LoginReturnUrl, TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location.ToString().Should().StartWith("https://client/callback");
+        response.Headers.Location.ToString().Should().Contain("id_token=");
     }
 }

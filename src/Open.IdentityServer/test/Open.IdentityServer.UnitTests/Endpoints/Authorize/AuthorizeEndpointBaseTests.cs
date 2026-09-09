@@ -142,6 +142,17 @@ public class AuthorizeEndpointBaseTests
 
     [Fact]
     [Trait("Category", Category)]
+    public async Task interaction_produces_create_result_should_trigger_create_account()
+    {
+        _stubInteractionGenerator.Response.IsCreateAccount = true;
+
+        var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        result.Should().BeOfType<CreateAccountPageResult>();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
     public async Task ProcessAuthorizeRequestAsync_custom_interaction_redirect_result_should_issue_redirect()
     {
         _mockUserSession.User = _user;

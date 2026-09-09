@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 #nullable enable
@@ -36,6 +37,8 @@ public class IdentityServerPipeline
     public const string LoginPage = BaseUrl + "/account/login";
     public const string ConsentPage = BaseUrl + "/account/consent";
     public const string ErrorPage = BaseUrl + "/home/error";
+    public const string CreatePageRelative = "/account/create";
+    public const string CreatePage = BaseUrl + CreatePageRelative;
 
     public const string DeviceAuthorization = BaseUrl + "/connect/deviceauthorization";
     public const string DiscoveryEndpoint = BaseUrl + "/.well-known/openid-configuration";
@@ -182,11 +185,16 @@ public class IdentityServerPipeline
         {
             path.Run(ctx => OnError(ctx));
         });
+        app.Map(CreatePageRelative, path =>
+        {
+            path.Run(ctx => OnCreate(ctx));
+        });
 
         OnPostConfigure(app);
     }
 
     public bool LoginWasCalled { get; set; }
+    public string? LoginReturnUrl { get; set; }
     public AuthorizationRequest? LoginRequest { get; set; }
     public ClaimsPrincipal? Subject { get; set; }
     public bool FollowLoginReturnUrl { get; set; }
@@ -201,7 +209,8 @@ public class IdentityServerPipeline
     private async Task ReadLoginRequest(HttpContext ctx)
     {
         var interaction = ctx.RequestServices.GetRequiredService<IIdentityServerInteractionService>();
-        LoginRequest = await interaction.GetAuthorizationContextAsync(ctx.Request.Query["returnUrl"].FirstOrDefault());
+        LoginReturnUrl = ctx.Request.Query["returnUrl"].FirstOrDefault();
+        LoginRequest = await interaction.GetAuthorizationContextAsync(LoginReturnUrl);
     }
 
     private async Task IssueLoginCookie(HttpContext ctx)
@@ -275,6 +284,21 @@ public class IdentityServerPipeline
     {
         ErrorWasCalled = true;
         await ReadErrorMessage(ctx);
+    }
+
+    public bool CreateWasCalled { get; set; }
+    public AuthorizationRequest? CreateRequest { get; set; }
+
+    private async Task OnCreate(HttpContext ctx)
+    {
+        CreateWasCalled = true;
+        await ReadCreateMessage(ctx);
+    }
+
+    private async Task ReadCreateMessage(HttpContext ctx)
+    {
+        var interaction = ctx.RequestServices.GetRequiredService<IIdentityServerInteractionService>();
+        CreateRequest = await interaction.GetAuthorizationContextAsync(ctx.Request.Query["returnUrl"].FirstOrDefault());
     }
 
     private async Task ReadErrorMessage(HttpContext ctx)

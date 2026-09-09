@@ -142,6 +142,15 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
     public IEnumerable<string> PromptModes { get; set; } = Enumerable.Empty<string>();
 
     /// <summary>
+    /// Gets or sets the collection of processed prompt modes.
+    /// </summary>
+    /// <remarks>
+    /// A prompt is processed if it has been handled by the authorization endpoint and should not be processed again. 
+    /// This is used to prevent infinite loops when the user is redirected back to the authorization endpoint after a prompt has been handled.
+    /// </remarks>
+    public IEnumerable<string> ProcessedPromptModes { get; set; } = Enumerable.Empty<string>();
+
+    /// <summary>
     /// Gets or sets the maximum age.
     /// </summary>
     /// <value>
