@@ -194,10 +194,8 @@ public class AuthorizeUsingPushedAuthorizationRequestValidatorTests
     
     private AuthorizeUsingPushedAuthorizationRequestValidator CreateSut()
     {
-        var decorator = new Decorator<IAuthorizeRequestValidator>(authorizeRequestValidator.Object);
-        
         return new AuthorizeUsingPushedAuthorizationRequestValidator(
-            decorator,
+            authorizeRequestValidator.Object,
             options,
             parService.Object);
     }

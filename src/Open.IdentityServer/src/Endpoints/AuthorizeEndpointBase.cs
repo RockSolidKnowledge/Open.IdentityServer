@@ -38,7 +38,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         IEventService events,
         ILogger<AuthorizeEndpointBase> logger,
         IdentityServerOptions options,
-        IAuthorizeRequestValidator validator,
+        IAuthorizeRequestValidatorFactory validatorFactory,
         IAuthorizeInteractionResponseGenerator interactionGenerator,
         IAuthorizeResponseGenerator authorizeResponseGenerator,
         IUserSession userSession,
@@ -47,7 +47,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         _events = events;
         _options = options;
         Logger = logger;
-        _validator = validator;
+        _validator = validatorFactory.Create();
         _interactionGenerator = interactionGenerator;
         _authorizeResponseGenerator = authorizeResponseGenerator;
         _telemetry = telemetry;
