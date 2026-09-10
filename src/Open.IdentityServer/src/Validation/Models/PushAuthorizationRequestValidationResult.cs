@@ -29,7 +29,7 @@ public class PushAuthorizationRequestValidationResult : ValidationResult
     /// <summary>   
     /// Create a fully validated authorization request
     /// </summary>
-    /// <param name="validatedAuthorizeRequest"></param>
+    /// <param name="validatedAuthorizeRequest">The validated request as produced by the request validator</param>
     public PushAuthorizationRequestValidationResult(ValidatedAuthorizeRequest validatedAuthorizeRequest)
     {
         IsError = false;
