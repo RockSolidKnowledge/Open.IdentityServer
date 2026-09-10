@@ -5,7 +5,7 @@ namespace Open.IdentityServer.Validation;
 #nullable enable
 
 /// <summary>
-/// 
+/// Represents the result of a PAR request validation.
 /// </summary>
 public class PushAuthorizationRequestValidationResult : ValidationResult
 {
