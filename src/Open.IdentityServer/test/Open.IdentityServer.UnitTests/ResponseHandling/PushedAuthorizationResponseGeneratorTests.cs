@@ -51,16 +51,16 @@ public class PushedAuthorizationResponseGeneratorTests
     }
     
     [Fact]
-    public async Task CreateResponseAsync_WhenCalledAndServiceThrowsException_ShouldReturnNull()
+    public async Task CreateResponseAsync_WhenCalledAndServiceThrowsException_ShouldPropagate()
     {
         service.Setup(s => s.CreateAsync(It.IsAny<Client>(),It.IsAny<NameValueCollection>()))
             .ThrowsAsync(new Exception());
 
         var sut = CreateSut();
 
-        PushedAuthorizationResponse? response = await sut.CreateResponseAsync(_request);
+        Func<Task<PushedAuthorizationResponse>> act = async () => _ = await sut.CreateResponseAsync(_request);
 
-        response.Should().BeNull();
+        await act.Should().ThrowAsync<Exception>();
     }
     
     private PushedAuthorizationResponseGenerator CreateSut()
