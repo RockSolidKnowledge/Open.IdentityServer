@@ -17,10 +17,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Test;
 using Xunit;
 using AwesomeAssertions;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Open.IdentityServer;
-// using Open.IdentityServer.ResponseHandling;
-using Open.IdentityServer.Validation;
 
 #nullable enable
 
