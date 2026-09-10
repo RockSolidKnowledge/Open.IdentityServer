@@ -14,7 +14,7 @@ using Open.IdentityServer.Stores;
 namespace Open.IdentityServer.Validation;
 
 internal class AuthorizeUsingPushedAuthorizationRequestValidator(
-    Decorator<IAuthorizeRequestValidator> toDecorate,
+    IAuthorizeRequestValidator toDecorate,
     IdentityServerOptions options,
     IPushedAuthorizationRequestService parService)
     : IAuthorizeRequestValidator
@@ -47,7 +47,7 @@ internal class AuthorizeUsingPushedAuthorizationRequestValidator(
             return new AuthorizeRequestValidationResult(OidcConstants.AuthorizeErrors.InvalidRequest);
         }
         
-        AuthorizeRequestValidationResult result = await toDecorate.Instance.ValidateAsync(request, subject);
+        AuthorizeRequestValidationResult result = await toDecorate.ValidateAsync(request, subject);
         
         return result;
     }
@@ -55,7 +55,7 @@ internal class AuthorizeUsingPushedAuthorizationRequestValidator(
 
     private async Task<AuthorizeRequestValidationResult> ValidateNonParRequest(NameValueCollection parameters, ClaimsPrincipal? subject)
     {
-        AuthorizeRequestValidationResult result = await toDecorate.Instance.ValidateAsync(parameters, subject);
+        AuthorizeRequestValidationResult result = await toDecorate.ValidateAsync(parameters, subject);
         if (result.ValidatedRequest?.Client?.RequirePushedAuthorization == true || options.PushedAuthorization.Required)
         {
             return new AuthorizeRequestValidationResult(result.ValidatedRequest, "PAR required",

@@ -29,7 +29,7 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
         IEventService events,
         ILogger<AuthorizeCallbackEndpoint> logger,
         IdentityServerOptions options,
-        IAuthorizeRequestValidator validator,
+        IAuthorizeRequestValidatorFactory validator,
         IAuthorizeInteractionResponseGenerator interactionGenerator,
         IAuthorizeResponseGenerator authorizeResponseGenerator,
         IUserSession userSession,

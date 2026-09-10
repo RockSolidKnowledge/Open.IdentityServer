@@ -39,6 +39,8 @@ public class AuthorizeCallbackEndpointTests
     private NameValueCollection _params = new NameValueCollection();
 
     private StubAuthorizeRequestValidator _stubAuthorizeRequestValidator = new StubAuthorizeRequestValidator();
+    private Mock<IAuthorizeRequestValidatorFactory> _authorizeRequestValidatorFactory =
+        new Mock<IAuthorizeRequestValidatorFactory>();
 
     private StubAuthorizeResponseGenerator _stubAuthorizeResponseGenerator = new StubAuthorizeResponseGenerator();
 
@@ -224,6 +226,8 @@ public class AuthorizeCallbackEndpointTests
     {
         _context = new MockHttpContextAccessor().HttpContext;
 
+        _authorizeRequestValidatorFactory.Setup(arvf => arvf.Create()).Returns(_stubAuthorizeRequestValidator);
+        
         _validatedAuthorizeRequest = new ValidatedAuthorizeRequest()
         {
             RedirectUri = "http://client/callback",
@@ -251,7 +255,7 @@ public class AuthorizeCallbackEndpointTests
             _fakeEventService,
             _fakeLogger,
             _options,
-            _stubAuthorizeRequestValidator,
+            _authorizeRequestValidatorFactory.Object,
             _stubInteractionGenerator,
             _stubAuthorizeResponseGenerator,
             _mockUserSession,

@@ -25,7 +25,7 @@ internal class AuthorizeEndpoint : AuthorizeEndpointBase
         IEventService events,
         ILogger<AuthorizeEndpoint> logger,
         IdentityServerOptions options,
-        IAuthorizeRequestValidator validator,
+        IAuthorizeRequestValidatorFactory validator,
         IAuthorizeInteractionResponseGenerator interactionGenerator,
         IAuthorizeResponseGenerator authorizeResponseGenerator,
         IUserSession userSession,

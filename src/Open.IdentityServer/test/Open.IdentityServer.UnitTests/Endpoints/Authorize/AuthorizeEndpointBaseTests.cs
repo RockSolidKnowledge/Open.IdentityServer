@@ -39,6 +39,8 @@ public class AuthorizeEndpointBaseTests
     private NameValueCollection _params = new NameValueCollection();
 
     private StubAuthorizeRequestValidator _stubAuthorizeRequestValidator = new StubAuthorizeRequestValidator();
+    private Mock<IAuthorizeRequestValidatorFactory> _authorizeRequestValidatorFactory =
+        new Mock<IAuthorizeRequestValidatorFactory>();
 
     private StubAuthorizeResponseGenerator _stubAuthorizeResponseGenerator = new StubAuthorizeResponseGenerator();
 
@@ -300,6 +302,7 @@ public class AuthorizeEndpointBaseTests
     {
         _context = new MockHttpContextAccessor().HttpContext;
 
+        _authorizeRequestValidatorFactory.Setup(arvf => arvf.Create()).Returns(_stubAuthorizeRequestValidator);
         _validatedAuthorizeRequest = new ValidatedAuthorizeRequest()
         {
             RedirectUri = "http://client/callback",
@@ -325,7 +328,7 @@ public class AuthorizeEndpointBaseTests
             _fakeEventService,
             _fakeLogger,
             _options,
-            _stubAuthorizeRequestValidator,
+            _authorizeRequestValidatorFactory.Object,
             _stubInteractionGenerator,
             _stubAuthorizeResponseGenerator,
             _mockUserSession,
@@ -338,7 +341,7 @@ public class AuthorizeEndpointBaseTests
             IEventService events,
             ILogger<TestAuthorizeEndpoint> logger,
             IdentityServerOptions options,
-            IAuthorizeRequestValidator validator,
+            IAuthorizeRequestValidatorFactory validator,
             IAuthorizeInteractionResponseGenerator interactionGenerator,
             IAuthorizeResponseGenerator authorizeResponseGenerator,
             IUserSession userSession,

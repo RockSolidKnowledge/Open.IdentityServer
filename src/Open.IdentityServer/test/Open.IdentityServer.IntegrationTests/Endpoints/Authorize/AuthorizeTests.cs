@@ -1189,4 +1189,53 @@ public class AuthorizeTests
 
         _mockPipeline.LoginWasCalled.Should().BeTrue();
     }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task authenticated_user_with_auth_request_not_using_par_and_par_is_globally_required_should_receive_error()
+    {
+        await _mockPipeline.LoginAsync("bob");
+
+        _mockPipeline.Options.PushedAuthorization.Required = true;
+
+        _mockPipeline.BrowserClient.AllowAutoRedirect = false;
+
+        var url = _mockPipeline.CreateAuthorizeUrl(
+            clientId: "client1",
+            responseType: "id_token",
+            scope: "openid",
+            redirectUri: "https://client1/callback",
+            state: "123_state",
+            nonce: "123_nonce");
+        var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location.Should().NotBeNull();
+        response.Headers.Location!.ToString().Should().StartWith("https://server/home/error");
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task authenticated_user_with_auth_request_not_using_par_and_par_is_required_by_this_client_should_receive_error()
+    {
+        await _mockPipeline.LoginAsync("bob");
+
+       _mockPipeline.BrowserClient.AllowAutoRedirect = false;
+
+       _client1.RequirePushedAuthorization = true;
+       
+        var url = _mockPipeline.CreateAuthorizeUrl(
+            clientId: "client1",
+            responseType: "id_token",
+            scope: "openid",
+            redirectUri: "https://client1/callback",
+            state: "123_state",
+            nonce: "123_nonce");
+        var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location.Should().NotBeNull();
+        response.Headers.Location!.ToString().Should().StartWith("https://server/home/error");
+    }
+    
 }

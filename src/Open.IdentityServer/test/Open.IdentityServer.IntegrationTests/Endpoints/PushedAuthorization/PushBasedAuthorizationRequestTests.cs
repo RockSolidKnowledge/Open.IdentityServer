@@ -85,10 +85,10 @@ public class PushBasedAuthorizationRequestTests
             }
         ]);
 
-        mockPipeline.Initialize(sc =>
-        {
-           // sc.TryAddTransient<IPushedAuthorizationResponseGenerator,StubbedPushAuthorizationRequestResponseGenerator>();
-        });
+       
+        
+        mockPipeline.Initialize(s => { });
+        mockPipeline.Options.PushedAuthorization.Required = true;
     }
     
     [Fact]
