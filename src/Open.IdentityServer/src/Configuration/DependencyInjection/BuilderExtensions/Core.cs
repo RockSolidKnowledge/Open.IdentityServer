@@ -226,7 +226,7 @@ public static class IdentityServerBuilderExtensionsCore
             
         // PAR support
         builder.Services
-            .AddTransient<IAuthorizeRequestValidatorFactory,AuthorizeRequestValidatorFactory>();
+            .AddTransient<IAuthorizeRequestValidatorFactory, AuthorizeRequestValidatorFactory>();
         
         return builder;
     }
