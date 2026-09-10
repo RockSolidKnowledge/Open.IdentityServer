@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Open.IdentityServer.Validation;
 
 /// <summary>
-/// Validates a Push Authorization Request
+/// Validates a Pushed Authorization Request
 /// </summary>
 public interface IPushedAuthorizationRequestValidator
 {
