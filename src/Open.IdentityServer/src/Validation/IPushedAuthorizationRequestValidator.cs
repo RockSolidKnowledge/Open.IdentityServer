@@ -12,7 +12,7 @@ namespace Open.IdentityServer.Validation;
 public interface IPushedAuthorizationRequestValidator
 {
     /// <summary>
-    /// 
+    /// Validates a PAR request
     /// </summary>
     /// <param name="validationContext">Context encapsulating the authorization request</param>
     /// <param name="ct">Cancellation token to cancel the validation</param>
