@@ -24,7 +24,7 @@ public interface IPushedAuthorizationRequestService
     /// Create a PAR response bound to the supplied parameters
     /// </summary>
     /// <param name="client">The client making the request</param>
-    /// <param name="parameters">the parameters to store, and to be used for a subsequence AuthCode flow</param>
+    /// <param name="parameters">The parameters to store, and to be used for a subsequence AuthCode flow</param>
     /// <returns>An expiring response, used to obtain the parameters during an AuthCode flow</returns>
     Task<PushedAuthorization> CreateAsync(Client client,NameValueCollection parameters);
     
