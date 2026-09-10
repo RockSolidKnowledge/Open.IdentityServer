@@ -20,17 +20,10 @@ public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestSer
     /// </summary>
     /// <param name="request">The request for which to generate a response</param>
     /// <returns>The generated response</returns>
-    public async Task<PushedAuthorizationResponse?> CreateResponseAsync(ValidatedAuthorizeRequest request)
+    public async Task<PushedAuthorizationResponse> CreateResponseAsync(ValidatedAuthorizeRequest request)
     {
-        try
-        {
-           PushedAuthorization response = await service.CreateAsync(request.Client,request.Raw);
-            
-           return new PushedAuthorizationResponse(response.Key, (long)response.ExpiresIn.TotalSeconds);
-        }
-        catch (Exception)
-        {
-            return null;
-        }
+        PushedAuthorization response = await service.CreateAsync(request.Client, request.Raw);
+
+        return new PushedAuthorizationResponse(response.Key, (long)response.ExpiresIn.TotalSeconds);
     }
 }

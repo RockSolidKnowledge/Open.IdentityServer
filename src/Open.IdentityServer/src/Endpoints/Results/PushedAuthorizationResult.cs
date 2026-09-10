@@ -7,6 +7,7 @@ using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Hosting;
 using Open.IdentityServer.ResponseHandling;
 
+#nullable  enable
 namespace Open.IdentityServer.Endpoints.Results;
 
 internal record PushedAuthorizationResult(PushedAuthorizationResponse Response) : IEndpointResult

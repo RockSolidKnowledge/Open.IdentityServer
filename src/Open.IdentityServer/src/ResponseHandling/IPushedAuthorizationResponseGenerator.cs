@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Validation;
 
 namespace Open.IdentityServer.ResponseHandling;
-
+#nullable enable
 /// <summary>
 /// Used to create a PAR response
 /// </summary>
