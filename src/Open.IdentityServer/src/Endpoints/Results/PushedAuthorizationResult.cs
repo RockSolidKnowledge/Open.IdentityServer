@@ -14,7 +14,6 @@ internal record PushedAuthorizationResult(PushedAuthorizationResponse Response) 
     public async Task ExecuteAsync(HttpContext context)
     {
         context.Response.StatusCode = StatusCodes.Status201Created;
-        context.Response.ContentType = "application/json";
         context.Response.SetNoCache();
         
         await context.Response.WriteAsJsonAsync(Response);
