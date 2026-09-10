@@ -33,13 +33,13 @@ public class InMemoryPushedAuthorizationRequestStore : IPushedAuthorizationReque
         return Task.CompletedTask;
     }
     /// <summary>
-    /// Consumes a PAR request previously stored, and 
+    /// Consumes a PAR request previously stored
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="key">The key associated with a PAR request</param>
     /// <returns>Returns the stored parameters or null if they no longer exist or have expired</returns>
-    public Task<PushedAuthorizationMemento?> ConsumePushedAuthorizationRequestAsync(string id)
+    public Task<PushedAuthorizationMemento?> ConsumePushedAuthorizationRequestAsync(string key)
     {
-        if (requestsMap.TryRemove(id, out PushedAuthorizationMemento? request))
+        if (requestsMap.TryRemove(key, out PushedAuthorizationMemento? request))
         {
             return Task.FromResult<PushedAuthorizationMemento?>(request);
         }
