@@ -36,8 +36,8 @@ public class AuthorizeRequestValidationResult : ValidationResult
     /// <summary>
     /// Create a result that only contains an error, and en empty validated authorize request
     /// </summary>
-    /// <param name="error"></param>
-    /// <param name="errorDescription"></param>
+    /// <param name="error">Error message</param>
+    /// <param name="errorDescription">Description of error</param>
     public AuthorizeRequestValidationResult(string error, string errorDescription = null) : this(
         new ValidatedAuthorizeRequest(), error, errorDescription)
     {
