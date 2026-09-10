@@ -22,7 +22,7 @@ public class InMemoryPushedAuthorizationRequestStore : IPushedAuthorizationReque
     /// <summary>
     ///  Stores the PAR request in volatile storage, not to be used for load balancing
     /// </summary>
-    /// <param name="requestInformation">The parameters to keep as part of the PAR request, later to be used in auth code flow</param>
+    /// <param name="requestInformation">The parameters to keep as part of the PAR request, to later be used in auth code flow</param>
     /// <returns>A task that completes when the value is stored, for in memory thats immediatly</returns>
     public Task StorePushedAuthorizationRequestAsync(PushedAuthorizationMemento requestInformation)
     {
