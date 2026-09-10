@@ -12,7 +12,7 @@ namespace Open.IdentityServer.ResponseHandling;
 /// <summary>
 /// Default implementation of the pushed authorization response generator
 /// </summary>
-/// <param name="service">The service used to manage the storing of the pushed authorization request for later retrieval</param>
+/// <param name="service">The service used to manage the storing of the pushed authorization requests for later retrieval</param>
 public class PushedAuthorizationResponseGenerator(IPushedAuthorizationRequestService service) : IPushedAuthorizationResponseGenerator
 {
     /// <summary>
