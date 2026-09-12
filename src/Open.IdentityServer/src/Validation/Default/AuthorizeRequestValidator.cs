@@ -160,11 +160,6 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
 
         if (numberOfParUris == 0)
         {
-            // if (request.Client.RequirePushedAuthorization || _options.PushedAuthorization.Required)
-            // {
-            //     return Invalid(request,OidcConstants.AuthorizeErrors.InvalidRequest);
-            // }
-            //
             return Valid(request);
         } 
         
