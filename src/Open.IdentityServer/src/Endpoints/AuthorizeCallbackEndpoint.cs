@@ -34,9 +34,10 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
         IAuthorizeResponseGenerator authorizeResponseGenerator,
         IUserSession userSession,
         IConsentMessageStore consentResponseStore,
+        IPushedAuthorizationRequestService parService,
         ITelemetryService telemetry,
         IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
-        : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, telemetry)
+        : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, parService, telemetry)
     {
         _consentResponseStore = consentResponseStore;
         _telemetry = telemetry;

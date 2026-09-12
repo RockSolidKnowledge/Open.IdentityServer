@@ -74,13 +74,13 @@ public abstract class ReturnUrlResult: IEndpointResult
         var returnUrl = context.GetIdentityServerBasePath().EnsureTrailingSlash() + Constants.ProtocolRoutePaths.AuthorizeCallback;
         if (AuthorizationParametersMessageStore != null)
         {
-            var msg = new Message<IDictionary<string, string[]>>(Request.Raw.ToFullDictionary());
+            var msg = new Message<IDictionary<string, string[]>>(Request.OriginalRaw.ToFullDictionary());
             var id = await AuthorizationParametersMessageStore.WriteAsync(msg);
             returnUrl = returnUrl.AddQueryString(Constants.AuthorizationParamsStore.MessageStoreIdParameterName, id);
         }
         else
         {
-            returnUrl = returnUrl.AddQueryString(Request.Raw.ToQueryString());
+            returnUrl = returnUrl.AddQueryString(Request.OriginalRaw.ToQueryString());
         }
 
         if (!localUrl)

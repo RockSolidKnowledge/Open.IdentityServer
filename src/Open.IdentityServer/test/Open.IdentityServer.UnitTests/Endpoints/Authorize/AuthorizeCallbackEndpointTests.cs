@@ -39,6 +39,8 @@ public class AuthorizeCallbackEndpointTests
     private NameValueCollection _params = new NameValueCollection();
 
     private StubAuthorizeRequestValidator _stubAuthorizeRequestValidator = new StubAuthorizeRequestValidator();
+    private Mock<IPushedAuthorizationRequestService> _parService =
+        new Mock<IPushedAuthorizationRequestService>();
 
     private StubAuthorizeResponseGenerator _stubAuthorizeResponseGenerator = new StubAuthorizeResponseGenerator();
 
@@ -223,7 +225,7 @@ public class AuthorizeCallbackEndpointTests
     internal void Init()
     {
         _context = new MockHttpContextAccessor().HttpContext;
-
+        
         _validatedAuthorizeRequest = new ValidatedAuthorizeRequest()
         {
             RedirectUri = "http://client/callback",
@@ -256,6 +258,7 @@ public class AuthorizeCallbackEndpointTests
             _stubAuthorizeResponseGenerator,
             _mockUserSession,
             _mockUserConsentResponseMessageStore,
+            _parService.Object,
             _telemetry.Object);
     }
 }

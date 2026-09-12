@@ -37,7 +37,7 @@ public class AuthorizeEndpointTests
     private NameValueCollection _params = new NameValueCollection();
 
     private StubAuthorizeRequestValidator _stubAuthorizeRequestValidator = new StubAuthorizeRequestValidator();
-
+    
     private StubAuthorizeResponseGenerator _stubAuthorizeResponseGenerator = new StubAuthorizeResponseGenerator();
 
     private StubAuthorizeInteractionResponseGenerator _stubInteractionGenerator = new StubAuthorizeInteractionResponseGenerator();
@@ -45,6 +45,8 @@ public class AuthorizeEndpointTests
     private AuthorizeEndpoint _subject;
 
     private ClaimsPrincipal _user = new IdentityServerUser("bob").CreatePrincipal();
+
+    private Mock<IPushedAuthorizationRequestService> parService = new Mock<IPushedAuthorizationRequestService>();
 
     private ValidatedAuthorizeRequest _validatedAuthorizeRequest;
     private Mock<ITelemetryService> _telemetry;
@@ -101,7 +103,7 @@ public class AuthorizeEndpointTests
         _trace = new();
         _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
             .Returns(_trace.Object);
-
+        
         _validatedAuthorizeRequest = new ValidatedAuthorizeRequest()
         {
             RedirectUri = "http://client/callback",
@@ -128,6 +130,7 @@ public class AuthorizeEndpointTests
             _stubInteractionGenerator,
             _stubAuthorizeResponseGenerator,
             _mockUserSession,
+            parService.Object,
             _telemetry.Object);
     }
 }
