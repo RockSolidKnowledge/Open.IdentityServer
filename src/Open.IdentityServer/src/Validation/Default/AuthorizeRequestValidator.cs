@@ -165,8 +165,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         
         if (numberOfParUris > 1)
         {
-            return new AuthorizeRequestValidationResult(new ValidatedAuthorizeRequest(), "Too many request Uris",
-                "Only one request uri is allowed");
+            return Invalid(request, "Too many request Uris", "Only one request uri is allowed");
         }
 
         string parRequestUri = requestUris[0];
