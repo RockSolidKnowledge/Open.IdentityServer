@@ -223,10 +223,6 @@ public static class IdentityServerBuilderExtensionsCore
         // optional
         builder.Services.TryAddTransient<ICustomTokenValidator, DefaultCustomTokenValidator>();
         builder.Services.TryAddTransient<ICustomAuthorizeRequestValidator, DefaultCustomAuthorizeRequestValidator>();
-            
-        // PAR support
-        builder.Services
-            .AddTransient<IAuthorizeRequestValidatorFactory, AuthorizeRequestValidatorFactory>();
         
         return builder;
     }

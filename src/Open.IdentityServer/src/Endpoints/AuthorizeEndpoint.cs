@@ -25,12 +25,13 @@ internal class AuthorizeEndpoint : AuthorizeEndpointBase
         IEventService events,
         ILogger<AuthorizeEndpoint> logger,
         IdentityServerOptions options,
-        IAuthorizeRequestValidatorFactory validator,
+        IAuthorizeRequestValidator validator,
         IAuthorizeInteractionResponseGenerator interactionGenerator,
         IAuthorizeResponseGenerator authorizeResponseGenerator,
         IUserSession userSession,
+        IPushedAuthorizationRequestService parService,
         ITelemetryService telemetry)
-        : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, telemetry)
+        : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, parService, telemetry)
     {
         _telemetry = telemetry;
     }

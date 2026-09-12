@@ -39,9 +39,7 @@ public class AuthorizeEndpointBaseTests
     private NameValueCollection _params = new NameValueCollection();
 
     private StubAuthorizeRequestValidator _stubAuthorizeRequestValidator = new StubAuthorizeRequestValidator();
-    private Mock<IAuthorizeRequestValidatorFactory> _authorizeRequestValidatorFactory =
-        new Mock<IAuthorizeRequestValidatorFactory>();
-
+    
     private StubAuthorizeResponseGenerator _stubAuthorizeResponseGenerator = new StubAuthorizeResponseGenerator();
 
     private StubAuthorizeInteractionResponseGenerator _stubInteractionGenerator = new StubAuthorizeInteractionResponseGenerator();
@@ -53,6 +51,7 @@ public class AuthorizeEndpointBaseTests
     private ValidatedAuthorizeRequest _validatedAuthorizeRequest;
 
     private Mock<ITelemetryService> _telemetry;
+    private Mock<IPushedAuthorizationRequestService> _parService = new();
 
     public AuthorizeEndpointBaseTests()
     {
@@ -297,12 +296,67 @@ public class AuthorizeEndpointBaseTests
 
         _telemetry.Verify();
     }
+    
+    [Fact]
+    public async Task ProcessAuthorizeRequestAsync_when_called_with_no_request_uri_and_client_requires_par_should_error()
+    {
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.IsOpenIdRequest = true;
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.ClientId = "client";
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.Client = new Client()
+        {
+            RequirePushedAuthorization = true
+        };
+        
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.SessionId = "some_session";
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.RedirectUri = "http://redirect";
+        _stubAuthorizeRequestValidator.Result.IsError = false;
+       
+        var result = (AuthorizeResult) await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        result.Response.IsError.Should().BeTrue();
+        result.Response.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+    }
+    
+    [Fact]
+    public async Task ProcessAuthorizeRequestAsync_when_called_with_no_request_uri_and_options_dictates_requires_par_should_error()
+    {
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.IsOpenIdRequest = true;
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.ClientId = "client";
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.Client = new Client()
+        {
+            RequirePushedAuthorization = false
+        };
+
+        _options.PushedAuthorization.Required = true;
+        
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.SessionId = "some_session";
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.RedirectUri = "http://redirect";
+        _stubAuthorizeRequestValidator.Result.IsError = false;
+       
+
+        var result = (AuthorizeResult) await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+
+        result.Response.IsError.Should().BeTrue();
+        result.Response.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+    }
+
+    [Fact]
+    public async Task
+        ProcessAuthorizeRequestAsync_when_called_with_par_request_should_remove_par_request_on_granting()
+    {
+        string expectedUri = "urn:blah:blah";
+
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.PushedAuthorizationUri = expectedUri;
+        
+        var result = (AuthorizeResult) await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+        
+        _parService.Verify(ps => ps.RemoveRequestAsync(expectedUri),Times.Once);
+    }
 
     internal void Init()
     {
         _context = new MockHttpContextAccessor().HttpContext;
-
-        _authorizeRequestValidatorFactory.Setup(arvf => arvf.Create()).Returns(_stubAuthorizeRequestValidator);
+        
         _validatedAuthorizeRequest = new ValidatedAuthorizeRequest()
         {
             RedirectUri = "http://client/callback",
@@ -328,10 +382,11 @@ public class AuthorizeEndpointBaseTests
             _fakeEventService,
             _fakeLogger,
             _options,
-            _authorizeRequestValidatorFactory.Object,
+            _stubAuthorizeRequestValidator,
             _stubInteractionGenerator,
             _stubAuthorizeResponseGenerator,
             _mockUserSession,
+            _parService.Object,
             _telemetry.Object);
     }
 
@@ -341,12 +396,13 @@ public class AuthorizeEndpointBaseTests
             IEventService events,
             ILogger<TestAuthorizeEndpoint> logger,
             IdentityServerOptions options,
-            IAuthorizeRequestValidatorFactory validator,
+            IAuthorizeRequestValidator validator,
             IAuthorizeInteractionResponseGenerator interactionGenerator,
             IAuthorizeResponseGenerator authorizeResponseGenerator,
             IUserSession userSession,
+            IPushedAuthorizationRequestService parService,
             ITelemetryService telemetry)
-            : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, telemetry)
+            : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, parService, telemetry)
         {
         }
 

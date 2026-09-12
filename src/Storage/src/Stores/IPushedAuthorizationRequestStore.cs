@@ -21,9 +21,16 @@ public interface IPushedAuthorizationRequestStore
     Task StorePushedAuthorizationRequestAsync(PushedAuthorizationMemento requestInformation);
     
     /// <summary>
-    /// Retrieves and consumes a pushed authorization request. The stored request cannot be retrieved again.
+    /// Retrieves a pushed authorization request.
     /// </summary>
     /// <param name="id">The id of the stored request to retrieve</param>
-    /// <returns>The stored request of null if no consumable request matches the passed id</returns>
-    Task<PushedAuthorizationMemento?> ConsumePushedAuthorizationRequestAsync(string id);
+    /// <returns>The stored request of null if no request matches the passed id</returns>
+    Task<PushedAuthorizationMemento?> GetPushedAuthorizationRequestAsync(string id);
+
+    /// <summary>
+    /// Removes the pushed authorization request from the store
+    /// </summary>
+    /// <param name="id">The id of the stored request to remove</param>
+    /// <returns>A task, which is marked completed when the removal has been done</returns>
+    Task RemovePushedAuthorizationRequestAsync(string id);
 }

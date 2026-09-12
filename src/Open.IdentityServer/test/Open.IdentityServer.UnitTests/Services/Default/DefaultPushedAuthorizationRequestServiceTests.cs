@@ -143,7 +143,7 @@ public class DefaultPushedAuthorizationRequestServiceTests
     }
     
     [Fact]
-    public async Task ConsumeResponse_when_called_with_non_expired_key_should_return_parameters()
+    public async Task GetResponse_when_called_with_non_expired_key_should_return_parameters()
     {
         DateTimeOffset now = new DateTimeOffset(2026, 6, 2, 15, 0, 0, TimeSpan.FromSeconds(0));
         DateTimeOffset expectedExpiration = now.Add(options.PushedAuthorization.Expiration);
@@ -155,18 +155,18 @@ public class DefaultPushedAuthorizationRequestServiceTests
         string key = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{expectedHandle}";
         string expectedKey = key.Sha256();
         
-        store.Setup(s => s.ConsumePushedAuthorizationRequestAsync(expectedKey))
+        store.Setup(s => s.GetPushedAuthorizationRequestAsync(expectedKey))
             .ReturnsAsync(new PushedAuthorizationMemento(expectedKey,expectedExpiration,parameters));
         
         var sut = CreateSut();
 
-        var result = await sut.ConsumeAsync(key);
+        var result = await sut.GetRequestAsync(key);
 
         result.Should().Be(parameters);
     }
     
     [Fact]
-    public async Task ConsumeResponse_when_called_with_an_expired_key_should_return_null()
+    public async Task GetResponse_when_called_with_an_expired_key_should_return_null()
     {
         DateTimeOffset issuedAt = new DateTimeOffset(2026, 6, 2, 15, 0, 0, TimeSpan.FromSeconds(0));
         DateTimeOffset expectedExpiration = issuedAt.Add(options.PushedAuthorization.Expiration);
@@ -178,14 +178,30 @@ public class DefaultPushedAuthorizationRequestServiceTests
         string expectedHandle = "someHandle";
         string expectedKey = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}{expectedHandle}";
         
-        store.Setup(s => s.ConsumePushedAuthorizationRequestAsync(expectedKey))
+        store.Setup(s => s.GetPushedAuthorizationRequestAsync(expectedKey))
             .ReturnsAsync(new PushedAuthorizationMemento(expectedKey,expectedExpiration,parameters));
         
         var sut = CreateSut();
 
-        var result = await sut.ConsumeAsync(expectedKey);
+        var result = await sut.GetRequestAsync(expectedKey);
 
         result.Should().BeNull();
+    }
+    
+    [Fact]
+    public async Task RemoveResponse_when_called_with_key_should_call_store_to_remove()
+    {
+        string key = $"{IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix}blah:blah";
+        string expectedKey = key.Sha256();
+
+        store.Setup(s => s.RemovePushedAuthorizationRequestAsync(expectedKey))
+            .Returns(Task.CompletedTask);
+        
+        var sut = CreateSut();
+
+        await sut.RemoveRequestAsync(key);
+        
+        store.Verify(s=>s.RemovePushedAuthorizationRequestAsync(expectedKey),Times.Once);
     }
 
     private DefaultPushedAuthorizationRequestService CreateSut()

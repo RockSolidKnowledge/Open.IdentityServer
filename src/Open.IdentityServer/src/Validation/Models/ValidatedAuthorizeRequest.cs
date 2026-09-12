@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace Open.IdentityServer.Validation;
@@ -201,6 +202,13 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
                                         ResponseType == OidcConstants.ResponseTypes.CodeToken ||
                                         ResponseType == OidcConstants.ResponseTypes.CodeIdTokenToken;
 
+
+    /// <summary>
+    /// The PAR urn used in the request, if present
+    /// </summary>
+    public string PushedAuthorizationUri { get; set; } = null;
+
+   
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ValidatedAuthorizeRequest"/> class.
