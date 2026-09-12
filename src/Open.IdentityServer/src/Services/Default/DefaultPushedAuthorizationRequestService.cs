@@ -68,11 +68,11 @@ internal class DefaultPushedAuthorizationRequestService(
         return dest;
     }
 
-    public async Task<NameValueCollection?> ConsumeAsync(string key)
+    public async Task<NameValueCollection?> GetRequestAsync(string key)
     {
         try
         {
-            PushedAuthorizationMemento? memento = await store.ConsumePushedAuthorizationRequestAsync(key.Sha256());
+            PushedAuthorizationMemento? memento = await store.GetPushedAuthorizationRequestAsync(key.Sha256());
 
             if (memento?.ValidUntil < clock.GetUtcNow())
             {
@@ -91,5 +91,10 @@ internal class DefaultPushedAuthorizationRequestService(
            logger.LogError("Failed to consume PAR request {key}:{exception}",key,e.Message);
             throw;
         }
+    }
+
+    public Task RemoveRequestAsync(string key)
+    {
+        return store.RemovePushedAuthorizationRequestAsync(key.Sha256());
     }
 }

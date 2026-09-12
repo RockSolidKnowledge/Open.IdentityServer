@@ -37,7 +37,7 @@ public class InMemoryPushedAuthorizationRequestStore : IPushedAuthorizationReque
     /// </summary>
     /// <param name="key">The key associated with a PAR request</param>
     /// <returns>Returns the stored parameters or null if they no longer exist or have expired</returns>
-    public Task<PushedAuthorizationMemento?> ConsumePushedAuthorizationRequestAsync(string key)
+    public Task<PushedAuthorizationMemento?> GetPushedAuthorizationRequestAsync(string key)
     {
         if (requestsMap.TryRemove(key, out PushedAuthorizationMemento? request))
         {
@@ -46,5 +46,17 @@ public class InMemoryPushedAuthorizationRequestStore : IPushedAuthorizationReque
 
         return Task.FromResult<PushedAuthorizationMemento?>(null);
 
+    }
+
+    /// <summary>
+    /// Removes the pushed authorization request from the store
+    /// </summary>
+    /// <param name="id">The id of the stored request to remove</param>
+    /// <returns>A task, which is marked completed when the removal has been done</returns>
+    public Task RemovePushedAuthorizationRequestAsync(string id)
+    {
+        _ = requestsMap.TryRemove(id, out _);
+
+        return Task.CompletedTask;
     }
 }

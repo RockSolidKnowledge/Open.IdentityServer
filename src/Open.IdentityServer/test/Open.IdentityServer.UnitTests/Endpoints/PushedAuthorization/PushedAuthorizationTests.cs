@@ -58,7 +58,7 @@ public class PushedAuthorizationTests
         
         var _ = await sut.ProcessAsync(context);
         
-        logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Start processing pushed authorization request")), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+        logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Start processing pushed authorization request")), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()), Times.Once);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class PushedAuthorizationTests
         
         var _ = await sut.ProcessAsync(context);
         
-        logger.Verify(x => x.Log(LogLevel.Trace, It.IsAny<EventId>(), It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("End processing pushed authorization request")), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+        logger.Verify(x => x.Log(LogLevel.Trace, It.IsAny<EventId>(), It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("End processing pushed authorization request")), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()), Times.Once);
     }
 
     [Fact]
@@ -281,7 +281,7 @@ public class PushedAuthorizationTests
     }
     
     private void SetupRequestResponse(HttpContext context, PushAuthorizationRequestValidationResult requestValidatorResult,
-        PushedAuthorizationResponse? expectedResult)
+        PushedAuthorizationResponse expectedResult)
     {
         AddRequest(new NameValueCollection());
         StubValidateAsync(context,requestValidatorResult);

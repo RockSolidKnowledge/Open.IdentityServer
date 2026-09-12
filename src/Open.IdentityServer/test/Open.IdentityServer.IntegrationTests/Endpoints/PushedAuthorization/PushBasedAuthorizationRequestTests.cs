@@ -81,11 +81,9 @@ public class PushBasedAuthorizationRequestTests
                 Name = "api2"
             }
         ]);
-
-       
         
         mockPipeline.Initialize(s => { });
-        mockPipeline.Options.PushedAuthorization.Required = true;
+        mockPipeline?.Options?.PushedAuthorization.Required = true;
     }
     
     [Fact]

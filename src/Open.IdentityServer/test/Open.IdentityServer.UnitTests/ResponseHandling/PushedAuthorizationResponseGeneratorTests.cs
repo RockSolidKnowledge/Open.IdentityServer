@@ -39,8 +39,6 @@ public class PushedAuthorizationResponseGeneratorTests
         
         var sut = CreateSut();
         
-        PushedAuthorizationMemento? storedInfo = null;
-
         service.Setup(s => s.CreateAsync(_request.Client, _request.Raw))
             .ReturnsAsync(new PushedAuthorization(expectedKey, TimeSpan.FromSeconds(20)));
         

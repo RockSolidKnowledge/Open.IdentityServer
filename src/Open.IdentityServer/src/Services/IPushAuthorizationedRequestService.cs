@@ -32,5 +32,12 @@ public interface IPushedAuthorizationRequestService
     /// </summary>
     /// <param name="key">The Key returned as a part of a CreateResponse</param>
     /// <returns>The parameters associated with the key, or null if the response has expired or was never created </returns>
-    Task<NameValueCollection?> ConsumeAsync(string key);
+    Task<NameValueCollection?> GetRequestAsync(string key);
+
+    /// <summary>
+    /// Removes the pushed authorization request from the store
+    /// </summary>
+    /// <param name="key">The key of the stored request to remove</param>
+    /// <returns>A task, which is marked completed when the removal has been done</returns>
+    Task RemoveRequestAsync(string key);
 }

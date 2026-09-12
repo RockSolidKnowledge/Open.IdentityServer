@@ -35,7 +35,7 @@ internal class AuthorizeUsingPushedAuthorizationRequestValidator(
                 "Only one request uri is allowed");
         }
         
-        NameValueCollection? request = await parService.ConsumeAsync(requestUris[0]);
+        NameValueCollection? request = await parService.GetRequestAsync(requestUris[0]);
         if (request == null)
         {
             return new AuthorizeRequestValidationResult(OidcConstants.AuthorizeErrors.InvalidRequest);

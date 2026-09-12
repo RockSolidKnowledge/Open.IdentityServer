@@ -12,6 +12,7 @@ using System;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Open.IdentityServer.Logging.Models;
 using Open.IdentityServer.Utility;
@@ -28,6 +29,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
     private readonly IUserSession _userSession;
     private readonly JwtRequestValidator _jwtRequestValidator;
     private readonly IJwtRequestUriHttpClient _jwtRequestUriHttpClient;
+    private readonly IPushedAuthorizationRequestService _parService;
     private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
 
@@ -43,6 +45,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         IUserSession userSession,
         JwtRequestValidator jwtRequestValidator,
         IJwtRequestUriHttpClient jwtRequestUriHttpClient,
+        IPushedAuthorizationRequestService parService,
         ITelemetryService telemetry,
         ILogger<AuthorizeRequestValidator> logger)
     {
@@ -54,6 +57,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         _jwtRequestValidator = jwtRequestValidator;
         _userSession = userSession;
         _jwtRequestUriHttpClient = jwtRequestUriHttpClient;
+        _parService = parService;
         _telemetry = telemetry;
         _logger = logger;
     }
@@ -78,6 +82,13 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         {
             return loadClientResult;
         }
+        
+        // Consider PAR
+        AuthorizeRequestValidationResult parResult = await LoadParAsync(request);
+        if (parResult.IsError)
+        {
+            return parResult;
+        }
 
         // load request object
         var roLoadResult = await LoadRequestObjectAsync(request);
@@ -92,7 +103,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         {
             return roValidationResult;
         }
-
+        
         // validate client_id and redirect_uri
         var clientResult = await ValidateClientAsync(request);
         if (clientResult.IsError)
@@ -138,6 +149,48 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
 
         _logger.LogTrace("Authorize request protocol validation successful");
 
+        return Valid(request);
+    }
+
+    private async Task<AuthorizeRequestValidationResult> LoadParAsync(ValidatedAuthorizeRequest request)
+    {
+        string[] requestUris = request.Raw.GetValues(OidcConstants.AuthorizeRequest.RequestUri);
+        int numberOfParUris = requestUris?.Count(u =>
+            u.StartsWith(IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix)) ?? 0;
+
+        if (numberOfParUris == 0)
+        {
+            // if (request.Client.RequirePushedAuthorization || _options.PushedAuthorization.Required)
+            // {
+            //     return Invalid(request,OidcConstants.AuthorizeErrors.InvalidRequest);
+            // }
+            //
+            return Valid(request);
+        } 
+        
+        if (numberOfParUris > 1)
+        {
+            return new AuthorizeRequestValidationResult(new ValidatedAuthorizeRequest(), "Too many request Uris",
+                "Only one request uri is allowed");
+        }
+
+        string parRequestUri = requestUris[0];
+        NameValueCollection storedRequest = await _parService.GetRequestAsync(parRequestUri);
+        if (storedRequest == null)
+        {
+            return new AuthorizeRequestValidationResult(OidcConstants.AuthorizeErrors.InvalidRequest);
+        }
+
+        string storedClientId = storedRequest.GetValues(OidcConstants.AuthorizeRequest.ClientId)?.Single();
+        if (storedClientId != request.ClientId)
+        {
+            return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest,
+                "Client Id is different between PAR request and authorize");
+        }
+
+        request.Raw = storedRequest;
+        request.PushedAuthorizationUri = parRequestUri;
+        
         return Valid(request);
     }
 
