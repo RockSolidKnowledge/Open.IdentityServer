@@ -39,7 +39,7 @@ public class InMemoryPushedAuthorizationRequestStore : IPushedAuthorizationReque
     /// <returns>Returns the stored parameters or null if they no longer exist or have expired</returns>
     public Task<PushedAuthorizationMemento?> GetPushedAuthorizationRequestAsync(string key)
     {
-        if (requestsMap.TryRemove(key, out PushedAuthorizationMemento? request))
+        if (requestsMap.TryGetValue(key, out PushedAuthorizationMemento? request))
         {
             return Task.FromResult<PushedAuthorizationMemento?>(request);
         }

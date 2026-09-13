@@ -22,6 +22,7 @@ namespace Open.IdentityServer.Endpoints;
 internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
 {
     private readonly IConsentMessageStore _consentResponseStore;
+    private readonly IPushedAuthorizationRequestService _parService;
     private readonly ITelemetryService _telemetry;
     private readonly IAuthorizationParametersMessageStore _authorizationParametersMessageStore;
 
@@ -40,6 +41,7 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
         : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, parService, telemetry)
     {
         _consentResponseStore = consentResponseStore;
+        _parService = parService;
         _telemetry = telemetry;
         _authorizationParametersMessageStore = authorizationParametersMessageStore;
     }
@@ -66,8 +68,11 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
             await _authorizationParametersMessageStore.DeleteAsync(messageStoreId);
         }
 
+        var consentParameters = await ApplyPushedBasedAuthorization(parameters);
+
+
         var user = await UserSession.GetUserAsync();
-        var consentRequest = new ConsentRequest(parameters, user?.GetSubjectId());
+        var consentRequest = new ConsentRequest(consentParameters, user?.GetSubjectId());
         var consent = await _consentResponseStore.ReadAsync(consentRequest.Id);
 
         if (consent != null && consent.Data == null)
@@ -94,5 +99,17 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
                 await _consentResponseStore.DeleteAsync(consentRequest.Id);
             }
         }
+    }
+
+    private async Task<NameValueCollection> ApplyPushedBasedAuthorization(NameValueCollection parameters)
+    {
+        NameValueCollection consentParameters = parameters;
+        string requestUri = parameters.Get(OidcConstants.AuthorizeRequest.RequestUri);
+        if (requestUri != null && requestUri.StartsWith(IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix))
+        {
+            consentParameters = (await _parService.GetRequestAsync(requestUri)) ?? parameters;
+        }
+
+        return consentParameters;
     }
 }
