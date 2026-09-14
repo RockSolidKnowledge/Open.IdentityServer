@@ -1,6 +1,8 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System.Collections.Specialized;
+using  System.Linq;
 using AwesomeAssertions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores.Serialization;
@@ -12,6 +14,28 @@ public class PersistentGrantSerializerTests
 {
     private static PersistentGrantSerializer CreateSut() => new();
 
+
+    [Fact]
+    public void Serialize_WhenCalledWithNameValueCollection_ShouldSerialize()
+    {
+        NameValueCollection items = new NameValueCollection()
+        {
+            { "scopes", "api1 api2" },
+            { "prompt","login"},
+            { "scopes" , "api3"}
+        };
+
+        string expected = """{"scopes":["api1 api2","api3"],"prompt":["login"]}""";
+        
+        var sut = CreateSut();
+
+        var toSerialize = items.AllKeys.ToDictionary(k => k, k => items.GetValues(k));
+
+        string serialized = sut.Serialize(toSerialize);
+        
+        serialized.Should().Be(expected);
+
+    }
     [Fact]
     public void Deserialize_WhenValidJson_ShouldReturnDeserializedObject()
     {
