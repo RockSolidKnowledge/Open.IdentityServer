@@ -48,9 +48,4 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\..\Storage\src\Open.IdentityServer.Storage.csproj" />
-    </ItemGroup>
-    
 </Project>

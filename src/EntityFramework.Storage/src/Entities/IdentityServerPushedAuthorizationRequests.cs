@@ -10,7 +10,7 @@ namespace Open.IdentityServer.EntityFramework.Entities;
 /// <summary>
 /// Class included for compatibility, and to be used in the future when support for PAR is added to Open.IdentityServer
 /// </summary>
-public class IdentityServerPushedAuthorizationRequests
+public class PushedAuthorizationRequest
 {
     /// <summary>
     /// Get or set unique identifier
