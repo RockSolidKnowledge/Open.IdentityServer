@@ -452,7 +452,8 @@ public class ServerSessionTicketStoreTests
         ];
 
         List<SerializedAuthenticationTicket> expectedAuthTickets = [];
-        sessions = sessions.Select(x => GenerateSerialisedData(expectedAuthTickets, x));
+        sessions = sessions.Select(x => GenerateSerialisedData(expectedAuthTickets, x))
+            .ToList();
         
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.FilterSessions(testSubjectId, testSessionId))
@@ -464,6 +465,52 @@ public class ServerSessionTicketStoreTests
 
         actual.Should().NotBeNullOrEmpty();
         actual.Should().HaveCount(expectedAuthTickets.Count);
+
+        foreach (var session in sessions)
+        {
+            ValidateAutTicketExists(actual, session);
+        }
+    }
+    
+    [Fact]
+    public async Task GetAndRemoveExpiredSessions_WhenSessionReturnedFromStore_ShouldReturnExtractedAuthTickets()
+    {
+        const int batchSize = 5;
+        
+        IEnumerable<IdentityServerServerSideSessions> sessions = [
+            FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+        ];
+
+        List<SerializedAuthenticationTicket> expectedAuthTickets = [];
+        sessions = sessions.Select(x => GenerateSerialisedData(expectedAuthTickets, x))
+            .ToList();
+        
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.GetAndRemoveExpiredSessions(batchSize))
+            .ReturnsAsync(sessions);
+        
+        ServerSessionTicketStore sut = CreateSut();
+        IEnumerable<AuthenticationTicketFilterResult> actual =
+            (await sut.GetAndRemoveExpiredSessions(batchSize)).ToList();
+
+        actual.Should().NotBeNullOrEmpty();
+        actual.Should().HaveCount(expectedAuthTickets.Count);
+
+        foreach (var session in sessions)
+        {
+            ValidateAutTicketExists(actual, session);
+        }
+    }
+
+    private void ValidateAutTicketExists(IEnumerable<AuthenticationTicketFilterResult> result, IdentityServerServerSideSessions sesison)
+    {
+        result.Should().Contain(x =>
+            x.AuthTicket != null &&
+            x.AuthTicket.AuthenticationScheme == sesison.Scheme &&
+            x.AuthTicket.Principal.GetSubjectId() == sesison.SubjectId &&
+            x.AuthTicket.Properties.GetSessionId() == sesison.SessionId);
     }
 
     [Fact]
@@ -479,6 +526,7 @@ public class ServerSessionTicketStoreTests
                 (store => store.RetrieveAsync("FAKE_KEY"), "RetrieveAsync"),
                 (store => store.RemoveAsync("FAKE_KEY"), "RemoveAsync"),
                 (store => store.FilterServerAuthenticationTickets("FAKE_SUB_KEY", "FAKE_SESSION_KEY"), "FilterServerAuthenticationTickets"),
+                (store => store.GetAndRemoveExpiredSessions(), "GetAndRemoveExpiredSessions"),
             ];
 
         var sut = CreateSut();

@@ -138,4 +138,22 @@ public class IdentityServerServerSideSessionStore(
                 .ToListAsync())
             .Select(x => x.ToModel());
     }
+    
+    /// <inheritdoc />
+    public async Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
+        var sessions = await dbContext.ServerSideSessions
+            .Where(x => x.Expires < DateTime.UtcNow)
+            .OrderBy(x => x.Expires)
+            .Take(batchSize)
+            .ToArrayAsync();
+        
+        dbContext.ServerSideSessions.RemoveRange(sessions);
+        await dbContext.SaveChangesAsync();
+
+        return sessions.Select(x => x.ToModel());
+
+    }
 }

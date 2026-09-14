@@ -49,4 +49,11 @@ public interface IIdentityServerServerSideSessionStore
     /// <param name="sessionId">session id filter to apply</param>
     /// <returns>collection of session entities matching filter</returns>
     public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId);
+
+    /// <summary>
+    /// Removes expired sessions and returns a collection of sessions that were removed
+    /// </summary>
+    /// <param name="batchSize">optional batch size value, defaults to 100</param>
+    /// <returns>removed expired sessions</returns>
+    public Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100);
 }
