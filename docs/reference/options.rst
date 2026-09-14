@@ -171,8 +171,8 @@ Server-Side Sessions
     Specifies the frequency with which expired sessions are looked for and removed. The default value is a TimeSpan of 10 minutes.
 
 * ``FuzzExpiredSessionsFrequency``
-    Specifies if the start time of the hosted service should be randomised to avoid limiting the occurrences of jobs
-    running simultaneously in scenarios with multiple instances of Open.IdentityServer are running. The default value is true.
+    Specifies if the start time of the hosted service should be randomised. This avoids the scenario where multiple running instances 
+    of identityserver run cleanup jobs simultaneously. The default value is true.
 
 * ``RemoveExpiredSessionsBatchSize``
     Specifies how many expired sessions should be removed in a single pass. The default value is 100.
