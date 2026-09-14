@@ -76,14 +76,14 @@ public class SessionCleanupHostedService(
             {
                 await Task.Delay(options.ServerSideSessions.RemoveExpiredSessionsFrequency, cancellationToken);
             }
-            catch (TaskCanceledException)
+            catch (TaskCanceledException ex)
             {
-                logger.LogDebug("TaskCanceledException. Exiting");
+                logger.LogDebug(ex, "TaskCanceledException. Exiting");
                 break;
             }
             catch (Exception ex)
             {
-                logger.LogError("Task.Delay exception: {ExceptionMsg}. Exiting", ex.Message);
+                logger.LogError(ex, "Task.Delay exception: {ExceptionMsg}. Exiting", ex.Message);
                 break;
             }
 
@@ -114,7 +114,7 @@ public class SessionCleanupHostedService(
         }
         catch (Exception ex)
         {
-            logger.LogError("Exception removing expired sessions: {ExceptionMsg}", ex.Message);
+            logger.LogError(ex, "Exception removing expired sessions: {ExceptionMsg}", ex.Message);
         }
     }
 }

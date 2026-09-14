@@ -43,7 +43,7 @@ public class SessionCleanupService(
         }
         catch (Exception ex)
         {
-            logger.LogError("Exception removing expired sessions: {Exception}", ex.Message);
+            logger.LogError(ex, "Exception removing expired sessions: {Exception}", ex.Message);
         }
     }
     
@@ -63,19 +63,17 @@ public class SessionCleanupService(
             
             found = expiredSessions.Count;
             logger.LogInformation("Removed {ExpiredSessionsCount} expired server side sessions", found);
+
+            if (found <= 0) continue;
             
-            if (found > 0)
+            foreach (var expiredSession in expiredSessions)
             {
-                foreach (var expiredSession in expiredSessions)
+                await userSessionEventsService.HandleUserSessionExpiry(new EndUserSessionEventContext()
                 {
-                    // TODO, finish implementing, should get auth ticket so clientIds can be populated
-                    await userSessionEventsService.HandleUserSessionExpiry(new EndUserSessionEventContext()
-                    {
-                        SubjectId = expiredSession.Session.SubjectId,
-                        SessionId = expiredSession.Session.SessionId,
-                        ClientIds = expiredSession.AuthTicket?.Properties.GetClientList().ToArray() ?? [], 
-                    });
-                }
+                    SubjectId = expiredSession.Session.SubjectId,
+                    SessionId = expiredSession.Session.SessionId,
+                    ClientIds = expiredSession.AuthTicket?.Properties.GetClientList().ToArray() ?? [], 
+                });
             }
         }
     }
