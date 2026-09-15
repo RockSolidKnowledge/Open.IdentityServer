@@ -181,9 +181,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
             return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest,
                 "Client Id is different between PAR request and authorize");
         }
-
-        // TODO: Get MaxAgeProcessed and PromptProcessed
-        // TODO: And add them to the stored request. 
+        
         request.Raw = storedRequest;
         
         request.PushedAuthorizationUri = parRequestUri;
