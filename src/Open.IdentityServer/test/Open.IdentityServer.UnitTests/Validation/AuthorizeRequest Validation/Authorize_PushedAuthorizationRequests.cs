@@ -133,6 +133,46 @@ public class Authorize_PushedAuthorizationRequests
     
     [Fact]
     public async Task
+        ValidateAsync_when_called_with_valid_par_request_uri_with_prompt_processed_should_capture_validated_prompts()
+    {
+        var parRequestParameters = SetupValidParRequest(
+            IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + "blah");
+        
+        validAuthorizeParameters.Add("prompt","login");
+        
+        parRequestParameters.Add(Constants.ProcessedParameters.PromptProcessed, "true");
+        
+        var sut = CreateSut();
+    
+        var result = await sut.ValidateAsync(parRequestParameters);
+        
+        result.IsError.Should().BeFalse();
+        result.ValidatedRequest.Should().NotBeNull();
+        result.ValidatedRequest.ProcessedPromptModes.Should().BeEquivalentTo(["login"]);
+    }
+    
+    [Fact]
+    public async Task
+        ValidateAsync_when_called_with_valid_par_request_uri_with_max_age_processed_should_capture_validated_prompts()
+    {
+        var parRequestParameters = SetupValidParRequest(
+            IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + "blah");
+        
+        validAuthorizeParameters.Add("max_age","0");
+        
+        parRequestParameters.Add(Constants.ProcessedParameters.MaxAgeProcessed, "true");
+        
+        var sut = CreateSut();
+    
+        var result = await sut.ValidateAsync(parRequestParameters);
+        
+        result.IsError.Should().BeFalse();
+        result.ValidatedRequest.Should().NotBeNull();
+        result.ValidatedRequest.MaxAge.Should().BeNull();
+    }
+    
+    [Fact]
+    public async Task
         ValidateAsync_when_called_with_valid_par_request_uri_should_set_pushed_authorization_uri()
     {
         string parRequestUri =
@@ -146,32 +186,6 @@ public class Authorize_PushedAuthorizationRequests
 
         result.ValidatedRequest.PushedAuthorizationUri.Should().Be(parRequestUri);
     }
-    // [Fact]
-    // public async Task ValidateAsync_when_called_with_no_request_uri_and_client_requires_par_should_error()
-    // {
-    //     parClient.RequirePushedAuthorization = true;
-    //     
-    //     var sut = CreateSut();
-    //
-    //     AuthorizeRequestValidationResult result = await sut.ValidateAsync(validAuthorizeParameters);
-    //
-    //     result.IsError.Should().BeTrue();
-    // }
-    //
-    // [Fact]
-    // public async Task ValidateAsync_when_called_with_no_request_uri_and_options_dictates_requires_par_should_error()
-    // {
-    //     var expectedNameValueCollection = new NameValueCollection();
-    //
-    //     parClient.RequirePushedAuthorization = false; // make sure the client doesn't care, and only global options are considered
-    //     options.PushedAuthorization.Required = true;
-    //     
-    //     var sut = CreateSut();
-    //
-    //     AuthorizeRequestValidationResult result = await sut.ValidateAsync(validAuthorizeParameters);
-    //
-    //     result.IsError.Should().BeTrue();
-    // }
     
     [Fact]
     public async Task ValidateAsync_when_called_with_a_different_client_id_than_associted_with_the_request_uri_should_return_error()
@@ -199,16 +213,15 @@ public class Authorize_PushedAuthorizationRequests
         result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
     }
 
-    private NameValueCollection SetupValidParRequest(string requestUri)
+   
+    private NameValueCollection SetupValidParRequest(string requestUri )
     {
         var parRequestParameters = new NameValueCollection
         {
             { OidcConstants.AuthorizeRequest.RequestUri, requestUri },
             { OidcConstants.AuthorizeRequest.ClientId, parClient.ClientId }
         };
-    
-        var stored = new NameValueCollection();
-    
+        
         parService.Setup(s => s.GetRequestAsync(requestUri))
             .ReturnsAsync(validAuthorizeParameters);
         return parRequestParameters;

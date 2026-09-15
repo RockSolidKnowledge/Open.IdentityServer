@@ -17,5 +17,5 @@ public class PushedAuthorizationOptions
     /// <summary>
     /// The lifetime of a PAR request_uri
     /// </summary>
-    public TimeSpan Expiration { get; set; } = TimeSpan.FromSeconds(60);
+    public TimeSpan Expiration { get; set; } = TimeSpan.FromSeconds(600); // 10 minutes
 }

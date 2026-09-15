@@ -182,7 +182,10 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
                 "Client Id is different between PAR request and authorize");
         }
 
+        // TODO: Get MaxAgeProcessed and PromptProcessed
+        // TODO: And add them to the stored request. 
         request.Raw = storedRequest;
+        
         request.PushedAuthorizationUri = parRequestUri;
         
         return Valid(request);
@@ -803,7 +806,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
 
             // if prompt have been processed, aka validation is called in callback,
             // then we don't want to prompt the user again, so skip handling of the parameter
-            var promptProcessed = request.Raw.Get(Constants.ProcessedParameters.PromptProcessed);
+            var promptProcessed = request.OriginalRaw.Get(Constants.ProcessedParameters.PromptProcessed);
 
             if (promptProcessed.IsPresent())
             {
@@ -857,7 +860,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
                     // if max_age have been processed, aka validation is called in callback,
                     // then we don't want to prompt the user again in the case where max_age = 0,
                     // so skip handling of the parameter
-                    var maxAgeProcessed = request.Raw.Get(Constants.ProcessedParameters.MaxAgeProcessed);
+                    var maxAgeProcessed = request.OriginalRaw.Get(Constants.ProcessedParameters.MaxAgeProcessed);
 
                     if (!(seconds == 0 && maxAgeProcessed.IsPresent()))
                     {

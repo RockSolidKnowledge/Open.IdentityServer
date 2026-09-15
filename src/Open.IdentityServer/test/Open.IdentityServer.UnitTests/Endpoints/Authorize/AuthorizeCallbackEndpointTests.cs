@@ -91,7 +91,7 @@ public class AuthorizeCallbackEndpointTests
     
     [Fact]
     [Trait("Category", Category)]
-    public async Task ProcessAsync_auhtorize_with_par_should_use_stored_request_for_consent()
+    public async Task ProcessAsync_authorize_with_par_should_use_stored_request_for_consent()
     {
         IEnumerable<string> expectedConsentedScopes = ["api1", "api2"];
         
