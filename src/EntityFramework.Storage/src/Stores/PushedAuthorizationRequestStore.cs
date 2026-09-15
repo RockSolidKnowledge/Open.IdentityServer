@@ -44,7 +44,7 @@ public class PushedAuthorizationRequestStore(
         var entity = new PushedAuthorizationRequest()
         {
             ReferenceValueHash = requestInformation.Key,
-            ExpiresAtUtc = requestInformation.ValidUntil.DateTime,
+            ExpiresAtUtc = requestInformation.ValidUntil.UtcDateTime,
             Parameters = serializer.Serialize(parametersAsDictionary)
         };
 
@@ -85,7 +85,10 @@ public class PushedAuthorizationRequestStore(
             }
         }
 
-        return new PushedAuthorizationMemento(id, request.ExpiresAtUtc, parameters);
+        // Converts a DateTime from database to a DateTimeOffset
+        var expiresAt = new DateTimeOffset(request.ExpiresAtUtc, TimeSpan.Zero);
+
+        return new PushedAuthorizationMemento(id, expiresAt, parameters);
     }
 
     /// <summary>
