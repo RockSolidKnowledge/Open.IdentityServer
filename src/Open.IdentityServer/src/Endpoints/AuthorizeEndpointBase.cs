@@ -25,6 +25,7 @@ namespace Open.IdentityServer.Endpoints;
 internal abstract class AuthorizeEndpointBase : IEndpointHandler
 {
     private readonly IAuthorizeResponseGenerator _authorizeResponseGenerator;
+    private readonly IPushedAuthorizationRequestService _parService;
     private readonly ITelemetryService _telemetry;
 
     private readonly IEventService _events;
@@ -42,6 +43,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         IAuthorizeInteractionResponseGenerator interactionGenerator,
         IAuthorizeResponseGenerator authorizeResponseGenerator,
         IUserSession userSession,
+        IPushedAuthorizationRequestService parService,
         ITelemetryService telemetry)
     {
         _events = events;
@@ -50,6 +52,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         _validator = validator;
         _interactionGenerator = interactionGenerator;
         _authorizeResponseGenerator = authorizeResponseGenerator;
+        _parService = parService;
         _telemetry = telemetry;
         UserSession = userSession;
     }
@@ -82,7 +85,24 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
                 result.ErrorDescription);
         }
 
+        if (result.ValidatedRequest.Client.RequirePushedAuthorization ||
+            _options.PushedAuthorization.Required)
+        {
+            if (result.ValidatedRequest.PushedAuthorizationUri == null)
+            {
+                return await CreateErrorResultAsync(OidcConstants.AuthorizeErrors.InvalidRequest,
+                    result.ValidatedRequest,
+                    OidcConstants.AuthorizeErrors.InvalidRequest,
+                    "Client must use PAR", true);
+            }
+        }
+
         var request = result.ValidatedRequest;
+        return await ProcessValidatedRequest(consent, request);
+    }
+
+    private async Task<IEndpointResult> ProcessValidatedRequest(ConsentResponse consent, ValidatedAuthorizeRequest request)
+    {
         LogRequest(request);
 
         // determine user interaction
@@ -109,6 +129,12 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         }
 
         var response = await _authorizeResponseGenerator.CreateResponseAsync(request);
+       
+        // Remove PAR entry if this was a successfully applied PAR request
+        if (response.IsError == false && request.PushedAuthorizationUri != null)
+        {
+            await _parService.RemoveRequestAsync(request.PushedAuthorizationUri);
+        }
 
         await RaiseResponseEventAsync(response);
 

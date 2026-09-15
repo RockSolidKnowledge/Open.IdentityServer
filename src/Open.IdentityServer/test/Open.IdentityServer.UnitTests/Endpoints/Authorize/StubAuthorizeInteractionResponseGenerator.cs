@@ -12,9 +12,12 @@ namespace Open.IdentityServer.UnitTests.Endpoints.Authorize;
 internal class StubAuthorizeInteractionResponseGenerator : IAuthorizeInteractionResponseGenerator
 {
     internal InteractionResponse Response { get; set; } = new InteractionResponse();
+    public ConsentResponse SpiedConsent { get; private set; }
 
     public Task<InteractionResponse> ProcessInteractionAsync(ValidatedAuthorizeRequest request, ConsentResponse consent = null)
     {
+        SpiedConsent = consent;
+        
         return Task.FromResult(Response);
     }
 }
