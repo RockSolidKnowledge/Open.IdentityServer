@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -141,6 +142,29 @@ public class ServerSessionTicketStore(
             Session = x,
             AuthTicket = DeserializeAuthTicket(x),
         }).Where(x => x.AuthTicket != null);
+    }
+
+    /// <inheritdoc />
+    public async Task<QueryResult<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(SessionQuery? query, CancellationToken ct = default)
+    {
+        using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
+        QueryResult<IdentityServerServerSideSessions> sessions = await serverServerSideSessionStore.FilterSessions(query, ct);
+        
+        return new QueryResult<AuthenticationTicketFilterResult>
+        {
+            ResultsToken = sessions.ResultsToken,
+            HasPrevResults = sessions.HasPrevResults,
+            HasNextResults = sessions.HasNextResults,
+            TotalCount = sessions.TotalCount,
+            TotalPages = sessions.TotalPages,
+            CurrentPage = sessions.CurrentPage,
+            Results = sessions.Results.Select(x => new AuthenticationTicketFilterResult
+            {
+                Session = x,
+                AuthTicket = DeserializeAuthTicket(x),
+            }).Where(x => x.AuthTicket != null).ToList(),
+        };
     }
 
     private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)

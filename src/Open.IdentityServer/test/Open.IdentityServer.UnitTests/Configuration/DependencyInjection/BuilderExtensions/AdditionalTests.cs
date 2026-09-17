@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -135,6 +136,11 @@ public class FakeIdentityServerServerSideSessionStore: IIdentityServerServerSide
     }
 
     public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public Task<QueryResult<IdentityServerServerSideSessions>> FilterSessions(SessionQuery query, CancellationToken ct = default)
     {
         throw new System.NotImplementedException();
     }

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Authentication;
@@ -44,6 +45,10 @@ public class ServerSessionTicketStoreTests
         Mock.Get(dataProtectionProvider)
             .Setup(x => x.CreateProtector(DataProtectionConstants.ServerSideTicketStorePurpose))
             .Returns(dataProtector);
+        
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.FilterSessions(It.IsAny<SessionQuery>()))
+            .ReturnsAsync(QueryResult<IdentityServerServerSideSessions>.Empty);
     }
 
     private ServerSessionTicketStore CreateSut() => new(serverServerSideSessionStore, dataProtectionProvider,
@@ -465,6 +470,43 @@ public class ServerSessionTicketStoreTests
         actual.Should().NotBeNullOrEmpty();
         actual.Should().HaveCount(expectedAuthTickets.Count);
     }
+    
+    [Fact]
+    public async Task FilterServerAuthenticationTickets_WhenQueryProvided_ShouldCallFilterWithQuery_AndReturnResponseWithDeserializedAuthTickets()
+    {
+        SessionQuery fakeQuery = new SessionQuery
+        {
+            SubjectId = "bob",
+            SessionId = "session-0",
+        };
+
+        QueryResult<IdentityServerServerSideSessions> fakeResult;
+        IEnumerable<IdentityServerServerSideSessions> sessions = [
+            FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+        ];
+
+        List<SerializedAuthenticationTicket> expectedAuthTickets = [];
+        fakeResult = new QueryResult<IdentityServerServerSideSessions>
+        {
+            
+            Results = sessions.Select(x => GenerateSerialisedData(expectedAuthTickets, x)).ToList(),
+        };
+        
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.FilterSessions(fakeQuery, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fakeResult);
+        
+        ServerSessionTicketStore sut = CreateSut();
+        QueryResult<AuthenticationTicketFilterResult> actual =
+            (await sut.FilterServerAuthenticationTickets(fakeQuery, TestContext.Current.CancellationToken));
+        
+        actual.Should().NotBeNull();
+        actual.Should().BeEquivalentTo(fakeResult, cnf => cnf.Excluding(x => x.Results));
+        actual.Results.Should().NotBeNullOrEmpty();
+        actual.Results.Should().HaveCount(expectedAuthTickets.Count);
+    }
 
     [Fact]
     public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace()
@@ -479,6 +521,7 @@ public class ServerSessionTicketStoreTests
                 (store => store.RetrieveAsync("FAKE_KEY"), "RetrieveAsync"),
                 (store => store.RemoveAsync("FAKE_KEY"), "RemoveAsync"),
                 (store => store.FilterServerAuthenticationTickets("FAKE_SUB_KEY", "FAKE_SESSION_KEY"), "FilterServerAuthenticationTickets"),
+                (store => store.FilterServerAuthenticationTickets(new SessionQuery()), "FilterServerAuthenticationTickets"),
             ];
 
         var sut = CreateSut();
@@ -495,7 +538,7 @@ public class ServerSessionTicketStoreTests
 
             Mock.Get(telemetry)
                 .Verify(t => t.Trace(
-                    TelemetryConstants.TraceCategories.Stores, sut, method.traceMethodName), Times.Once);
+                    TelemetryConstants.TraceCategories.Stores, sut, method.traceMethodName));
             Mock.Get(trace).Verify(t => t.Dispose(), Times.Once);
         }
 
@@ -504,7 +547,6 @@ public class ServerSessionTicketStoreTests
             .Where(m => m is { IsPublic: true, IsStatic: false, IsSpecialName: false })
             .Where(m => m.DeclaringType == typeof(ServerSessionTicketStore))
             .Select(m => m.Name)
-            .Distinct()
             .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
     }
 

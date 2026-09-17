@@ -23,7 +23,7 @@ public class SessionQuery
     /// <summary>
     /// Number of results requested in response
     /// </summary>
-    public int CountRequested { get; set; }
+    public int CountRequested { get; set; } = 25;
 
     /// <summary>
     /// Optional subject identifier used to filter results

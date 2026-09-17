@@ -47,4 +47,19 @@ public class QueryResult<T>
     /// The results for the current page
     /// </summary>
     public IReadOnlyCollection<T> Results { get; init; } = [];
+
+    /// <summary>
+    /// Creates an empty instance of <see cref="QueryResult{T}"/>
+    /// </summary>
+    /// <returns></returns>
+    public static QueryResult<T> Empty() => new()
+    {
+        ResultsToken = null,
+        HasPrevResults = false,
+        HasNextResults = false,
+        TotalCount = 0,
+        TotalPages = 0,
+        CurrentPage = 0,
+        Results = [],
+    };
 }
