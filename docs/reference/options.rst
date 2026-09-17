@@ -26,6 +26,8 @@ By default all endpoints are enabled, but you can lock down your server by disab
 
 * ``EnableJwtRequestUri``
     JWT request_uri processing is enabled on the authorize endpoint. Defaults to ``false``.
+* ``EnablePushedAuthorizationRequestEndpoint``
+    Enables the pushed authorization request endpoint. Defaults to ``true``. See :ref:`Pushed Authorization Requests <refPushedAuthorizationTopic>`.
 
 Discovery
 ^^^^^^^^^
@@ -61,6 +63,15 @@ Authentication
 
 * ``RequireCspFrameSrcForSignout``
     If set, will require frame-src CSP headers being emitting on the end session callback endpoint which renders iframes to clients for front-channel signout notification. Defaults to true.
+
+Pushed Authorization Requests
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+See :ref:`Pushed Authorization Requests <refPushedAuthorizationTopic>` for the complete PAR configuration and client settings.
+
+* ``PushedAuthorization.Required``
+    Requires all authorization requests to use the pushed authorization endpoint. Defaults to ``false``.
+* ``PushedAuthorization.Expiration``
+    The default lifetime of a pushed authorization request URI. Defaults to 600 seconds (10 minutes).
 
 Events
 ^^^^^^
