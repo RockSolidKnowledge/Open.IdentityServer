@@ -115,7 +115,7 @@ internal class AuthorizeResult : IEndpointResult
             Response.Request.ResponseMode == OidcConstants.ResponseModes.Fragment)
         {
             context.Response.SetNoCache();
-            context.Response.Redirect(BuildRedirectUri());
+            context.Response.RedirectToAbsoluteUrl(BuildRedirectUri());
         }
         else if (Response.Request.ResponseMode == OidcConstants.ResponseModes.FormPost)
         {
