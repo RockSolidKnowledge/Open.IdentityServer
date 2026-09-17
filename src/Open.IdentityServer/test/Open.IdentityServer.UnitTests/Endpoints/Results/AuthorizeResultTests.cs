@@ -73,6 +73,31 @@ public class AuthorizeResultTests
     }
 
     [Theory]
+    [InlineData(OidcConstants.AuthorizeErrors.AccessDenied)]
+    [InlineData(OidcConstants.AuthorizeErrors.AccountSelectionRequired)]
+    [InlineData(OidcConstants.AuthorizeErrors.LoginRequired)]
+    [InlineData(OidcConstants.AuthorizeErrors.ConsentRequired)]
+    [InlineData(OidcConstants.AuthorizeErrors.InteractionRequired)]
+    public async Task SafeErrors_ShouldReturnToClient(string error)
+    {
+        _response.Error = error;
+        _response.Request = new ValidatedAuthorizeRequest
+        {
+            ResponseMode = OidcConstants.ResponseModes.Query,
+            RedirectUri = "http://client/callback"
+        };
+
+        await _subject.ExecuteAsync(_context);
+        
+        _mockUserSession.Clients.Count.Should().Be(0);
+        _context.Response.StatusCode.Should().Be(302);
+        
+        var location = _context.Response.Headers["Location"].First();
+        location.Should().StartWith("http://client/callback");
+        location.Should().Contain("#_");
+    }
+
+    [Theory]
     [InlineData(OidcConstants.AuthorizeErrors.AccountSelectionRequired)]
     [InlineData(OidcConstants.AuthorizeErrors.LoginRequired)]
     [InlineData(OidcConstants.AuthorizeErrors.ConsentRequired)]
