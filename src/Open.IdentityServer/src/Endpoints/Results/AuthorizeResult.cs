@@ -157,8 +157,8 @@ internal class AuthorizeResult : IEndpointResult
 
         if (Response.IsError && !uri.Contains("#"))
         {
-            // https://tools.ietf.org/html/draft-bradley-oauth-open-redirector-00
-            uri += "#_=_";
+            // https://datatracker.ietf.org/doc/html/rfc9700#name-countermeasures
+            uri += "#_";
         }
 
         return uri;
