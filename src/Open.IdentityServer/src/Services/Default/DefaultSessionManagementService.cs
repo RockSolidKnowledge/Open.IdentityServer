@@ -14,10 +14,16 @@ namespace Open.IdentityServer.Services;
 /// <summary>
 /// Default Session management service, has methods for querying sessions and removing them.
 /// </summary>
+/// <param name="persistedGrantService"></param>
+/// <param name="backChannelLogoutService"></param>
+/// <param name="serverSessionTicketStore"></param>
+/// <param name="telemetry"></param>
+/// <param name="logger"></param>
 public class DefaultSessionManagementService(
     IPersistedGrantService persistedGrantService,
     IBackChannelLogoutService backChannelLogoutService,
     IServerSessionTicketStore serverSessionTicketStore,
+    ITelemetryService telemetry,
     ILogger<DefaultSessionManagementService> logger): ISessionManagementService
 {
     /// <inheritdoc />
