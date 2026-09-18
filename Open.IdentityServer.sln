@@ -72,6 +72,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7A351D3D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.Storage.UnitTests", "src\Storage\tests\Open.IdentityServer.Storage.UnitTests\Open.IdentityServer.Storage.UnitTests.csproj", "{FF1944C8-2516-4197-9B63-8BB3581882B3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{36985CF3-7E79-4BF4-91FD-3E9195A0FCEA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.Test.Utilities", "Open.IdentityServer.Test.Utilities\Open.IdentityServer.Test.Utilities.csproj", "{F0AD47D4-F27B-4265-B1B9-B2346824CBE4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +113,7 @@ Global
 		{C459AC33-FD11-402E-8058-F76DD940190D} = {78510D3C-6BE1-4017-8AD4-CC905D58D788}
 		{7A351D3D-4AC7-4662-8BF3-8F42D6097F87} = {7C740022-8283-4021-8E72-3F2847949309}
 		{FF1944C8-2516-4197-9B63-8BB3581882B3} = {7A351D3D-4AC7-4662-8BF3-8F42D6097F87}
+		{F0AD47D4-F27B-4265-B1B9-B2346824CBE4} = {36985CF3-7E79-4BF4-91FD-3E9195A0FCEA}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A2D626B8-1532-4E35-B9F2-4246C838D192}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -183,5 +188,9 @@ Global
 		{FF1944C8-2516-4197-9B63-8BB3581882B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF1944C8-2516-4197-9B63-8BB3581882B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF1944C8-2516-4197-9B63-8BB3581882B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0AD47D4-F27B-4265-B1B9-B2346824CBE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0AD47D4-F27B-4265-B1B9-B2346824CBE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0AD47D4-F27B-4265-B1B9-B2346824CBE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0AD47D4-F27B-4265-B1B9-B2346824CBE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

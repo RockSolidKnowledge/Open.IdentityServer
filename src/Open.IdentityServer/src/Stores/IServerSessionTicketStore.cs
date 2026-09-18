@@ -21,4 +21,11 @@ public interface IServerSessionTicketStore: ITicketStore
     /// <param name="sessionId">session id filter to apply</param>
     /// <returns>collection of auth ticket matching filter</returns>
     Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string subjectId, string sessionId);
+    
+    /// <summary>
+    /// Removes expired auth tickets and returns a collection of these auth tokens and session objects they come from
+    /// </summary>
+    /// <param name="batchSize">optional batch size value, defaults to 100</param>
+    /// <returns>removed expired sessions</returns>
+    public Task<IEnumerable<AuthenticationTicketFilterResult>> GetAndRemoveExpiredSessions(int batchSize = 100);
 }

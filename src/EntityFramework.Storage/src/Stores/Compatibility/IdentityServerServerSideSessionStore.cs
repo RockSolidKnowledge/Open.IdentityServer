@@ -23,6 +23,7 @@ namespace Open.IdentityServer.EntityFramework.Stores;
 public class IdentityServerServerSideSessionStore(
     IPersistedGrantDbContext dbContext,
     ITelemetryService telemetry,
+    TimeProvider timeProvider,
     ILogger<IdentityServerServerSideSessionStore> logger) : IIdentityServerServerSideSessionStore
 {
     /// <inheritdoc />
@@ -137,5 +138,24 @@ public class IdentityServerServerSideSessionStore(
                 .Where(x => x.SubjectId == subjectId && x.SessionId == sessionId)
                 .ToListAsync())
             .Select(x => x.ToModel());
+    }
+    
+    /// <inheritdoc />
+    public async Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
+        var sessions = await dbContext.ServerSideSessions
+            // .Where(x => x.Expires < DateTime.UtcNow)
+            .Where(x => x.Expires < timeProvider.GetUtcNow().UtcDateTime)
+            .OrderBy(x => x.Expires)
+            .Take(batchSize)
+            .ToArrayAsync();
+        
+        dbContext.ServerSideSessions.RemoveRange(sessions);
+        await dbContext.SaveChangesAsync();
+
+        return sessions.Select(x => x.ToModel());
+
     }
 }

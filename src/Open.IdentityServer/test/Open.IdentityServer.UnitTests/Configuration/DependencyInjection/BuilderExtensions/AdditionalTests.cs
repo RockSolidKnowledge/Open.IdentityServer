@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Configuration.DependencyInjection;
+using Open.IdentityServer.EntityFramework;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
+using Open.IdentityServer.Services.Default;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Xunit;
@@ -63,6 +66,15 @@ public class AdditionalTests
             d.ServiceType == typeof(IIdentityServerServerSideSessionStore) &&
             d.ImplementationType == typeof(InMemorySessionStore) &&
             d.Lifetime == ServiceLifetime.Singleton);
+        
+        serviceCollection.Should().ContainSingle(d =>
+            d.ImplementationType == typeof(SessionCleanupService) &&
+            d.Lifetime == ServiceLifetime.Transient);
+        
+        serviceCollection.Should().ContainSingle(d =>
+            d.ServiceType == typeof(IHostedService) &&
+            d.ImplementationType == typeof(SessionCleanupHostedService) &&
+            d.Lifetime == ServiceLifetime.Singleton);
     }
     
     [Fact]
@@ -109,6 +121,15 @@ public class AdditionalTests
             d.ServiceType == typeof(IIdentityServerServerSideSessionStore) &&
             d.ImplementationType == typeof(InMemorySessionStore) &&
             d.Lifetime == ServiceLifetime.Singleton);
+        
+        serviceCollection.Should().ContainSingle(d =>
+            d.ImplementationType == typeof(SessionCleanupService) &&
+            d.Lifetime == ServiceLifetime.Transient);
+        
+        serviceCollection.Should().ContainSingle(d =>
+            d.ServiceType == typeof(IHostedService) &&
+            d.ImplementationType == typeof(SessionCleanupHostedService) &&
+            d.Lifetime == ServiceLifetime.Singleton);
     }
 }
 
@@ -135,6 +156,11 @@ public class FakeIdentityServerServerSideSessionStore: IIdentityServerServerSide
     }
 
     public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
     {
         throw new System.NotImplementedException();
     }
