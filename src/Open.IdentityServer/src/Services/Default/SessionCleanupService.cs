@@ -53,28 +53,26 @@ public class SessionCleanupService(
     /// <returns>A <see cref="Task"/> that completes once all batches of expired sessions have been deleted.</returns>
     private async Task RemoveServerSideSessionsAsync()
     {
-        var found = Int32.MaxValue;
+        int found;
 
-        while (found >= options.ServerSideSessions.RemoveExpiredSessionsBatchSize)
+        do
         {
             var expiredSessions = (await serverSideSessionStore
-                .GetAndRemoveExpiredSessions(options.ServerSideSessions.RemoveExpiredSessionsBatchSize))
+                    .GetAndRemoveExpiredSessions(options.ServerSideSessions.RemoveExpiredSessionsBatchSize))
                 .ToList();
-            
+
             found = expiredSessions.Count;
             logger.LogInformation("Removed {ExpiredSessionsCount} expired server side sessions", found);
 
-            if (found <= 0) continue;
-            
             foreach (var expiredSession in expiredSessions)
             {
                 await userSessionEventsService.HandleUserSessionExpiry(new EndUserSessionEventContext()
                 {
                     SubjectId = expiredSession.Session.SubjectId,
                     SessionId = expiredSession.Session.SessionId,
-                    ClientIds = expiredSession.AuthTicket?.Properties.GetClientList().ToArray() ?? [], 
+                    ClientIds = expiredSession.AuthTicket?.Properties.GetClientList().ToArray() ?? [],
                 });
             }
-        }
+        } while (found >= options.ServerSideSessions.RemoveExpiredSessionsBatchSize);
     }
 }

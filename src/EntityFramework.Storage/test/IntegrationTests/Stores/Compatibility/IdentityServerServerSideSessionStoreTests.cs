@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Time.Testing;
 using Moq;
 using Open.IdentityServer.EntityFramework.DbContexts;
 using Open.IdentityServer.EntityFramework.Entities;
 using Open.IdentityServer.EntityFramework.Options;
 using Open.IdentityServer.EntityFramework.Stores;
 using Open.IdentityServer.Services;
+using Open.IdentityServer.Test.Utilities;
 using Xunit;
 using SessionModel = Open.IdentityServer.Models.IdentityServerServerSideSessions;
 
@@ -19,7 +21,10 @@ namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores.Compatibil
 public class IdentityServerServerSideSessionStoreTests: IntegrationTest<IdentityServerServerSideSessionStoreTests, PersistedGrantDbContext, OperationalStoreOptions>
 {
     private readonly ITelemetryService telemetry = Mock.Of<ITelemetryService>();
+    private readonly FakeTimeProvider timeProvider = new();
     private readonly MockLogger<IdentityServerServerSideSessionStore> fakeLogger = new();
+
+    private static readonly DateTime FakeNow = new(2025, 02, 27, 12, 00, 00, DateTimeKind.Utc);
     
     public IdentityServerServerSideSessionStoreTests(DatabaseProviderFixture<PersistedGrantDbContext> fixture) : base(fixture)
     {
@@ -28,10 +33,12 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             using PersistedGrantDbContext context = new PersistedGrantDbContext(row.Data, StoreOptions);
             context.Database.EnsureCreated();
         }
+        
+        timeProvider.SetUtcNow(FakeNow);
     }
 
     private IdentityServerServerSideSessionStore CreateSut(PersistedGrantDbContext dbContext) =>
-        new(dbContext, telemetry, fakeLogger);
+        new(dbContext, telemetry, timeProvider, fakeLogger);
 
     [Theory]
     [InlineData(null)]
@@ -71,9 +78,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             SubjectId = "sub-1",
             SessionId = "sid-1",
             DisplayName = "display-1",
-            Created = DateTime.UtcNow.AddMinutes(-10),
-            Renewed = DateTime.UtcNow.AddMinutes(-5),
-            Expires = DateTime.UtcNow.AddMinutes(30),
+            Created = FakeNow.AddMinutes(-10),
+            Renewed = FakeNow.AddMinutes(-5),
+            Expires = FakeNow.AddMinutes(30),
             Data = "{\"foo\":\"bar\"}"
         };
 
@@ -125,9 +132,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             SubjectId = "sub-existing",
             SessionId = "sid-existing",
             DisplayName = "existing",
-            Created = DateTime.UtcNow.AddMinutes(-20),
-            Renewed = DateTime.UtcNow.AddMinutes(-10),
-            Expires = DateTime.UtcNow.AddMinutes(20),
+            Created = FakeNow.AddMinutes(-20),
+            Renewed = FakeNow.AddMinutes(-10),
+            Expires = FakeNow.AddMinutes(20),
             Data = "{\"state\":\"existing\"}"
         });
         await context.SaveChangesAsync();
@@ -210,9 +217,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             SubjectId = "old-sub",
             SessionId = "old-sid",
             DisplayName = "old-display",
-            Created = DateTime.UtcNow.AddHours(-2),
-            Renewed = DateTime.UtcNow.AddHours(-1),
-            Expires = DateTime.UtcNow.AddMinutes(5),
+            Created = FakeNow.AddHours(-2),
+            Renewed = FakeNow.AddHours(-1),
+            Expires = FakeNow.AddMinutes(5),
             Data = "{\"version\":1}"
         });
         await context.SaveChangesAsync();
@@ -220,9 +227,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         SessionModel updated = BuildSessionModel(key, "new-sub", "new-sid", "new-display");
         updated.Scheme = "new-scheme";
         updated.Data = "{\"version\":2}";
-        updated.Created = DateTime.UtcNow.AddHours(-3);
-        updated.Renewed = DateTime.UtcNow.AddMinutes(-1);
-        updated.Expires = DateTime.UtcNow.AddHours(2);
+        updated.Created = FakeNow.AddHours(-3);
+        updated.Renewed = FakeNow.AddMinutes(-1);
+        updated.Expires = FakeNow.AddHours(2);
 
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
@@ -281,9 +288,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             SubjectId = "sub-delete",
             SessionId = "sid-delete",
             DisplayName = "delete me",
-            Created = DateTime.UtcNow.AddMinutes(-30),
-            Renewed = DateTime.UtcNow.AddMinutes(-15),
-            Expires = DateTime.UtcNow.AddMinutes(30),
+            Created = FakeNow.AddMinutes(-30),
+            Renewed = FakeNow.AddMinutes(-15),
+            Expires = FakeNow.AddMinutes(30),
             Data = "{\"delete\":true}"
         });
         await context.SaveChangesAsync();
@@ -406,6 +413,38 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         actual.Should().Contain(x => x.Key == expiredSession0.Key);
         actual.Should().Contain(x => x.Key == expiredSession1.Key);
     }
+
+    //TODO: Finish implementing test
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task GetAndRemoveExpiredSessions_WhenUnspecifiedTimezoneInDbEntities_ShouldBeTreatedAsUtc(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        //Ensuring timezone info is the same across environments
+        using var mockedTimezone = new LocalTimeZoneInfoMocker(TimeZoneInfo.FindSystemTimeZoneById("China Standard Time"));
+        
+        DateTime nowUnspecified = new(2025, 02, 27, 12, 12, 11, DateTimeKind.Unspecified);
+        
+        var testExpired = nowUnspecified.AddDays(-1);
+        var testWithin8HoursToExpiry = nowUnspecified.AddHours(2);
+        
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+        
+        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1");
+        IdentityServerServerSideSessions validSession0 = FakeSessionSession("234", "session4");
+
+        expiredSession0.Expires = testExpired;
+        validSession0.Expires = testWithin8HoursToExpiry;
+        
+        context.ServerSideSessions.Add(expiredSession0);
+        context.ServerSideSessions.Add(validSession0);
+        await context.SaveChangesAsync();
+
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+
+        List<SessionModel> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
+
+        actual.Should().HaveCount(1);
+        actual.Should().Contain(x => x.Key == expiredSession0.Key);
+    }
     
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace(DbContextOptions<PersistedGrantDbContext> options)
@@ -466,9 +505,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             SubjectId = subjectId,
             SessionId = sessionId,
             DisplayName = displayName,
-            Created = DateTime.UtcNow.AddMinutes(-10),
-            Renewed = DateTime.UtcNow.AddMinutes(-5),
-            Expires = DateTime.UtcNow.AddHours(1),
+            Created = FakeNow.AddMinutes(-10),
+            Renewed = FakeNow.AddMinutes(-5),
+            Expires = FakeNow.AddHours(1),
             Data = "{\"payload\":\"value\"}"
         };
     }
@@ -482,17 +521,17 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             SubjectId = subject,
             SessionId = sessionId,
             DisplayName = "user" + subject,
-            Created = DateTime.UtcNow.AddDays(-3),
-            Renewed = DateTime.UtcNow.AddDays(-3),
-            Expires = DateTime.UtcNow.AddDays(2),
+            Created = FakeNow.AddDays(-3),
+            Renewed = FakeNow.AddDays(-3),
+            Expires = FakeNow.AddDays(2),
             Data = "{!}"
         };
 
         if (expired)
         {
-            session.Created = DateTime.UtcNow.AddDays(-5);
-            session.Renewed = DateTime.UtcNow.AddDays(-4);
-            session.Expires = DateTime.UtcNow.AddDays(-3);
+            session.Created = FakeNow.AddDays(-5);
+            session.Renewed = FakeNow.AddDays(-4);
+            session.Expires = FakeNow.AddDays(-3);
         }
 
         return session;
