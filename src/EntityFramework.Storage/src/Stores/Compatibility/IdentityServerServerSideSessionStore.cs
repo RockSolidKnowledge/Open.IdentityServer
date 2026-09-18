@@ -23,6 +23,7 @@ namespace Open.IdentityServer.EntityFramework.Stores;
 public class IdentityServerServerSideSessionStore(
     IPersistedGrantDbContext dbContext,
     ITelemetryService telemetry,
+    TimeProvider timeProvider,
     ILogger<IdentityServerServerSideSessionStore> logger) : IIdentityServerServerSideSessionStore
 {
     /// <inheritdoc />
@@ -145,7 +146,8 @@ public class IdentityServerServerSideSessionStore(
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
         var sessions = await dbContext.ServerSideSessions
-            .Where(x => x.Expires < DateTime.UtcNow)
+            // .Where(x => x.Expires < DateTime.UtcNow)
+            .Where(x => x.Expires < timeProvider.GetUtcNow().UtcDateTime)
             .OrderBy(x => x.Expires)
             .Take(batchSize)
             .ToArrayAsync();

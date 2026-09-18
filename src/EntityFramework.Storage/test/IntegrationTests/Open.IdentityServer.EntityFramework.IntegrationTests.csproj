@@ -14,6 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\..\Open.IdentityServer.Test.Utilities\Open.IdentityServer.Test.Utilities.csproj" />
         <ProjectReference Include="..\..\src\Open.IdentityServer.EntityFramework.Storage.csproj"/>
     </ItemGroup>
 
@@ -26,6 +27,7 @@
         <PackageReference Include="xunit.runner.visualstudio"/>
         <PackageReference Include="AwesomeAssertions"/>
         <PackageReference Include="Moq"/>
+        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing"/>
 
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
         <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3"/>
