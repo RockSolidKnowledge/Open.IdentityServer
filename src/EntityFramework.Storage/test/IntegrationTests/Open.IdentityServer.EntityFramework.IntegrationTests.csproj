@@ -14,13 +14,14 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\Storage\tests\Open.IdentityServer.Storage.UnitTests\Open.IdentityServer.Storage.UnitTests.csproj" />
         <ProjectReference Include="..\..\src\Open.IdentityServer.EntityFramework.Storage.csproj"/>
     </ItemGroup>
 
+    
+    
     <ItemGroup>
         <PackageReference Include="Open.IdentityServer"/>
-        <PackageReference Include="Open.IdentityServer.Storage"/>
-
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="xunit.v3"/>
         <PackageReference Include="xunit.runner.visualstudio"/>

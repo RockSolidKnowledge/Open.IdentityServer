@@ -933,6 +933,12 @@ public static class OidcConstants
         // DPoP
         /// <summary>JSON array of JWS signing algorithms supported by the OP for DPoP proofs.</summary>
         public const string DPoPSigningAlgorithmsSupported = "dpop_signing_alg_values_supported";
+        
+        // PAR
+        /// <summary> The endpoint to use for PAR </summary>
+        public const string PushedAuthorizationRequestEndpoint = "pushed_authorization_request_endpoint";
+        /// <summary> Used to indicate to a client that it MUST use PAR to perform authorization code flow </summary>
+        public const string RequirePushedAuthorizationRequests = "require_pushed_authorization_requests";
     }
 
     /// <summary>

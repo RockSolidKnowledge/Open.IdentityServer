@@ -116,9 +116,8 @@ public class ClientMappersTests
                 nameof(Entities.Client.InitiateLoginUri),
                 nameof(Entities.Client.DPoPClockSkew),
                 nameof(Entities.Client.DPoPValidationMode),
-                nameof(Entities.Client.RequireDPoP),
-                nameof(Entities.Client.PushedAuthorizationLifetime),
-                nameof(Entities.Client.RequirePushedAuthorization))
+                nameof(Entities.Client.RequireDPoP)
+                )
             .Verify(model => model.ToEntity());
     }
 

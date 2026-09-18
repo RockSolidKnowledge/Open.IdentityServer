@@ -29,8 +29,9 @@ internal class AuthorizeEndpoint : AuthorizeEndpointBase
         IAuthorizeInteractionResponseGenerator interactionGenerator,
         IAuthorizeResponseGenerator authorizeResponseGenerator,
         IUserSession userSession,
+        IPushedAuthorizationRequestService parService,
         ITelemetryService telemetry)
-        : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, telemetry)
+        : base(events, logger, options, validator, interactionGenerator, authorizeResponseGenerator, userSession, parService, telemetry)
     {
         _telemetry = telemetry;
     }

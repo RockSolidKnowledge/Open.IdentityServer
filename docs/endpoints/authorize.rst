@@ -1,3 +1,5 @@
+.. _refAuthorize:
+
 Authorize Endpoint
 ==================
 
