@@ -140,6 +140,108 @@ public class TokenCleanupTests : IntegrationTest<TokenCleanupTests, PersistedGra
             context.DeviceFlowCodes.FirstOrDefault(x => x.DeviceCode == validGrant.DeviceCode).Should().NotBeNull();
         }
     }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task RemoveExpiredGrantsAsync_WhenExpiredPARRequestsExist_ExpectExpiredPARRequestsRemoved(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        var expiredGrant = new PushedAuthorizationRequest()
+        {
+            ReferenceValueHash = Guid.NewGuid().ToString(),
+            ExpiresAtUtc = DateTime.UtcNow.AddDays(-3),
+            Parameters = "{!}"
+        };
+
+        using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PushedAuthorizationRequests.Add(expiredGrant);
+            context.SaveChanges();
+        }
+
+        await CreateSut(options).RemoveExpiredGrantsAsync();
+
+        using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PushedAuthorizationRequests.FirstOrDefault(x => x.ReferenceValueHash == expiredGrant.ReferenceValueHash).Should().BeNull();
+        }
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task RemoveExpiredGrantsAsyncInEasternTimezone_WhenValidPARRequestsExist_ExpectPARRequestsNotRemoved(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        using var mockedTimezone = new LocalTimeZoneInfoMocker(TimeZoneInfo.FindSystemTimeZoneById("China Standard Time"));
+        
+        var expiredGrant = new PushedAuthorizationRequest
+        {
+            ReferenceValueHash = Guid.NewGuid().ToString(),
+            ExpiresAtUtc = DateTime.UtcNow.AddHours(1),
+            Parameters = "{!}"
+        };
+
+        using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PushedAuthorizationRequests.Add(expiredGrant);
+            context.SaveChanges();
+        }
+
+        await CreateSut(options).RemoveExpiredGrantsAsync();
+
+        using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PushedAuthorizationRequests.FirstOrDefault(
+                x => x.ReferenceValueHash == expiredGrant.ReferenceValueHash).Should().NotBeNull();
+        }
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task RemoveExpiredGrantsAsyncInWesternTimezone_WhenValidPARRequestsExist_ExpectPARRequestsNotRemoved(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        using var mockedTimezone = new LocalTimeZoneInfoMocker(TimeZoneInfo.FindSystemTimeZoneById("America/Los_Angeles"));
+        
+        var expiredGrant = new PushedAuthorizationRequest()
+        {
+            ReferenceValueHash = Guid.NewGuid().ToString(),
+            ExpiresAtUtc = DateTime.UtcNow.AddHours(1),
+            Parameters = "{!}"
+        };
+
+        using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PushedAuthorizationRequests.Add(expiredGrant);
+            context.SaveChanges();
+        }
+
+        await CreateSut(options).RemoveExpiredGrantsAsync();
+
+        using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PushedAuthorizationRequests.FirstOrDefault(
+                x => x.ReferenceValueHash == expiredGrant.ReferenceValueHash).Should().NotBeNull();
+        }
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task RemoveExpiredGrantsAsync_WhenValidPARRequestsExist_ExpectValidPARRequestsInDb(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        var validGrant = new PushedAuthorizationRequest()
+        {
+            ReferenceValueHash = Guid.NewGuid().ToString(),
+            ExpiresAtUtc = DateTime.UtcNow.AddDays(3),
+            Parameters = "{!}"
+        };
+
+        using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PushedAuthorizationRequests.Add(validGrant);
+            context.SaveChanges();
+        }
+
+        await CreateSut(options).RemoveExpiredGrantsAsync();
+
+        using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PushedAuthorizationRequests.FirstOrDefault(x => x.ReferenceValueHash == validGrant.ReferenceValueHash).Should().NotBeNull();
+        }
+    }
 
     private EntityFramework.TokenCleanupService CreateSut(DbContextOptions<PersistedGrantDbContext> options)
     {

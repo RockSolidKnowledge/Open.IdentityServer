@@ -1,8 +1,10 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Open.IdentityServer.EntityFramework.Interfaces;
@@ -56,6 +58,7 @@ public class TokenCleanupService
 
             await RemoveGrantsAsync();
             await RemoveDeviceCodesAsync();
+            await RemovePushedAuthorizationRequestsAsync();
         }
         catch (Exception ex)
         {
@@ -69,60 +72,77 @@ public class TokenCleanupService
     /// <returns>A <see cref="Task"/> that completes once all batches of expired persisted grants have been deleted.</returns>
     protected virtual async Task RemoveGrantsAsync()
     {
-        var found = Int32.MaxValue;
-            
-        while (found >= _options.TokenCleanupBatchSize)
-        {
-            var expiredGrants = await _persistedGrantDbContext.PersistedGrants
+        await RemoveExpiredEntitiesAsync(
+            getExpiredEntities: context => context.PersistedGrants
                 .Where(x => x.Expiration < DateTime.UtcNow)
                 .OrderBy(x => x.Expiration)
                 .Take(_options.TokenCleanupBatchSize)
-                .ToArrayAsync();
-
-            found = expiredGrants.Length;
-            _logger.LogInformation("Removing {grantCount} grants", found);
-
-            if (found > 0)
-            {
-                _persistedGrantDbContext.PersistedGrants.RemoveRange(expiredGrants);
-                await SaveChangesAsync();
-
-                if (_operationalStoreNotification != null)
-                {
-                    await _operationalStoreNotification.PersistedGrantsRemovedAsync(expiredGrants);
-                }
-            }
-        }
+                .ToArrayAsync(),
+            removeEntities: (context, entities) => context.PersistedGrants.RemoveRange(entities),
+            notifyEntitiesRemoved: (notification, entities) => notification.PersistedGrantsRemovedAsync(entities),
+            formatLogMessage: count => $"Removing {count} grants"
+        );
     }
-
-
+    
     /// <summary>
     /// Removes the stale device codes.
     /// </summary>
     /// <returns>A <see cref="Task"/> that completes once all batches of expired device flow codes have been deleted.</returns>
     protected virtual async Task RemoveDeviceCodesAsync()
     {
+        await RemoveExpiredEntitiesAsync(
+            getExpiredEntities: context => context.DeviceFlowCodes
+                .Where(x => x.Expiration < DateTime.UtcNow)
+                .OrderBy(x => x.Expiration)
+                .Take(_options.TokenCleanupBatchSize)
+                .ToArrayAsync(),
+            removeEntities: (context, entities) => context.DeviceFlowCodes.RemoveRange(entities),
+            notifyEntitiesRemoved: (notification, entities) => notification.DeviceCodesRemovedAsync(entities),
+            formatLogMessage: count => $"Removing {count} device flow codes"
+        );
+    }
+
+    /// <summary>
+    /// Removes stale pushed authorization requests
+    /// </summary>
+    /// <returns>A <see cref="Task"/> that completes once all batches of expired pushed authorization requests have been deleted.</returns>
+    protected virtual async Task RemovePushedAuthorizationRequestsAsync()
+    {
+        await RemoveExpiredEntitiesAsync(
+            getExpiredEntities: context => context.PushedAuthorizationRequests
+                .Where(x => x.ExpiresAtUtc < DateTime.UtcNow)
+                .OrderBy(x => x.ExpiresAtUtc)
+                .Take(_options.TokenCleanupBatchSize)
+                .ToArrayAsync(),
+            removeEntities: (context, entities) => context.PushedAuthorizationRequests.RemoveRange(entities),
+            notifyEntitiesRemoved: (notification, entities) => notification.PushedAuthenticationRequestsRemovedAsync(entities),
+            formatLogMessage: count => $"Removing {count} pushed authorization requests"
+        );
+    }
+
+    private async Task RemoveExpiredEntitiesAsync<TEntity>(
+        Func<IPersistedGrantDbContext, Task<TEntity[]>> getExpiredEntities,
+        Action<IPersistedGrantDbContext, IEnumerable<TEntity>> removeEntities,
+        Func<IOperationalStoreNotification, IEnumerable<TEntity>, Task> notifyEntitiesRemoved,
+        Func<int, string> formatLogMessage)
+    {
         var found = Int32.MaxValue;
 
         while (found >= _options.TokenCleanupBatchSize)
         {
-            var expiredCodes = await _persistedGrantDbContext.DeviceFlowCodes
-                .Where(x => x.Expiration < DateTime.UtcNow)
-                .OrderBy(x => x.Expiration)
-                .Take(_options.TokenCleanupBatchSize)
-                .ToArrayAsync();
+            var expiredItems = await getExpiredEntities(_persistedGrantDbContext);
 
-            found = expiredCodes.Length;
-            _logger.LogInformation("Removing {deviceCodeCount} device flow codes", found);
+            found = expiredItems.Length;
+            _logger.LogInformation(formatLogMessage(found));
 
             if (found > 0)
             {
-                _persistedGrantDbContext.DeviceFlowCodes.RemoveRange(expiredCodes);
+                removeEntities(_persistedGrantDbContext, expiredItems);
                 await SaveChangesAsync();
 
                 if (_operationalStoreNotification != null)
                 {
-                    await _operationalStoreNotification.DeviceCodesRemovedAsync(expiredCodes);
+                    await notifyEntitiesRemoved(_operationalStoreNotification, expiredItems);
                 }
             }
         }
