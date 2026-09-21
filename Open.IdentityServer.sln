@@ -74,7 +74,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.Storage
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{36985CF3-7E79-4BF4-91FD-3E9195A0FCEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.Test.Utilities", "Open.IdentityServer.Test.Utilities\Open.IdentityServer.Test.Utilities.csproj", "{F0AD47D4-F27B-4265-B1B9-B2346824CBE4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.Test.Utilities", "src\Open.IdentityServer.Test.Utilities\Open.IdentityServer.Test.Utilities.csproj", "{F0AD47D4-F27B-4265-B1B9-B2346824CBE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
