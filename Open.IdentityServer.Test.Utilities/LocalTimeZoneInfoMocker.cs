@@ -1,7 +1,6 @@
-using System;
 using System.Reflection;
 
-namespace Open.IdentityServer.UnitTests;
+namespace Open.IdentityServer.Test.Utilities;
 
 public class LocalTimeZoneInfoMocker: IDisposable
 {

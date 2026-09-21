@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Hosting;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Microsoft.Extensions.Logging;
@@ -481,6 +482,10 @@ public static class IdentityServerBuilderExtensionsAdditional
         
         // provide default in-memory implementation, not suitable for most production scenarios (following pattern implemented with existing stores)
         builder.Services.TryAddSingleton<IIdentityServerServerSideSessionStore, InMemorySessionStore>();
+        
+        //Clean-up Service
+        builder.Services.AddTransient<ISessionCleanupService, SessionCleanupService>();
+        builder.Services.AddSingleton<IHostedService, SessionCleanupHostedService>();
 
         return builder;
     }
