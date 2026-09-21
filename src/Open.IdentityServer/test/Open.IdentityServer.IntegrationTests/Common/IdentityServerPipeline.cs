@@ -214,7 +214,7 @@ public class IdentityServerPipeline
             var url = ctx.Request.Query[Options!.UserInteraction.LoginReturnUrlParameter].FirstOrDefault();
             if (url != null)
             {
-                ctx.Response.Redirect(url);
+                ctx.Response.RedirectToAbsoluteUrl(url);
             }
         }
     }
@@ -263,7 +263,7 @@ public class IdentityServerPipeline
             var url = ctx.Request.Query[Options!.UserInteraction.ConsentReturnUrlParameter].FirstOrDefault();
             if (url != null)
             {
-                ctx.Response.Redirect(url);
+                ctx.Response.RedirectToAbsoluteUrl(url);
             }
         }
     }
@@ -367,7 +367,7 @@ public class IdentityServerPipeline
 
         var url = CreateAuthorizeUrl(clientId, responseType, scope, redirectUri, state, nonce, loginHint, acrValues, responseMode, codeChallenge, codeChallengeMethod, extra);
         var result = await BrowserClient.GetAsync(url);
-        result.StatusCode.Should().Be(HttpStatusCode.Found);
+        result.StatusCode.Should().Be(HttpStatusCode.SeeOther);
 
         BrowserClient.AllowAutoRedirect = old;
 

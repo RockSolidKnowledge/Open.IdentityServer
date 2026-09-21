@@ -65,7 +65,7 @@ public class AuthorizeResultTests
         await _subject.ExecuteAsync(_context);
 
         _mockErrorMessageStore.Messages.Count.Should().Be(1);
-        _context.Response.StatusCode.Should().Be(302);
+        _context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         var location = _context.Response.Headers["Location"].First();
         location.Should().StartWith("https://server/error");
         var query = QueryHelpers.ParseQuery(new Uri(location).Query);
@@ -90,7 +90,7 @@ public class AuthorizeResultTests
         await _subject.ExecuteAsync(_context);
         
         _mockUserSession.Clients.Count.Should().Be(0);
-        _context.Response.StatusCode.Should().Be(302);
+        _context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         
         var location = _context.Response.Headers["Location"].First();
         location.Should().StartWith("http://client/callback");
@@ -115,7 +115,7 @@ public class AuthorizeResultTests
         await _subject.ExecuteAsync(_context);
 
         _mockUserSession.Clients.Count.Should().Be(0);
-        _context.Response.StatusCode.Should().Be(302);
+        _context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         var location = _context.Response.Headers["Location"].First();
         location.Should().StartWith("http://client/callback");
     }
@@ -139,7 +139,7 @@ public class AuthorizeResultTests
         await _subject.ExecuteAsync(_context);
 
         _mockUserSession.Clients.Count.Should().Be(0);
-        _context.Response.StatusCode.Should().Be(302);
+        _context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         var location = _context.Response.Headers["Location"].First();
         var query = QueryHelpers.ParseQuery(new Uri(location).Query);
         query["session_state"].First().Should().Be(_response.SessionState);
@@ -162,7 +162,7 @@ public class AuthorizeResultTests
         await _subject.ExecuteAsync(_context);
 
         _mockUserSession.Clients.Count.Should().Be(0);
-        _context.Response.StatusCode.Should().Be(302);
+        _context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         var location = _context.Response.Headers["Location"].First();
         location.Should().StartWith("http://client/callback");
 
@@ -191,7 +191,7 @@ public class AuthorizeResultTests
         await _subject.ExecuteAsync(_context);
 
         _mockUserSession.Clients.Count.Should().Be(0);
-        _context.Response.StatusCode.Should().Be(302);
+        _context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         var location = _context.Response.Headers["Location"].First();
         location.Should().StartWith("http://client/callback");
 
@@ -232,7 +232,7 @@ public class AuthorizeResultTests
 
         await _subject.ExecuteAsync(_context);
 
-        _context.Response.StatusCode.Should().Be(302);
+        _context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         _context.Response.Headers["Cache-Control"].First().Should().Contain("no-store");
         _context.Response.Headers["Cache-Control"].First().Should().Contain("no-cache");
         _context.Response.Headers["Cache-Control"].First().Should().Contain("max-age=0");
@@ -257,7 +257,7 @@ public class AuthorizeResultTests
 
         await _subject.ExecuteAsync(_context);
 
-        _context.Response.StatusCode.Should().Be(302);
+        _context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         _context.Response.Headers["Cache-Control"].First().Should().Contain("no-store");
         _context.Response.Headers["Cache-Control"].First().Should().Contain("no-cache");
         _context.Response.Headers["Cache-Control"].First().Should().Contain("max-age=0");
@@ -282,7 +282,7 @@ public class AuthorizeResultTests
 
         await _subject.ExecuteAsync(_context);
 
-        _context.Response.StatusCode.Should().Be(302);
+        _context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         _context.Response.Headers["Cache-Control"].First().Should().Contain("no-store");
         _context.Response.Headers["Cache-Control"].First().Should().Contain("no-cache");
         _context.Response.Headers["Cache-Control"].First().Should().Contain("max-age=0");
@@ -307,7 +307,7 @@ public class AuthorizeResultTests
 
         await _subject.ExecuteAsync(_context);
 
-        _context.Response.StatusCode.Should().Be(302);
+        _context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         _context.Response.Headers["Cache-Control"].First().Should().Contain("no-store");
         _context.Response.Headers["Cache-Control"].First().Should().Contain("no-cache");
         _context.Response.Headers["Cache-Control"].First().Should().Contain("max-age=0");
