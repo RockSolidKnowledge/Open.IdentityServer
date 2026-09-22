@@ -307,6 +307,190 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         
         stored.Should().BeNull();
     }
+    
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData(null, "")]
+    [InlineData(null, " ")]
+    [InlineData("", null)]
+    [InlineData(" ", null)]
+    [InlineData("", "")]
+    [InlineData(" ", " ")]
+    public async Task DeleteSessions_WhenFiltersNullOrEmpty_ShouldThrowArgumentException(string? subjectId, string? sessionId)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        Func<Task> act = async () => await sut.DeleteSessions(subjectId, sessionId);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task DeleteSessions_WhenSubjectIdProvided_ShouldDeleteSessionsWithSubjectId(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+        
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        await sut.DeleteSessions("bob",null);
+
+        var currentSessions = context.ServerSideSessions.ToList();
+
+        currentSessions.Should().HaveCount(3);
+        currentSessions.Should().Contain(x => x.Key == "key-1");
+        currentSessions.Should().Contain(x => x.Key == "key-3");
+        currentSessions.Should().Contain(x => x.Key == "key-6");
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task DeleteSessions_WhenSessionIdProvided_ShouldDeleteSessionsWithSessionId(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+        
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        await sut.DeleteSessions(null, "session-1");
+
+        var currentSessions = context.ServerSideSessions.ToList();
+
+        currentSessions.Should().HaveCount(5);
+        currentSessions.Should().Contain(x => x.Key == "key-0");
+        currentSessions.Should().Contain(x => x.Key == "key-2");
+        currentSessions.Should().Contain(x => x.Key == "key-3");
+        currentSessions.Should().Contain(x => x.Key == "key-4");
+        currentSessions.Should().Contain(x => x.Key == "key-5");
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task DeleteSessions_WhenSubjectIdAndSessionIdProvided_ShouldDeleteSessionsWithSubjectIdAndSessionId(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+        
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        await sut.DeleteSessions("bob", "session-2");
+        
+        var currentSessions = context.ServerSideSessions.ToList();
+        
+        currentSessions.Should().HaveCount(5);
+        currentSessions.Should().Contain(x => x.Key == "key-0");
+        currentSessions.Should().Contain(x => x.Key == "key-1");
+        currentSessions.Should().Contain(x => x.Key == "key-3");
+        currentSessions.Should().Contain(x => x.Key == "key-4");
+        currentSessions.Should().Contain(x => x.Key == "key-6");
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenSubjectIdsSessionIsNull_ShouldReturnAll(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+
+        var actual = (await sut.FilterSessions(null, null)).ToList();
+
+        actual.Should().HaveCount(7);
+        actual.Should().Contain(x => x.Key == "key-0");
+        actual.Should().Contain(x => x.Key == "key-1");
+        actual.Should().Contain(x => x.Key == "key-2");
+        actual.Should().Contain(x => x.Key == "key-3");
+        actual.Should().Contain(x => x.Key == "key-4");
+        actual.Should().Contain(x => x.Key == "key-5");
+        actual.Should().Contain(x => x.Key == "key-6");
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenSessionIdNull_ShouldReturnMatchingSubjectIds(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+
+        var actual = (await sut.FilterSessions("alice", null)).ToList();
+
+        actual.Should().HaveCount(3);
+        actual.Should().Contain(x => x.Key == "key-1");
+        actual.Should().Contain(x => x.Key == "key-3");
+        actual.Should().Contain(x => x.Key == "key-6");
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenSubjectIdNull_ShouldReturnMatchingSessionIds(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+
+        var actual = (await sut.FilterSessions(null,"session-0")).ToList();
+
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == "key-0");
+        actual.Should().Contain(x => x.Key == "key-4");
+    }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task FilterSessions_WhenSessionDontMatch_ShouldReturnEmptySet(DbContextOptions<PersistedGrantDbContext> options)
@@ -763,6 +947,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
                 (store => store.GetSession("FAKE_SESSION_KEY"), "GetSession"),
                 (store => store.UpdateSession(new SessionModel { Key = "FAKE_SESSION_KEY" }), "UpdateSession"),
                 (store => store.DeleteSession("FAKE_SESSION_KEY"), "DeleteSession"),
+                (store => store.DeleteSessions("FAKE_SESSION_KEY", "FAKE_SUBJECT_KEY"), "DeleteSessions"),
                 (store => store.FilterSessions("FAKE_SUBJECT_KEY", "FAKE_SESSION_KEY"), "FilterSessions"),
                 (store => store.FilterSessions(new SessionQuery()), "FilterSessions"),
                 (store => store.GetAndRemoveExpiredSessions(), "GetAndRemoveExpiredSessions"),

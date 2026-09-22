@@ -130,16 +130,35 @@ public class IdentityServerServerSideSessionStore(
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId)
+    public async Task DeleteSessions(string? subjectId, string? sessionId)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
-        ArgumentException.ThrowIfNullOrWhiteSpace(subjectId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sessionId);
+        if (string.IsNullOrWhiteSpace(subjectId) && string.IsNullOrWhiteSpace(sessionId))
+        {
+            throw new ArgumentException($"{nameof(subjectId)} or {nameof(sessionId)} must have a non null or empty value");
+        }
+        
+        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        {
+            SessionId = sessionId, SubjectId = subjectId,
+        }, dbContext.ServerSideSessions.AsQueryable());
+        
+        dbContext.ServerSideSessions.RemoveRange(filteredResults);
+        await dbContext.SaveChangesAsync();
+    }
 
-        return (await dbContext.ServerSideSessions
-                .Where(x => x.SubjectId == subjectId && x.SessionId == sessionId)
-                .ToListAsync())
+    /// <inheritdoc />
+    public async Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string? subjectId, string? sessionId)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
+        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        {
+            SessionId = sessionId, SubjectId = subjectId,
+        }, dbContext.ServerSideSessions.AsQueryable());
+
+        return (await filteredResults.ToListAsync())
             .Select(x => x.ToModel());
     }
     

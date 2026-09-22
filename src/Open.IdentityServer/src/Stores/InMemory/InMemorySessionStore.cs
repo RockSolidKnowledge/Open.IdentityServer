@@ -49,10 +49,35 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
     }
 
     /// <inheritdoc />
-    public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId)
+    public Task DeleteSessions(string? subjectId, string? sessionId)
     {
-        return Task.FromResult(repo.Values
-            .Where(x => x.SubjectId == subjectId && x.SessionId == sessionId));
+        if (string.IsNullOrWhiteSpace(subjectId) && string.IsNullOrWhiteSpace(sessionId))
+        {
+            throw new ArgumentException($"{nameof(subjectId)} or {nameof(sessionId)} must have a non null or empty value");
+        }
+        
+        IEnumerable<IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        {
+            SubjectId = subjectId, SessionId = sessionId,
+        }, repo.Values);
+
+        foreach (var filteredResult in filteredResults)
+        {
+            repo.TryRemove(filteredResult.Key, out _);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string? subjectId, string? sessionId)
+    {
+        IEnumerable<IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        {
+            SubjectId = subjectId, SessionId = sessionId,
+        }, repo.Values);
+        
+        return Task.FromResult(filteredResults);
     }
 
     /// <inheritdoc />
@@ -60,8 +85,8 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
     {
         SessionQuery query = inputQuery ?? new SessionQuery();
 
-        IQueryable<IdentityServerServerSideSessions> filteredResults = ApplyFilter(query, repo.Values.AsQueryable());
-
+        IEnumerable<IdentityServerServerSideSessions> filteredResults = ApplyFilter(query, repo.Values).ToList();
+        
         int count = filteredResults.Count();
 
         if (count < 1)
@@ -79,19 +104,19 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
         if (!string.IsNullOrWhiteSpace(query.ResultsToken))
         {
             (string tokenFirst, string tokenLast) = ParseResultsToken(query);
-            int elementsBeforeToken = filteredResults.Count(x => string.Compare(x.Key, tokenFirst) <= 0);
+            int elementsBeforeToken = filteredResults.Count(x => string.CompareOrdinal(x.Key, tokenFirst) <= 0);
             currentPage = 1 + (elementsBeforeToken / query.CountRequested);
 
             if (query.RequestPriorResults)
             {
                 filteredResults = filteredResults
-                    .Where(x => string.Compare(x.Key, tokenFirst) >= 0).Take(query.CountRequested);
+                    .Where(x => string.CompareOrdinal(x.Key, tokenFirst) >= 0).Take(query.CountRequested);
             }
             else
             {
                 currentPage++;
                 filteredResults = filteredResults
-                    .Where(x => string.Compare(x.Key, tokenLast) > 0).Take(query.CountRequested);
+                    .Where(x => string.CompareOrdinal(x.Key, tokenLast) > 0).Take(query.CountRequested);
             }
         }
         else
@@ -128,8 +153,8 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
         return new ValueTuple<string, string>(tokenFirst, tokenLast);
     }
 
-    private IQueryable<IdentityServerServerSideSessions> ApplyFilter(SessionQuery query,
-        IQueryable<IdentityServerServerSideSessions> input)
+    private IEnumerable<IdentityServerServerSideSessions> ApplyFilter(SessionQuery query,
+        IEnumerable<IdentityServerServerSideSessions> input)
     {
         if (!string.IsNullOrWhiteSpace(query.SubjectId))
         {
