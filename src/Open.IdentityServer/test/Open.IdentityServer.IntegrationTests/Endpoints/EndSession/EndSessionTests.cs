@@ -151,7 +151,7 @@ public class EndSessionTests
                                                               "&post_logout_redirect_uri=https://client1/signout-callback", 
                                                               TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.ToString().Should().StartWith("https://server/logout?id=");
     }
 

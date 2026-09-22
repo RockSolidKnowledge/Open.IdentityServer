@@ -2,11 +2,12 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
 using AwesomeAssertions;
 using Open.IdentityServer.EntityFramework.Entities;
 using Open.IdentityServer.EntityFramework.Mappers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using ApiResource = Open.IdentityServer.Models.ApiResource;
 using Secret = Open.IdentityServer.Models.Secret;
@@ -141,6 +142,29 @@ public class ApiResourceMappersTests
     }
 
     [Fact]
+    public void CanMapToExtendedApiResourceModel()
+    {
+        var entity = new Entities.ApiResource
+        {
+            Name = "foo",
+            DisplayName = "foo",
+            Description = "bar",
+            Created = DateTime.UtcNow.AddDays(-100),
+            Updated = DateTime.UtcNow.AddDays(-50),
+            LastAccessed = DateTime.UtcNow.AddDays(-10),
+            Properties = [new ApiResourceProperty { Key = "x", Value = "xx" }, new ApiResourceProperty { Key = "y", Value = "yy" }]
+        };
+
+        var model = entity.ToExtendedModel();
+
+        Assert.NotNull(model);
+        model.Created.Should().Be(entity.Created);
+        model.Updated.Should().Be(entity.Updated);
+        model.LastAccessed.Should().Be(entity.LastAccessed);
+        model.X.Should().Be(entity.Properties.Single(p => p.Key == "x").Value);
+    }
+
+    [Fact]
     public void ToEntity_maps_all_properties()
     {
         new MappingVerifier<ApiResource, Entities.ApiResource>()
@@ -159,5 +183,39 @@ public class ApiResourceMappersTests
     {
         new MappingVerifier<Entities.ApiResource, ApiResource>()
             .Verify(entity => entity.ToModel());
+    }
+}
+
+internal static class ExtendedApiResourceMappingExtensions
+{
+    extension(Entities.ApiResource apiResourceEntity)
+    {
+        /// <summary>
+        /// Mapper for <see cref="Entities.ApiResource"/> to convert into an instance of <see cref="ExtendedApiResource"/>
+        /// </summary>
+        /// <returns>mapped instance of <see cref="ExtendedApiResource"/></returns>
+        public ExtendedApiResource ToExtendedModel()
+        {
+            var model = apiResourceEntity.ToModel<ExtendedApiResource>();
+            model.Created = apiResourceEntity.Created;
+            model.Updated = apiResourceEntity.Updated;
+            model.LastAccessed = apiResourceEntity.LastAccessed;
+
+            return model;
+        }
+
+    }
+}
+
+internal class ExtendedApiResource : ApiResource
+{
+    public DateTime Created { get; set; }
+    public DateTime? Updated { get; set; }
+    public DateTime? LastAccessed { get; set; }
+
+    public string? X
+    {
+        get => Properties.ContainsKey("x") ? Properties["x"] : null;
+        set => Properties["x"] = value;
     }
 }

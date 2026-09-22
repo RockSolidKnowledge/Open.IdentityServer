@@ -239,7 +239,7 @@ public class AuthorizeTests
             nonce: "123_nonce");
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("https://client1/callback");
 
@@ -266,7 +266,7 @@ public class AuthorizeTests
             nonce: "123_nonce");
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("https://client1/callback");
 
@@ -310,7 +310,7 @@ public class AuthorizeTests
             nonce: "123_nonce");
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("https://client2/callback");
 

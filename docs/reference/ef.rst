@@ -39,6 +39,79 @@ To use the configuration store support, use the ``AddConfigurationStore`` extens
 
 To configure the configuration store, use the ``ConfigurationStoreOptions`` options object passed to the configuration callback.
 
+Customize the Models Created for Clients and Resources
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you need to extend the Client and/or Resource models that are returned from the configuration stores, you can do so by 
+creating your own models that inherit from the default models and then override the ToModel methods in a custom store. Below
+is an example of how to do this for the Client model. The same approach can be used for the Resources.
+
+Start by extending the Client model:
+
+.. code-block:: csharp
+
+    public class MyClient : Client
+    {
+        private const string CibaNotificationEndpointKey = nameof(CibaNotificationEndpoint);
+
+        public DateTime? LastAccessed { get; set; }
+
+        public string? CibaNotificationEndpoint
+        {
+            get 
+            {
+                if (!Properties.ContainsKey(Client.CibaNotificationEndpointKey))
+                    return null;
+                return Properties[Client.CibaNotificationEndpointKey];
+            }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                    Properties.Remove(CibaNotificationEndpointKey);
+                else
+                    Properties[CibaNotificationEndpointKey] = value;
+            }
+        }
+    }
+
+Then create a custom store that overrides the ToModel method:
+
+.. code-block:: csharp
+
+    public class MyClientStore : ClientStore
+    {
+        public MyClientStore(ConfigurationDbContext context, ITelemetryService telemetry, IOptions<ConfigurationStoreOptions> options) 
+            : base(context, telemetry, options)
+        {
+        }
+
+        protected override Models.Client ToModel(Entities.Client client)
+        {
+            var model = client.ToModel<MyClient>();
+            
+            //Map additional properties here (not needed for properties that uses the Properties for storage and retrieval)
+            model.LastAccessed = client.LastAccessed;
+
+            return model;
+        }
+    }
+
+Finally register your custom store in the DI container:
+
+.. code-block:: csharp
+
+    services.AddIdentityServer()
+        .AddConfigurationStore(options =>
+        {
+            options.ConfigureDbContext = builder =>
+                builder.UseSqlServer(connectionString,
+                    sql => sql.MigrationsAssembly(migrationsAssembly));
+        })
+        .AddClientStore<MyClientStore>();
+
+By doing this you can now use your own models in customizations or extensions of the built-in support without needing to
+create your own store from scratch (including all mapping of existing properties).
+
 ConfigurationStoreOptions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 This options class contains properties to control the configuration store and ``ConfigurationDbContext``.
