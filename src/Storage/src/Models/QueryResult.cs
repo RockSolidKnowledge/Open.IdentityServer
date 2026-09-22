@@ -3,7 +3,9 @@
 
 #nullable enable
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Open.IdentityServer.Models;
 
@@ -62,4 +64,24 @@ public class QueryResult<T>
         CurrentPage = 0,
         Results = [],
     };
+
+    /// <summary>
+    /// Maps a QueryResult results set from one type to another
+    /// </summary>
+    /// <param name="mapper">mapping function to use</param>
+    /// <typeparam name="NType">type to map results to</typeparam>
+    /// <returns></returns>
+    public QueryResult<NType> MapTo<NType>(Func<T, NType> mapper)
+    {
+        return new QueryResult<NType>
+        {
+            ResultsToken = ResultsToken,
+            HasPrevResults = HasPrevResults,
+            HasNextResults = HasNextResults,
+            TotalCount = TotalCount,
+            TotalPages = TotalPages,
+            CurrentPage = CurrentPage,
+            Results = Results.Select(mapper).ToList()
+        };
+    }
 }

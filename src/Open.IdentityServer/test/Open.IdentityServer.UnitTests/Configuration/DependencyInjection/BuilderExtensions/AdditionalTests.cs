@@ -156,6 +156,11 @@ public class FakeIdentityServerServerSideSessionStore: IIdentityServerServerSide
         throw new System.NotImplementedException();
     }
 
+    public Task DeleteSessions(string subjectId, string sessionId)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId)
     {
         throw new System.NotImplementedException();

@@ -21,6 +21,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
+using Open.IdentityServer.UnitTests.Utilities.Generators;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Stores.Default;
@@ -61,7 +62,7 @@ public class ServerSessionTicketStoreTests
         string subjectId = Guid.NewGuid().ToString();
         string sessionId = Guid.NewGuid().ToString();
 
-        AuthenticationTicket authenticationTicket = GenerateAuthenticationTicket(authScheme, subjectId, sessionId);
+        AuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, subjectId, sessionId);
 
         IdentityServerServerSideSessions? createdSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
@@ -105,7 +106,7 @@ public class ServerSessionTicketStoreTests
         DateTime expiresUtc = new(2026, 02, 19, 12, 0, 0, DateTimeKind.Utc);
 
         AuthenticationTicket authenticationTicket =
-            GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName, issuedUtc, expiresUtc);
+            ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName, issuedUtc, expiresUtc);
 
         IdentityServerServerSideSessions? createdSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
@@ -155,7 +156,7 @@ public class ServerSessionTicketStoreTests
         string subjectId = Guid.NewGuid().ToString();
         string sessionId = Guid.NewGuid().ToString();
 
-        AuthenticationTicket authenticationTicket = GenerateAuthenticationTicket(authScheme, subjectId, sessionId);
+        AuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, subjectId, sessionId);
 
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.GetSession(existingSession.Key))
@@ -213,7 +214,7 @@ public class ServerSessionTicketStoreTests
         DateTime expiresUtc = new(2026, 02, 19, 12, 0, 0, DateTimeKind.Utc);
 
         AuthenticationTicket authenticationTicket =
-            GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName, issuedUtc, expiresUtc);
+            ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName, issuedUtc, expiresUtc);
 
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.GetSession(existingSession.Key))
@@ -257,7 +258,7 @@ public class ServerSessionTicketStoreTests
         string subjectId = Guid.NewGuid().ToString();
         string sessionId = Guid.NewGuid().ToString();
 
-        AuthenticationTicket authenticationTicket = GenerateAuthenticationTicket(authScheme, subjectId, sessionId);
+        AuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, subjectId, sessionId);
 
         IdentityServerServerSideSessions? createdSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
@@ -350,7 +351,7 @@ public class ServerSessionTicketStoreTests
             Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
             Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
         };
-        SerializedAuthenticationTicket authenticationTicket = GenerateSerializedAuthenticationTicket(
+        SerializedAuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateSerializedAuthenticationTicket(
             existingSession.Scheme, existingSession.SubjectId, existingSession.SessionId, 
             existingSession.DisplayName, existingSession.Renewed, existingSession.Expires);
         existingSession.Data = GenerateFakeData(authenticationTicket);
@@ -408,9 +409,9 @@ public class ServerSessionTicketStoreTests
         const string testSessionId = "session-0";
         
         IEnumerable<IdentityServerServerSideSessions> sessions = [
-            FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: data),
-            FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: data),
+            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
         ];
 
         List<SerializedAuthenticationTicket> expectedAuthTickets = [];
@@ -451,9 +452,9 @@ public class ServerSessionTicketStoreTests
         const string testSessionId = "session-0";
         
         IEnumerable<IdentityServerServerSideSessions> sessions = [
-            FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
         ];
 
         List<SerializedAuthenticationTicket> expectedAuthTickets = [];
@@ -483,9 +484,9 @@ public class ServerSessionTicketStoreTests
         const int batchSize = 5;
         
         IEnumerable<IdentityServerServerSideSessions> sessions = [
-            FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
         ];
 
         List<SerializedAuthenticationTicket> expectedAuthTickets = [];
@@ -529,9 +530,9 @@ public class ServerSessionTicketStoreTests
 
         QueryResult<IdentityServerServerSideSessions> fakeResult;
         IEnumerable<IdentityServerServerSideSessions> sessions = [
-            FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
         ];
 
         List<SerializedAuthenticationTicket> expectedAuthTickets = [];
@@ -559,7 +560,7 @@ public class ServerSessionTicketStoreTests
     public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace()
     {
         AuthenticationTicket authTicket =
-            GenerateAuthenticationTicket("FakeScheme", Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+            ServerSessionTestGenerators.GenerateAuthenticationTicket("FakeScheme", Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
 
         List<(Func<ServerSessionTicketStore, Task> actMethod, string traceMethodName)> methods
             = [
@@ -604,7 +605,7 @@ public class ServerSessionTicketStoreTests
     {
         if (string.IsNullOrWhiteSpace(identityServerServerSideSessions.Data))
         {
-            SerializedAuthenticationTicket authenticationTicket = GenerateSerializedAuthenticationTicket(
+            SerializedAuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateSerializedAuthenticationTicket(
                 identityServerServerSideSessions.Scheme, identityServerServerSideSessions.SubjectId, identityServerServerSideSessions.SessionId,
                 identityServerServerSideSessions.DisplayName, identityServerServerSideSessions.Renewed, identityServerServerSideSessions.Expires);
             identityServerServerSideSessions.Data = GenerateFakeData(authenticationTicket);
@@ -613,21 +614,6 @@ public class ServerSessionTicketStoreTests
         }
             
         return identityServerServerSideSessions;
-    } 
-
-    private AuthenticationTicket GenerateAuthenticationTicket(string authScheme, string? subjectId, string? sessionId,
-        string? displayName = null, DateTimeOffset? issuedUtc = null, DateTimeOffset? expiresUtc = null)
-    {
-        IdentityServerUser user = new(subjectId);
-        AuthenticationProperties properties = new();
-
-        properties.SetSessionId(sessionId);
-
-        user.DisplayName = displayName;
-        properties.IssuedUtc = issuedUtc;
-        properties.ExpiresUtc = expiresUtc;
-
-        return new AuthenticationTicket(user.CreatePrincipal(), properties, authScheme);
     }
 
     private string GenerateFakeData(SerializedAuthenticationTicket serializedAuthenticationTicket)
@@ -639,70 +625,5 @@ public class ServerSessionTicketStoreTests
         };
 
         return JsonSerializer.Serialize(sessionData, ServerSessionTicketStore.JsonSettings);
-    }
-    
-    private SerializedAuthenticationTicket GenerateSerializedAuthenticationTicket(string authScheme, string? subjectId,
-        string? sessionId, string? displayName = null, DateTimeOffset? issuedUtc = null,
-        DateTimeOffset? expiresUtc = null)
-    {
-        List<ClaimLite> claims = [];
-
-        if (subjectId != null)
-        {
-            claims.Add(new ClaimLite { Type = "sub", Value = subjectId, ValueType = "", Issuer = "", });
-        }
-
-        if (displayName != null)
-        {
-            claims.Add(new ClaimLite { Type = "name", Value = displayName, ValueType = "", Issuer = "", });
-        }
-
-        var items = new Dictionary<string, string>();
-
-        if (sessionId != null)
-        {
-            items["session_id"] = sessionId;
-        }
-
-        if (issuedUtc != null)
-        {
-            items[".issued"] = issuedUtc.Value.ToString("R");
-        }
-
-        if (expiresUtc != null)
-        {
-            items[".expires"] = expiresUtc.Value.ToString("R");
-        }
-
-        return new SerializedAuthenticationTicket
-        {
-            Scheme = authScheme,
-            User = new ClaimsPrincipalLite
-            {
-                AuthenticationType = "Open.IdentityServer",
-                Claims = claims.ToArray(),
-            },
-            Items = items,
-        };
-    }
-
-    private IdentityServerServerSideSessions FakeSession(
-        string key,
-        string scheme, 
-        string sessionId, 
-        string subjectId,
-        string displayName,
-        string? data = null,
-        DateTime? created = null,
-        DateTime? renewed = null,
-        DateTime? expires = null)
-    {
-        return new IdentityServerServerSideSessions
-        {
-            Key = key, Scheme = scheme, SessionId = sessionId, SubjectId = subjectId, DisplayName = displayName, Data = data ?? string.Empty,
-            Created = created ?? new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
-            Renewed = renewed ?? new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
-            Expires = expires ?? new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
-        };
     }
 }

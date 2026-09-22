@@ -150,21 +150,12 @@ public class ServerSessionTicketStore(
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
         QueryResult<IdentityServerServerSideSessions> sessions = await serverServerSideSessionStore.FilterSessions(query, ct);
-        
-        return new QueryResult<AuthenticationTicketFilterResult>
+
+        return sessions.MapTo<AuthenticationTicketFilterResult>(x => new AuthenticationTicketFilterResult
         {
-            ResultsToken = sessions.ResultsToken,
-            HasPrevResults = sessions.HasPrevResults,
-            HasNextResults = sessions.HasNextResults,
-            TotalCount = sessions.TotalCount,
-            TotalPages = sessions.TotalPages,
-            CurrentPage = sessions.CurrentPage,
-            Results = sessions.Results.Select(x => new AuthenticationTicketFilterResult
-            {
-                Session = x,
-                AuthTicket = DeserializeAuthTicket(x),
-            }).Where(x => x.AuthTicket != null).ToList(),
-        };
+            Session = x,
+            AuthTicket = DeserializeAuthTicket(x),
+        });
     }
 
     /// <inheritdoc />
@@ -178,7 +169,7 @@ public class ServerSessionTicketStore(
         {
             Session = x,
             AuthTicket = DeserializeAuthTicket(x),
-        }).Where(x => x.AuthTicket != null);
+        });
     }
 
     private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)
@@ -221,7 +212,7 @@ public class ServerSessionTicketStore(
         }
         catch (JsonException exception)
         {
-            logger.LogError(exception, "failed deserialising auth ticket data");
+            logger.LogError(exception, "failed deserialising auth ticket data '{SessionKey}'", existingSession.Key);
             return null;
         }
         

@@ -1,14 +1,25 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores.Serialization;
 
-namespace Open.IdentityServer.Test.Utilities.Generators;
+namespace Open.IdentityServer.UnitTests.Utilities.Generators;
 
-public static class AuthenticationTicketGenerators
+public static class ServerSessionTestGenerators
 {
-    public static AuthenticationTicket GenerateAuthenticationTicket(string authScheme, string? subjectId, string? sessionId,
-        string? displayName = null, DateTimeOffset? issuedUtc = null, DateTimeOffset? expiresUtc = null)
+    public static AuthenticationTicket GenerateAuthenticationTicket(
+        string authScheme, 
+        string? subjectId,
+        string? sessionId,
+        string? displayName = null,
+        DateTimeOffset? issuedUtc = null, 
+        DateTimeOffset? expiresUtc = null,
+        string[]? clientIds = null)
     {
         IdentityServerUser user = new(subjectId);
         AuthenticationProperties properties = new();
@@ -19,11 +30,20 @@ public static class AuthenticationTicketGenerators
         properties.IssuedUtc = issuedUtc;
         properties.ExpiresUtc = expiresUtc;
 
+        foreach (var clientId in clientIds ?? [])
+        {
+            properties.AddClientId(clientId);
+        }
+
         return new AuthenticationTicket(user.CreatePrincipal(), properties, authScheme);
     }
     
-    public static SerializedAuthenticationTicket GenerateSerializedAuthenticationTicket(string authScheme, string? subjectId,
-        string? sessionId, string? displayName = null, DateTimeOffset? issuedUtc = null,
+    public static SerializedAuthenticationTicket GenerateSerializedAuthenticationTicket(
+        string authScheme, 
+        string? subjectId,
+        string? sessionId, 
+        string? displayName = null, 
+        DateTimeOffset? issuedUtc = null,
         DateTimeOffset? expiresUtc = null)
     {
         List<ClaimLite> claims = [];

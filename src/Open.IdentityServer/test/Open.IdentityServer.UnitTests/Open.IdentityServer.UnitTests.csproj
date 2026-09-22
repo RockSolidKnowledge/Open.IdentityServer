@@ -45,4 +45,8 @@
         <Link>MockLogger.cs</Link>
       </Compile>
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Utilities\" />
+    </ItemGroup>
 </Project>

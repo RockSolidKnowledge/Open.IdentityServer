@@ -27,7 +27,7 @@ public class UserSession
     /// <summary>
     /// Display name for the user session
     /// </summary>
-    public string DisplayName { get; set; } = null!;
+    public string? DisplayName { get; set; }
 
     /// <summary>
     /// Date and time the session was created
@@ -52,5 +52,5 @@ public class UserSession
     /// <summary>
     /// Authentication ticket object for the user session
     /// </summary>
-    public AuthenticationTicket AuthenticationTicket { get; set; } = null!;
+    public AuthenticationTicket? AuthenticationTicket { get; set; }
 }
