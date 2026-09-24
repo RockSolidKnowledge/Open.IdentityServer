@@ -143,6 +143,11 @@ public class IdentityServerPipeline
             {
                 Options = options;
 
+                if (EnableServerSideSessions)
+                {
+                    options.Authentication.CookieSlidingExpiration = true;
+                }
+                
                 options.Events = new EventsOptions
                 {
                     RaiseErrorEvents = true,
@@ -156,6 +161,7 @@ public class IdentityServerPipeline
             .AddInMemoryApiResources(ApiResources)
             .AddInMemoryApiScopes(ApiScopes)
             .AddTestUsers(Users)
+            .AddServerSideSessions()
             .AddDeveloperSigningCredential(persistKey: false);
 
         if (EnableServerSideSessions)
@@ -344,6 +350,12 @@ public class IdentityServerPipeline
 
         var ticket = cookieOptions.TicketDataFormat.Unprotect(authCookie.Value);
         return ticket?.Principal?.FindFirst(AuthCookieSessionIdClaimType)?.Value;
+    }
+    public ITicketStore GetTicketStore()
+    {
+        var optionsMonitor = Server!.Services.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>();
+        var cookieOptions = optionsMonitor.Get(IdentityServerConstants.DefaultCookieAuthenticationScheme);
+        return cookieOptions.SessionStore!;
     }
 
     public string CreateAuthorizeUrl(
