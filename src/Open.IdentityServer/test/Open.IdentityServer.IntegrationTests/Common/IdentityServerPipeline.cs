@@ -59,7 +59,10 @@ public class IdentityServerPipeline
     public const string FederatedSignOutPath = "/signout-oidc";
     public const string FederatedSignOutUrl = BaseUrl + FederatedSignOutPath;
     
+    public const string AuthCookieSessionIdClaimType = "Microsoft.AspNetCore.Authentication.Cookies-SessionId";   
+    
     public IdentityServerOptions? Options { get; set; }
+    
     public List<Client> Clients { get; set; } = new List<Client>();
     public List<IdentityResource> IdentityScopes { get; set; } = new List<IdentityResource>();
     public List<ApiResource> ApiResources { get; set; } = new List<ApiResource>();
@@ -153,6 +156,11 @@ public class IdentityServerPipeline
             {
                 Options = options;
 
+                if (EnableServerSideSessions)
+                {
+                    options.Authentication.CookieSlidingExpiration = true;
+                }
+                
                 options.Events = new EventsOptions
                 {
                     RaiseErrorEvents = true,
@@ -166,6 +174,7 @@ public class IdentityServerPipeline
             .AddInMemoryApiResources(ApiResources)
             .AddInMemoryApiScopes(ApiScopes)
             .AddTestUsers(Users)
+            .AddServerSideSessions()
             .AddDeveloperSigningCredential(persistKey: false);
 
         if (EnableServerSideSessions)
@@ -375,6 +384,12 @@ public class IdentityServerPipeline
 
         var ticket = cookieOptions.TicketDataFormat.Unprotect(authCookie.Value);
         return ticket?.Principal?.FindFirst(AuthCookieSessionIdClaimType)?.Value;
+    }
+    public ITicketStore GetTicketStore()
+    {
+        var optionsMonitor = Server!.Services.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>();
+        var cookieOptions = optionsMonitor.Get(IdentityServerConstants.DefaultCookieAuthenticationScheme);
+        return cookieOptions.SessionStore!;
     }
 
     public string CreateAuthorizeUrl(
