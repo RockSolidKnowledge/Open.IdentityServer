@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
@@ -27,14 +28,16 @@ namespace Open.IdentityServer.Stores;
 /// implementation in Open.IdentityServer
 /// </summary>
 /// <param name="serverServerSideSessionStore"></param>
-/// <param name="dataProtectionProvider">data prtection provider</param>
+/// <param name="dataProtectionProvider">data protection provider</param>
 /// <param name="timeProvider">time provider</param>
+/// <param name="options">identit server options</param>
 /// <param name="telemetry">telemetry service</param>
 /// <param name="logger">the logger</param>
 public class ServerSessionTicketStore(
     IIdentityServerServerSideSessionStore serverServerSideSessionStore,
     IDataProtectionProvider dataProtectionProvider,
     TimeProvider timeProvider,
+    IdentityServerOptions options,
     ITelemetryService telemetry,
     ILogger<ServerSessionTicketStore> logger): IServerSessionTicketStore
 {
@@ -174,13 +177,17 @@ public class ServerSessionTicketStore(
 
     private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)
     {
+        string? displayName = string.IsNullOrWhiteSpace(options.ServerSideSessions.UserDisplayNameClaimType)
+            ? null
+            : ticket.Principal.FindFirstValue(options.ServerSideSessions.UserDisplayNameClaimType);
+        
         IdentityServerServerSideSessions serverSideSession = new IdentityServerServerSideSessions
         {
             Key = key,
             Scheme = ticket.AuthenticationScheme,
             SubjectId = ticket.Principal.GetSubjectId(),
             SessionId = ticket.Properties.GetSessionId(),
-            DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name), //Make configurable?
+            DisplayName = displayName,
             Created = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
             Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
             Expires = ticket.Properties.ExpiresUtc?.UtcDateTime,

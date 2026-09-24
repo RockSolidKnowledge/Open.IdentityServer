@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
+using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.EntityFramework.IntegrationTests;
 using Open.IdentityServer.Extensions;
@@ -37,6 +38,8 @@ public class ServerSessionTicketStoreTests
     private readonly ITelemetryService telemetry = Mock.Of<ITelemetryService>();
     private readonly MockLogger<ServerSessionTicketStore> logger = new();
 
+    private readonly IdentityServerOptions fakeOptions = new();
+
     private static readonly DateTime FakeNow = new(2026, 01, 01, 12, 0, 0, DateTimeKind.Utc);
 
     public ServerSessionTicketStoreTests()
@@ -53,7 +56,7 @@ public class ServerSessionTicketStoreTests
     }
 
     private ServerSessionTicketStore CreateSut() => new(serverServerSideSessionStore, dataProtectionProvider,
-        fakeTimeProvider, telemetry, logger);
+        fakeTimeProvider, fakeOptions, telemetry, logger);
 
     [Fact]
     public async Task StoreAsync_WhenOptionalValuesNotProvided_ShouldUseCorrectDefaults()
@@ -123,7 +126,55 @@ public class ServerSessionTicketStoreTests
         createdSessionModel.Scheme.Should().Be(authScheme);
         createdSessionModel.SessionId.Should().Be(sessionId);
         createdSessionModel.SubjectId.Should().Be(subjectId);
-        createdSessionModel.DisplayName.Should().Be(displayName);
+        createdSessionModel.DisplayName.Should().BeNull();
+        createdSessionModel.Created.Should().Be(issuedUtc);
+        createdSessionModel.Renewed.Should().Be(issuedUtc);
+        createdSessionModel.Expires.Should().Be(expiresUtc);
+
+        var jsonElement = JsonElement.Parse(createdSessionModel.Data);
+
+        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
+        var actualPayload = jsonElement.GetProperty("Payload").GetString();
+        actualPayload.Should().NotBeNull();
+        
+        string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
+            ServerSessionTicketStore.JsonSettings);
+        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
+    }
+
+    [Theory]
+    [InlineData(JwtClaimTypes.Name, "Fake User")]
+    [InlineData(JwtClaimTypes.Email, null)]
+    public async Task StoreAsync_WhenDisplayNameClaimSet_ShouldUseClaimValueIfSet(string testType, string? expectedDisplayNameValue)
+    {
+        const string authScheme = "FakeAuthScheme";
+        string subjectId = Guid.NewGuid().ToString();
+        string sessionId = Guid.NewGuid().ToString();
+        const string displayName = "Fake User";
+        DateTime issuedUtc = new(2026, 02, 19, 12, 0, 0, DateTimeKind.Utc);
+        DateTime expiresUtc = new(2026, 02, 19, 12, 0, 0, DateTimeKind.Utc);
+
+        fakeOptions.ServerSideSessions.UserDisplayNameClaimType = testType;
+
+        AuthenticationTicket authenticationTicket =
+            ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName, issuedUtc, expiresUtc);
+
+        IdentityServerServerSideSessions? createdSessionModel = null;
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.CreateSession(It.IsAny<IdentityServerServerSideSessions>()))
+            .Callback<IdentityServerServerSideSessions>((session) => { createdSessionModel = session; });
+
+        ServerSessionTicketStore sut = CreateSut();
+
+        string actualKey = await sut.StoreAsync(authenticationTicket);
+
+        createdSessionModel.Should().NotBeNull();
+        createdSessionModel.Key.Should().NotBeNullOrWhiteSpace();
+        createdSessionModel.Key.Should().Be(actualKey);
+        createdSessionModel.Scheme.Should().Be(authScheme);
+        createdSessionModel.SessionId.Should().Be(sessionId);
+        createdSessionModel.SubjectId.Should().Be(subjectId);
+        createdSessionModel.DisplayName.Should().Be(expectedDisplayNameValue);
         createdSessionModel.Created.Should().Be(issuedUtc);
         createdSessionModel.Renewed.Should().Be(issuedUtc);
         createdSessionModel.Expires.Should().Be(expiresUtc);

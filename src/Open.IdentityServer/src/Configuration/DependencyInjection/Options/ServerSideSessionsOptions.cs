@@ -1,6 +1,8 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+#nullable enable
+
 using System;
 
 namespace Open.IdentityServer.Configuration;
@@ -24,7 +26,7 @@ public class ServerSideSessionsOptions
     /// The default value is true
     /// </value>
     public bool RemoveExpiredSessions { get; set; } = true;
-    
+
     /// <summary>
     /// Specifies the frequency with which expired sessions are looked for and removed
     /// </summary>
@@ -32,7 +34,7 @@ public class ServerSideSessionsOptions
     /// The default value is a TimeSpan of 10 minutes
     /// </value>
     public TimeSpan RemoveExpiredSessionsFrequency { get; set; } = TimeSpan.FromMinutes(10);
-    
+
     /// <summary>
     /// Specifies if the start time of the hosted service should be randomised to avoid limiting the occurrences of jobs
     /// running simultaneously in scenarios with multiple instances of Open.IdentityServer are running.
@@ -41,7 +43,7 @@ public class ServerSideSessionsOptions
     /// The default value is true
     /// </value>
     public bool FuzzExpiredSessionsFrequency { get; set; } = true;
-    
+
     /// <summary>
     /// Specifies how many expired sessions should be removed in a single pass
     /// </summary>
@@ -49,4 +51,13 @@ public class ServerSideSessionsOptions
     /// The default value is 100
     /// </value>
     public int RemoveExpiredSessionsBatchSize { get; set; } = 100;
+
+    /// <summary>
+    /// The claim used to set a session's display name value
+    /// </summary>
+    /// <value>
+    /// The default value is null
+    /// </value>
+    public string? UserDisplayNameClaimType { get; set; } = null;
+
 }
