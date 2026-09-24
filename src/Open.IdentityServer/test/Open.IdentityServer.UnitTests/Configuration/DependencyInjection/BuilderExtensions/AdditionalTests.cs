@@ -76,6 +76,11 @@ public class AdditionalTests
             d.ServiceType == typeof(IHostedService) &&
             d.ImplementationType == typeof(SessionCleanupHostedService) &&
             d.Lifetime == ServiceLifetime.Singleton);
+        
+        serviceCollection.Should().ContainSingle(d =>
+            d.ServiceType == typeof(ISessionManagementService) &&
+            d.ImplementationType == typeof(DefaultSessionManagementService) &&
+            d.Lifetime == ServiceLifetime.Scoped);
     }
     
     [Fact]
@@ -131,6 +136,11 @@ public class AdditionalTests
             d.ServiceType == typeof(IHostedService) &&
             d.ImplementationType == typeof(SessionCleanupHostedService) &&
             d.Lifetime == ServiceLifetime.Singleton);
+        
+        serviceCollection.Should().ContainSingle(d =>
+            d.ServiceType == typeof(ISessionManagementService) &&
+            d.ImplementationType == typeof(DefaultSessionManagementService) &&
+            d.Lifetime == ServiceLifetime.Scoped);
     }
 }
 
