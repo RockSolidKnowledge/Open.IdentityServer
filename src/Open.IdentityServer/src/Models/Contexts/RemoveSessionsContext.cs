@@ -31,20 +31,24 @@ public class RemoveSessionsContext
     /// <summary>
     /// Specifies if the server-side session should be removed
     /// </summary>
+    /// <value>default value is true</value>
     public bool RemoveServerSideSession { get; set; } = true;
 
     /// <summary>
     /// Specifies if back-channel logout notifications should be sent
     /// </summary>
+    /// <value>default value is true</value>
     public bool SendBackchannelLogoutNotification { get; set; } = true;
 
     /// <summary>
     /// Specifies if tokens should be revoked for a client
     /// </summary>
+    /// <value>default value is true</value>
     public bool RevokeTokens { get; set; } = true;
 
     /// <summary>
     /// Specifies if consents should be revoked for a client
     /// </summary>
+    /// <value>default value is true</value>
     public bool RevokeConsents { get; set; } = true;
 }

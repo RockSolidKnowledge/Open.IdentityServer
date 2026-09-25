@@ -46,9 +46,9 @@ public class DefaultSessionManagementService(
         if (context.SendBackchannelLogoutNotification)
         {
             var sessions = await serverSessionTicketStore.FilterServerAuthenticationTickets(context.SubjectId, context.SessionId);
-            foreach (var sess in sessions)
+            foreach (var session in sessions)
             {
-                List<string>? sessionClientList = sess.AuthTicket?.Properties.GetClientList().ToList();
+                List<string>? sessionClientList = session.AuthTicket?.Properties.GetClientList().ToList();
                 string[] clientIds = [];
 
                 if (!sessionClientList.IsNullOrEmpty() && !context.ClientIds.IsNullOrEmpty())
@@ -58,8 +58,8 @@ public class DefaultSessionManagementService(
                 
                 await backChannelLogoutService.SendLogoutNotificationsAsync(new LogoutNotificationContext
                 {
-                    SubjectId = sess.Session.SubjectId,
-                    SessionId = sess.Session.SessionId,
+                    SubjectId = session.Session.SubjectId,
+                    SessionId = session.Session.SessionId,
                     ClientIds = clientIds,
                 });
             }
