@@ -4,6 +4,7 @@
 #nullable enable
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 
@@ -41,14 +42,30 @@ public interface IIdentityServerServerSideSessionStore
     /// <param name="key">unique key of session</param>
     /// <returns>void</returns>
     public Task DeleteSession(string key);
+    
+    /// <summary>
+    /// Deletes server-side session using unique key
+    /// </summary>
+    /// <param name="subjectId">subject id filter to apply</param>
+    /// <param name="sessionId">session id filter to apply</param>
+    /// <returns>void</returns>
+    public Task DeleteSessions(string? subjectId, string? sessionId);
 
     /// <summary>
-    /// Filters auth tickets stored in server-side sessions using the provided filters
+    /// Filters server-side sessions using the provided filters
     /// </summary>
     /// <param name="subjectId">subject id filter to apply</param>
     /// <param name="sessionId">session id filter to apply</param>
     /// <returns>collection of session entities matching filter</returns>
-    public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId);
+    public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string? subjectId, string? sessionId);
+    
+    /// <summary>
+    /// Filters server-side sessions using the provided session query object
+    /// </summary>
+    /// <param name="query">query to applied to server auth tickets</param>
+    /// <param name="ct">cancellation token</param>
+    /// <returns>QueryResult produced using provided query</returns>
+    public Task<QueryResult<IdentityServerServerSideSessions>> FilterSessions(SessionQuery? query, CancellationToken ct = default);
 
     /// <summary>
     /// Removes expired sessions and returns a collection of sessions that were removed

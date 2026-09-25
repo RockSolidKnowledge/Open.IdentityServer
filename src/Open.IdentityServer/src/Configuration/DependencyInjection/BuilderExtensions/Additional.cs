@@ -486,6 +486,9 @@ public static class IdentityServerBuilderExtensionsAdditional
         //Clean-up Service
         builder.Services.AddTransient<ISessionCleanupService, SessionCleanupService>();
         builder.Services.AddSingleton<IHostedService, SessionCleanupHostedService>();
+        
+        //Add Management Service
+        builder.Services.TryAddScoped<ISessionManagementService, DefaultSessionManagementService>();
 
         return builder;
     }
