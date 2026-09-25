@@ -208,9 +208,12 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
                         return $"https://{Options.MutualTls.DomainName}.{parts[1]}{endpoint}";
                     }
                 }
+                
+                  
             }
+            AddPushedAuthorizationRequestEndpoint(baseUrl, entries);
         }
-
+        
         // logout
         if (Options.Endpoints.EnableEndSessionEndpoint)
         {
@@ -369,8 +372,30 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
                 }
             }
         }
+        
 
         return entries;
+    }
+
+    private void AddPushedAuthorizationRequestEndpoint(string baseUrl, Dictionary<string, object> entries)
+    {
+        if (Options.Endpoints.EnablePushedAuthorizationRequestEndpoint == false)
+        {
+            return;
+        }
+        
+        string parPath = $"{baseUrl}{Constants.ProtocolRoutePaths.PushedAuthorizationRequest}";
+        
+        entries.Add(OidcConstants.Discovery.PushedAuthorizationRequestEndpoint, parPath);
+        
+        // If PAR is enabled
+        if (Options.Endpoints.EnablePushedAuthorizationRequestEndpoint)
+        {
+            entries.Add(
+                OidcConstants.Discovery.RequirePushedAuthorizationRequests,
+                Options.PushedAuthorization.Required
+            );
+        }
     }
 
     /// <summary>

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using AwesomeAssertions;
 
+#nullable enable
 namespace Open.IdentityServer.EntityFramework.UnitTests.Mappers;
 
 /// <summary>

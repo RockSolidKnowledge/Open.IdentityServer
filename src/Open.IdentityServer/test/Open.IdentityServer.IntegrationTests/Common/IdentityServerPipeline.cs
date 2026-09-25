@@ -52,10 +52,11 @@ public class IdentityServerPipeline
     public const string EndSessionEndpoint = BaseUrl + "/connect/endsession";
     public const string EndSessionCallbackEndpoint = BaseUrl + "/connect/endsession/callback";
     public const string CheckSessionEndpoint = BaseUrl + "/connect/checksession";
-
+    public const string PushedAuthorizatioRequestEndpoint = BaseUrl + "/connect/par";
+    
     public const string FederatedSignOutPath = "/signout-oidc";
     public const string FederatedSignOutUrl = BaseUrl + FederatedSignOutPath;
-
+    
     public IdentityServerOptions? Options { get; set; }
     public List<Client> Clients { get; set; } = new List<Client>();
     public List<IdentityResource> IdentityScopes { get; set; } = new List<IdentityResource>();
@@ -81,12 +82,21 @@ public class IdentityServerPipeline
 
     public void Initialize(string? basePath = null, bool enableLogging = false)
     {
+        Initialize(_ => { }, basePath, enableLogging);
+    }
+
+    public void Initialize(Action<IServiceCollection> configureServices , string? basePath = null, bool enableLogging = false)
+    {
         var hostBuilder = new HostBuilder()
             .ConfigureWebHost(webBuilder =>
             {
                 webBuilder.UseTestServer();
 
-                webBuilder.ConfigureServices(ConfigureServices);
+                webBuilder.ConfigureServices(sc =>
+                {
+                    configureServices(sc);
+                    ConfigureServices(sc);
+                });
                 webBuilder.Configure(app =>
                 {
                     if (basePath != null)
@@ -353,7 +363,7 @@ public class IdentityServerPipeline
     {
         var url = new RequestUrl(AuthorizeEndpoint).CreateAuthorizeUrl(
             clientId: clientId,
-            responseType: responseType,
+            responseType: responseType ?? "",
             scope: scope,
             redirectUri: redirectUri,
             state: state,
@@ -406,6 +416,18 @@ public class IdentityServerPipeline
         }
 
         return new AuthorizeResponse(redirect);
+    }
+
+    public string? CreateParUrl(string clientId, string requestUri)
+    {
+        var url = new RequestUrl(AuthorizeEndpoint);
+
+        var requestUriParam = new KeyValuePair<string, string>(OidcConstants.AuthorizeRequest.RequestUri, requestUri);
+        var clientIdParam = new KeyValuePair<string, string>(OidcConstants.AuthorizeRequest.ClientId, clientId);
+        
+        IEnumerable<KeyValuePair<string, string>> parameters = [ clientIdParam,requestUriParam];
+
+        return url.Create(new Parameters(parameters));
     }
 }
 

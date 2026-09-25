@@ -141,4 +141,9 @@ public class IdentityServerOptions
     /// Gets or sets the enable authorise response issuer param option
     /// </summary>
     public bool EnableAuthorizeResponseIssuerParam { get; set; } = false;
+    
+    /// <summary>
+    /// PAR authorization options
+    /// </summary>
+    public PushedAuthorizationOptions PushedAuthorization {get;} = new PushedAuthorizationOptions();
 }

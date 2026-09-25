@@ -105,6 +105,7 @@ Open.IdentityServer enables the following features in your applications:
    topics/pop
    topics/mtls
    topics/request_object
+   topics/pushed_authorization
    topics/custom_token_request_validation
    topics/cors
    topics/discovery
@@ -122,6 +123,7 @@ Open.IdentityServer enables the following features in your applications:
    endpoints/token
    endpoints/userinfo
    endpoints/device_authorization
+   endpoints/pushed_authorization
    endpoints/introspection
    endpoints/revocation
    endpoints/endsession
