@@ -77,10 +77,10 @@ public class DefaultSessionManagementServiceTests
             TotalPages = 1,
             CurrentPage = 1,
             Results = [
-                GenerateAuthenticationTicketFilterResult("sess1","SchemeA", "bob", "session-0001", "Robert", clientIds: ["clientA"]),
-                GenerateAuthenticationTicketFilterResult("sess2","SchemeA", "alice", "session-0002", "Alice"),
-                GenerateAuthenticationTicketFilterResult("sess3","SchemeB", "bob", "session-0003", "Robert"),
-                GenerateAuthenticationTicketFilterResult("sess4","SchemeB", "sam", "session-0004", "Samantha", clientIds: ["clientA", "clientB"]),
+                ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("sess1","SchemeA", "bob", "session-0001", "Robert", clientIds: ["clientA"]),
+                ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("sess2","SchemeA", "alice", "session-0002", "Alice"),
+                ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("sess3","SchemeB", "bob", "session-0003", "Robert"),
+                ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("sess4","SchemeB", "sam", "session-0004", "Samantha", clientIds: ["clientA", "clientB"]),
             ]
         };
         
@@ -126,9 +126,9 @@ public class DefaultSessionManagementServiceTests
     {
         List<AuthenticationTicketFilterResult> fakeSessions =
         [
-            GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
         ];
 
         Mock.Get(serverSessionTicketStore)
@@ -168,7 +168,7 @@ public class DefaultSessionManagementServiceTests
     public async Task RemoveSessionsAsync_WhenClientIdsProvided_ShouldOnlyTriggerBackchannelNotificationsAndRevocationsForThoseClients()
     {
         string[] fakeClientIds = ["client-a", "client-b", "client-c", "client-d"];
-        var fakeSession = GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice", clientIds: fakeClientIds);
+        var fakeSession = ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice", clientIds: fakeClientIds);
         List<AuthenticationTicketFilterResult> fakeSessions = [fakeSession];
 
         Mock.Get(serverSessionTicketStore)
@@ -207,9 +207,9 @@ public class DefaultSessionManagementServiceTests
         string fakeSessionId = "session-0002";
         List<AuthenticationTicketFilterResult> fakeSessions =
         [
-            GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
         ];
 
         Mock.Get(serverSessionTicketStore)
@@ -251,9 +251,9 @@ public class DefaultSessionManagementServiceTests
         string fakeSessionId = "session-0002";
         List<AuthenticationTicketFilterResult> fakeSessions =
         [
-            GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
         ];
 
         Mock.Get(serverSessionTicketStore)
@@ -288,9 +288,9 @@ public class DefaultSessionManagementServiceTests
         string fakeSessionId = "session-0002";
         List<AuthenticationTicketFilterResult> fakeSessions =
         [
-            GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
         ];
 
         Mock.Get(serverSessionTicketStore)
@@ -332,9 +332,9 @@ public class DefaultSessionManagementServiceTests
         string fakeSessionId = "session-0002";
         List<AuthenticationTicketFilterResult> fakeSessions =
         [
-            GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
         ];
 
         Mock.Get(serverSessionTicketStore)
@@ -376,9 +376,9 @@ public class DefaultSessionManagementServiceTests
         string fakeSessionId = "session-0002";
         List<AuthenticationTicketFilterResult> fakeSessions =
         [
-            GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
-            GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
         ];
 
         Mock.Get(serverSessionTicketStore)
@@ -445,27 +445,5 @@ public class DefaultSessionManagementServiceTests
             .Where(m => m.DeclaringType == typeof(DefaultSessionManagementService))
             .Select(m => m.Name)
             .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
-    }
-
-    private static AuthenticationTicketFilterResult GenerateAuthenticationTicketFilterResult(
-        string key,
-        string authScheme, 
-        string subjectId, 
-        string sessionId,
-        string displayName, 
-        DateTime? created = null,
-        DateTime? renewed = null,
-        DateTime? expires = null,
-        string[]? clientIds = null)
-    {
-        created ??= new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
-        renewed ??= new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc);
-        expires ??= new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc);
-        
-        return new AuthenticationTicketFilterResult
-        {
-            Session = ServerSessionTestGenerators.FakeSession(key, authScheme, sessionId, subjectId, displayName, string.Empty, created, renewed, expires),
-            AuthTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName, renewed, expires, clientIds),
-        };
     }
 }

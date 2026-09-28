@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Open.IdentityServer.Extensions;
+using Open.IdentityServer.Extensions.Mapping;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 

@@ -45,6 +45,11 @@ public class UserSession
     public DateTime? Expires { get; set; }
 
     /// <summary>
+    /// Issuer of the auth ticket
+    /// </summary>
+    public string? Issuer { get; set; }
+
+    /// <summary>
     /// Client IDs of clients with active grants and tokens from the session
     /// </summary>
     public IReadOnlyCollection<string> ClientIds { get; set; } = null!;

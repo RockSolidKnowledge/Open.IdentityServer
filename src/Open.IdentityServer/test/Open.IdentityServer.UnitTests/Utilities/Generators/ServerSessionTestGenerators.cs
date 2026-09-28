@@ -19,6 +19,7 @@ public static class ServerSessionTestGenerators
         string? displayName = null,
         DateTimeOffset? issuedUtc = null, 
         DateTimeOffset? expiresUtc = null,
+        string? issuer = null,
         string[]? clientIds = null)
     {
         IdentityServerUser user = new(subjectId);
@@ -33,6 +34,11 @@ public static class ServerSessionTestGenerators
         foreach (var clientId in clientIds ?? [])
         {
             properties.AddClientId(clientId);
+        }
+
+        if (issuer != null)
+        {
+            properties.Items[JwtClaimTypes.Issuer] = issuer;
         }
 
         return new AuthenticationTicket(user.CreatePrincipal(), properties, authScheme);
@@ -104,6 +110,29 @@ public static class ServerSessionTestGenerators
             Created = created ?? new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
             Renewed = renewed ?? new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
             Expires = expires ?? new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
+        };
+    }
+    
+    public static AuthenticationTicketFilterResult GenerateAuthenticationTicketFilterResult(
+        string key,
+        string authScheme, 
+        string subjectId, 
+        string sessionId,
+        string displayName, 
+        DateTime? created = null,
+        DateTime? renewed = null,
+        DateTime? expires = null,
+        string? issuer = null,
+        string[]? clientIds = null)
+    {
+        created ??= new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+        renewed ??= new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc);
+        expires ??= new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc);
+        
+        return new AuthenticationTicketFilterResult
+        {
+            Session = FakeSession(key, authScheme, sessionId, subjectId, displayName, string.Empty, created, renewed, expires),
+            AuthTicket = GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName, renewed, expires, issuer, clientIds),
         };
     }
 }
