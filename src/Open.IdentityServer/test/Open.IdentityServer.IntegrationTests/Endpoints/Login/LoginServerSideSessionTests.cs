@@ -45,7 +45,6 @@ public class LoginServerSideSessionTests
         _mockPipeline.Clients.AddRange([
             new Client
             {
-                //TODO: Turn this into a ref code client
                 ClientId = "client1",
                 AllowedGrantTypes = GrantTypes.Code,
                 AccessTokenType = AccessTokenType.Reference,
@@ -69,15 +68,6 @@ public class LoginServerSideSessionTests
                 RequirePkce = false,
                 RequireClientSecret = false,
             },
-            new Client()
-            {
-                //TODO:// turn this in to a code client with non-ref tokens
-                ClientId = "client3",
-                AllowedGrantTypes = GrantTypes.ClientCredentials,
-                AllowedScopes = new List<string> { "api1", "api2" },
-                RedirectUris = new List<string> { "https://client3/callback" },
-                AllowOfflineAccess = true
-            }
         ]);
 
         _mockPipeline.Users.Add(new TestUser
