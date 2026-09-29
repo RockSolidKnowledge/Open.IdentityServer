@@ -23,7 +23,7 @@ using Xunit;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores;
 
-public class PushedAuthorizationRequestStoreTests : IntegrationTest<PersistedGrantStoreTests, PersistedGrantDbContext, OperationalStoreOptions>
+public class PushedAuthorizationRequestStoreTests : IntegrationTest<PushedAuthorizationRequestStoreTests, PersistedGrantDbContext, OperationalStoreOptions>
 {
     private readonly ITelemetryService telemetry = Mock.Of<ITelemetryService>();
     private readonly IPersistentGrantSerializer serializer = new PersistentGrantSerializer();
@@ -85,7 +85,7 @@ public class PushedAuthorizationRequestStoreTests : IntegrationTest<PersistedGra
         
         string storedParameters = """{"scopes":["api1 api2","api3"],"client_id":["foo"]}""";
         string storedHash = Guid.NewGuid().ToString();
-        DateTime storedExpires = new DateTime(2027, 03, 16, 12, 20, 23);
+        DateTime storedExpires = new DateTime(2027, 03, 16, 12, 20, 23, DateTimeKind.Utc);
 
         await StoreRequest(options, storedParameters, storedHash, storedExpires);
 
@@ -102,7 +102,7 @@ public class PushedAuthorizationRequestStoreTests : IntegrationTest<PersistedGra
     {
         string storedParameters = """{"scopes":["api1 api2","api3"],"client_id":["foo"]}""";
         string storedHash = Guid.NewGuid().ToString();
-        DateTime storedExpires = new DateTime(2027, 03, 16, 12, 20, 23);
+        DateTime storedExpires = new DateTime(2027, 03, 16, 12, 20, 23, DateTimeKind.Utc);
 
         await StoreRequest(options, storedParameters, storedHash, storedExpires);
 
