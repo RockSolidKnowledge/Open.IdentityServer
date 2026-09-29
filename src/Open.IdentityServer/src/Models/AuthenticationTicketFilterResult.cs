@@ -3,7 +3,9 @@
 
 #nullable enable
 
+using System.Linq;
 using Microsoft.AspNetCore.Authentication;
+using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Stores;
 
 namespace Open.IdentityServer.Models;

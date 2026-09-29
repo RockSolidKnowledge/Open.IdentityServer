@@ -1,7 +1,10 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+#nullable enable
+
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -15,15 +18,23 @@ namespace Open.IdentityServer.Stores;
 public interface IServerSessionTicketStore: ITicketStore
 {
     /// <summary>
-    /// Filters auth tickets stored server side using the provided filters
+    /// Filters auth tickets stored server-side using the provided filters
     /// </summary>
     /// <param name="subjectId">subject id filter to apply</param>
     /// <param name="sessionId">session id filter to apply</param>
     /// <returns>collection of auth ticket matching filter</returns>
-    Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string subjectId, string sessionId);
+    Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string? subjectId, string? sessionId);
+
+    /// <summary>
+    /// Filters auth tickets stored server-side using the provided session query object
+    /// </summary>
+    /// <param name="query">query to applied to server auth tickets</param>
+    /// <param name="ct">cancellation token</param>
+    /// <returns>QueryResult produced using provided query</returns>
+    Task<QueryResult<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(SessionQuery? query, CancellationToken ct = default);
     
     /// <summary>
-    /// Removes expired auth tickets and returns a collection of these auth tokens and session objects they come from
+    /// Removes expired auth tickets and returns a collection of these auth tokens and the session objects they come from
     /// </summary>
     /// <param name="batchSize">optional batch size value, defaults to 100</param>
     /// <returns>removed expired sessions</returns>

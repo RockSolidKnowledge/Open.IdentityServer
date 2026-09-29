@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -75,6 +76,11 @@ public class AdditionalTests
             d.ServiceType == typeof(IHostedService) &&
             d.ImplementationType == typeof(SessionCleanupHostedService) &&
             d.Lifetime == ServiceLifetime.Singleton);
+        
+        serviceCollection.Should().ContainSingle(d =>
+            d.ServiceType == typeof(ISessionManagementService) &&
+            d.ImplementationType == typeof(DefaultSessionManagementService) &&
+            d.Lifetime == ServiceLifetime.Scoped);
     }
     
     [Fact]
@@ -130,6 +136,11 @@ public class AdditionalTests
             d.ServiceType == typeof(IHostedService) &&
             d.ImplementationType == typeof(SessionCleanupHostedService) &&
             d.Lifetime == ServiceLifetime.Singleton);
+        
+        serviceCollection.Should().ContainSingle(d =>
+            d.ServiceType == typeof(ISessionManagementService) &&
+            d.ImplementationType == typeof(DefaultSessionManagementService) &&
+            d.Lifetime == ServiceLifetime.Scoped);
     }
 }
 
@@ -155,7 +166,17 @@ public class FakeIdentityServerServerSideSessionStore: IIdentityServerServerSide
         throw new System.NotImplementedException();
     }
 
+    public Task DeleteSessions(string subjectId, string sessionId)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public Task<QueryResult<IdentityServerServerSideSessions>> FilterSessions(SessionQuery query, CancellationToken ct = default)
     {
         throw new System.NotImplementedException();
     }
