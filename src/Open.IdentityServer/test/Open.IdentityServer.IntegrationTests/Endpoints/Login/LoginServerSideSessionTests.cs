@@ -31,13 +31,15 @@ public class LoginServerSideSessionTests
 {
     private const string Category = "LoginServerSideSessionTests";
 
-    private IdentityServerPipeline _mockPipeline = new IdentityServerPipeline();
-    private FakeTimeProvider fakeTimeProvider = new FakeTimeProvider();
-    private ITicketStore ticketStore = null;
-    private IIdentityServerServerSideSessionStore? sessionStore = null;
+    private IdentityServerPipeline _mockPipeline = new();
+    private FakeTimeProvider fakeTimeProvider = new();
+    private ITicketStore? ticketStore;
+    private IIdentityServerServerSideSessionStore? sessionStore;
 
     public LoginServerSideSessionTests()
     {
+        _mockPipeline.EnableServerSideSessions = true;
+        
         fakeTimeProvider.SetUtcNow(
             new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
 
@@ -55,7 +57,7 @@ public class LoginServerSideSessionTests
                 AllowOfflineAccess = true,
                 RequirePkce = false,
                 RequireClientSecret = false,
-                CoordinateLifetimeWithUserSession = true
+                CoordinateLifetimeWithUserSession = true,
             },
             new Client
             {
@@ -137,8 +139,7 @@ public class LoginServerSideSessionTests
                 IdentityServerConstants.DefaultCookieAuthenticationScheme,
                 options => { options.TimeProvider = fakeTimeProvider; });
         };
-
-
+        
         _mockPipeline.Initialize();
     }
 
@@ -146,7 +147,6 @@ public class LoginServerSideSessionTests
     [Trait("Category", Category)]
     public async Task Login_ShouldCreateSessionInServerStore()
     {
-        
         sessionStore.Should().NotBeNull();
 
         await _mockPipeline.LoginAsync("bob");

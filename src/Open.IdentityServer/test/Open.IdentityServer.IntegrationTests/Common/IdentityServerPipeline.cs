@@ -81,6 +81,8 @@ public class IdentityServerPipeline
     public event Action<IApplicationBuilder> OnPostConfigure = app => { };
 
     public Func<HttpContext, Task<bool>>? OnFederatedSignout;
+
+    public AuthenticationProperties? AuthenticationProperties { get; set; } = new();
     
     // Enableable Features
     public bool EnableServerSideSessions { get; set; }
@@ -162,7 +164,6 @@ public class IdentityServerPipeline
             .AddInMemoryApiResources(ApiResources)
             .AddInMemoryApiScopes(ApiScopes)
             .AddTestUsers(Users)
-            .AddServerSideSessions()
             .AddDeveloperSigningCredential(persistKey: false);
 
         if (EnableServerSideSessions)
@@ -228,7 +229,7 @@ public class IdentityServerPipeline
     {
         if (Subject != null)
         {
-            var props = new AuthenticationProperties();
+            var props = AuthenticationProperties ?? new AuthenticationProperties();
             await ctx.SignInAsync(Subject, props);
             Subject = null;
             var url = ctx.Request.Query[Options!.UserInteraction.LoginReturnUrlParameter].FirstOrDefault();

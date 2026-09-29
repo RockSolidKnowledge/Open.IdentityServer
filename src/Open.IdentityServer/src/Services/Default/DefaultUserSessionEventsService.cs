@@ -122,7 +122,7 @@ public class DefaultUserSessionEventsService(
             TimeSpan? diff = session.Session.Expires - session.Session.Renewed;
             session.Session.Renewed = timeProvider.GetUtcNow().UtcDateTime;
             session.Session.Expires = session.Session.Renewed + diff;
-
+            
             if (idsOptions.Authentication.CookieSlidingExpiration &&
                 session.AuthTicket?.Properties is { IsPersistent: true, AllowRefresh: true or null })
             {
