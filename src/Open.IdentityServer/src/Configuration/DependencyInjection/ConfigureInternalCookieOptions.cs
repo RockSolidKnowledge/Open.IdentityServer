@@ -35,8 +35,9 @@ internal class ConfigureInternalCookieOptions(IdentityServerOptions idsrv)
                 options.ReturnUrlParameter = idsrv.UserInteraction.LoginReturnUrlParameter;
             }
             
+            var originalOnCheckSlidingExpiration = options.Events.OnCheckSlidingExpiration;
             options.Events.OnCheckSlidingExpiration = context => CookieAuthenticationEvents
-                .ServerSessionOnCheckSlidingExpiration(context, options.Events.OnCheckSlidingExpiration);
+                .ServerSessionOnCheckSlidingExpiration(context, originalOnCheckSlidingExpiration);
         }
 
         if (name == IdentityServerConstants.ExternalCookieAuthenticationScheme)
