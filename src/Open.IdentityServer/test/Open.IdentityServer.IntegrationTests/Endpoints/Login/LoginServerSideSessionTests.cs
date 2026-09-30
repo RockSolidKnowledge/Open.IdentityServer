@@ -43,7 +43,6 @@ public class LoginServerSideSessionTests
         fakeTimeProvider.SetUtcNow(
             new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
 
-
         _mockPipeline.Clients.AddRange([
             new Client
             {
@@ -101,11 +100,16 @@ public class LoginServerSideSessionTests
             new IdentityResources.Profile(),
             new IdentityResources.Email()
         ]);
+        
         _mockPipeline.ApiResources.AddRange([
             new ApiResource
             {
                 Name = "api",
-            }
+                ApiSecrets = [
+                    new Secret("secret".Sha256())
+                ],
+                Scopes = ["api1", "api2"]
+            },
         ]);
         _mockPipeline.ApiScopes.AddRange([
             new ApiScope
@@ -361,14 +365,14 @@ public class LoginServerSideSessionTests
             .IntrospectTokenAsync(new TokenIntrospectionRequest()
             {
                 Address = IdentityServerPipeline.IntrospectionEndpoint,
-                ClientId = "client1",
+                ClientId = "api",
+                ClientSecret = "secret",
                 Token = tokenResponse.AccessToken
             }, TestContext.Current.CancellationToken);
 
         introspectionResponse.IsError.Should().BeFalse();
         introspectionResponse.IsActive.Should().BeTrue();
-
-
+        
         ticket = await ticketStore.RetrieveAsync(authKey, TestContext.Current.CancellationToken);
         ticket.Should().NotBeNull();
         ticket.Principal.GetSubjectId().Should().Be("bob");
