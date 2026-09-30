@@ -150,7 +150,7 @@ public class PushBasedAuthorizationRequestTests
 
         string redirectLocation = authCodeResponse.Headers.Location!.ToString();
         
-        authCodeResponse.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        authCodeResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         authCodeResponse.Headers.Location.Should().NotBeNull();
         redirectLocation.Should().StartWith(parTestClient.RedirectUris.First());
         

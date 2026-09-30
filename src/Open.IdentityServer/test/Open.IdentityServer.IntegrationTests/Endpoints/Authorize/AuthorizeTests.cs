@@ -1245,7 +1245,7 @@ public class AuthorizeTests
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.BaseUrl + _mockPipeline.LoginReturnUrl, TestContext.Current.CancellationToken);
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.ToString().Should().StartWith("https://client1/callback");
         response.Headers.Location.ToString().Should().Contain("id_token=");
     }
@@ -1296,7 +1296,7 @@ public class AuthorizeTests
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.BaseUrl + _mockPipeline.LoginReturnUrl, TestContext.Current.CancellationToken);
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.ToString().Should().StartWith("https://client1/callback");
         response.Headers.Location.ToString().Should().Contain("id_token=");
     }
@@ -1320,7 +1320,7 @@ public class AuthorizeTests
             nonce: "123_nonce");
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("https://server/home/error");
     }
@@ -1344,7 +1344,7 @@ public class AuthorizeTests
             nonce: "123_nonce");
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("https://server/home/error");
     }

@@ -1206,7 +1206,7 @@ public class JwtRequestAuthorizeTests
 
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         response = await _mockPipeline.BrowserClient.GetAsync(IdentityServerPipeline.BaseUrl + _mockPipeline.LoginReturnUrl, TestContext.Current.CancellationToken);
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.ToString().Should().StartWith("https://client/callback");
         response.Headers.Location.ToString().Should().Contain("id_token=");
     }
