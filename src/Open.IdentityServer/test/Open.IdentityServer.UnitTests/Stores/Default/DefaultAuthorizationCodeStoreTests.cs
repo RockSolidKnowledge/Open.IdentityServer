@@ -123,7 +123,6 @@ public class DefaultAuthorizationCodeStoreTests
             .Returns(_trace);
         
         const string baseHandle = "test_base_handle";
-        var expectedHandle = baseHandle + DefaultAuthorizationCodeStore.HexEncodingSuffix;
 
         Mock.Get(_handleGenerationService)
             .Setup(x => x.GenerateAsync())

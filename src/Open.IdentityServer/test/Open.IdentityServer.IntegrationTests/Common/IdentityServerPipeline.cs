@@ -179,19 +179,19 @@ public class IdentityServerPipeline
         app.UseIdentityServer();
 
         // UI endpoints
-        app.Map(Constants.UIConstants.DefaultRoutePaths.Login.EnsureLeadingSlash(), path =>
+        app.Map(Constants.UIConstants.DefaultRoutePaths.Login.EnsureLeadingSlash()!, path =>
         {
             path.Run(ctx => OnLogin(ctx));
         });
-        app.Map(Constants.UIConstants.DefaultRoutePaths.Logout.EnsureLeadingSlash(), path =>
+        app.Map(Constants.UIConstants.DefaultRoutePaths.Logout.EnsureLeadingSlash()!, path =>
         {
             path.Run(ctx => OnLogout(ctx));
         });
-        app.Map(Constants.UIConstants.DefaultRoutePaths.Consent.EnsureLeadingSlash(), path =>
+        app.Map(Constants.UIConstants.DefaultRoutePaths.Consent.EnsureLeadingSlash()!, path =>
         {
             path.Run(ctx => OnConsent(ctx));
         });
-        app.Map(Constants.UIConstants.DefaultRoutePaths.Error.EnsureLeadingSlash(), path =>
+        app.Map(Constants.UIConstants.DefaultRoutePaths.Error.EnsureLeadingSlash()!, path =>
         {
             path.Run(ctx => OnError(ctx));
         });

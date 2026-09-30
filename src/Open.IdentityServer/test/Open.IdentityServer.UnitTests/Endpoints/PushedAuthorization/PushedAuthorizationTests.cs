@@ -228,7 +228,7 @@ public class PushedAuthorizationTests
         var context = CreateHttpContext();
         var requestValidatorResult = CreatePushAuthorizationRequestValidationResult(expectedClientId, expectedError);
         
-        SetupRequestResponse(context, requestValidatorResult, null);
+        SetupRequestResponse(context, requestValidatorResult, null!);
 
         var result = (BadRequestResult)await sut.ProcessAsync(context);
 
