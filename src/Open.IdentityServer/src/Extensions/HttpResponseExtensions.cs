@@ -124,7 +124,9 @@ public static class HttpResponseExtensions
             if (url.StartsWith("~/")) url = url.Substring(1);
             url = response.HttpContext.GetIdentityServerBaseUrl().EnsureTrailingSlash() + url.RemoveLeadingSlash();
         }
-        response.Redirect(url);
+
+        response.Headers.Location = url;
+        response.StatusCode = StatusCodes.Status303SeeOther;
     }
 
     /// <summary>

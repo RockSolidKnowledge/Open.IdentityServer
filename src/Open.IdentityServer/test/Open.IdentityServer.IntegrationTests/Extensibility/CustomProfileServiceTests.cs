@@ -68,7 +68,7 @@ public class CustomProfileServiceTests
             _mockPipeline.BrowserClient.AllowAutoRedirect = false;
             var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.ToString().Should().StartWith("https://client/callback");
 
         var authorization = new AuthorizeResponse(response.Headers.Location.ToString());

@@ -20,7 +20,18 @@ public static class IdentityResourceMappingExtensions
         /// <returns>mapped instance of <see cref="Models.IdentityResource"/></returns>
         public Models.IdentityResource ToModel()
         {
-            return new Models.IdentityResource
+            return identityResourceEntity.ToModel<Models.IdentityResource>();
+        }
+
+        /// <summary>
+        /// Mapper for <see cref="Entities.IdentityResource"/> to convert into an instance of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of <see cref="Models.IdentityResource"/> model to map to.</typeparam>
+        /// <returns>mapped instance of <typeparamref name="T"/>.</returns>
+        public T ToModel<T>() 
+            where T : Models.IdentityResource, new()
+        {
+            return new T
             {
                 Enabled = identityResourceEntity.Enabled,
                 Name = identityResourceEntity.Name,

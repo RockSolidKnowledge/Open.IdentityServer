@@ -22,7 +22,18 @@ public static class ApiResourceMappingExtensions
         /// <returns>mapped instance of <see cref="Models.ApiResource"/></returns>
         public Models.ApiResource ToModel()
         {
-            return new Models.ApiResource
+            return apiResourceEntity.ToModel<Models.ApiResource>();
+        }
+
+        /// <summary>
+        /// Mapper for <see cref="Entities.ApiScope"/> to convert into an instance of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of <see cref="Models.ApiResource"/> model to map to.</typeparam>
+        /// <returns>mapped instance of <typeparamref name="T"/>.</returns>
+        public T ToModel<T>()
+            where T : Models.ApiResource, new()
+        {
+            return new T
             {
                 Enabled = apiResourceEntity.Enabled,
                 Name = apiResourceEntity.Name,

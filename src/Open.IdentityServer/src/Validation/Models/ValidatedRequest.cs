@@ -24,8 +24,25 @@ public class ValidatedRequest
     /// <value>
     /// The raw.
     /// </value>
-    public NameValueCollection Raw { get; set; }
+    public NameValueCollection Raw
+    {
+        get;
+        set
+        {
+            OriginalRaw ??= new NameValueCollection(value); // shallow copy snapshot
 
+            field = value;
+        }
+    }
+
+    
+    /// <summary>
+    /// Captures the original Raw value so it can be used in constructing Return URLs
+    /// that look the same as the inbound request.
+    /// </summary>
+    public NameValueCollection OriginalRaw { get; private set; } = null;
+    
+    
     /// <summary>
     /// Gets or sets the client.
     /// </summary>

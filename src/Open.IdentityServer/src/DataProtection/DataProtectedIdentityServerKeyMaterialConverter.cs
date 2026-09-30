@@ -45,8 +45,7 @@ public class DataProtectedIdentityServerKeyMaterialConverter(IDataProtectionProv
             dataProtector.Unprotect(keyMaterial.Data) : 
             keyMaterial.Data;
 
-        if (!keyMaterial.IsX509Certificate &&
-            (keyMaterial.Algorithm.StartsWith('R') || keyMaterial.Algorithm.StartsWith('P')))
+        if (!keyMaterial.IsX509Certificate && keyMaterial.Algorithm.IsRsaAlgorithm())
         {
             var keyData = JsonSerializer.Deserialize<RsaIdentityServerKeyData>(unprotectedData, Settings);
 
@@ -54,18 +53,12 @@ public class DataProtectedIdentityServerKeyMaterialConverter(IDataProtectionProv
             signingKey.Credentials = new SigningCredentials(new RsaSecurityKey(keyData.Parameters) { KeyId = keyData.Id }, keyData.Algorithm);
         }
         
-        if (!keyMaterial.IsX509Certificate && keyMaterial.Algorithm.StartsWith('E'))
+        if (!keyMaterial.IsX509Certificate && keyMaterial.Algorithm.IsEcAlgorithm())
         {
             var keyData = JsonSerializer.Deserialize<EcIdentityServerKeyData>(unprotectedData, Settings);
 
-            ECCurve curve = keyMaterial.Algorithm switch
-            {
-                "ES256" => CryptoHelper.GetCurveFromCrvValue("P-256"),
-                "ES384" => CryptoHelper.GetCurveFromCrvValue("P-384"),
-                "ES521" => CryptoHelper.GetCurveFromCrvValue("P-521"),
-                _ => throw new ArgumentOutOfRangeException(nameof(keyMaterial.Algorithm), "Unexpected algorithm value for EC Curve")
-            };
-
+            ECCurve curve = CryptoHelper.GetCurveFromCrvValue(
+                keyMaterial.Algorithm.GetCurveNameForAlgorithm());
             var ecdsa = ECDsa.Create(new ECParameters { Curve = curve, D = keyData.D, Q = keyData.Q });
             
             signingKey.Created = keyData.Created;

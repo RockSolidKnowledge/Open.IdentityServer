@@ -145,4 +145,9 @@ public class IdentityServerOptions
     /// Gets or sets the server-side session options
     /// </summary>
     public ServerSideSessionsOptions ServerSideSessions { get; set; } = new();
+    
+    /// <summary>
+    /// PAR authorization options
+    /// </summary>
+    public PushedAuthorizationOptions PushedAuthorization {get;} = new PushedAuthorizationOptions();
 }

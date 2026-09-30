@@ -30,4 +30,21 @@ public class PersistedGrantMappersTests
         mappedModel.ConsumedTime.Should().NotBeNull();
         mappedModel.ConsumedTime.Value.Should().Be(new System.DateTime(2020, 02, 03, 4, 5, 6));
     }
+
+    [Fact]
+    public void ToEntity_maps_all_properties()
+    {
+        new MappingVerifier<PersistedGrant, Entities.PersistedGrant>()
+            .ExcludeDestinationProperties(
+                // Database-assigned or entity-managed fields not sourced from the model
+                nameof(Entities.PersistedGrant.Id))
+            .Verify(model => model.ToEntity());
+    }
+
+    [Fact]
+    public void ToModel_maps_all_properties()
+    {
+        new MappingVerifier<Entities.PersistedGrant, PersistedGrant>()
+            .Verify(entity => entity.ToModel());
+    }
 }

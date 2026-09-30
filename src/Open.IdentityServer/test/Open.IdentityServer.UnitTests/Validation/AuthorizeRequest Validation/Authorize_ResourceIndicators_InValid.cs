@@ -1,11 +1,12 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using AwesomeAssertions;
+using Open.IdentityServer.Configuration;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
-using AwesomeAssertions;
-using Open.IdentityServer.UnitTests.Validation.Setup;
-using Open.IdentityServer;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;
@@ -130,6 +131,26 @@ public class Authorize_ResourceIndicators_InValid
         var validator = Factory.CreateAuthorizeRequestValidator();
         var result = await validator.ValidateAsync(parameters);
 
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidTarget);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task InValid_ResourceIndicators_AreToLong()
+    {
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.AuthorizeRequest.ClientId, "codeclient");
+        parameters.Add(OidcConstants.AuthorizeRequest.Scope, "openid urn:valid.resource:Read valid:All");
+        parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, "https://server/cb");
+        parameters.Add(OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code);
+        parameters.Add(OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Query);
+
+        parameters.Add(OidcConstants.AuthorizeRequest.Resource, "urn:valid.resource." + new string('a', new IdentityServerOptions().InputLengthRestrictions.ResourceIndicatorMaxLength));
+        
+        var validator = Factory.CreateAuthorizeRequestValidator();
+        var result = await validator.ValidateAsync(parameters);
+        
         result.IsError.Should().BeTrue();
         result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidTarget);
     }

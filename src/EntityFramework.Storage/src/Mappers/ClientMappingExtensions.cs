@@ -27,7 +27,18 @@ public static class ClientMappingExtensions
         /// <returns>mapped instance of <see cref="Models.Client"/></returns>
         public Models.Client ToModel()
         {
-            return new Models.Client
+            return clientEntity.ToModel<Models.Client>();
+        }
+
+        /// <summary>
+        /// Mapper for <see cref="Entities.Client"/> to convert into an instance of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of <see cref="Models.Client"/> model to map to.</typeparam>
+        /// <returns>mapped instance of <typeparamref name="T"/>.</returns>
+        public T ToModel<T>() 
+            where T : Models.Client, new()
+        {
+            return new T
             {
                 Enabled = clientEntity.Enabled,
                 ClientId = clientEntity.ClientId,
@@ -76,7 +87,10 @@ public static class ClientMappingExtensions
                 UserCodeType = clientEntity.UserCodeType,
                 DeviceCodeLifetime = clientEntity.DeviceCodeLifetime,
                 AllowedCorsOrigins = clientEntity.AllowedCorsOrigins.ToStringCollection(),
+                RequirePushedAuthorization = clientEntity.RequirePushedAuthorization,
+                PushedAuthorizationLifetime = clientEntity.PushedAuthorizationLifetime,
                 Properties = clientEntity.Properties.ToModelDictionary(),
+                PollingInterval = clientEntity.PollingInterval,
             };
         }
     }
@@ -177,9 +191,13 @@ public static class ClientMappingExtensions
                 ClientClaimsPrefix = clientModel.ClientClaimsPrefix,
                 PairWiseSubjectSalt = clientModel.PairWiseSubjectSalt,
                 UserSsoLifetime = clientModel.UserSsoLifetime,
+                UserCodeType = clientModel.UserCodeType,
                 DeviceCodeLifetime = clientModel.DeviceCodeLifetime,
                 AllowedCorsOrigins = clientModel.AllowedCorsOrigins?.Select(x => new ClientCorsOrigin { Origin = x }).ToList() ?? [],
+                PushedAuthorizationLifetime = clientModel.PushedAuthorizationLifetime,
+                RequirePushedAuthorization = clientModel.RequirePushedAuthorization,
                 Properties = clientModel.Properties.ToEntityList<Entities.ClientProperty>(),
+                PollingInterval = clientModel.PollingInterval,
             };
         }
     }

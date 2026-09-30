@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using AwesomeAssertions;
 using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
@@ -262,6 +263,12 @@ internal static class Factory
 
         var userSession = new MockUserSession();
 
+        // Never intended to be used as part of these tests
+        var parService = new DefaultPushedAuthorizationRequestService(
+            new StubClock(), new StubHandleGenerationService(), options, new InMemoryPushedAuthorizationRequestStore(),
+            TestLogger.Create<DefaultPushedAuthorizationRequestService>());
+            
+
         return new AuthorizeRequestValidator(
             options,
             clients,
@@ -271,6 +278,7 @@ internal static class Factory
             userSession,
             jwtRequestValidator,
             jwtRequestUriHttpClient,
+            parService,
             telemetry,
             TestLogger.Create<AuthorizeRequestValidator>());
     }

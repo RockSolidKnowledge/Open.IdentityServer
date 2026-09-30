@@ -28,6 +28,13 @@ public class IntegrationTest<TClass, TDbContext, TStoreOption> : IClassFixture<D
             DatabaseProviderBuilder.BuildInMemory<TDbContext>(typeof(TClass).Name),
             DatabaseProviderBuilder.BuildSqlite<TDbContext>(typeof(TClass).Name)
         };
+    
+    public static readonly TheoryData<DbContextOptions<TDbContext>> TestDatabaseProvidersSupportExecuteDelete
+        = new()
+        {
+            // Default all-platform config,
+            DatabaseProviderBuilder.BuildSqlite<TDbContext>(typeof(TClass).Name)
+        };
              
     protected readonly TStoreOption StoreOptions = Activator.CreateInstance<TStoreOption>();
 

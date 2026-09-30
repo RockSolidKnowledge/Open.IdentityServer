@@ -123,5 +123,5 @@ public class PersistedGrantDbContext<TContext> : DbContext, IPersistedGrantDbCon
     /// <value>
     /// The pushed authorization requests.
     /// </value>
-    public DbSet<IdentityServerPushedAuthorizationRequests> PushedAuthorizationRequests { get; set; }
+    public DbSet<PushedAuthorizationRequest> PushedAuthorizationRequests { get; set; }
 }

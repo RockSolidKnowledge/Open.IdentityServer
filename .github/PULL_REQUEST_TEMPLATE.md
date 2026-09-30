@@ -12,10 +12,10 @@ _Please include a summary of the changes in this pull request.  List the issue n
 
 ## Does this PR introduce a breaking change?
 
-_Does the change cause existing functionality to not work as previously expected, or does the DB schema or C# public API surface change?_
+_Does the change cause a breaking change to any of the following?_
 
-- [ ] Yes
-- [ ] No
+- [ ] Changes to existing public APIs or DB schema
+- [ ] Changes which could cause existing behaviour to fail (eg. feature restrictions, changes to default values, stricter validation, etc)
 
 ## Testing
 

@@ -27,9 +27,18 @@ public class TestOperationalStoreNotification : IOperationalStoreNotification
 
     public Task DeviceCodesRemovedAsync(IEnumerable<DeviceFlowCodes> deviceCodes)
     {
-        foreach (var deviceCode in deviceCodes) 
+        foreach (var _ in deviceCodes) 
         {
             Console.WriteLine("cleaned device code");
+        }
+        return Task.CompletedTask;
+    }
+
+    public Task PushedAuthenticationRequestsRemovedAsync(IEnumerable<PushedAuthorizationRequest> expiredRequests)
+    {
+        foreach (var _ in expiredRequests)
+        {
+            Console.WriteLine("cleaned pushed authentication request");
         }
         return Task.CompletedTask;
     }

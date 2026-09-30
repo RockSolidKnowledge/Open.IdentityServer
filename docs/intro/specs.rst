@@ -28,3 +28,4 @@ OAuth 2.0
 * OAuth 2.0 Mutual TLS Client Authentication and Certificate-Bound Access Tokens (`RFC 8705 <https://tools.ietf.org/html/rfc8705>`_)
 * JWT Secured Authorization Request (`draft <https://tools.ietf.org/html/draft-ietf-oauth-jwsreq>`_)
 * Resource Indicators for OAuth 2.0 (`RFC 8707 <https://tools.ietf.org/html/rfc8707>`_)
+* OAuth 2.0 Pushed Authorization Requests (`RFC 9126 <https://tools.ietf.org/html/rfc9126>`_)

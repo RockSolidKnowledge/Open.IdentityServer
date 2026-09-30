@@ -83,7 +83,7 @@ public abstract class ReturnUrlResultTestBase<TResult> where TResult : ReturnUrl
 
         await sut.ExecuteAsync(Context);
 
-        Context.Response.StatusCode.Should().Be(302);
+        Context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         var urlDecoded = DecodeLocation();
         urlDecoded.Should().Contain(ExpectedRedirectUrlPath);
         urlDecoded.Should().Contain($"{ExpectedReturnUrlParameterName}=");
@@ -189,7 +189,7 @@ public abstract class ReturnUrlResultTestBase<TResult> where TResult : ReturnUrl
 
         await sut.ExecuteAsync(Context);
 
-        Context.Response.StatusCode.Should().Be(302);
+        Context.Response.StatusCode.Should().Be(StatusCodes.Status303SeeOther);
         var location = Context.Response.Headers["Location"].ToString();
         location.Should().Contain(ExpectedRedirectUrlPath);
     }

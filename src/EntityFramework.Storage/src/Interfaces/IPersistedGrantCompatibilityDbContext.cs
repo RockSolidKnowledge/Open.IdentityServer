@@ -35,5 +35,5 @@ public interface IPersistedGrantCompatibilityDbContext: IDisposable
     /// <value>
     /// The pushed authorization requests.
     /// </value>
-    DbSet<IdentityServerPushedAuthorizationRequests> PushedAuthorizationRequests { get; set; }
+    DbSet<PushedAuthorizationRequest> PushedAuthorizationRequests { get; set; }
 }

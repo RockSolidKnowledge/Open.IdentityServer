@@ -15,6 +15,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Test;
 using Microsoft.AspNetCore.Authentication;
 using Xunit;
+using Open.IdentityServer.Extensions;
 
 namespace IdentityServer.IntegrationTests.Pipeline;
 
@@ -174,7 +175,7 @@ public class FederatedSignoutTests
         _pipeline.OnFederatedSignout = async ctx =>
         {
             await ctx.SignOutAsync(); // even if we signout, we should not see iframes
-            ctx.Response.Redirect("http://foo");
+            ctx.Response.RedirectToAbsoluteUrl("http://foo");
             return true;
         };
 
@@ -193,7 +194,7 @@ public class FederatedSignoutTests
             IdentityServerPipeline.FederatedSignOutUrl + "?sid=123", 
             TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Content.Headers.ContentType.Should().BeNull();
         var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         html.Should().Be(String.Empty);

@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace Open.IdentityServer.Validation;
@@ -142,6 +143,15 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
     public IEnumerable<string> PromptModes { get; set; } = Enumerable.Empty<string>();
 
     /// <summary>
+    /// Gets or sets the collection of processed prompt modes.
+    /// </summary>
+    /// <remarks>
+    /// A prompt is processed if it has been handled by the authorization endpoint and should not be processed again. 
+    /// This is used to prevent infinite loops when the user is redirected back to the authorization endpoint after a prompt has been handled.
+    /// </remarks>
+    public IEnumerable<string> ProcessedPromptModes { get; set; } = Enumerable.Empty<string>();
+
+    /// <summary>
     /// Gets or sets the maximum age.
     /// </summary>
     /// <value>
@@ -203,6 +213,13 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
 
 
     /// <summary>
+    /// The PAR urn used in the request, if present
+    /// </summary>
+    public string PushedAuthorizationUri { get; set; } = null;
+
+   
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ValidatedAuthorizeRequest"/> class.
     /// </summary>
     public ValidatedAuthorizeRequest()
@@ -211,4 +228,5 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
         RequestedResourceIndicators = [];
         AuthenticationContextReferenceClasses = [];
     }
+    
 }
