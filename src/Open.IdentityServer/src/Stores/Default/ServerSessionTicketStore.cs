@@ -234,6 +234,6 @@ public class ServerSessionTicketStore(
         SerializedAuthenticationTicket? serializedAuthTicket =
             JsonSerializer.Deserialize<SerializedAuthenticationTicket>(unprotectedData);
 
-        return serializedAuthTicket?.ToAuthTicket();
+        return serializedAuthTicket?.ToAuthTicket(existingSession);
     }
 }

@@ -3,93 +3,19 @@
 
 #nullable enable
 
-using System.Collections.Generic;
+using System;
 using System.Net;
-using System.Security.Claims;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.IntegrationTests.Common;
-using Microsoft.Extensions.DependencyInjection;
-using Open.IdentityServer.Models;
-using Open.IdentityServer.Stores;
-using Open.IdentityServer.Test;
 using Xunit;
 
-namespace Open.IdentityServer.IntegrationTests.Endpoints.Login;
+namespace Open.IdentityServer.IntegrationTests.Endpoints.EndSession;
 
-public class EndSessionServerSideSessionTests
+public class EndSessionServerSideSessionTests: ServerSideSessionTests
 {
-    private const string Category = "EndSessionServerSideSessionTests";
-
-    private IdentityServerPipeline _mockPipeline = new IdentityServerPipeline();
-    private IIdentityServerServerSideSessionStore? sessionStore = null;
-
-    public EndSessionServerSideSessionTests()
-    {
-        _mockPipeline.EnableServerSideSessions = true;
-        
-        _mockPipeline.Clients.AddRange([
-            new Client
-            {
-                ClientId = "client1",
-                AllowedGrantTypes = GrantTypes.Implicit,
-                RequireConsent = false,
-                AllowedScopes = new List<string> { "openid", "profile" },
-                RedirectUris = new List<string> { "https://client1/callback" },
-                AllowAccessTokensViaBrowser = true
-            },
-            new Client
-            {
-                ClientId = "client2",
-                AllowedGrantTypes = GrantTypes.Implicit,
-                RequireConsent = true,
-                AllowedScopes = new List<string> { "openid", "profile", "api1", "api2" },
-                RedirectUris = new List<string> { "https://client2/callback" },
-                AllowAccessTokensViaBrowser = true
-            }
-        ]);
-
-        _mockPipeline.Users.Add(new TestUser
-        {
-            SubjectId = "bob",
-            Username = "bob",
-            Claims =
-            [
-                new Claim("name", "Bob Loblaw"),
-                new Claim("email", "bob@loblaw.com"),
-                new Claim("role", "Attorney")
-            ]
-        });
-
-        _mockPipeline.IdentityScopes.AddRange([
-            new IdentityResources.OpenId(),
-            new IdentityResources.Profile(),
-            new IdentityResources.Email()
-        ]);
-        _mockPipeline.ApiResources.AddRange([
-            new ApiResource
-            {
-                Name = "api",
-            }
-        ]);
-        _mockPipeline.ApiScopes.AddRange([
-            new ApiScope
-            {
-                Name = "api1"
-            },
-            new ApiScope
-            {
-                Name = "api2"
-            }
-        ]);
-        
-        _mockPipeline.OnPreConfigure += app =>
-        {
-            sessionStore = app.ApplicationServices.GetRequiredService<IIdentityServerServerSideSessionStore>();
-        };
-
-        _mockPipeline.Initialize();
-    }
+    private const string Category = nameof(EndSessionServerSideSessionTests);
 
     [Fact]
     [Trait("Category", Category)]
@@ -117,5 +43,53 @@ public class EndSessionServerSideSessionTests
         
         var storedSessionPostEndSession = await sessionStore.GetSession(authKey);
         storedSessionPostEndSession.Should().BeNull();
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task EndSession_WhenMultipleClients_ShouldRenderFrontChannelSignoutIframes()
+    {
+        ticketStore = _mockPipeline.GetTicketStore();
+
+        await _mockPipeline.LoginAsync("bob");
+        var sid = _mockPipeline.GetSessionCookie().Value;
+
+        var authKey = _mockPipeline.GetTicketStoreKeyFromAuthCookie();
+        authKey.Should().NotBeNull();
+        
+        // Perform Client Authorizations
+        var (_, client1TokenResponse) = await AuthCodeAndTokenRequest(
+            "client1",
+            "openid profile api1 offline_access",
+            "https://client1/callback");
+        
+        await AuthCodeAndTokenRequest(
+            "client2", 
+            "openid profile", 
+            "https://client2/callback");
+
+        var endSessionUrl = IdentityServerPipeline.EndSessionEndpoint +
+                            "?id_token_hint=" + Uri.EscapeDataString(client1TokenResponse.IdentityToken!);
+        
+        // Validate End Session Endpoint Behaviour
+        await _mockPipeline.BrowserClient.GetAsync(endSessionUrl, TestContext.Current.CancellationToken);
+
+        _mockPipeline.LogoutWasCalled.Should().BeTrue();
+        _mockPipeline.LogoutRequest.Should().NotBeNull();
+        _mockPipeline.LogoutRequest.SignOutIFrameUrl.Should().NotBeNull();
+
+        var signoutFrameResponse = await _mockPipeline.BrowserClient.GetAsync(
+            _mockPipeline.LogoutRequest.SignOutIFrameUrl,
+            TestContext.Current.CancellationToken);
+
+        signoutFrameResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await signoutFrameResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        html.Should().Contain(HtmlEncoder.Default.Encode(
+            "https://client1/signout?sid=" + sid + "&iss=" +
+            UrlEncoder.Default.Encode(IdentityServerPipeline.BaseUrl)));
+        html.Should().Contain(HtmlEncoder.Default.Encode(
+            "https://client2/signout?sid=" + sid + "&iss=" +
+            UrlEncoder.Default.Encode(IdentityServerPipeline.BaseUrl)));
     }
 }
