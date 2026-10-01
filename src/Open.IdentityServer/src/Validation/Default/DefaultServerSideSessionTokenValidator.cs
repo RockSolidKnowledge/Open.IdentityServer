@@ -13,12 +13,6 @@ using Open.IdentityServer.Services;
 
 namespace Open.IdentityServer.Validation;
 
-/// <summary>
-/// 
-/// </summary>
-/// <param name="decorator"></param>
-/// <param name="userSessionEventsService"></param>
-/// <param name="telemetry"></param>
 internal class DefaultServerSideSessionTokenValidator(
     Decorator<ITokenValidator> decorator,
     IUserSessionEventsService userSessionEventsService,
@@ -26,12 +20,7 @@ internal class DefaultServerSideSessionTokenValidator(
 {
     private ITokenValidator decoratedService = decorator?.Instance ?? throw new ArgumentNullException(nameof(decorator));
     
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="token"></param>
-    /// <param name="expectedScope"></param>
-    /// <returns></returns>
+    /// <inheritdoc />
     public async Task<TokenValidationResult?> ValidateAccessTokenAsync(string token, string? expectedScope = null)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
