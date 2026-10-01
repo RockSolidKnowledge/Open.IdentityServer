@@ -71,8 +71,6 @@ Migration Steps
          - Remove all references. Not yet supported in Open.IdentityServer.
        * - Automatic Key Management
          - Remove all references. You will need to configure signing keys manually, or :ref:`configure read-only key store <refCompatibility>`.
-       * - Server Side Sessions
-         - Remove all references. Not yet supported in Open.IdentityServer.
        * - Pushed Authorisation Requests (PAR)
          - Remove all references. Not yet supported in Open.IdentityServer.
        * - CIBA (Client Initiated Backchannel Authentication)

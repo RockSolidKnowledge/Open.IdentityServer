@@ -10,9 +10,14 @@ using Open.IdentityServer.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Net.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Hosting;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Open.IdentityServer.Models;
+using Open.IdentityServer.Services.Default;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -457,6 +462,33 @@ public static class IdentityServerBuilderExtensionsAdditional
         // This is added as scoped due to the note regarding the AuthenticateAsync
         // method in the Open.IdentityServer.Services.DefaultUserSession implementation.
         builder.Services.AddScoped<IUserSession, T>();
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds server-side session storage to Open.IdentityServer
+    /// </summary>
+    /// <param name="builder">The builder</param>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained</returns>
+    public static IIdentityServerBuilder AddServerSideSessions(this IIdentityServerBuilder builder)
+    {
+        builder.Services.AddSingleton<IPostConfigureOptions<CookieAuthenticationOptions>, PostConfigureSessionStoreCookieAuthOptions>();
+        builder.Services.AddScoped<IServerSessionTicketStore, ServerSessionTicketStore>();
+        
+        // Token Validators
+        builder.Services.AddTransientDecorator<ITokenValidator, DefaultServerSideSessionTokenValidator>();
+        builder.Services.AddTransientDecorator<IRefreshTokenService, DefaultServerSideSessionRefreshTokenService>();
+        
+        // provide default in-memory implementation, not suitable for most production scenarios (following pattern implemented with existing stores)
+        builder.Services.TryAddSingleton<IIdentityServerServerSideSessionStore, InMemorySessionStore>();
+        
+        //Clean-up Service
+        builder.Services.AddTransient<ISessionCleanupService, SessionCleanupService>();
+        builder.Services.AddSingleton<IHostedService, SessionCleanupHostedService>();
+        
+        //Add Management Service
+        builder.Services.TryAddScoped<ISessionManagementService, DefaultSessionManagementService>();
 
         return builder;
     }

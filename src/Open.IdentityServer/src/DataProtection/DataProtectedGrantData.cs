@@ -24,9 +24,7 @@ public class DataProtectedGrantData
     public bool DataProtected { get; set; }
     
     /// <summary>
-    /// <see langword="true"/> when <see cref="Payload"/> has been protected via
-    /// <c>IDataProtector.Protect</c> and must be unprotected before deserialization;
-    /// <see langword="false"/> when the payload is the raw serialized grant.
+    /// Payload of the grant data, either raw JSON or protected string
     /// </summary>
     public string Payload { get; set; }
 }

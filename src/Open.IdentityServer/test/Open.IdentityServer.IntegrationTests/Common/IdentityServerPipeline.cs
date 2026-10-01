@@ -28,6 +28,8 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Options;
 
 namespace IdentityServer.IntegrationTests.Common;
 
@@ -56,8 +58,11 @@ public class IdentityServerPipeline
     
     public const string FederatedSignOutPath = "/signout-oidc";
     public const string FederatedSignOutUrl = BaseUrl + FederatedSignOutPath;
-    
+
+    public const string AuthCookieSessionIdClaimType = "Microsoft.AspNetCore.Authentication.Cookies-SessionId";
+
     public IdentityServerOptions? Options { get; set; }
+    
     public List<Client> Clients { get; set; } = new List<Client>();
     public List<IdentityResource> IdentityScopes { get; set; } = new List<IdentityResource>();
     public List<ApiResource> ApiResources { get; set; } = new List<ApiResource>();
@@ -79,6 +84,11 @@ public class IdentityServerPipeline
     public event Action<IApplicationBuilder> OnPostConfigure = app => { };
 
     public Func<HttpContext, Task<bool>>? OnFederatedSignout;
+
+    public AuthenticationProperties? AuthenticationProperties { get; set; } = new();
+    
+    // Enableable Features
+    public bool EnableServerSideSessions { get; set; }
 
     public void Initialize(string? basePath = null, bool enableLogging = false)
     {
@@ -144,10 +154,15 @@ public class IdentityServerPipeline
             return handler;
         });
 
-        services.AddIdentityServer(options =>
+        var idsBuilder = services.AddIdentityServer(options =>
             {
                 Options = options;
 
+                if (EnableServerSideSessions)
+                {
+                    options.Authentication.CookieSlidingExpiration = true;
+                }
+                
                 options.Events = new EventsOptions
                 {
                     RaiseErrorEvents = true,
@@ -162,6 +177,11 @@ public class IdentityServerPipeline
             .AddInMemoryApiScopes(ApiScopes)
             .AddTestUsers(Users)
             .AddDeveloperSigningCredential(persistKey: false);
+
+        if (EnableServerSideSessions)
+        {
+            idsBuilder.AddServerSideSessions();
+        }
 
         services.AddHttpClient(IdentityServerConstants.HttpClients.BackChannelLogoutHttpClient)
             .AddHttpMessageHandler(() => BackChannelMessageHandler);
@@ -227,7 +247,7 @@ public class IdentityServerPipeline
     {
         if (Subject != null)
         {
-            var props = new AuthenticationProperties();
+            var props = AuthenticationProperties ?? new AuthenticationProperties();
             await ctx.SignInAsync(Subject, props);
             Subject = null;
             var url = ctx.Request.Query[Options!.UserInteraction.LoginReturnUrlParameter].FirstOrDefault();
@@ -325,7 +345,7 @@ public class IdentityServerPipeline
 
         Subject = subject;
         await BrowserClient.GetAsync(LoginPage);
-
+        
         BrowserClient.AllowAutoRedirect = old;
     }
 
@@ -345,6 +365,32 @@ public class IdentityServerPipeline
     public Cookie GetSessionCookie()
     {
         return BrowserClient!.GetCookie(BaseUrl, IdentityServerConstants.DefaultCheckSessionCookieName);
+    }
+
+    public Cookie GetLoginCookie()
+    {
+        return BrowserClient!.GetCookie(BaseUrl, IdentityServerConstants.DefaultCookieAuthenticationScheme);
+    }
+
+    public string? GetTicketStoreKeyFromAuthCookie()
+    {
+        var authCookie = GetLoginCookie();
+        if (authCookie == null || string.IsNullOrWhiteSpace(authCookie.Value))
+        {
+            return null;
+        }
+
+        var optionsMonitor = Server!.Services.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>();
+        var cookieOptions = optionsMonitor.Get(IdentityServerConstants.DefaultCookieAuthenticationScheme);
+
+        var ticket = cookieOptions.TicketDataFormat.Unprotect(authCookie.Value);
+        return ticket?.Principal?.FindFirst(AuthCookieSessionIdClaimType)?.Value;
+    }
+    public ITicketStore GetTicketStore()
+    {
+        var optionsMonitor = Server!.Services.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>();
+        var cookieOptions = optionsMonitor.Get(IdentityServerConstants.DefaultCookieAuthenticationScheme);
+        return cookieOptions.SessionStore!;
     }
 
     public string CreateAuthorizeUrl(

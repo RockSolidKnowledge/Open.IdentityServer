@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
 using Microsoft.Extensions.Hosting;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,7 +50,7 @@ public class TokenCleanupHost : IHostedService
 
             _source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-            Task.Factory.StartNew(() => StartInternalAsync(_source.Token));
+            Task.Factory.StartNew(() => StartInternalAsync(_source.Token), cancellationToken);
         }
             
         return Task.CompletedTask;
@@ -81,7 +80,7 @@ public class TokenCleanupHost : IHostedService
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                _logger.LogDebug("CancellationRequested. Exiting.");
+                _logger.LogDebug("CancellationRequested. Exiting");
                 break;
             }
 
@@ -89,20 +88,20 @@ public class TokenCleanupHost : IHostedService
             {
                 await Task.Delay(CleanupInterval, cancellationToken);
             }
-            catch (TaskCanceledException)
+            catch (TaskCanceledException ex)
             {
-                _logger.LogDebug("TaskCanceledException. Exiting.");
+                _logger.LogDebug(ex, "TaskCanceledException. Exiting");
                 break;
             }
             catch (Exception ex)
             {
-                _logger.LogError("Task.Delay exception: {0}. Exiting.", ex.Message);
+                _logger.LogError(ex, "Task.Delay exception: {ExceptionMsg}. Exiting", ex.Message);
                 break;
             }
 
             if (cancellationToken.IsCancellationRequested)
             {
-                _logger.LogDebug("CancellationRequested. Exiting.");
+                _logger.LogDebug("CancellationRequested. Exiting");
                 break;
             }
 
@@ -114,15 +113,13 @@ public class TokenCleanupHost : IHostedService
     {
         try
         {
-            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                var tokenCleanupService = serviceScope.ServiceProvider.GetRequiredService<TokenCleanupService>();
-                await tokenCleanupService.RemoveExpiredGrantsAsync();
-            }
+            using var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            var tokenCleanupService = serviceScope.ServiceProvider.GetRequiredService<TokenCleanupService>();
+            await tokenCleanupService.RemoveExpiredGrantsAsync();
         }
         catch (Exception ex)
         {
-            _logger.LogError("Exception removing expired grants: {exception}", ex.Message);
+            _logger.LogError(ex, "Exception removing expired grants: {ExceptionMsg}", ex.Message);
         }
     }
 }

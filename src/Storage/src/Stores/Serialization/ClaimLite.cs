@@ -16,4 +16,6 @@ public class ClaimLite
     public string Value { get; set; }
     /// <summary>Gets or sets the claim value type.</summary>
     public string ValueType { get; set; }
+    /// <summary>Gets or sets the claim issuer.</summary>
+    public string Issuer { get; set; }
 }

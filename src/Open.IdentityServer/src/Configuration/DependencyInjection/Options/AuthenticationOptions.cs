@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System;
 using Microsoft.AspNetCore.Http;
@@ -60,4 +60,10 @@ public class AuthenticationOptions
     /// If set, will require frame-src CSP headers being emitting on the end session callback endpoint which renders iframes to clients for front-channel signout notification.
     /// </summary>
     public bool RequireCspFrameSrcForSignout { get; set; } = true;
+    
+    /// <summary>
+    /// If set, refresh token lifetimes will be tied to the users' session. This setting can be overridden at the client
+    /// level. 
+    /// </summary>
+    public bool CoordinateClientLifetimesWithUserSession { get; set; }
 }
