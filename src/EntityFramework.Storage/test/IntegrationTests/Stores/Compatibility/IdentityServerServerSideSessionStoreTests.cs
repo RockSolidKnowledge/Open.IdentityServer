@@ -599,8 +599,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         actual.Should().Contain(x => x.Key == expiredSession0.Key);
         actual.Should().Contain(x => x.Key == expiredSession1.Key);
     }
-
-    //TODO: Finish implementing test
+    
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task GetAndRemoveExpiredSessions_WhenUnspecifiedTimezoneInDbEntities_ShouldBeTreatedAsUtc(DbContextOptions<PersistedGrantDbContext> options)
     {
