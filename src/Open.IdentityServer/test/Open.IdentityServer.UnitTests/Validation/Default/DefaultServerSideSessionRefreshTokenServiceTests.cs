@@ -196,13 +196,5 @@ public class DefaultServerSideSessionRefreshTokenServiceTests
                     TelemetryConstants.TraceCategories.Validation, sut, method.traceMethodName), Times.Once);
             Mock.Get(trace).Verify(t => t.Dispose(), Times.Once);
         }
-
-        // Assert all methods covered
-        // typeof(DefaultServerSideSessionRefreshTokenService).GetMethods()
-        //     .Where(m => m is { IsPublic: true, IsStatic: false, IsSpecialName: false })
-        //     .Where(m => m.DeclaringType == typeof(DefaultServerSideSessionRefreshTokenService))
-        //     .Select(m => m.Name)
-        //     .Distinct()
-        //     .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
     }
 }
