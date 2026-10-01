@@ -6,6 +6,8 @@
 using System.Net;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using IdentityServer.IntegrationTests.Common;
+using Microsoft.AspNetCore.Authentication;
 using Xunit;
 
 namespace Open.IdentityServer.IntegrationTests.Endpoints.Login;
@@ -59,5 +61,25 @@ public class LoginServerSideSessionTests: ServerSideSessionTests
         updatedSession.Should().NotBeNull();
         updatedSession.SessionId.Should().Be(newSessionCookie.Value);
         updatedSession.SubjectId.Should().Be("alice");
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Login_ShouldStoreAuthTicketWithIssuerAttached()
+    {
+        //Setup
+        ticketStore = _mockPipeline.GetTicketStore();
+        sessionStore.Should().NotBeNull();
+
+        // Initial login to create a session
+        await _mockPipeline.LoginAsync("bob");
+
+        // Verify that the session has been created in the store
+        AuthenticationTicket? ticket = null;
+        var authKey = _mockPipeline.GetTicketStoreKeyFromAuthCookie();
+        authKey.Should().NotBeNull();
+        ticket = await ticketStore.RetrieveAsync(authKey, TestContext.Current.CancellationToken);
+        ticket.Should().NotBeNull();
+        ticket.Properties.Items[JwtClaimTypes.Issuer].Should().Be(IdentityServerPipeline.BaseUrl);
     }
 }
