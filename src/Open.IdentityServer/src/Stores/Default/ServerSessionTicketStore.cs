@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
@@ -30,7 +31,8 @@ namespace Open.IdentityServer.Stores;
 /// <param name="serverServerSideSessionStore"></param>
 /// <param name="dataProtectionProvider">data protection provider</param>
 /// <param name="timeProvider">time provider</param>
-/// <param name="options">identit server options</param>
+/// <param name="options">identity server options</param>
+/// <param name="httpContextAccessor">http context accessor</param>
 /// <param name="telemetry">telemetry service</param>
 /// <param name="logger">the logger</param>
 public class ServerSessionTicketStore(
@@ -38,6 +40,7 @@ public class ServerSessionTicketStore(
     IDataProtectionProvider dataProtectionProvider,
     TimeProvider timeProvider,
     IdentityServerOptions options,
+    IHttpContextAccessor httpContextAccessor,
     ITelemetryService telemetry,
     ILogger<ServerSessionTicketStore> logger): IServerSessionTicketStore
 {
@@ -177,6 +180,13 @@ public class ServerSessionTicketStore(
 
     private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)
     {
+        var issuerUri = httpContextAccessor.HttpContext.GetIdentityServerIssuerUri();
+
+        if (issuerUri != null)
+        {
+            ticket.Properties.Items[JwtClaimTypes.Issuer] = issuerUri;
+        }
+        
         string? displayName = string.IsNullOrWhiteSpace(options.ServerSideSessions.UserDisplayNameClaimType)
             ? null
             : ticket.Principal.FindFirstValue(options.ServerSideSessions.UserDisplayNameClaimType);

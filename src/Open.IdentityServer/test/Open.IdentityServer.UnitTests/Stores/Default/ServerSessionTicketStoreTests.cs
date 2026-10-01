@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 using Open.IdentityServer.Configuration;
@@ -35,17 +36,23 @@ public class ServerSessionTicketStoreTests
     private readonly IDataProtectionProvider dataProtectionProvider = Mock.Of<IDataProtectionProvider>();
     private readonly MockDataProtector dataProtector = new();
     private readonly FakeTimeProvider fakeTimeProvider = new();
+    private readonly IHttpContextAccessor httpContextAccessor = Mock.Of<IHttpContextAccessor>(); 
     private readonly ITelemetryService telemetry = Mock.Of<ITelemetryService>();
     private readonly MockLogger<ServerSessionTicketStore> logger = new();
 
     private readonly IdentityServerOptions fakeOptions = new();
+    private readonly IServiceProvider fakeserviceProvider = Mock.Of<IServiceProvider>();
+    private readonly HttpContext fakeHttpContext = new DefaultHttpContext();
 
     private static readonly DateTime FakeNow = new(2026, 01, 01, 12, 0, 0, DateTimeKind.Utc);
+    private static readonly string FakeIssuer = "https://fake.issuer.com";
 
     public ServerSessionTicketStoreTests()
     {
         fakeTimeProvider.SetUtcNow(FakeNow);
-
+        fakeOptions.IssuerUri = FakeIssuer;
+        fakeHttpContext.RequestServices = fakeserviceProvider;
+        
         Mock.Get(dataProtectionProvider)
             .Setup(x => x.CreateProtector(DataProtectionConstants.ServerSideTicketStorePurpose))
             .Returns(dataProtector);
@@ -53,10 +60,18 @@ public class ServerSessionTicketStoreTests
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.FilterSessions(It.IsAny<SessionQuery>()))
             .ReturnsAsync(QueryResult<IdentityServerServerSideSessions>.Empty);
+
+        Mock.Get(fakeserviceProvider)
+            .Setup(x => x.GetService(typeof(IdentityServerOptions)))
+            .Returns(fakeOptions);
+        
+        Mock.Get(httpContextAccessor)
+            .Setup(x => x.HttpContext)
+            .Returns(fakeHttpContext);
     }
 
     private ServerSessionTicketStore CreateSut() => new(serverServerSideSessionStore, dataProtectionProvider,
-        fakeTimeProvider, fakeOptions, telemetry, logger);
+        fakeTimeProvider, fakeOptions, httpContextAccessor, telemetry, logger);
 
     [Fact]
     public async Task StoreAsync_WhenOptionalValuesNotProvided_ShouldUseCorrectDefaults()
@@ -93,7 +108,10 @@ public class ServerSessionTicketStoreTests
         var actualPayload = jsonElement.GetProperty("Payload").GetString();
         actualPayload.Should().NotBeNull();
 
-        string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
+        var expectedAuthTicket = authenticationTicket.Clone();
+        expectedAuthTicket.Properties.Items[JwtClaimTypes.Issuer] = FakeIssuer;
+        
+        string expectedJson = JsonSerializer.Serialize(expectedAuthTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);
         dataProtector.ValidateProtectedData(actualPayload, expectedJson);
     }
@@ -136,8 +154,11 @@ public class ServerSessionTicketStoreTests
         jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
         var actualPayload = jsonElement.GetProperty("Payload").GetString();
         actualPayload.Should().NotBeNull();
+
+        var expectedAuthTicket = authenticationTicket.Clone();
+        expectedAuthTicket.Properties.Items[JwtClaimTypes.Issuer] = FakeIssuer;
         
-        string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
+        string expectedJson = JsonSerializer.Serialize(expectedAuthTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);
         dataProtector.ValidateProtectedData(actualPayload, expectedJson);
     }
@@ -184,8 +205,11 @@ public class ServerSessionTicketStoreTests
         jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
         var actualPayload = jsonElement.GetProperty("Payload").GetString();
         actualPayload.Should().NotBeNull();
+
+        var expectedAuthTicket = authenticationTicket.Clone();
+        expectedAuthTicket.Properties.Items[JwtClaimTypes.Issuer] = FakeIssuer;
         
-        string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
+        string expectedJson = JsonSerializer.Serialize(expectedAuthTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);
         dataProtector.ValidateProtectedData(actualPayload, expectedJson);
     }
@@ -338,7 +362,10 @@ public class ServerSessionTicketStoreTests
         var actualPayload = jsonElement.GetProperty("Payload").GetString();
         actualPayload.Should().NotBeNull();
 
-        string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
+        var expectedAuthTicket = authenticationTicket.Clone();
+        expectedAuthTicket.Properties.Items[JwtClaimTypes.Issuer] = FakeIssuer;
+        
+        string expectedJson = JsonSerializer.Serialize(expectedAuthTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);
         dataProtector.ValidateProtectedData(actualPayload, expectedJson);
     }
