@@ -769,7 +769,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task FilterSessions_WithQuery_WhenTokenInQueryAndGetPreviousTrue_ShouldGetNextPage(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task FilterSessions_WithQuery_WhenTokenInQueryAndGetPreviousTrue_ShouldGetPreviousPage(DbContextOptions<PersistedGrantDbContext> options)
     {
         await using var context = await CreateCleanContext(options);
         IdentityServerServerSideSessionStore sut = CreateSut(context);
@@ -787,6 +787,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         
         var sessions = context.ServerSideSessions
             .OrderBy(x => x.Id).Skip(4).Take(2).ToList();
+        // 5,6
         var testToken = $"{sessions.First().Id},{sessions.Last().Id}";
 
         var actual = await sut.FilterSessions(new SessionQuery
@@ -797,14 +798,14 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         }, TestContext.Current.CancellationToken);
         
         actual.TotalCount.Should().Be(7);
-        actual.CurrentPage.Should().Be(3);
+        actual.CurrentPage.Should().Be(2);
         actual.TotalPages.Should().Be(4);
-        actual.ResultsToken.Should().Be(testToken);
+        actual.ResultsToken.Should().Be("3,4");
         actual.HasPrevResults.Should().BeTrue();
         actual.HasNextResults.Should().BeTrue();
         actual.Results.Should().HaveCount(2);
-        actual.Results.Should().Contain(x => x.Key == "key-4");
-        actual.Results.Should().Contain(x => x.Key == "key-5");
+        actual.Results.Should().Contain(x => x.Key == "key-2");
+        actual.Results.Should().Contain(x => x.Key == "key-3");
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
