@@ -60,6 +60,7 @@ public static class ServerSessionTestGenerators
         string? displayName = null, 
         DateTimeOffset? issuedUtc = null,
         DateTimeOffset? expiresUtc = null,
+        string? issuer = null,
         List<string>? clientIds = null)
     {
         List<ClaimLite> claims = [];
@@ -89,6 +90,11 @@ public static class ServerSessionTestGenerators
         if (expiresUtc != null)
         {
             items[".expires"] = expiresUtc.Value.ToString("R");
+        }
+
+        if (issuer != null)
+        {
+            items[JwtClaimTypes.Issuer] = issuer;
         }
         
         if (clientIds is { Count: > 0 })

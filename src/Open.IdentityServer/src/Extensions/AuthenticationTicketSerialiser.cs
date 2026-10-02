@@ -26,12 +26,19 @@ internal static class AuthenticationTicketExtensions
 
     extension(SerializedAuthenticationTicket serializationAuthTicket)
     {
-        public AuthenticationTicket ToAuthTicket(ServerSideSession? session)
+        public AuthenticationTicket ToAuthTicket()
         {
             var authTicket = new AuthenticationTicket(
                 serializationAuthTicket.User.ToClaimsPrincipal(),
                 new AuthenticationProperties(serializationAuthTicket.Items),
                 serializationAuthTicket.Scheme);
+            
+            return authTicket;
+        }
+        
+        public AuthenticationTicket ToAuthTicket(ServerSideSession session)
+        {
+            var authTicket = serializationAuthTicket.ToAuthTicket();
 
             if (session != null)
             {
