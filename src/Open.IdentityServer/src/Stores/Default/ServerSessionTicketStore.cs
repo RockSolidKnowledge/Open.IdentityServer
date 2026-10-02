@@ -30,7 +30,7 @@ namespace Open.IdentityServer.Stores;
 /// implementation in Open.IdentityServer
 /// </summary>
 /// <param name="serverServerSideSessionStore"></param>
-/// <param name="dataProtectionProvider">data protection provider</param>
+/// <param name="authenticationTicketSerializer">authentication ticket serializer</param>
 /// <param name="persistedGrantStore">persisted grant store</param>
 /// <param name="handleGenerationService">handle generation service</param>
 /// <param name="timeProvider">time provider</param>
@@ -40,7 +40,7 @@ namespace Open.IdentityServer.Stores;
 /// <param name="logger">the logger</param>
 public class ServerSessionTicketStore(
     IIdentityServerServerSideSessionStore serverServerSideSessionStore,
-    IDataProtectionProvider dataProtectionProvider,
+    IAuthenticationTicketSerializer authenticationTicketSerializer,
     IPersistedGrantStore persistedGrantStore,
     IHandleGenerationService handleGenerationService,
     TimeProvider timeProvider,
@@ -49,17 +49,6 @@ public class ServerSessionTicketStore(
     ITelemetryService telemetry,
     ILogger<ServerSessionTicketStore> logger): IServerSessionTicketStore
 {
-    private readonly IDataProtector dataProtector =
-        dataProtectionProvider.CreateProtector(DataProtectionConstants.ServerSideTicketStorePurpose);
-
-    /// <summary>
-    /// <see cref="JsonSerializerOptions"/> to be used for storing server side sessions
-    /// </summary>
-    public static readonly JsonSerializerOptions JsonSettings = new()
-    {
-        IncludeFields = true,
-    };
-
     /// <inheritdoc />
     public async Task<string> StoreAsync(AuthenticationTicket ticket)
     {
@@ -115,7 +104,7 @@ public class ServerSessionTicketStore(
         existingSession.DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name);
         existingSession.Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
         existingSession.Expires = ticket.Properties.ExpiresUtc?.UtcDateTime;
-        existingSession.Data = ToProtectedDataString(ticket);
+        existingSession.Data = authenticationTicketSerializer.Serialize(ticket);
 
         await serverServerSideSessionStore.UpdateSession(existingSession);
     }
@@ -238,49 +227,27 @@ public class ServerSessionTicketStore(
             Created = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
             Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
             Expires = ticket.Properties.ExpiresUtc?.UtcDateTime,
-            Data = ToProtectedDataString(ticket),
+            Data = authenticationTicketSerializer.Serialize(ticket),
         };
 
         await serverServerSideSessionStore.CreateSession(serverSideSession);
 
         return serverSideSession;
     }
-
-    private string ToProtectedDataString(AuthenticationTicket ticket)
-    {
-        string serializedTicket = JsonSerializer.Serialize(ticket.ToSerializableObj());
-
-        return JsonSerializer.Serialize(new DataProtectedSessionData
-        {
-            Payload = dataProtector.Protect(serializedTicket),
-        }, JsonSettings);
-    }
     
     private AuthenticationTicket? DeserializeAuthTicket(ServerSideSession existingSession)
     {
-        DataProtectedSessionData? dataProtectedSessionData;
+        AuthenticationTicket? authenticationTicket = authenticationTicketSerializer.Deserialize(existingSession.Data);
 
-        try
+        if (authenticationTicket != null)
         {
-            dataProtectedSessionData = JsonSerializer.Deserialize<DataProtectedSessionData>(existingSession.Data, JsonSettings);
-        }
-        catch (JsonException exception)
-        {
-            logger.LogError(exception, "failed deserialising auth ticket data '{SessionKey}'", existingSession.Key);
-            return null;
+            authenticationTicket.Properties.IssuedUtc = new DateTimeOffset(existingSession.Renewed, TimeSpan.Zero);
+            if (existingSession.Expires.HasValue)
+            {
+                authenticationTicket.Properties.ExpiresUtc = new DateTimeOffset(existingSession.Expires.Value, TimeSpan.Zero);
+            }
         }
         
-        if (dataProtectedSessionData is not { Version: 1 })
-        {
-            logger.LogError("failed retrieving '{SessionKey}', deserialisation failed, incorrect version '{VersionOrNull}'", existingSession.Key, dataProtectedSessionData?.Version);
-            return null;
-        }
-            
-        string unprotectedData = dataProtector.Unprotect(dataProtectedSessionData.Payload);
-
-        SerializedAuthenticationTicket? serializedAuthTicket =
-            JsonSerializer.Deserialize<SerializedAuthenticationTicket>(unprotectedData);
-
-        return serializedAuthTicket?.ToAuthTicket(existingSession);
+        return authenticationTicket;
     }
 }
