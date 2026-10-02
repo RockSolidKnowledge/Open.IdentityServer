@@ -109,7 +109,7 @@ public static class AuthenticationPropertiesExtensions
         return Enumerable.Empty<string>();
     }
 
-    private static string EncodeList(IEnumerable<string> list)
+    internal static string EncodeList(IEnumerable<string> list)
     {
         if (list != null && list.Any())
         {

@@ -50,7 +50,8 @@ public static class ServerSessionTestGenerators
         string? sessionId, 
         string? displayName = null, 
         DateTimeOffset? issuedUtc = null,
-        DateTimeOffset? expiresUtc = null)
+        DateTimeOffset? expiresUtc = null,
+        List<string>? clientIds = null)
     {
         List<ClaimLite> claims = [];
 
@@ -79,6 +80,12 @@ public static class ServerSessionTestGenerators
         if (expiresUtc != null)
         {
             items[".expires"] = expiresUtc.Value.ToString("R");
+        }
+        
+        if (clientIds is { Count: > 0 })
+        {
+            items[AuthenticationPropertiesExtensions.ClientListKey] 
+                = AuthenticationPropertiesExtensions.EncodeList(clientIds);
         }
 
         return new SerializedAuthenticationTicket
