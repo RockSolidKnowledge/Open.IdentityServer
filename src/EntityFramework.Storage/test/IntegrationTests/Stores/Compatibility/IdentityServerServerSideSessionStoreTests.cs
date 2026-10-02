@@ -42,6 +42,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     private IdentityServerServerSideSessionStore CreateSut(PersistedGrantDbContext dbContext) =>
         new(dbContext, telemetry, timeProvider, fakeLogger);
 
+    private ExtendedIdentityServerServerSideSessionStore CreateSutExtended(PersistedGrantDbContext dbContext) =>
+        new (dbContext, telemetry, timeProvider, fakeLogger);
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -103,6 +106,50 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         result.Renewed.Should().Be(seeded.Renewed);
         result.Expires.Should().Be(seeded.Expires);
         result.Data.Should().Be(seeded.Data);
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task GetSession_WhenExist_UsingExtendedStore_ShouldReturnValueOfTypeExtendedModel(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+
+        string key = "session-key-1";
+        IdentityServerServerSideSessions seeded = new IdentityServerServerSideSessions
+        {
+            Key = key,
+            Scheme = "cookie",
+            SubjectId = "sub-1",
+            SessionId = "sid-1",
+            DisplayName = "display-1",
+            Created = FakeNow.AddMinutes(-10),
+            Renewed = FakeNow.AddMinutes(-5),
+            Expires = FakeNow.AddMinutes(30),
+            Data = "{\"foo\":\"bar\"}"
+        };
+
+        context.ServerSideSessions.Add(seeded);
+        await context.SaveChangesAsync();
+
+        IdentityServerServerSideSessionStore sut = CreateSutExtended(context);
+
+        SessionModel result = await sut.GetSession(key);
+
+        result.Should().BeOfType<ExtendedIdentityServerServerSideSessions>();
+        
+        ExtendedIdentityServerServerSideSessions resultExt = result as ExtendedIdentityServerServerSideSessions;
+        resultExt.Should().NotBeNull();
+        resultExt!.Key.Should().Be(seeded.Key);
+        resultExt.Scheme.Should().Be(seeded.Scheme);
+        resultExt.SubjectId.Should().Be(seeded.SubjectId);
+        resultExt.SessionId.Should().Be(seeded.SessionId);
+        resultExt.DisplayName.Should().Be(seeded.DisplayName);
+        resultExt.Created.Should().Be(seeded.Created);
+        resultExt.Renewed.Should().Be(seeded.Renewed);
+        resultExt.Expires.Should().Be(seeded.Expires);
+        resultExt.Data.Should().Be(seeded.Data);
+
+        resultExt.DataLength.Should().Be(seeded.Data.Length);
+        resultExt.Lifetime.Should().Be(seeded.Expires?.Subtract(seeded.Renewed));
     }
 
     [Theory]
@@ -539,6 +586,40 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenExtendedStire_ShouldReturnMatchingExtendedSessionModels(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        ExtendedIdentityServerServerSideSessionStore sut = CreateSutExtended(context);
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+
+        var actual = (await sut.FilterSessions("alice", "session-1")).ToList();
+
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == "key-1");
+        actual.Should().Contain(x => x.Key == "key-6");
+
+        foreach (var session in actual)
+        {
+            session.Should().BeOfType<ExtendedIdentityServerServerSideSessions>();
+
+            ExtendedIdentityServerServerSideSessions extSession = session as ExtendedIdentityServerServerSideSessions;
+            extSession.Should().NotBeNull();
+            extSession!.DataLength.Should().Be(session.Data.Length);
+            extSession!.Lifetime.Should().BeNull();
+        }
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task GetAndRemoveExpiredSessions_WhenNoExpiredSessionsExist_ShouldRemoveNothingAndReturnEmptyCollection(DbContextOptions<PersistedGrantDbContext> options)
     {
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
@@ -600,7 +681,40 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         actual.Should().Contain(x => x.Key == expiredSession1.Key);
     }
 
-    //TODO: Finish implementing test
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task GetAndRemoveExpiredSessions_WhenExtendedStore_ShouldDeleteAndReturnExpiredSessionModelExtended(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+        
+        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
+        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
+        IdentityServerServerSideSessions expiredSession2 = FakeSessionSession("789", "session3", true);
+        IdentityServerServerSideSessions validSession0 = FakeSessionSession("234", "session4");
+        context.ServerSideSessions.Add(expiredSession0);
+        context.ServerSideSessions.Add(expiredSession1);
+        context.ServerSideSessions.Add(expiredSession2);
+        context.ServerSideSessions.Add(validSession0);
+        await context.SaveChangesAsync();
+
+        ExtendedIdentityServerServerSideSessionStore sut = CreateSutExtended(context);
+
+        List<SessionModel> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
+
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == expiredSession0.Key);
+        actual.Should().Contain(x => x.Key == expiredSession1.Key);
+
+        foreach (var session in actual)
+        {
+            session.Should().BeOfType<ExtendedIdentityServerServerSideSessions>();
+
+            ExtendedIdentityServerServerSideSessions extSession = session as ExtendedIdentityServerServerSideSessions;
+            extSession.Should().NotBeNull();
+            extSession!.DataLength.Should().Be(session.Data.Length);
+            extSession!.Lifetime.Should().Be(session.Expires?.Subtract(session.Renewed));
+        }
+    }
+
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task GetAndRemoveExpiredSessions_WhenUnspecifiedTimezoneInDbEntities_ShouldBeTreatedAsUtc(DbContextOptions<PersistedGrantDbContext> options)
     {
@@ -928,6 +1042,57 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         actual.Results.Should().HaveCount(2);
         actual.Results.Should().Contain(x => x.Key == "key-1");
         actual.Results.Should().Contain(x => x.Key == "key-3");
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WithExtendedStore_ShouldGetFilteredResultContainingExtendedModel(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        ExtendedIdentityServerServerSideSessionStore sut = CreateSutExtended(context);
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            CountRequested = 2,
+            SubjectId = "alice",
+        }, TestContext.Current.CancellationToken);
+
+
+        var sessions = context.ServerSideSessions
+            .Where(x => x.DisplayName == "Laura")
+            .OrderBy(x => x.Id)
+            .Take(2).ToList();
+        var expectedToken = $"{sessions.First().Id},{sessions.Last().Id}";
+
+        actual.TotalCount.Should().Be(3);
+        actual.CurrentPage.Should().Be(1);
+        actual.TotalPages.Should().Be(2);
+        actual.ResultsToken.Should().Be(expectedToken);
+        actual.HasPrevResults.Should().BeFalse();
+        actual.HasNextResults.Should().BeTrue();
+        actual.Results.Should().HaveCount(2);
+        actual.Results.Should().Contain(x => x.Key == "key-1");
+        actual.Results.Should().Contain(x => x.Key == "key-3");
+
+        foreach (var session in actual.Results)
+        {
+            session.Should().BeOfType<ExtendedIdentityServerServerSideSessions>();
+
+            ExtendedIdentityServerServerSideSessions extSession = session as ExtendedIdentityServerServerSideSessions;
+            extSession.Should().NotBeNull();
+            extSession!.DataLength.Should().Be(session.Data.Length);
+            extSession!.Lifetime.Should().BeNull();
+        }
     }
     
     [Theory, MemberData(nameof(TestDatabaseProviders))]
