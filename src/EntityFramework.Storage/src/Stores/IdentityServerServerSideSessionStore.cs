@@ -200,10 +200,10 @@ public class IdentityServerServerSideSessionStore(
             }
         }
 
-        var results = filteredResults
+        var results = await filteredResults
             .Skip((currentPage - 1) * query.CountRequested)
             .Take(query.CountRequested)
-            .ToList();
+            .ToListAsync(ct);
         
         return new QueryResult<IdentityServerServerSideSessions>
         {
