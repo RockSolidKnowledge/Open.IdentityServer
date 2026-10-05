@@ -174,11 +174,7 @@ public class IdentityServerServerSideSessionStore(
 
         if (count < 1)
         {
-            return new QueryResult<IdentityServerServerSideSessions>
-            {
-                TotalCount = count, TotalPages = 0, CurrentPage = 0, HasPrevResults = false, HasNextResults = false, 
-                Results = [],
-            };
+            return QueryResult<IdentityServerServerSideSessions>.Empty();
         }
         
         int totalPages = (count / query.CountRequested) + (count % query.CountRequested != 0 ? 1 : 0);
@@ -186,28 +182,28 @@ public class IdentityServerServerSideSessionStore(
 
         if (!string.IsNullOrWhiteSpace(query.ResultsToken))
         {
-            (long tokenFirst, long tokenLast) = ParseResultsToken(query);
-            int elementsBeforeToken = await filteredResults.CountAsync(x => x.Id <= tokenFirst, cancellationToken: ct);
+            (long tokenFirst, long _) = ParseResultsToken(query);
+            int elementsBeforeToken = await filteredResults
+                .CountAsync(x => x.Id < tokenFirst, cancellationToken: ct);
             currentPage = 1 + (elementsBeforeToken / query.CountRequested);
 
             if (query.RequestPriorResults)
             {
-                filteredResults = filteredResults
-                    .Where(x => x.Id >= tokenFirst).Take(query.CountRequested);
+                // Fix if page boundary is misaligned with the token
+                if (elementsBeforeToken % query.CountRequested == 0) currentPage--;
+                
+                if (currentPage < 1) return QueryResult<IdentityServerServerSideSessions>.Empty();
             }
             else
             {
-                currentPage++;
-                filteredResults = filteredResults
-                    .Where(x => x.Id > tokenLast).Take(query.CountRequested);
+                if (++currentPage > totalPages) return QueryResult<IdentityServerServerSideSessions>.Empty();
             }
         }
-        else
-        {
-            filteredResults = filteredResults.Take(query.CountRequested);
-        }
 
-        var results = filteredResults.ToList();
+        var results = filteredResults
+            .Skip((currentPage - 1) * query.CountRequested)
+            .Take(query.CountRequested)
+            .ToList();
         
         return new QueryResult<IdentityServerServerSideSessions>
         {
