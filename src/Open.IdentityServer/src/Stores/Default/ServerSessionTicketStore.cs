@@ -20,6 +20,7 @@ using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
+using Open.IdentityServer.Stores.Default;
 using Open.IdentityServer.Stores.Serialization;
 
 namespace Open.IdentityServer.Stores;
@@ -84,10 +85,11 @@ public class ServerSessionTicketStore(
 
         if (existingSession == null)
         {
-            logger.LogWarning("failed renewing '{SessionKey}' session in database, session with key doesn't exist", key);
             await StoreNewSession(key, ticket);
             return;
         }
+
+        logger.RenewingTicketInStore(key, ticket.Properties.ExpiresUtc);
 
         existingSession.Scheme = ticket.AuthenticationScheme;
         existingSession.SubjectId = ticket.Principal.GetSubjectId();
@@ -108,23 +110,27 @@ public class ServerSessionTicketStore(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
+        logger.RetrieveAuthenticationTicket(key);
+
         IdentityServerServerSideSessions? existingSession = await serverServerSideSessionStore.GetSession(key);
 
         if (existingSession == null)
         {
-            logger.LogWarning("session with key '{SessionKey}' doesn't exist", key);
+            logger.NoTicketFoundInStore(key);
             return null;
         }
-
-        try
+       
+        var authTicket = DeserializeAuthTicket(existingSession);
+        if(authTicket == null)
         {
-            return DeserializeAuthTicket(existingSession);
+            logger.FailedToRetrieveTicketFromStore(key);
         }
-        catch (Exception ex)
+        else
         {
-            logger.LogError(ex, "failed retrieving '{SessionKey}' session in database", key);
-            return null;
+            logger.TicketFoundInStore(key, authTicket.Properties.ExpiresUtc);
         }
+        
+        return authTicket;
     }
 
     /// <inheritdoc />
@@ -133,6 +139,8 @@ public class ServerSessionTicketStore(
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
+        
+        logger.RemovingTicketFromStore(key);
 
         //If a session expires and the user tries to use it before the hosted server side session cleanup host
         //has removed it, we need to trigger the session expiry event so that the client can be notified and the user can be logged out.
@@ -149,7 +157,6 @@ public class ServerSessionTicketStore(
             });
         }
         
-
         await serverServerSideSessionStore.DeleteSession(key);
     }
 
@@ -197,6 +204,8 @@ public class ServerSessionTicketStore(
 
     private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)
     {
+        logger.CreatingNewSessionFromTicket(key, ticket.Properties.ExpiresUtc);
+        
         var issuerUri = httpContextAccessor.HttpContext.GetIdentityServerIssuerUri();
 
         if (issuerUri != null)
