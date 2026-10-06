@@ -8,6 +8,7 @@ using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores.Serialization;
 
+#nullable enable
 namespace Open.IdentityServer.UnitTests.Utilities.Generators;
 
 public static class ServerSessionTestGenerators

@@ -2,12 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
-using System.Linq;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores.Serialization;
 
+#nullable enable
 namespace Open.IdentityServer.Extensions;
 
 internal static class AuthenticationTicketExtensions

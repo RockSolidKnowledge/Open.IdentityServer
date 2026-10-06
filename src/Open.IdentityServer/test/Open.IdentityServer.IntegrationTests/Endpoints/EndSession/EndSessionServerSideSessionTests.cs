@@ -72,7 +72,7 @@ public class EndSessionServerSideSessionTests: ServerSideSessionTests
                             "?id_token_hint=" + Uri.EscapeDataString(client1TokenResponse.IdentityToken!);
         
         // Validate End Session Endpoint Behaviour
-        await _mockPipeline.BrowserClient.GetAsync(endSessionUrl, TestContext.Current.CancellationToken);
+        await _mockPipeline.BrowserClient!.GetAsync(endSessionUrl, TestContext.Current.CancellationToken);
 
         _mockPipeline.LogoutWasCalled.Should().BeTrue();
         _mockPipeline.LogoutRequest.Should().NotBeNull();

@@ -137,7 +137,7 @@ public class ServerSessionTicketStore(
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string subjectId, string sessionId)
+    public async Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string? subjectId, string? sessionId)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
