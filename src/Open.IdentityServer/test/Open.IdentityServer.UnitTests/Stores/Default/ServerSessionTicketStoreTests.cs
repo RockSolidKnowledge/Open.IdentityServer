@@ -32,6 +32,9 @@ public class ServerSessionTicketStoreTests
 {
     private readonly IIdentityServerServerSideSessionStore serverServerSideSessionStore =
         Mock.Of<IIdentityServerServerSideSessionStore>();
+    
+    private readonly IUserSessionEventsService userSessionEventsService =
+        Mock.Of<IUserSessionEventsService>();
 
     private readonly IDataProtectionProvider dataProtectionProvider = Mock.Of<IDataProtectionProvider>();
     private readonly MockDataProtector dataProtector = new();
@@ -70,7 +73,10 @@ public class ServerSessionTicketStoreTests
             .Returns(fakeHttpContext);
     }
 
-    private ServerSessionTicketStore CreateSut() => new(serverServerSideSessionStore, dataProtectionProvider,
+    private ServerSessionTicketStore CreateSut() => new(
+        serverServerSideSessionStore, 
+        userSessionEventsService,
+        dataProtectionProvider,
         fakeTimeProvider, fakeOptions, httpContextAccessor, telemetry, logger);
 
     [Fact]
@@ -432,7 +438,7 @@ public class ServerSessionTicketStoreTests
         SerializedAuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateSerializedAuthenticationTicket(
             existingSession.Scheme, existingSession.SubjectId, existingSession.SessionId, 
             existingSession.DisplayName, existingSession.Renewed, existingSession.Expires);
-        existingSession.Data = GenerateFakeData(authenticationTicket);
+        existingSession.Data = GenerateFakeProtectedData(authenticationTicket);
 
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.GetSession(existingSession.Key))
@@ -474,6 +480,45 @@ public class ServerSessionTicketStoreTests
         ServerSessionTicketStore sut = CreateSut();
         await sut.RemoveAsync(keyId);
 
+        Mock.Get(serverServerSideSessionStore)
+            .Verify(x => x.DeleteSession(keyId));
+    }
+
+    [Fact]
+    public async Task RemoveAsync_WhenSessionStillExists_ShouldTriggerBackChanelLogoutAndRemove()
+    {
+        string keyId = Guid.NewGuid().ToString();
+        IdentityServerServerSideSessions existingSession = new IdentityServerServerSideSessions
+        {
+            Key = keyId, Scheme = "AuthScheme", SessionId = "session_id",
+            SubjectId = Guid.NewGuid().ToString(), DisplayName = "bob",
+            Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
+            Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
+            Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
+            Data = GenerateFakeProtectedData(ServerSessionTestGenerators.GenerateSerializedAuthenticationTicket(
+                "AuthScheme", 
+                "bob", 
+                "session_id",
+                "bob", 
+                new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc), 
+                new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
+                ["1", "2"]))
+        };
+
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.GetSession(keyId))
+            .ReturnsAsync(existingSession);
+
+        ServerSessionTicketStore sut = CreateSut();
+        await sut.RemoveAsync(keyId);
+
+        Mock.Get(userSessionEventsService)
+            .Verify(x => x.HandleUserSessionExpiry(
+                It.Is<EndUserSessionEventContext>(
+                    context => 
+                        context.SubjectId == existingSession.SubjectId && 
+                        context.SessionId == existingSession.SessionId && 
+                        context.ClientIds.SequenceEqual(new[] { "1", "2" }))));
         Mock.Get(serverServerSideSessionStore)
             .Verify(x => x.DeleteSession(keyId));
     }
@@ -686,7 +731,7 @@ public class ServerSessionTicketStoreTests
             SerializedAuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateSerializedAuthenticationTicket(
                 identityServerServerSideSessions.Scheme, identityServerServerSideSessions.SubjectId, identityServerServerSideSessions.SessionId,
                 identityServerServerSideSessions.DisplayName, identityServerServerSideSessions.Renewed, identityServerServerSideSessions.Expires);
-            identityServerServerSideSessions.Data = GenerateFakeData(authenticationTicket);
+            identityServerServerSideSessions.Data = GenerateFakeProtectedData(authenticationTicket);
             
             expectedAuthTickets.Add(authenticationTicket);
         }
@@ -694,7 +739,7 @@ public class ServerSessionTicketStoreTests
         return identityServerServerSideSessions;
     }
 
-    private string GenerateFakeData(SerializedAuthenticationTicket serializedAuthenticationTicket)
+    private string GenerateFakeProtectedData(SerializedAuthenticationTicket serializedAuthenticationTicket)
     {
         DataProtectedSessionData sessionData = new DataProtectedSessionData
         {
