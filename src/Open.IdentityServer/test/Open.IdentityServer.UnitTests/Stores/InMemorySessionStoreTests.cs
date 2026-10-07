@@ -418,14 +418,6 @@ public class InMemorySessionStoreTests
         actual.Should().Contain(x => x.Key == "key-1");
         actual.Should().Contain(x => x.Key == "key-6");
     }
-    
-    /// TODO: implement filter with query tests, types of query to test
-    /// 1. When no filter is provided, should use default values
-    /// 2. When no token is provided, it should get the first page of results
-    /// 3. When a token is provided, it should get the next page relative to the provided token
-    /// 4. When a subjectId filter is provided, it should filter the results using it
-    /// 5. When a sessionId filter is provided, it should filter results using it
-    /// 6. When a display name filter is provided, it should filter results using it
 
     [Fact]
     public async Task FilterSessions_WithQuery_WhenNoResults_ShouldEmptyResultsSet()
