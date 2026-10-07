@@ -91,11 +91,7 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
 
         if (count < 1)
         {
-            return new QueryResult<IdentityServerServerSideSessions>
-            {
-                TotalCount = count, TotalPages = 0, CurrentPage = 0, HasPrevResults = false, HasNextResults = false, 
-                Results = [],
-            };
+            return QueryResult<IdentityServerServerSideSessions>.Empty();
         }
         
         int totalPages = (count / query.CountRequested) + (count % query.CountRequested != 0 ? 1 : 0);
@@ -103,28 +99,28 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
 
         if (!string.IsNullOrWhiteSpace(query.ResultsToken))
         {
-            (string tokenFirst, string tokenLast) = ParseResultsToken(query);
-            int elementsBeforeToken = filteredResults.Count(x => string.CompareOrdinal(x.Key, tokenFirst) <= 0);
+            (string tokenFirst, string _) = ParseResultsToken(query);
+            int elementsBeforeToken = filteredResults
+                .Count(x => string.CompareOrdinal(x.Key, tokenFirst) < 0);
             currentPage = 1 + (elementsBeforeToken / query.CountRequested);
 
             if (query.RequestPriorResults)
             {
-                filteredResults = filteredResults
-                    .Where(x => string.CompareOrdinal(x.Key, tokenFirst) >= 0).Take(query.CountRequested);
+                // Fix if page boundary is misaligned with the token
+                if (elementsBeforeToken % query.CountRequested == 0) currentPage--;
+                
+                if (currentPage < 1) return QueryResult<IdentityServerServerSideSessions>.Empty();
             }
             else
             {
-                currentPage++;
-                filteredResults = filteredResults
-                    .Where(x => string.CompareOrdinal(x.Key, tokenLast) > 0).Take(query.CountRequested);
+                if (++currentPage > totalPages) return QueryResult<IdentityServerServerSideSessions>.Empty();
             }
         }
-        else
-        {
-            filteredResults = filteredResults.Take(query.CountRequested);
-        }
 
-        var results = filteredResults.ToList();
+        var results = filteredResults
+            .Skip((currentPage - 1) * query.CountRequested)
+            .Take(query.CountRequested)
+            .ToList();
         
         return new QueryResult<IdentityServerServerSideSessions>
         {
@@ -134,7 +130,7 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
             HasPrevResults = currentPage > 1,
             HasNextResults = currentPage < totalPages,
             ResultsToken = $"{results.First().Key},{results.Last().Key}",
-            Results = results.ToList(),
+            Results = results,
         };
     }
 

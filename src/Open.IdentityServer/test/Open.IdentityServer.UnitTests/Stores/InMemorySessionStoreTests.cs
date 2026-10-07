@@ -546,22 +546,26 @@ public class InMemorySessionStoreTests
         actual.Results.Should().HaveCount(1);
         actual.Results.Should().Contain(x => x.Key == "key-6");
     }
-
+    
     [Fact]
-    public async Task FilterSessions_WithQuery_WhenTokenInQueryAndGetPreviousTrue_ShouldGetNextPage()
+    public async Task FilterSessions_WithQuery_WhenTokenInQueryAndGetPreviousTrue_ShouldGetPreviousPage()
     {
         List<IdentityServerServerSideSessions> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            
             new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
             new() { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            
             new() { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            
             new() { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ];
         
         InMemorySessionStore sut = CreateSut(seededSessions);
         
+        // key-4,key-5
         var testToken = $"{seededSessions.ElementAt(4).Key},{seededSessions.ElementAt(5).Key}";
 
         var actual = await sut.FilterSessions(new SessionQuery
@@ -572,16 +576,195 @@ public class InMemorySessionStoreTests
         }, TestContext.Current.CancellationToken);
         
         actual.TotalCount.Should().Be(7);
+        actual.CurrentPage.Should().Be(2);
+        actual.TotalPages.Should().Be(4);
+        actual.ResultsToken.Should().Be($"{seededSessions.ElementAt(2).Key},{seededSessions.ElementAt(3).Key}");
+        actual.HasPrevResults.Should().BeTrue();
+        actual.HasNextResults.Should().BeTrue();
+        actual.Results.Should().HaveCount(2);
+        actual.Results.Should().Contain(x => x.Key == "key-2");
+        actual.Results.Should().Contain(x => x.Key == "key-3");
+    }
+    
+    [Fact]
+    public async Task FilterSessions_WhenOnFinalPage_GetNextPageReturnsEmptyQueryResult()
+    {
+        List<IdentityServerServerSideSessions> seededSessions = [
+            new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new() { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new() { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new() { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new() { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new() { Key = "key-7", Scheme = "cookie", SubjectId = "alice", SessionId = "session-4", Data = "{\"delete\":true}" },
+        ];
+        
+        InMemorySessionStore sut = CreateSut(seededSessions);
+        
+        // key-6,key-7
+        var testToken = $"{seededSessions.ElementAt(6).Key},{seededSessions.ElementAt(7).Key}";
+
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            ResultsToken = testToken,
+            RequestPriorResults = false,
+            CountRequested = 2,
+        }, TestContext.Current.CancellationToken);
+        
+        actual.Should().BeEquivalentTo(QueryResult<IdentityServerServerSideSessions>.Empty());
+    }
+    
+    [Fact]
+    public async Task FilterSessions_WhenOnFirstPage_GetNextPreviousPageReturnsEmptyQueryResult()
+    {
+        List<IdentityServerServerSideSessions> seededSessions = [
+            new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new() { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new() { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new() { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new() { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new() { Key = "key-7", Scheme = "cookie", SubjectId = "alice", SessionId = "session-4", Data = "{\"delete\":true}" },
+        ];
+        
+        InMemorySessionStore sut = CreateSut(seededSessions);
+        
+        // key-0,key-1
+        var testToken = $"{seededSessions.ElementAt(0).Key},{seededSessions.ElementAt(1).Key}";
+
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            ResultsToken = testToken,
+            RequestPriorResults = true,
+            CountRequested = 2,
+        }, TestContext.Current.CancellationToken);
+        
+        actual.Should().BeEquivalentTo(QueryResult<IdentityServerServerSideSessions>.Empty());
+    }
+    
+    [Fact]
+    public async Task FilterSessions_WhenUnderlyingDataChangedAndResultTokenSpansPageBoundary_GetNextPageReturnsResultsAlignedWithPageCountAndSize()
+    {
+        List<IdentityServerServerSideSessions> seededSessions = [
+            new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            
+            new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new() { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            
+            new() { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new() { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            
+            new() { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new() { Key = "key-7", Scheme = "cookie", SubjectId = "alice", SessionId = "session-4", Data = "{\"delete\":true}" },
+        ];
+        
+        InMemorySessionStore sut = CreateSut(seededSessions);
+        
+        // Key-3 is on page 2, key-4 is on page 3.
+        // Consider the page number of the first element and show the page after that
+        
+        var testToken = $"key-3,key-4";
+
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            ResultsToken = testToken,
+            RequestPriorResults = false,
+            CountRequested = 2,
+        }, TestContext.Current.CancellationToken);
+        
+        actual.TotalCount.Should().Be(8);
         actual.CurrentPage.Should().Be(3);
         actual.TotalPages.Should().Be(4);
-        actual.ResultsToken.Should().Be(testToken);
+        actual.ResultsToken.Should().Be($"key-4,key-5");
         actual.HasPrevResults.Should().BeTrue();
         actual.HasNextResults.Should().BeTrue();
         actual.Results.Should().HaveCount(2);
         actual.Results.Should().Contain(x => x.Key == "key-4");
         actual.Results.Should().Contain(x => x.Key == "key-5");
     }
+    
+    [Fact]
+    public async Task FilterSessions_WhenUnderlyingDataChangedAndResultTokenSpansPageBoundary_GetPreviousPageReturnsResultsAlignedWithPageCountAndSize()
+    {
+        List<IdentityServerServerSideSessions> seededSessions = [
+            new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            
+            new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new() { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            
+            new() { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new() { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            
+            new() { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new() { Key = "key-7", Scheme = "cookie", SubjectId = "alice", SessionId = "session-4", Data = "{\"delete\":true}" },
+        ];
+        
+        InMemorySessionStore sut = CreateSut(seededSessions);
+        
+        // Key-3 is on page 2, key-4 is on page 3.
+        // Consider the page number of the first element and show the page before that
+        
+        var testToken = $"key-3,key-4";
 
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            ResultsToken = testToken,
+            RequestPriorResults = true,
+            CountRequested = 2,
+        }, TestContext.Current.CancellationToken);
+        
+        actual.TotalCount.Should().Be(8);
+        actual.CurrentPage.Should().Be(2);
+        actual.TotalPages.Should().Be(4);
+        actual.ResultsToken.Should().Be($"key-2,key-3");
+        actual.HasPrevResults.Should().BeTrue();
+        actual.HasNextResults.Should().BeTrue();
+        actual.Results.Should().HaveCount(2);
+        actual.Results.Should().Contain(x => x.Key == "key-2");
+        actual.Results.Should().Contain(x => x.Key == "key-3");
+    }
+    
+    [Fact]
+    public async Task FilterSessions_WhenMovingToFinalPageAndResultsAreLessThanPageSize_ReturnsExpectedResults()
+    {
+        List<IdentityServerServerSideSessions> seededSessions = [
+            new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            
+            new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new() { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            
+            new() { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new() { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            
+            new() { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ];
+        
+        InMemorySessionStore sut = CreateSut(seededSessions);
+        
+        var testToken = $"key-4,key-5";
+
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            ResultsToken = testToken,
+            RequestPriorResults = false,
+            CountRequested = 2,
+        }, TestContext.Current.CancellationToken);
+        
+        actual.TotalCount.Should().Be(7);
+        actual.CurrentPage.Should().Be(4);
+        actual.TotalPages.Should().Be(4);
+        actual.ResultsToken.Should().Be($"key-6,key-6");
+        actual.HasPrevResults.Should().BeTrue();
+        actual.HasNextResults.Should().BeFalse();
+        actual.Results.Should().HaveCount(1);
+        actual.Results.Should().Contain(x => x.Key == "key-6");
+    }
+    
     [Fact]
     public async Task FilterSessions_WithQuery_WhenSessionIdProvided_ShouldGetFilteredResult()
     {
@@ -727,6 +910,8 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task GetAndRemoveExpiredSessions_WhenExpiredSessionsExist_AndExceedBatchSize_ShouldDeleteAndReturnExpiredSessions_WithACountOfBatchSize()
     {
+        // This test is flaky, needs fixing
+        
         IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
         IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
         IdentityServerServerSideSessions expiredSession2 = FakeSessionSession("789", "session3", true);
