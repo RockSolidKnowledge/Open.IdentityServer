@@ -12,10 +12,8 @@ using Open.IdentityServer.EntityFramework.Options;
 using Open.IdentityServer.EntityFramework.Stores;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
-using Open.IdentityServer.Test.Utilities;
 using Xunit;
 using IdentityServerServerSideSessions = Open.IdentityServer.EntityFramework.Entities.IdentityServerServerSideSessions;
-using Range = System.Range;
 using SessionModel = Open.IdentityServer.Models.IdentityServerServerSideSessions;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores.Compatibility;
@@ -48,7 +46,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [InlineData("  ")]
     public async Task GetSession_WhenKeyNullOrEmpty_ShouldThrowArgumentException(string key)
     {
-        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.First());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         Func<Task> act = async () => await sut.GetSession(key);
@@ -316,7 +314,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [InlineData(" ", null)]
     [InlineData("", "")]
     [InlineData(" ", " ")]
-    public async Task DeleteSessions_WhenFiltersNullOrEmpty_ShouldThrowArgumentException(string? subjectId, string? sessionId)
+    public async Task DeleteSessions_WhenFiltersNullOrEmpty_ShouldThrowArgumentException(string subjectId, string sessionId)
     {
         await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
@@ -329,7 +327,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task DeleteSessions_WhenSubjectIdProvided_ShouldDeleteSessionsWithSubjectId(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
         await context.ServerSideSessions.AddRangeAsync([
             new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
@@ -357,7 +355,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task DeleteSessions_WhenSessionIdProvided_ShouldDeleteSessionsWithSessionId(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
         await context.ServerSideSessions.AddRangeAsync([
             new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
@@ -387,7 +385,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task DeleteSessions_WhenSubjectIdAndSessionIdProvided_ShouldDeleteSessionsWithSubjectIdAndSessionId(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
         await context.ServerSideSessions.AddRangeAsync([
             new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },

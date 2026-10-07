@@ -2,7 +2,6 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-#nullable enable
 
 using System;
 using System.Security.Claims;
@@ -246,7 +245,7 @@ public class IdentityServerMiddlewareTests
 
         _userSession.Setup(x => x.RemoveSessionIdCookieAsync()).Returns(Task.CompletedTask);
 
-        EndUserSessionEventContext? actualUserSessionEventCtx = null;
+        EndUserSessionEventContext actualUserSessionEventCtx = null;
         Mock.Get(userSessionEventsService)
             .Setup(x => x.HandleUserSessionLogout(It.IsAny<EndUserSessionEventContext>()))
             .Callback<EndUserSessionEventContext>((sessionEventContext) => { actualUserSessionEventCtx = sessionEventContext; });
