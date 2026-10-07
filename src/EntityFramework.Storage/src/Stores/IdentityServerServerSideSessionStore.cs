@@ -1,0 +1,276 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+#nullable enable
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Open.IdentityServer.EntityFramework.Interfaces;
+using Open.IdentityServer.EntityFramework.Mappers;
+using Open.IdentityServer.Models;
+using Open.IdentityServer.Services;
+using Open.IdentityServer.Stores;
+using IdentityServerServerSideSessions = Open.IdentityServer.Models.IdentityServerServerSideSessions;
+
+namespace Open.IdentityServer.EntityFramework.Stores;
+
+/// <summary>
+/// Storage and retrieval of server-side sessions using entity framework core
+/// </summary>
+public class IdentityServerServerSideSessionStore(
+    IPersistedGrantDbContext dbContext,
+    ITelemetryService telemetry,
+    TimeProvider timeProvider,
+    ILogger<IdentityServerServerSideSessionStore> logger) : IIdentityServerServerSideSessionStore
+{
+    /// <inheritdoc />
+    public async Task<IdentityServerServerSideSessions?> GetSession(string key)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
+
+        Entities.IdentityServerServerSideSessions? session = await dbContext.ServerSideSessions
+            .SingleOrDefaultAsync(x => x.Key == key);
+
+        return session?.ToModel();
+    }
+
+    /// <inheritdoc />
+    public async Task CreateSession(IdentityServerServerSideSessions session)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(session.Key);
+
+        Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
+            .SingleOrDefaultAsync(x => x.Key == session.Key);
+
+        if (existing != null)
+        {
+            logger.LogError("failed storing '{SessionKey}' session in database, session with key already exists",
+                session.Key);
+            return;
+        }
+
+        Entities.IdentityServerServerSideSessions sessionEntity = session.ToEntity();
+
+        await dbContext.ServerSideSessions.AddAsync(sessionEntity);
+
+        try
+        {
+            await dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "exception storing '{SessionKey}' session in database", session.Key);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateSession(IdentityServerServerSideSessions session)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(session.Key);
+
+        Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
+            .SingleOrDefaultAsync(x => x.Key == session.Key);
+
+        if (existing == null)
+        {
+            logger.LogError("failed updating '{SessionKey}' session in database, session not found", session.Key);
+            return;
+        }
+
+        session.UpdateEntity(existing);
+
+        try
+        {
+            await dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "exception updating '{SessionKey}' session in database", session.Key);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task DeleteSession(string key)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
+
+        Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
+            .SingleOrDefaultAsync(x => x.Key == key);
+
+        if (existing == null)
+        {
+            logger.LogError("failed deleting '{SessionKey}' session in database, session not found", key);
+            return;
+        }
+
+        dbContext.ServerSideSessions.Remove(existing);
+
+        try
+        {
+            await dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "exception deleting '{SessionKey}' session in database", key);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task DeleteSessions(string? subjectId, string? sessionId)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
+        if (string.IsNullOrWhiteSpace(subjectId) && string.IsNullOrWhiteSpace(sessionId))
+        {
+            throw new ArgumentException($"{nameof(subjectId)} or {nameof(sessionId)} must have a non null or empty value");
+        }
+        
+        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        {
+            SessionId = sessionId, SubjectId = subjectId,
+        }, dbContext.ServerSideSessions.AsQueryable());
+        
+        dbContext.ServerSideSessions.RemoveRange(filteredResults);
+        await dbContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string? subjectId, string? sessionId)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
+        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        {
+            SessionId = sessionId, SubjectId = subjectId,
+        }, dbContext.ServerSideSessions.AsQueryable());
+
+        return (await filteredResults.ToListAsync())
+            .Select(x => x.ToModel());
+    }
+    
+    /// <inheritdoc />
+    public async Task<QueryResult<IdentityServerServerSideSessions>> FilterSessions(SessionQuery? inputQuery, CancellationToken ct = default)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
+        SessionQuery query = inputQuery ?? new SessionQuery();
+
+        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(query, dbContext.ServerSideSessions.AsQueryable());
+
+        int count = await filteredResults.CountAsync(cancellationToken: ct);
+
+        if (count < 1)
+        {
+            return QueryResult<IdentityServerServerSideSessions>.Empty();
+        }
+        
+        int totalPages = (count / query.CountRequested) + (count % query.CountRequested != 0 ? 1 : 0);
+        int currentPage = 1;
+
+        if (!string.IsNullOrWhiteSpace(query.ResultsToken))
+        {
+            (long tokenFirst, long _) = ParseResultsToken(query);
+            int elementsBeforeToken = await filteredResults
+                .CountAsync(x => x.Id < tokenFirst, cancellationToken: ct);
+            currentPage = 1 + (elementsBeforeToken / query.CountRequested);
+
+            if (query.RequestPriorResults)
+            {
+                // Fix if page boundary is misaligned with the token
+                if (elementsBeforeToken % query.CountRequested == 0) currentPage--;
+                
+                if (currentPage < 1) return QueryResult<IdentityServerServerSideSessions>.Empty();
+            }
+            else
+            {
+                if (++currentPage > totalPages) return QueryResult<IdentityServerServerSideSessions>.Empty();
+            }
+        }
+
+        var results = await filteredResults
+            .Skip((currentPage - 1) * query.CountRequested)
+            .Take(query.CountRequested)
+            .ToListAsync(ct);
+        
+        return new QueryResult<IdentityServerServerSideSessions>
+        {
+            TotalCount = count,
+            TotalPages = totalPages,
+            CurrentPage = currentPage,
+            HasPrevResults = currentPage > 1,
+            HasNextResults = currentPage < totalPages,
+            ResultsToken = $"{results.First().Id},{results.Last().Id}",
+            Results = results.Select(x => x.ToModel()).ToList(),
+        };
+    }
+
+    private (long, long) ParseResultsToken(SessionQuery query)
+    {
+        long tokenFirst = 0;
+        long tokenLast = 0;
+
+        if (query.ResultsToken != null)
+        {
+            var split = query.ResultsToken.Split(",", StringSplitOptions.RemoveEmptyEntries);
+            if (!long.TryParse(split.First(), out tokenFirst) || !long.TryParse(split.Last(), out tokenLast))
+            {
+                logger.LogError("Error occured parsing result token");
+            }
+        }
+
+        return new ValueTuple<long, long>(tokenFirst, tokenLast);
+    }
+
+    private IQueryable<Entities.IdentityServerServerSideSessions> ApplyFilter(SessionQuery query,
+        IQueryable<Entities.IdentityServerServerSideSessions> input)
+    {
+        if (!string.IsNullOrWhiteSpace(query.SubjectId))
+        {
+            input = input
+                .Where(x => x.SubjectId.Contains(query.SubjectId));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.SessionId))
+        {
+            input = input.Where(x => x.SessionId != null && x.SessionId.Contains(query.SessionId));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.DisplayName))
+        {
+            input = input.Where(x => x.DisplayName != null && x.DisplayName.Contains(query.DisplayName));
+        }
+
+        return input.OrderBy(x => x.Id);
+    }
+    
+    /// <inheritdoc />
+    public async Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    {
+        using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
+        var sessions = await dbContext.ServerSideSessions
+            .Where(x => x.Expires < timeProvider.GetUtcNow().UtcDateTime)
+            .OrderBy(x => x.Expires)
+            .Take(batchSize)
+            .ToArrayAsync();
+        
+        dbContext.ServerSideSessions.RemoveRange(sessions);
+        await dbContext.SaveChangesAsync();
+
+        return sessions.Select(x => x.ToModel());
+
+    }
+}

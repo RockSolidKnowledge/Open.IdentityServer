@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -36,6 +36,17 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Open.IdentityServer.csproj" />
+        <ProjectReference Include="..\..\..\Open.IdentityServer.Test.Utilities\Open.IdentityServer.Test.Utilities.csproj" />
+        <ProjectReference Include="..\..\src\Open.IdentityServer.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\..\..\EntityFramework.Storage\test\IntegrationTests\MockLogger.cs">
+        <Link>MockLogger.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Utilities\" />
     </ItemGroup>
 </Project>

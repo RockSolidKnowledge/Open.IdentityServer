@@ -2,7 +2,6 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace Open.IdentityServer.EntityFramework;
 
 /// <summary>
-/// Helper to cleanup stale persisted grants and device codes.
+/// Helper to clean up stale persisted grants and device codes.
 /// </summary>
 public class TokenCleanupService
 {

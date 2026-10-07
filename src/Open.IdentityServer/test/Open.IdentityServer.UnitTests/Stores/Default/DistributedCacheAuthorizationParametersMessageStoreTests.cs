@@ -1,16 +1,16 @@
 ﻿// Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AwesomeAssertions;
 using IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores.Default;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Stores.Default;
+namespace Open.IdentityServer.UnitTests.Stores.Default;
 
 public class DistributedCacheAuthorizationParametersMessageStoreTests
 {

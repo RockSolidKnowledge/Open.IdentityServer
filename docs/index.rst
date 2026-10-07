@@ -80,6 +80,7 @@ Open.IdentityServer enables the following features in your applications:
    topics/compatibility
    topics/resources
    topics/clients
+   topics/server_side_sessions
    topics/signin
    topics/signin_external_providers
    topics/windows
