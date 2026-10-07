@@ -35,6 +35,9 @@ public class ServerSessionTicketStoreTests
     
     private readonly IUserSessionEventsService userSessionEventsService =
         Mock.Of<IUserSessionEventsService>();
+    
+    private readonly IPersistedGrantStore persistedGrantStore =
+        Mock.Of<IPersistedGrantStore>();
 
     private readonly IDataProtectionProvider dataProtectionProvider = Mock.Of<IDataProtectionProvider>();
     private readonly MockDataProtector dataProtector = new();
@@ -77,6 +80,7 @@ public class ServerSessionTicketStoreTests
         serverServerSideSessionStore, 
         userSessionEventsService,
         dataProtectionProvider,
+        persistedGrantStore,
         fakeTimeProvider, fakeOptions, httpContextAccessor, telemetry, logger);
 
     [Fact]
@@ -272,6 +276,55 @@ public class ServerSessionTicketStoreTests
         string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
             ServerSessionTicketStore.JsonSettings);
         dataProtector.ValidateProtectedData(actualPayload, expectedJson);
+    }
+
+    [Fact]
+    public async Task RenewAsync_WhenSessionOverwritten_ShouldExpirePreviousGrants()
+    {
+        
+        IdentityServerServerSideSessions existingSession = new IdentityServerServerSideSessions
+        {
+            Key = Guid.NewGuid().ToString(), Scheme = "AuthScheme", 
+            SessionId = "session_id",
+            SubjectId = "subject_id", 
+            DisplayName = "John Doe",
+            Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
+            Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
+            Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
+            Data = "EXISTING_PROTEXTEDDAAT",
+        };
+        
+        const string authScheme = "FakeAuthScheme";
+        string newSubjectId = Guid.NewGuid().ToString();
+        string newSessionId = Guid.NewGuid().ToString();
+
+        AuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, newSubjectId, newSessionId);
+
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.GetSession(existingSession.Key))
+            .ReturnsAsync(existingSession);
+
+        ServerSessionTicketStore sut = CreateSut();
+        
+        fakeTimeProvider.Advance(TimeSpan.FromMinutes(1));
+
+        await sut.RenewAsync(existingSession.Key, authenticationTicket);
+
+        Mock.Get(persistedGrantStore)
+            .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(filter =>
+                filter.SubjectId == "subject_id" &&
+                filter.SessionId == "session_id" &&
+                filter.Types.SequenceEqual(IdentityServerConstants.PersistedGrantTypes.PersistedGrantTokenTypes)
+                )));
+        
+        Mock.Get(serverServerSideSessionStore)
+            .Verify(x => x.UpdateSession(
+                It.Is<IdentityServerServerSideSessions>(sessions => 
+                    sessions.SessionId == newSessionId && 
+                    sessions.SubjectId == newSubjectId &&
+                    sessions.Created == existingSession.Created &&
+                    sessions.Expires == existingSession.Expires
+                    )));
     }
 
     [Fact]

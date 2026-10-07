@@ -49,4 +49,10 @@ internal static partial class Log
         EventName = nameof(CreatingNewSessionFromTicket),
         Message = "Creating new session from ticket for key {key} with expiration {expiration}")]
     internal static partial void CreatingNewSessionFromTicket(this ILogger logger, string key, DateTimeOffset? expiration);
+    
+    [LoggerMessage(
+        LogLevel.Debug,
+        EventName = nameof(SessionOverwriteRevokingGrants),
+        Message = "Session overwrite detected for key {key}, subject {subjectId} and session {sessionId}, revoking grants")]
+    internal static partial void SessionOverwriteRevokingGrants(this ILogger logger, string key, string subjectId, string sessionId);
 }
