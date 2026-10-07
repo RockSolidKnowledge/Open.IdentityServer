@@ -32,6 +32,7 @@ namespace Open.IdentityServer.Stores;
 /// <param name="serverServerSideSessionStore">server side session store</param>
 /// <param name="userSessionEventsService">user session events service</param>
 /// <param name="dataProtectionProvider">data protection provider</param>
+/// <param name="persistedGrantStore">persisted grant store</param>
 /// <param name="timeProvider">time provider</param>
 /// <param name="options">identity server options</param>
 /// <param name="httpContextAccessor">http context accessor</param>
@@ -41,6 +42,7 @@ public class ServerSessionTicketStore(
     IIdentityServerServerSideSessionStore serverServerSideSessionStore,
     IUserSessionEventsService userSessionEventsService,
     IDataProtectionProvider dataProtectionProvider,
+    IPersistedGrantStore persistedGrantStore,
     TimeProvider timeProvider,
     IdentityServerOptions options,
     IHttpContextAccessor httpContextAccessor,
@@ -88,7 +90,22 @@ public class ServerSessionTicketStore(
             await StoreNewSession(key, ticket);
             return;
         }
-
+        
+        // If the session id or subject id has changed, remove any previous grants and create a new session
+        if(existingSession.SessionId != ticket.Properties.GetSessionId() || 
+           existingSession.SubjectId != ticket.Principal.GetSubjectId())
+        {
+            logger.SessionOverwriteRevokingGrants(key, existingSession.SubjectId, existingSession.SessionId);
+            await persistedGrantStore.RemoveAllAsync(new PersistedGrantFilter
+            {
+                SubjectId = existingSession.SubjectId,
+                SessionId = existingSession.SessionId,
+                Types = IdentityServerConstants.PersistedGrantTypes.PersistedGrantTokenTypes,
+            });
+            
+            existingSession.Created = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
+        }
+        
         logger.RenewingTicketInStore(key, ticket.Properties.ExpiresUtc);
 
         existingSession.Scheme = ticket.AuthenticationScheme;
