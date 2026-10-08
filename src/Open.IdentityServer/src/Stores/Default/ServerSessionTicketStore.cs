@@ -33,6 +33,7 @@ namespace Open.IdentityServer.Stores;
 /// <param name="userSessionEventsService">user session events service</param>
 /// <param name="dataProtectionProvider">data protection provider</param>
 /// <param name="persistedGrantStore">persisted grant store</param>
+/// <param name="handleGenerationService">handle generation service</param>
 /// <param name="timeProvider">time provider</param>
 /// <param name="options">identity server options</param>
 /// <param name="httpContextAccessor">http context accessor</param>
@@ -43,6 +44,7 @@ public class ServerSessionTicketStore(
     IUserSessionEventsService userSessionEventsService,
     IDataProtectionProvider dataProtectionProvider,
     IPersistedGrantStore persistedGrantStore,
+    IHandleGenerationService handleGenerationService,
     TimeProvider timeProvider,
     IdentityServerOptions options,
     IHttpContextAccessor httpContextAccessor,
@@ -65,7 +67,8 @@ public class ServerSessionTicketStore(
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
-        string key = Guid.NewGuid().ToString();
+        string key = await handleGenerationService.GenerateAsync(32);
+        
         trace?.AddTag(TelemetryConstants.TagConstants.Key, key);
         
         IdentityServerServerSideSessions session = await StoreNewSession(key, ticket);
