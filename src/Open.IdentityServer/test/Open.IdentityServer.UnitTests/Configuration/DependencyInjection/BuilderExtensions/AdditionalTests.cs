@@ -28,11 +28,15 @@ public class AdditionalTests
     [Fact]
     public void AddServerSideSessions_WhenNoStoreConfigured_ShouldConfigureServerSideSessionServicesWithInMemoryStore()
     {
+        serviceCollection.AddIdentityServer()
+            .AddInMemoryPersistedGrants()
+            .AddInMemoryClients([]);
+        
         IIdentityServerBuilder builder = new IdentityServerBuilder(serviceCollection);
 
         builder.Services.AddScoped<ITokenValidator, TokenValidator>();
         builder.Services.AddScoped<IRefreshTokenService, DefaultRefreshTokenService>();
-
+        
         builder.AddServerSideSessions();
         
         serviceCollection.Should().ContainSingle(d =>
@@ -43,7 +47,7 @@ public class AdditionalTests
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(IServerSessionTicketStore) &&
             d.ImplementationType == typeof(ServerSessionTicketStore) &&
-            d.Lifetime == ServiceLifetime.Scoped);
+            d.Lifetime == ServiceLifetime.Singleton);
         
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(Decorator<ITokenValidator>) &&
@@ -81,11 +85,35 @@ public class AdditionalTests
             d.ServiceType == typeof(ISessionManagementService) &&
             d.ImplementationType == typeof(DefaultSessionManagementService) &&
             d.Lifetime == ServiceLifetime.Scoped);
+        
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        serviceProvider.GetRequiredService<IServerSessionTicketStore>().Should()
+            .NotBeNull();
+        
+        serviceProvider.GetRequiredService<ITokenValidator>()
+            .Should().NotBeNull();
+        
+        serviceProvider.GetRequiredService<IRefreshTokenService>()
+            .Should().NotBeNull();
+        
+        serviceProvider.GetRequiredService<IIdentityServerServerSideSessionStore>()
+            .Should().NotBeNull();
+        
+        serviceProvider.GetRequiredService<ISessionCleanupService>()
+            .Should().NotBeNull();
+        
+        serviceProvider.GetRequiredService<ISessionManagementService>()
+            .Should().NotBeNull();
     }
     
     [Fact]
     public void AddServerSideSessions_WhenStoreConfigured_ShouldConfigureServerSideSessionServicesWithoutInMemoryStore()
     {
+        serviceCollection.AddIdentityServer()
+            .AddInMemoryPersistedGrants()
+            .AddInMemoryClients([]);
+        
         IIdentityServerBuilder builder = new IdentityServerBuilder(serviceCollection);
 
         builder.Services.AddScoped<ITokenValidator, TokenValidator>();
@@ -103,7 +131,7 @@ public class AdditionalTests
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(IServerSessionTicketStore) &&
             d.ImplementationType == typeof(ServerSessionTicketStore) &&
-            d.Lifetime == ServiceLifetime.Scoped);
+            d.Lifetime == ServiceLifetime.Singleton);
         
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(Decorator<ITokenValidator>) &&
@@ -141,6 +169,26 @@ public class AdditionalTests
             d.ServiceType == typeof(ISessionManagementService) &&
             d.ImplementationType == typeof(DefaultSessionManagementService) &&
             d.Lifetime == ServiceLifetime.Scoped);
+        
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        serviceProvider.GetRequiredService<IServerSessionTicketStore>().Should()
+            .NotBeNull();
+        
+        serviceProvider.GetRequiredService<ITokenValidator>()
+            .Should().NotBeNull();
+        
+        serviceProvider.GetRequiredService<IRefreshTokenService>()
+            .Should().NotBeNull();
+        
+        serviceProvider.GetRequiredService<IIdentityServerServerSideSessionStore>()
+            .Should().NotBeNull();
+        
+        serviceProvider.GetRequiredService<ISessionCleanupService>()
+            .Should().NotBeNull();
+        
+        serviceProvider.GetRequiredService<ISessionManagementService>()
+            .Should().NotBeNull(); 
     }
 }
 

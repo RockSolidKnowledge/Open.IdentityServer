@@ -257,6 +257,9 @@ internal static class Constants
         public const string SignOutCalled = "idsvr:IdentityServerSignOutCalled";
         
         internal const string OriginalRequestPath = "idsvr:OriginalRequestPath";
+        internal const string ExpiredSession = "idsvr:SessionExpired";
+        internal const string ExpiredTicket = "idsvr:TicketExpired";
+
     }
 
     public static class TokenTypeHints

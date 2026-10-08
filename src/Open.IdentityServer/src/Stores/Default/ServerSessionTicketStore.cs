@@ -29,8 +29,7 @@ namespace Open.IdentityServer.Stores;
 /// Implementation of <see cref="ITicketStore"/> for storing <see cref="AuthenticationTicket"/> for the server side sessions
 /// implementation in Open.IdentityServer
 /// </summary>
-/// <param name="serverServerSideSessionStore">server side session store</param>
-/// <param name="userSessionEventsService">user session events service</param>
+/// <param name="serverServerSideSessionStore"></param>
 /// <param name="dataProtectionProvider">data protection provider</param>
 /// <param name="persistedGrantStore">persisted grant store</param>
 /// <param name="handleGenerationService">handle generation service</param>
@@ -41,7 +40,6 @@ namespace Open.IdentityServer.Stores;
 /// <param name="logger">the logger</param>
 public class ServerSessionTicketStore(
     IIdentityServerServerSideSessionStore serverServerSideSessionStore,
-    IUserSessionEventsService userSessionEventsService,
     IDataProtectionProvider dataProtectionProvider,
     IPersistedGrantStore persistedGrantStore,
     IHandleGenerationService handleGenerationService,
@@ -167,21 +165,14 @@ public class ServerSessionTicketStore(
         var session = await serverServerSideSessionStore.GetSession(key);
         if(session != null)
         {
-            var authTicket = DeserializeAuthTicket(session);
-            
-            await userSessionEventsService.HandleUserSessionExpiry(new EndUserSessionEventContext()
-            {
-                SubjectId = session.SubjectId,
-                SessionId = session.SessionId,
-                ClientIds = authTicket?.Properties.GetClientList().ToArray() ?? [],
-            });
+            httpContextAccessor.HttpContext.SetSessionExpired(session, DeserializeAuthTicket(session));
         }
         
         await serverServerSideSessionStore.DeleteSession(key);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string? subjectId, string? sessionId)
+    public async Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string subjectId, string sessionId)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         

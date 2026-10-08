@@ -33,9 +33,6 @@ public class ServerSessionTicketStoreTests
     private readonly IIdentityServerServerSideSessionStore serverServerSideSessionStore =
         Mock.Of<IIdentityServerServerSideSessionStore>();
     
-    private readonly IUserSessionEventsService userSessionEventsService =
-        Mock.Of<IUserSessionEventsService>();
-    
     private readonly IPersistedGrantStore persistedGrantStore =
         Mock.Of<IPersistedGrantStore>();
 
@@ -83,7 +80,6 @@ public class ServerSessionTicketStoreTests
 
     private ServerSessionTicketStore CreateSut() => new(
         serverServerSideSessionStore, 
-        userSessionEventsService,
         dataProtectionProvider,
         persistedGrantStore,
         handleGenerationService,
@@ -334,8 +330,8 @@ public class ServerSessionTicketStoreTests
                 It.Is<IdentityServerServerSideSessions>(sessions => 
                     sessions.SessionId == newSessionId && 
                     sessions.SubjectId == newSubjectId &&
-                    sessions.Created == existingSession.Created &&
-                    sessions.Expires == existingSession.Expires
+                    sessions.Created == FakeNow.AddMinutes(1) &&
+                    sessions.Expires == null
                     )));
     }
 
@@ -550,7 +546,7 @@ public class ServerSessionTicketStoreTests
     }
 
     [Fact]
-    public async Task RemoveAsync_WhenSessionStillExists_ShouldTriggerBackChanelLogoutAndRemove()
+    public async Task RemoveAsync_WhenSessionStillExists_ShouldStoreExpiredSessionAndTicketOnHttpContext_AndRemove()
     {
         string keyId = Guid.NewGuid().ToString();
         IdentityServerServerSideSessions existingSession = new IdentityServerServerSideSessions
@@ -577,13 +573,16 @@ public class ServerSessionTicketStoreTests
         ServerSessionTicketStore sut = CreateSut();
         await sut.RemoveAsync(keyId);
 
-        Mock.Get(userSessionEventsService)
-            .Verify(x => x.HandleUserSessionExpiry(
-                It.Is<EndUserSessionEventContext>(
-                    context => 
-                        context.SubjectId == existingSession.SubjectId && 
-                        context.SessionId == existingSession.SessionId && 
-                        context.ClientIds.SequenceEqual(new[] { "1", "2" }))));
+        fakeHttpContext.Items.Should().ContainKey("idsvr:SessionExpired");
+        fakeHttpContext.Items.Should().ContainKey("idsvr:TicketExpired");
+        fakeHttpContext.Items["idsvr:SessionExpired"].Should().Be(existingSession);
+        fakeHttpContext.Items["idsvr:TicketExpired"].Should().BeOfType<AuthenticationTicket>();
+
+        var expiredTicket = fakeHttpContext.Items["idsvr:TicketExpired"] as AuthenticationTicket;
+        expiredTicket.Should().NotBeNull();
+        expiredTicket!.Principal.GetSubjectId().Should().Be("bob");
+        expiredTicket.Properties.GetSessionId().Should().Be("session_id");
+
         Mock.Get(serverServerSideSessionStore)
             .Verify(x => x.DeleteSession(keyId));
     }

@@ -96,11 +96,28 @@ public static class HttpContextExtensions
         if (context == null) throw new ArgumentNullException(nameof(context));
         context.Items[Constants.EnvironmentKeys.SignOutCalled] = "true";
     }
+    
+    internal static void SetSessionExpired(
+        this HttpContext context, 
+       IdentityServerServerSideSessions session,
+        AuthenticationTicket ticket)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+        context.Items[Constants.EnvironmentKeys.ExpiredSession] = session;
+        context.Items[Constants.EnvironmentKeys.ExpiredTicket] = ticket;
+    }
+    
+    internal static (IdentityServerServerSideSessions Session, AuthenticationTicket Ticket) GetSessionExpired(this HttpContext context)
+    {
+        return (context.Items[Constants.EnvironmentKeys.ExpiredSession] as IdentityServerServerSideSessions,
+                context.Items[Constants.EnvironmentKeys.ExpiredTicket] as AuthenticationTicket);
+    }
 
     internal static bool GetSignOutCalled(this HttpContext context)
     {
         return context.Items.ContainsKey(Constants.EnvironmentKeys.SignOutCalled);
     }
+    
 
     /// <summary>
     /// Gets the host name of IdentityServer.
