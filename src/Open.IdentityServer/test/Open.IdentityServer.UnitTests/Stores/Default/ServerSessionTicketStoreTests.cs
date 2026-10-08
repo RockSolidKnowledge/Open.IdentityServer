@@ -40,6 +40,7 @@ public class ServerSessionTicketStoreTests
         Mock.Of<IPersistedGrantStore>();
 
     private readonly IDataProtectionProvider dataProtectionProvider = Mock.Of<IDataProtectionProvider>();
+    private readonly IHandleGenerationService handleGenerationService = Mock.Of<IHandleGenerationService>();
     private readonly MockDataProtector dataProtector = new();
     private readonly FakeTimeProvider fakeTimeProvider = new();
     private readonly IHttpContextAccessor httpContextAccessor = Mock.Of<IHttpContextAccessor>(); 
@@ -62,6 +63,10 @@ public class ServerSessionTicketStoreTests
         Mock.Get(dataProtectionProvider)
             .Setup(x => x.CreateProtector(DataProtectionConstants.ServerSideTicketStorePurpose))
             .Returns(dataProtector);
+
+        Mock.Get(handleGenerationService)
+            .Setup(x => x.GenerateAsync(32))
+            .ReturnsAsync(Guid.NewGuid().ToString("N"));
         
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.FilterSessions(It.IsAny<SessionQuery>()))
@@ -81,6 +86,7 @@ public class ServerSessionTicketStoreTests
         userSessionEventsService,
         dataProtectionProvider,
         persistedGrantStore,
+        handleGenerationService,
         fakeTimeProvider, fakeOptions, httpContextAccessor, telemetry, logger);
 
     [Fact]
@@ -100,6 +106,8 @@ public class ServerSessionTicketStoreTests
         ServerSessionTicketStore sut = CreateSut();
 
         string actualKey = await sut.StoreAsync(authenticationTicket);
+
+        Mock.Get(handleGenerationService).Verify(x => x.GenerateAsync(32), Times.Once);
 
         createdSessionModel.Should().NotBeNull();
         createdSessionModel.Key.Should().NotBeNullOrWhiteSpace();
@@ -147,6 +155,8 @@ public class ServerSessionTicketStoreTests
         ServerSessionTicketStore sut = CreateSut();
 
         string actualKey = await sut.StoreAsync(authenticationTicket);
+
+        Mock.Get(handleGenerationService).Verify(x => x.GenerateAsync(32), Times.Once);
 
         createdSessionModel.Should().NotBeNull();
         createdSessionModel.Key.Should().NotBeNullOrWhiteSpace();
@@ -198,6 +208,8 @@ public class ServerSessionTicketStoreTests
         ServerSessionTicketStore sut = CreateSut();
 
         string actualKey = await sut.StoreAsync(authenticationTicket);
+
+        Mock.Get(handleGenerationService).Verify(x => x.GenerateAsync(32), Times.Once);
 
         createdSessionModel.Should().NotBeNull();
         createdSessionModel.Key.Should().NotBeNullOrWhiteSpace();
