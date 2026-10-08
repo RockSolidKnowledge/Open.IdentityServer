@@ -8,6 +8,7 @@ using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores.Serialization;
 
+#nullable enable
 namespace Open.IdentityServer.UnitTests.Utilities.Generators;
 
 public static class ServerSessionTestGenerators
@@ -50,7 +51,8 @@ public static class ServerSessionTestGenerators
         string? sessionId, 
         string? displayName = null, 
         DateTimeOffset? issuedUtc = null,
-        DateTimeOffset? expiresUtc = null)
+        DateTimeOffset? expiresUtc = null,
+        List<string>? clientIds = null)
     {
         List<ClaimLite> claims = [];
 
@@ -79,6 +81,12 @@ public static class ServerSessionTestGenerators
         if (expiresUtc != null)
         {
             items[".expires"] = expiresUtc.Value.ToString("R");
+        }
+        
+        if (clientIds is { Count: > 0 })
+        {
+            items[AuthenticationPropertiesExtensions.ClientListKey] 
+                = AuthenticationPropertiesExtensions.EncodeList(clientIds);
         }
 
         return new SerializedAuthenticationTicket

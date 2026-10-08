@@ -12,10 +12,8 @@ using Open.IdentityServer.EntityFramework.Options;
 using Open.IdentityServer.EntityFramework.Stores;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
-using Open.IdentityServer.Test.Utilities;
 using Xunit;
 using IdentityServerServerSideSessions = Open.IdentityServer.EntityFramework.Entities.IdentityServerServerSideSessions;
-using Range = System.Range;
 using SessionModel = Open.IdentityServer.Models.IdentityServerServerSideSessions;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores.Compatibility;
@@ -51,7 +49,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [InlineData("  ")]
     public async Task GetSession_WhenKeyNullOrEmpty_ShouldThrowArgumentException(string key)
     {
-        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.First());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         Func<Task> act = async () => await sut.GetSession(key);
@@ -363,7 +361,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [InlineData(" ", null)]
     [InlineData("", "")]
     [InlineData(" ", " ")]
-    public async Task DeleteSessions_WhenFiltersNullOrEmpty_ShouldThrowArgumentException(string? subjectId, string? sessionId)
+    public async Task DeleteSessions_WhenFiltersNullOrEmpty_ShouldThrowArgumentException(string subjectId, string sessionId)
     {
         await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
@@ -376,7 +374,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task DeleteSessions_WhenSubjectIdProvided_ShouldDeleteSessionsWithSubjectId(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
         await context.ServerSideSessions.AddRangeAsync([
             new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
@@ -404,7 +402,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task DeleteSessions_WhenSessionIdProvided_ShouldDeleteSessionsWithSessionId(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
         await context.ServerSideSessions.AddRangeAsync([
             new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
@@ -434,7 +432,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task DeleteSessions_WhenSubjectIdAndSessionIdProvided_ShouldDeleteSessionsWithSubjectIdAndSessionId(DbContextOptions<PersistedGrantDbContext> options)
     {
-        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
         await context.ServerSideSessions.AddRangeAsync([
             new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
@@ -714,7 +712,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             extSession!.Lifetime.Should().Be(session.Expires?.Subtract(session.Renewed));
         }
     }
-
+    
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task GetAndRemoveExpiredSessions_WhenUnspecifiedTimezoneInDbEntities_ShouldBeTreatedAsUtc(DbContextOptions<PersistedGrantDbContext> options)
     {
@@ -881,9 +879,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         actual.Results.Should().HaveCount(1);
         actual.Results.Should().Contain(x => x.Key == "key-6");
     }
-
+    
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task FilterSessions_WithQuery_WhenTokenInQueryAndGetPreviousTrue_ShouldGetNextPage(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task FilterSessions_WithQuery_WhenTokenInQueryAndGetPreviousTrue_ShouldGetPreviousPage(DbContextOptions<PersistedGrantDbContext> options)
     {
         await using var context = await CreateCleanContext(options);
         IdentityServerServerSideSessionStore sut = CreateSut(context);
@@ -901,6 +899,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         
         var sessions = context.ServerSideSessions
             .OrderBy(x => x.Id).Skip(4).Take(2).ToList();
+        // Ids 5,6
         var testToken = $"{sessions.First().Id},{sessions.Last().Id}";
 
         var actual = await sut.FilterSessions(new SessionQuery
@@ -911,14 +910,206 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         }, TestContext.Current.CancellationToken);
         
         actual.TotalCount.Should().Be(7);
+        actual.CurrentPage.Should().Be(2);
+        actual.TotalPages.Should().Be(4);
+        actual.ResultsToken.Should().Be("3,4");
+        actual.HasPrevResults.Should().BeTrue();
+        actual.HasNextResults.Should().BeTrue();
+        actual.Results.Should().HaveCount(2);
+        actual.Results.Should().Contain(x => x.Key == "key-2");
+        actual.Results.Should().Contain(x => x.Key == "key-3");
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenOnFinalPage_GetNextPageReturnsEmptyQueryResult(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+        
+        var sessions = context.ServerSideSessions
+            .OrderBy(x => x.Id).Skip(6).Take(2).ToList();
+        // ids 7,7
+        var testToken = $"{sessions.First().Id},{sessions.Last().Id}";
+
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            ResultsToken = testToken,
+            RequestPriorResults = false,
+            CountRequested = 2,
+        }, TestContext.Current.CancellationToken);
+        
+        actual.Should().BeEquivalentTo(QueryResult<IdentityServerServerSideSessions>.Empty());
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenOnFirstPage_GetNextPreviousPageReturnsEmptyQueryResult(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+        
+        var sessions = context.ServerSideSessions
+            .OrderBy(x => x.Id).Skip(0).Take(2).ToList();
+        // 1,2
+        var testToken = $"{sessions.First().Id},{sessions.Last().Id}";
+
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            ResultsToken = testToken,
+            RequestPriorResults = true,
+            CountRequested = 2,
+        }, TestContext.Current.CancellationToken);
+        
+        actual.Should().BeEquivalentTo(QueryResult<IdentityServerServerSideSessions>.Empty());
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenUnderlyingDataChangedAndResultTokenSpansPageBoundary_GetNextPageReturnsResultsAlignedWithPageCountAndSize(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+        
+        var sessions = context.ServerSideSessions
+            .OrderBy(x => x.Id).Skip(3).Take(2).ToList();
+        // 4,5
+        var testToken = $"{sessions.First().Id},{sessions.Last().Id}";
+
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            ResultsToken = testToken,
+            RequestPriorResults = false,
+            CountRequested = 2,
+        }, TestContext.Current.CancellationToken);
+        
+        actual.TotalCount.Should().Be(7);
         actual.CurrentPage.Should().Be(3);
         actual.TotalPages.Should().Be(4);
-        actual.ResultsToken.Should().Be(testToken);
+        actual.ResultsToken.Should().Be($"5,6");
         actual.HasPrevResults.Should().BeTrue();
         actual.HasNextResults.Should().BeTrue();
         actual.Results.Should().HaveCount(2);
         actual.Results.Should().Contain(x => x.Key == "key-4");
         actual.Results.Should().Contain(x => x.Key == "key-5");
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenUnderlyingDataChangedAndResultTokenSpansPageBoundary_GetPreviousPageReturnsResultsAlignedWithPageCountAndSize(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+        
+        var sessions = context.ServerSideSessions
+            .OrderBy(x => x.Id).Skip(3).Take(2).ToList();
+        // 4,5
+        var testToken = $"{sessions.First().Id},{sessions.Last().Id}";
+
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            ResultsToken = testToken,
+            RequestPriorResults = true,
+            CountRequested = 2,
+        }, TestContext.Current.CancellationToken);
+        
+        actual.TotalCount.Should().Be(7);
+        actual.CurrentPage.Should().Be(2);
+        actual.TotalPages.Should().Be(4);
+        actual.ResultsToken.Should().Be($"3,4");
+        actual.HasPrevResults.Should().BeTrue();
+        actual.HasNextResults.Should().BeTrue();
+        actual.Results.Should().HaveCount(2);
+        actual.Results.Should().Contain(x => x.Key == "key-2");
+        actual.Results.Should().Contain(x => x.Key == "key-3");
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenMovingToFinalPageAndResultsAreLessThanPageSize_ReturnsExpectedResults(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using var context = await CreateCleanContext(options);
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        await context.ServerSideSessions.AddRangeAsync([
+            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            
+            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            
+            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            
+            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+        
+        var sessions = context.ServerSideSessions
+            .OrderBy(x => x.Id).Skip(4).Take(2).ToList();
+        // 5,6
+        var testToken = $"{sessions.First().Id},{sessions.Last().Id}";
+
+        var actual = await sut.FilterSessions(new SessionQuery
+        {
+            ResultsToken = testToken,
+            RequestPriorResults = false,
+            CountRequested = 2,
+        }, TestContext.Current.CancellationToken);
+        
+        actual.TotalCount.Should().Be(7);
+        actual.CurrentPage.Should().Be(4);
+        actual.TotalPages.Should().Be(4);
+        actual.ResultsToken.Should().Be($"7,7");
+        actual.HasPrevResults.Should().BeTrue();
+        actual.HasNextResults.Should().BeFalse();
+        actual.Results.Should().HaveCount(1);
+        actual.Results.Should().Contain(x => x.Key == "key-6");
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]

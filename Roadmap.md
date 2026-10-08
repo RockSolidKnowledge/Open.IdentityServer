@@ -1,6 +1,6 @@
 # Roadmap
 
-> Last updated: May 2026
+> Last updated: Oct 2026
 
 This document outlines the planned direction and priorities for the project. It is a living document and will evolve based on community feedback, contributions, and project needs.
 
@@ -8,18 +8,25 @@ Features may be delivered as part of the core open-source project or as separate
 
 If a feature on this list is of high importance to you, we welcome community contributions and are open to sponsored development.
 
+## Features implemented to date
+
+- Server side sessions
+- OAuth 2.0 Pushed Authorization Requests (RFC 9126)
+- OpenTelemetry support
+- Key Management (Component available via identityserver.com)
+
 ## Next Release
 
-> _Target: Sept 2026_
+> _Target: Q4 2026_
 
 These items will be part of the next major release.
 
 ### Features
 
-- Server side sessions (Core)
-- Use OpenTelemetry for observability (Core)
-- Key Management (Component)
-- Dynamic Authentication Providers (Component compatability)
+- Dynamic Authentication Providers (Component)
+- Dynamic Client Registration APIs (RFC 7591)
+- BFF (Component)
+- OpenID Certification
 
 ## Future
 
@@ -27,24 +34,24 @@ These items will be part of the next major release.
 
 The team is committed to delivering these items in future releases.
 
-> _Target: Sept 2026 - Dec 2026_
-
-- Dotnet project templates (Core)
-- Passkeys/FIDO sample (Core)
-- JWT Response for OAuth Token Introspection (RFC 9701) (Core)
-
 > _Target: Q1 2027_
 
-- OAuth 2.0 Pushed Authorization Requests (RFC 9126) (Core)
-- OAuth 2.0 Authorization Server Metadata (RFC 8414) (Core)
+- JWT Response for OAuth Token Introspection (RFC 9701)
+- Proof of Posession DPoP (RFC 9449)
+- Support Client Id metadata documents
+
+> _Target: Q2 2027_
+
+- OAuth 2.0 Authorization Server Metadata (RFC 8414)
+- Client-Initiated Backchannel Authentication (CIBA)
+- Dotnet project templates
+- Passkeys/FIDO sample
 
 ### Under Consideration
 
 Items under consideration for future releases. No commitment or timeline implied.  Sponsored development and community contributions welcomed.
 
-- Proof of Posession DPoP (RFC 9449)
-- Client-Initiated Backchannel Authentication (CIBA)
-- Dynamic Client Registration APIs (RFC 7591)
+- Client side libraries
 
 ## How to Contribute
 

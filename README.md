@@ -10,6 +10,13 @@ Open.IdentityServer incorporates all the protocol implementations and extensibil
 
 For project documentation, please visit [IdentityServer.com](https://docs.identityserver.com/openidentityserver/).
 
+## Features implemented since IdentityServer4
+
+- Server side sessions
+- OAuth 2.0 Pushed Authorization Requests (RFC 9126)
+- OpenTelemetry support
+- Key Management (Component available via identityserver.com)
+
 ## Quick-start guides
 
 We have quick-start guides for new projects and for migrating from other versions of IdentityServer.

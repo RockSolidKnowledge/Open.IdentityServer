@@ -16,7 +16,7 @@ public static class AuthenticationTicketFilterResultMappingExtensions
         /// <returns>new <see cref="UserSession"/> object</returns>
         public UserSession ToUserSession()
         {
-            string? issuer = null;
+            string issuer = null;
         
             result.AuthTicket?.Properties.Items.TryGetValue(JwtClaimTypes.Issuer, out issuer);
         

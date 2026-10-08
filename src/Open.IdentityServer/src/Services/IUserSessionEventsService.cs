@@ -17,14 +17,12 @@ public interface IUserSessionEventsService
     /// Triggered when the session logout occurs
     /// </summary>
     /// <param name="sessionEventContext">context needed for handling logout event</param>
-    /// <returns></returns>
     public Task HandleUserSessionLogout(EndUserSessionEventContext sessionEventContext);
     
     /// <summary>
     /// Triggered when the session expires
     /// </summary>
     /// <param name="sessionEventContext">context needed for handling logout event</param>
-    /// <returns></returns>
     public Task HandleUserSessionExpiry(EndUserSessionEventContext sessionEventContext);
     
     /// <summary>

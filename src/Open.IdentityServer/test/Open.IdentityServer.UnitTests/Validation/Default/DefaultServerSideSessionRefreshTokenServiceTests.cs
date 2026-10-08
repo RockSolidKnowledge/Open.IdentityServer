@@ -1,8 +1,6 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-#nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -170,7 +168,6 @@ public class DefaultServerSideSessionRefreshTokenServiceTests
     [Fact]
     public async Task PublicMethods_WithCustomisedLogic_WhenCalled_ShouldTelemetryTrace()
     {
-        string fakeHandle = "fakeHandle";
         Client fakeClient = new Client();
         string fakeToken = "fake_refresh_token";
 
@@ -196,13 +193,5 @@ public class DefaultServerSideSessionRefreshTokenServiceTests
                     TelemetryConstants.TraceCategories.Validation, sut, method.traceMethodName), Times.Once);
             Mock.Get(trace).Verify(t => t.Dispose(), Times.Once);
         }
-
-        // Assert all methods covered
-        // typeof(DefaultServerSideSessionRefreshTokenService).GetMethods()
-        //     .Where(m => m is { IsPublic: true, IsStatic: false, IsSpecialName: false })
-        //     .Where(m => m.DeclaringType == typeof(DefaultServerSideSessionRefreshTokenService))
-        //     .Select(m => m.Name)
-        //     .Distinct()
-        //     .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
     }
 }
