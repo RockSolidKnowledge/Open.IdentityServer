@@ -20,9 +20,18 @@ public static class IdentityServerServerSideSessionsExtensions
         /// Mapper for <see cref="Entities.IdentityServerServerSideSessions"/> to convert into an instance of <see cref="Models.IdentityServerServerSideSessions"/>
         /// </summary>
         /// <returns>mapped instance of <see cref="Models.IdentityServerServerSideSessions"/></returns>
-        public Models.IdentityServerServerSideSessions ToModel()
+        public Models.IdentityServerServerSideSessions ToModel() =>
+            sessionEntity.ToModel<Models.IdentityServerServerSideSessions>();
+        
+        /// <summary>
+        /// Mapper for <see cref="Entities.IdentityServerServerSideSessions"/> to convert into an instance of <typeparamref name="TModel"/>.
+        /// </summary>
+        /// <typeparam name="TModel">The type of <see cref="Models.IdentityServerServerSideSessions"/> model to map to.</typeparam>
+        /// <returns>mapped instance of <typeparamref name="TModel"/>.</returns>
+        public TModel ToModel<TModel>()
+            where TModel: Models.IdentityServerServerSideSessions, new()
         {
-            return new Models.IdentityServerServerSideSessions
+            return new TModel
             {
                 Key = sessionEntity.Key,
                 Scheme = sessionEntity.Scheme,

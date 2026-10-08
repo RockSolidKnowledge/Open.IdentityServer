@@ -28,6 +28,17 @@ public class IdentityServerServerSideSessionStore(
     TimeProvider timeProvider,
     ILogger<IdentityServerServerSideSessionStore> logger) : IIdentityServerServerSideSessionStore
 {
+    /// <summary>
+    /// Maps the <see cref="Entities.IdentityServerServerSideSessions"/> to the <see cref="IdentityServerServerSideSessions"/>.
+    /// </summary>
+    /// <param name="entities">The <see cref="Entities.IdentityServerServerSideSessions"/>.</param>
+    /// <returns>The <see cref="IdentityServerServerSideSessions"/> or an object extending Client.</returns>
+    /// <remarks>
+    /// Makes it possible to return an extended model.
+    /// </remarks>
+    protected virtual IdentityServerServerSideSessions? ToModel(Entities.IdentityServerServerSideSessions? entities) => 
+        entities?.ToModel();
+    
     /// <inheritdoc />
     public async Task<IdentityServerServerSideSessions?> GetSession(string key)
     {
@@ -37,8 +48,8 @@ public class IdentityServerServerSideSessionStore(
 
         Entities.IdentityServerServerSideSessions? session = await dbContext.ServerSideSessions
             .SingleOrDefaultAsync(x => x.Key == key);
-
-        return session?.ToModel();
+        
+        return ToModel(session);
     }
 
     /// <inheritdoc />
@@ -158,7 +169,7 @@ public class IdentityServerServerSideSessionStore(
         }, dbContext.ServerSideSessions.AsQueryable());
 
         return (await filteredResults.ToListAsync())
-            .Select(x => x.ToModel());
+            .Select(x => ToModel(x)!);
     }
     
     /// <inheritdoc />
@@ -213,7 +224,7 @@ public class IdentityServerServerSideSessionStore(
             HasPrevResults = currentPage > 1,
             HasNextResults = currentPage < totalPages,
             ResultsToken = $"{results.First().Id},{results.Last().Id}",
-            Results = results.Select(x => x.ToModel()).ToList(),
+            Results = results.Select(x => ToModel(x)!).ToList(),
         };
     }
 
@@ -270,7 +281,6 @@ public class IdentityServerServerSideSessionStore(
         dbContext.ServerSideSessions.RemoveRange(sessions);
         await dbContext.SaveChangesAsync();
 
-        return sessions.Select(x => x.ToModel());
-
+        return sessions.Select(x => ToModel(x)!);
     }
 }
