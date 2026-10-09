@@ -7,6 +7,7 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
@@ -261,5 +262,43 @@ public class IdentityServerMiddlewareTests
         actualUserSessionEventCtx.SessionId.Should().BeEquivalentTo(sessionId);
         actualUserSessionEventCtx.SubjectId.Should().BeEquivalentTo(subjectId);
         actualUserSessionEventCtx.ClientIds.Should().BeEquivalentTo(clientIds);
+    }
+
+    [Fact]
+    public async Task Invoke_WhenSessionExpired_ShouldCallHandleUserSessionExpiry_OnIUserSessionEventsService()
+    {
+        var responseFeatureMock = Mock.Of<IHttpResponseFeature>();
+        Mock.Get(responseFeatureMock)
+            .Setup(x => x.OnStarting(It.IsAny<Func<object, Task>>(), It.IsAny<object>()))
+            .Callback<Func<object, Task>, object>((callback, state) => callback.Invoke(state).GetAwaiter().GetResult());
+        _context.Features[typeof(IHttpResponseFeature)] = responseFeatureMock;
+
+        var expiredSession = new IdentityServerServerSideSessions
+        {
+            SessionId = "expired-session-id",
+            SubjectId = "expired-subject-id",
+        };
+
+        var ticketProperties = new AuthenticationProperties();
+        ticketProperties.AddClientId("client-1");
+        ticketProperties.AddClientId("client-2");
+        var expiredTicket = new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity()), ticketProperties, "cookie");
+
+        _context.SetSessionExpired(expiredSession, expiredTicket);
+
+        EndUserSessionEventContext actualContext = null;
+        Mock.Get(userSessionEventsService)
+            .Setup(x => x.HandleUserSessionExpiry(It.IsAny<EndUserSessionEventContext>()))
+            .Callback<EndUserSessionEventContext>(ctx => actualContext = ctx);
+
+        await InvokeSubjectMiddleware();
+
+        Mock.Get(userSessionEventsService)
+            .Verify(x => x.HandleUserSessionExpiry(It.IsAny<EndUserSessionEventContext>()), Times.Once);
+
+        actualContext.Should().NotBeNull();
+        actualContext!.SessionId.Should().Be(expiredSession.SessionId);
+        actualContext.SubjectId.Should().Be(expiredSession.SubjectId);
+        actualContext.ClientIds.Should().BeEquivalentTo(new[] { "client-1", "client-2" });
     }
 }

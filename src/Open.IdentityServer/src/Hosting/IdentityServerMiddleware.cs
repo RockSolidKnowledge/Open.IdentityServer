@@ -82,6 +82,19 @@ public class IdentityServerMiddleware
                     ClientIds = clientIds.ToArray(),
                 });
             }
+            else if(context.GetSessionExpired() is var (expiredSession, expiredTicket)
+                    && expiredSession != null
+                    && expiredTicket != null)
+            {
+                _logger.LogDebug("SessionExpired set; processing post-session expiration cleanup.");
+                
+                await userSessionEventsService.HandleUserSessionExpiry(new EndUserSessionEventContext
+                {
+                    SessionId = expiredSession.SessionId,
+                    SubjectId = expiredSession.SubjectId,
+                    ClientIds = expiredTicket.Properties.GetClientList().ToArray(),
+                });
+            }
         });
 
         ITrace trace = null;
