@@ -41,7 +41,9 @@ public class Startup
                 // this enables automatic token cleanup. this is optional.
                 options.EnableTokenCleanup = true;
                 options.TokenCleanupInterval = 5; // interval in seconds, short for testing
-            });
+            })
+            .AddServerSideSessions()
+            ;
         // this is something you will want in production to reduce load on and requests to the DB
         //.AddConfigurationStoreCache();
     }

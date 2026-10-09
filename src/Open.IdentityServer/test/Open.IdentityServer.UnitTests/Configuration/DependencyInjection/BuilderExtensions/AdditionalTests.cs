@@ -47,7 +47,7 @@ public class AdditionalTests
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(IServerSessionTicketStore) &&
             d.ImplementationType == typeof(ServerSessionTicketStore) &&
-            d.Lifetime == ServiceLifetime.Singleton);
+            d.Lifetime == ServiceLifetime.Scoped);
         
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(Decorator<ITokenValidator>) &&
@@ -131,7 +131,7 @@ public class AdditionalTests
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(IServerSessionTicketStore) &&
             d.ImplementationType == typeof(ServerSessionTicketStore) &&
-            d.Lifetime == ServiceLifetime.Singleton);
+            d.Lifetime == ServiceLifetime.Scoped);
         
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(Decorator<ITokenValidator>) &&

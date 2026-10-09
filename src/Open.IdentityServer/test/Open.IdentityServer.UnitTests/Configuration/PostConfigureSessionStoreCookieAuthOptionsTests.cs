@@ -1,8 +1,10 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Moq;
 using Open.IdentityServer.Configuration;
@@ -14,7 +16,7 @@ namespace Open.IdentityServer.UnitTests.Configuration;
 
 public class PostConfigureSessionStoreCookieAuthOptionsTests
 {
-    private IServerSessionTicketStore ticketStore = Mock.Of<IServerSessionTicketStore>();
+    private IServiceProvider services = Mock.Of<IServiceProvider>();
     private IdentityServerOptions idsOptions = new();
     private IOptions<AuthenticationOptions> authOptions = 
         Mock.Of<IOptions<AuthenticationOptions>>();
@@ -28,7 +30,7 @@ public class PostConfigureSessionStoreCookieAuthOptionsTests
             .Returns(authenticationOptions);
     }
     
-    private PostConfigureSessionStoreCookieAuthOptions CreateSut() => new(ticketStore, idsOptions, authOptions);
+    private PostConfigureSessionStoreCookieAuthOptions CreateSut() => new(services, idsOptions, authOptions);
 
     [Fact]
     public void PostConfigure_WhenIdentityServerOptionsCookieAuthenticationSchemeSet_AndMatchesName_ShouldConfigureTicketStore()
