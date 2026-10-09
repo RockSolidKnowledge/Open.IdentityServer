@@ -902,14 +902,19 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task GetAndRemoveExpiredSessions_WhenExpiredSessionsExist_AndExceedBatchSize_ShouldDeleteAndReturnExpiredSessions_WithACountOfBatchSize()
     {
-        // This test is flaky, needs fixing
-        
-        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
-        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
-        IdentityServerServerSideSessions expiredSession2 = FakeSessionSession("789", "session3", true);
+        // Offset to guarantee sort order
+        int offset = 0;
+        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true,
+            expiryOffset: TimeSpan.FromSeconds(offset++));
+        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true,
+            expiryOffset: TimeSpan.FromSeconds(offset++));
+        IdentityServerServerSideSessions expiredSession2 = FakeSessionSession("789", "session3", true,
+            expiryOffset: TimeSpan.FromSeconds(offset));
         IdentityServerServerSideSessions validSession0 = FakeSessionSession("234", "session4");
-        
-        InMemorySessionStore sut = CreateSut([expiredSession0, expiredSession1, expiredSession2, validSession0]);
+
+        InMemorySessionStore sut = CreateSut([
+            expiredSession0, expiredSession1, expiredSession2, validSession0
+        ]);
 
         (await sut.GetSession(expiredSession0.Key)).Should().NotBeNull();
         (await sut.GetSession(expiredSession1.Key)).Should().NotBeNull();
@@ -919,18 +924,22 @@ public class InMemorySessionStoreTests
         List<IdentityServerServerSideSessions> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
 
         actual.Should().HaveCount(2);
-        actual.Should().Contain(x => x.Key == expiredSession0.Key);
-        actual.Should().Contain(x => x.Key == expiredSession1.Key);
+        actual.Select(x => x.Key).Should().BeEquivalentTo(new[] { expiredSession0.Key, expiredSession1.Key });
+
         actual.Should().NotContain(x => x.Key == expiredSession2.Key);
         actual.Should().NotContain(x => x.Key == validSession0.Key);
-        
+
         (await sut.GetSession(expiredSession0.Key)).Should().BeNull();
         (await sut.GetSession(expiredSession1.Key)).Should().BeNull();
         (await sut.GetSession(expiredSession2.Key)).Should().NotBeNull();
         (await sut.GetSession(validSession0.Key)).Should().NotBeNull();
     }
 
-    private static IdentityServerServerSideSessions FakeSessionSession(string subject, string sessionId, bool expired = false)
+    private static IdentityServerServerSideSessions FakeSessionSession(
+        string subject, 
+        string sessionId, 
+        bool expired = false, 
+        TimeSpan expiryOffset = default(TimeSpan))
     {
         IdentityServerServerSideSessions session = new IdentityServerServerSideSessions
         {
@@ -941,7 +950,7 @@ public class InMemorySessionStoreTests
             DisplayName = "user" + subject,
             Created = DateTime.UtcNow.AddDays(-3),
             Renewed = DateTime.UtcNow.AddDays(-3),
-            Expires = DateTime.UtcNow.AddDays(2),
+            Expires = DateTime.UtcNow.AddDays(2).Add(expiryOffset),
             Data = "{!}"
         };
 
@@ -949,7 +958,7 @@ public class InMemorySessionStoreTests
         {
             session.Created = DateTime.UtcNow.AddDays(-5);
             session.Renewed = DateTime.UtcNow.AddDays(-4);
-            session.Expires = DateTime.UtcNow.AddDays(-3);
+            session.Expires = DateTime.UtcNow.AddDays(-3).Add(expiryOffset);
         }
 
         return session;
