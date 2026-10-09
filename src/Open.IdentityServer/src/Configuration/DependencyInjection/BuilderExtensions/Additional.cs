@@ -474,7 +474,7 @@ public static class IdentityServerBuilderExtensionsAdditional
     public static IIdentityServerBuilder AddServerSideSessions(this IIdentityServerBuilder builder)
     {
         builder.Services.AddSingleton<IPostConfigureOptions<CookieAuthenticationOptions>, PostConfigureSessionStoreCookieAuthOptions>();
-        builder.Services.AddSingleton<IServerSessionTicketStore, ServerSessionTicketStore>();
+        builder.Services.AddScoped<IServerSessionTicketStore, ServerSessionTicketStore>();
         
         // Token Validators
         builder.Services.AddTransientDecorator<ITokenValidator, DefaultServerSideSessionTokenValidator>();
