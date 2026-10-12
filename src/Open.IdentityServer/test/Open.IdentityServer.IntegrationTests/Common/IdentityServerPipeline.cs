@@ -30,6 +30,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
+using Open.IdentityServer.Stores;
 
 namespace IdentityServer.IntegrationTests.Common;
 
@@ -388,9 +389,7 @@ public class IdentityServerPipeline
     }
     public ITicketStore GetTicketStore()
     {
-        var optionsMonitor = Server!.Services.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>();
-        var cookieOptions = optionsMonitor.Get(IdentityServerConstants.DefaultCookieAuthenticationScheme);
-        return cookieOptions.SessionStore!;
+        return Server.Services.GetRequiredService<IServerSessionTicketStore>();
     }
 
     public string CreateAuthorizeUrl(
