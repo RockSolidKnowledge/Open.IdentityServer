@@ -13,7 +13,6 @@ using Open.IdentityServer.EntityFramework.Stores;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Xunit;
-using IdentityServerServerSideSessions = Open.IdentityServer.EntityFramework.Entities.IdentityServerServerSideSessions;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores.Compatibility;
 
@@ -73,7 +72,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "session-key-1";
-        IdentityServerServerSideSessions seeded = new IdentityServerServerSideSessions
+        Entities.ServerSideSession seeded = new Entities.ServerSideSession
         {
             Key = key,
             Scheme = "cookie",
@@ -111,7 +110,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "session-key-1";
-        IdentityServerServerSideSessions seeded = new IdentityServerServerSideSessions
+        Entities.ServerSideSession seeded = new Entities.ServerSideSession
         {
             Key = key,
             Scheme = "cookie",
@@ -171,7 +170,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "duplicate-key";
-        context.ServerSideSessions.Add(new IdentityServerServerSideSessions
+        context.ServerSideSessions.Add(new Entities.ServerSideSession
         {
             Key = key,
             Scheme = "cookie",
@@ -205,7 +204,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         await sut.CreateSession(session);
 
-        IdentityServerServerSideSessions stored = await context.ServerSideSessions
+        Entities.ServerSideSession stored = await context.ServerSideSessions
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.Key == key, cancellationToken: TestContext.Current.CancellationToken);
         
@@ -256,7 +255,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "update-key";
-        context.ServerSideSessions.Add(new IdentityServerServerSideSessions
+        context.ServerSideSessions.Add(new Entities.ServerSideSession
         {
             Key = key,
             Scheme = "old-scheme",
@@ -281,7 +280,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         await sut.UpdateSession(updated);
 
-        IdentityServerServerSideSessions stored = await context.ServerSideSessions
+        Entities.ServerSideSession stored = await context.ServerSideSessions
             .AsNoTracking()
             .SingleAsync(x => x.Key == key, cancellationToken: TestContext.Current.CancellationToken);
         
@@ -327,7 +326,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "delete-key";
-        context.ServerSideSessions.Add(new IdentityServerServerSideSessions
+        context.ServerSideSessions.Add(new Entities.ServerSideSession
         {
             Key = key,
             Scheme = "cookie",
@@ -345,7 +344,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         await sut.DeleteSession(key);
 
-        IdentityServerServerSideSessions stored = await context.ServerSideSessions
+        Entities.ServerSideSession stored = await context.ServerSideSessions
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.Key == key, cancellationToken: TestContext.Current.CancellationToken);
         
@@ -376,13 +375,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
         
@@ -404,13 +403,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
         
@@ -434,13 +433,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
         
@@ -465,13 +464,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -494,13 +493,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -519,13 +518,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -543,13 +542,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -565,13 +564,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -589,13 +588,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         ExtendedIdentityServerServerSideSessionStore sut = CreateSutExtended(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -621,8 +620,8 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     {
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
-        IdentityServerServerSideSessions validSession0 = FakeSessionSession("123", "session1");
-        IdentityServerServerSideSessions validSession1 = FakeSessionSession("456", "session2");
+        Entities.ServerSideSession validSession0 = FakeSessionSession("123", "session1");
+        Entities.ServerSideSession validSession1 = FakeSessionSession("456", "session2");
         context.ServerSideSessions.Add(validSession0);
         context.ServerSideSessions.Add(validSession1);
         await context.SaveChangesAsync();
@@ -639,8 +638,8 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     {
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
-        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
-        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
+        Entities.ServerSideSession expiredSession0 = FakeSessionSession("123", "session1", true);
+        Entities.ServerSideSession expiredSession1 = FakeSessionSession("456", "session2", true);
         context.ServerSideSessions.Add(expiredSession0);
         context.ServerSideSessions.Add(expiredSession1);
         await context.SaveChangesAsync();
@@ -659,10 +658,10 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     {
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
-        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
-        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
-        IdentityServerServerSideSessions expiredSession2 = FakeSessionSession("789", "session3", true);
-        IdentityServerServerSideSessions validSession0 = FakeSessionSession("234", "session4");
+        Entities.ServerSideSession expiredSession0 = FakeSessionSession("123", "session1", true);
+        Entities.ServerSideSession expiredSession1 = FakeSessionSession("456", "session2", true);
+        Entities.ServerSideSession expiredSession2 = FakeSessionSession("789", "session3", true);
+        Entities.ServerSideSession validSession0 = FakeSessionSession("234", "session4");
         context.ServerSideSessions.Add(expiredSession0);
         context.ServerSideSessions.Add(expiredSession1);
         context.ServerSideSessions.Add(expiredSession2);
@@ -683,10 +682,10 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     {
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
-        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
-        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
-        IdentityServerServerSideSessions expiredSession2 = FakeSessionSession("789", "session3", true);
-        IdentityServerServerSideSessions validSession0 = FakeSessionSession("234", "session4");
+        Entities.ServerSideSession expiredSession0 = FakeSessionSession("123", "session1", true);
+        Entities.ServerSideSession expiredSession1 = FakeSessionSession("456", "session2", true);
+        Entities.ServerSideSession expiredSession2 = FakeSessionSession("789", "session3", true);
+        Entities.ServerSideSession validSession0 = FakeSessionSession("234", "session4");
         context.ServerSideSessions.Add(expiredSession0);
         context.ServerSideSessions.Add(expiredSession1);
         context.ServerSideSessions.Add(expiredSession2);
@@ -725,8 +724,8 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         
-        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1");
-        IdentityServerServerSideSessions validSession0 = FakeSessionSession("234", "session4");
+        Entities.ServerSideSession expiredSession0 = FakeSessionSession("123", "session1");
+        Entities.ServerSideSession validSession0 = FakeSessionSession("234", "session4");
 
         expiredSession0.Expires = testExpired;
         validSession0.Expires = testWithin8HoursToExpiry;
@@ -767,13 +766,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -806,13 +805,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -844,13 +843,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
         
@@ -886,13 +885,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
         
@@ -926,13 +925,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
         
@@ -948,7 +947,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             CountRequested = 2,
         }, TestContext.Current.CancellationToken);
         
-        actual.Should().BeEquivalentTo(QueryResult<IdentityServerServerSideSessions>.Empty());
+        actual.Should().BeEquivalentTo(QueryResult<Entities.ServerSideSession>.Empty());
     }
     
     [Theory, MemberData(nameof(TestDatabaseProviders))]
@@ -958,13 +957,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
         
@@ -980,7 +979,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             CountRequested = 2,
         }, TestContext.Current.CancellationToken);
         
-        actual.Should().BeEquivalentTo(QueryResult<IdentityServerServerSideSessions>.Empty());
+        actual.Should().BeEquivalentTo(QueryResult<Entities.ServerSideSession>.Empty());
     }
     
     [Theory, MemberData(nameof(TestDatabaseProviders))]
@@ -990,16 +989,16 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
             
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
             
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
         
@@ -1033,16 +1032,16 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
             
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
             
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
         
@@ -1076,16 +1075,16 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
             
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
             
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
         
@@ -1118,13 +1117,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -1159,13 +1158,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -1200,13 +1199,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -1241,13 +1240,13 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         ExtendedIdentityServerServerSideSessionStore sut = CreateSutExtended(context);
         
         await context.ServerSideSessions.AddRangeAsync([
-            new IdentityServerServerSideSessions { Key = "key-0", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-1", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-2", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-3", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-4", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-5", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new IdentityServerServerSideSessions { Key = "key-6", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
+            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
         ]);
         await context.SaveChangesAsync();
 
@@ -1352,9 +1351,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         };
     }
 
-    private static IdentityServerServerSideSessions FakeSessionSession(string subject, string sessionId, bool expired = false)
+    private static Entities.ServerSideSession FakeSessionSession(string subject, string sessionId, bool expired = false)
     {
-        IdentityServerServerSideSessions session = new IdentityServerServerSideSessions
+        Entities.ServerSideSession session = new Entities.ServerSideSession
         {
             Key = Guid.NewGuid().ToString(),
             Scheme = Guid.NewGuid().ToString(),

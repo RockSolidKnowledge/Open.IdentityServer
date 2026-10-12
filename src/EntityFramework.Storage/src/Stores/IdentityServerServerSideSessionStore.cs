@@ -28,14 +28,14 @@ public class IdentityServerServerSideSessionStore(
     ILogger<IdentityServerServerSideSessionStore> logger) : IIdentityServerServerSideSessionStore
 {
     /// <summary>
-    /// Maps the <see cref="Entities.IdentityServerServerSideSessions"/> to the <see cref="Open.IdentityServer.Models.ServerSideSession"/>.
+    /// Maps the <see cref="Entities.ServerSideSession"/> to the <see cref="Open.IdentityServer.Models.ServerSideSession"/>.
     /// </summary>
-    /// <param name="entities">The <see cref="Entities.IdentityServerServerSideSessions"/>.</param>
+    /// <param name="entities">The <see cref="Entities.ServerSideSession"/>.</param>
     /// <returns>The <see cref="Open.IdentityServer.Models.ServerSideSession"/> or an object extending Client.</returns>
     /// <remarks>
     /// Makes it possible to return an extended model.
     /// </remarks>
-    protected virtual ServerSideSession? ToModel(Entities.IdentityServerServerSideSessions? entities) => 
+    protected virtual ServerSideSession? ToModel(Entities.ServerSideSession? entities) => 
         entities?.ToModel();
     
     /// <inheritdoc />
@@ -45,7 +45,7 @@ public class IdentityServerServerSideSessionStore(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
-        Entities.IdentityServerServerSideSessions? session = await dbContext.ServerSideSessions
+        Entities.ServerSideSession? session = await dbContext.ServerSideSessions
             .SingleOrDefaultAsync(x => x.Key == key);
         
         return ToModel(session);
@@ -58,7 +58,7 @@ public class IdentityServerServerSideSessionStore(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(session.Key);
 
-        Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
+        Entities.ServerSideSession? existing = await dbContext.ServerSideSessions
             .SingleOrDefaultAsync(x => x.Key == session.Key);
 
         if (existing != null)
@@ -68,7 +68,7 @@ public class IdentityServerServerSideSessionStore(
             return;
         }
 
-        Entities.IdentityServerServerSideSessions sessionEntity = session.ToEntity();
+        Entities.ServerSideSession sessionEntity = session.ToEntity();
 
         await dbContext.ServerSideSessions.AddAsync(sessionEntity);
 
@@ -89,7 +89,7 @@ public class IdentityServerServerSideSessionStore(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(session.Key);
 
-        Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
+        Entities.ServerSideSession? existing = await dbContext.ServerSideSessions
             .SingleOrDefaultAsync(x => x.Key == session.Key);
 
         if (existing == null)
@@ -117,7 +117,7 @@ public class IdentityServerServerSideSessionStore(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
-        Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
+        Entities.ServerSideSession? existing = await dbContext.ServerSideSessions
             .SingleOrDefaultAsync(x => x.Key == key);
 
         if (existing == null)
@@ -148,7 +148,7 @@ public class IdentityServerServerSideSessionStore(
             throw new ArgumentException($"{nameof(subjectId)} or {nameof(sessionId)} must have a non null or empty value");
         }
         
-        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        IQueryable<Entities.ServerSideSession> filteredResults = ApplyFilter(new SessionQuery
         {
             SessionId = sessionId, SubjectId = subjectId,
         }, dbContext.ServerSideSessions.AsQueryable());
@@ -162,7 +162,7 @@ public class IdentityServerServerSideSessionStore(
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
-        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        IQueryable<Entities.ServerSideSession> filteredResults = ApplyFilter(new SessionQuery
         {
             SessionId = sessionId, SubjectId = subjectId,
         }, dbContext.ServerSideSessions.AsQueryable());
@@ -178,7 +178,7 @@ public class IdentityServerServerSideSessionStore(
 
         SessionQuery query = inputQuery ?? new SessionQuery();
 
-        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(query, dbContext.ServerSideSessions.AsQueryable());
+        IQueryable<Entities.ServerSideSession> filteredResults = ApplyFilter(query, dbContext.ServerSideSessions.AsQueryable());
 
         int count = await filteredResults.CountAsync(cancellationToken: ct);
 
@@ -244,8 +244,8 @@ public class IdentityServerServerSideSessionStore(
         return new ValueTuple<long, long>(tokenFirst, tokenLast);
     }
 
-    private IQueryable<Entities.IdentityServerServerSideSessions> ApplyFilter(SessionQuery query,
-        IQueryable<Entities.IdentityServerServerSideSessions> input)
+    private IQueryable<Entities.ServerSideSession> ApplyFilter(SessionQuery query,
+        IQueryable<Entities.ServerSideSession> input)
     {
         if (!string.IsNullOrWhiteSpace(query.SubjectId))
         {

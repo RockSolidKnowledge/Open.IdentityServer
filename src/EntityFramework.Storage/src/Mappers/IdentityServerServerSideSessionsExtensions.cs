@@ -3,6 +3,7 @@
 
 #nullable enable
 
+using Open.IdentityServer.EntityFramework.Entities;
 using Open.IdentityServer.Models;
 
 namespace Open.IdentityServer.EntityFramework.Mappers;
@@ -13,20 +14,20 @@ namespace Open.IdentityServer.EntityFramework.Mappers;
 public static class IdentityServerServerSideSessionsExtensions
 {
     /// <summary>
-    /// Mapping extension methods for <see cref="Entities.IdentityServerServerSideSessions"/>
+    /// Mapping extension methods for <see cref="Entities.ServerSideSession"/>
     /// </summary>
     /// <param name="sessionEntity">The entity.</param>
-    extension(Entities.IdentityServerServerSideSessions sessionEntity)
+    extension(Entities.ServerSideSession sessionEntity)
     {
         /// <summary>
-        /// Mapper for <see cref="Entities.IdentityServerServerSideSessions"/> to convert into an instance of <see cref="Open.IdentityServer.Models.ServerSideSession"/>
+        /// Mapper for <see cref="Entities.ServerSideSession"/> to convert into an instance of <see cref="Open.IdentityServer.Models.ServerSideSession"/>
         /// </summary>
         /// <returns>mapped instance of <see cref="Open.IdentityServer.Models.ServerSideSession"/></returns>
         public Models.ServerSideSession ToModel() =>
             sessionEntity.ToModel<Models.ServerSideSession>();
         
         /// <summary>
-        /// Mapper for <see cref="Entities.IdentityServerServerSideSessions"/> to convert into an instance of <typeparamref name="TModel"/>.
+        /// Mapper for <see cref="Entities.ServerSideSession"/> to convert into an instance of <typeparamref name="TModel"/>.
         /// </summary>
         /// <typeparam name="TModel">The type of <see cref="Open.IdentityServer.Models.ServerSideSession"/> model to map to.</typeparam>
         /// <returns>mapped instance of <typeparamref name="TModel"/>.</returns>
@@ -55,12 +56,12 @@ public static class IdentityServerServerSideSessionsExtensions
     extension(Models.ServerSideSession sessionModel)
     {
         /// <summary>
-        /// Mapper for <see cref="Open.IdentityServer.Models.ServerSideSession"/> to convert into an instance of <see cref="Entities.IdentityServerServerSideSessions"/>
+        /// Mapper for <see cref="Open.IdentityServer.Models.ServerSideSession"/> to convert into an instance of <see cref="Entities.ServerSideSession"/>
         /// </summary>
-        /// <returns>mapped instance of <see cref="Entities.IdentityServerServerSideSessions"/></returns>
-        public Entities.IdentityServerServerSideSessions ToEntity()
+        /// <returns>mapped instance of <see cref="Entities.ServerSideSession"/></returns>
+        public Entities.ServerSideSession ToEntity()
         {
-            return new Entities.IdentityServerServerSideSessions
+            return new Entities.ServerSideSession
             {
                 Key = sessionModel.Key,
                 Scheme = sessionModel.Scheme,
@@ -75,10 +76,10 @@ public static class IdentityServerServerSideSessionsExtensions
         }
         
         /// <summary>
-        /// Updates <see cref="Entities.IdentityServerServerSideSessions"/> with instance of <see cref="Open.IdentityServer.Models.ServerSideSession"/>
+        /// Updates <see cref="Entities.ServerSideSession"/> with instance of <see cref="Open.IdentityServer.Models.ServerSideSession"/>
         /// </summary>
         /// <param name="existingEntity">The entity.</param>
-        public void UpdateEntity(Entities.IdentityServerServerSideSessions existingEntity)
+        public void UpdateEntity(Entities.ServerSideSession existingEntity)
         {
             existingEntity.Key = sessionModel.Key;
             existingEntity.Scheme = sessionModel.Scheme;

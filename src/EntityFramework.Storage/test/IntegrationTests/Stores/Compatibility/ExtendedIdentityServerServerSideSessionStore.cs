@@ -14,7 +14,7 @@ public class ExtendedIdentityServerServerSideSessionStore(
     ILogger<IdentityServerServerSideSessionStore> logger): 
     IdentityServerServerSideSessionStore(dbContext, telemetry, timeProvider, logger)
 {
-    protected override Models.ServerSideSession ToModel(Entities.IdentityServerServerSideSessions client)
+    protected override Models.ServerSideSession ToModel(Entities.ServerSideSession client)
     {
         var model = client.ToModel<ExtendedServerSideSession>();
 
