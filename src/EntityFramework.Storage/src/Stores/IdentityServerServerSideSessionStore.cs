@@ -15,7 +15,6 @@ using Open.IdentityServer.EntityFramework.Mappers;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
-using IdentityServerServerSideSessions = Open.IdentityServer.Models.IdentityServerServerSideSessions;
 
 namespace Open.IdentityServer.EntityFramework.Stores;
 
@@ -29,18 +28,18 @@ public class IdentityServerServerSideSessionStore(
     ILogger<IdentityServerServerSideSessionStore> logger) : IIdentityServerServerSideSessionStore
 {
     /// <summary>
-    /// Maps the <see cref="Entities.IdentityServerServerSideSessions"/> to the <see cref="IdentityServerServerSideSessions"/>.
+    /// Maps the <see cref="Entities.IdentityServerServerSideSessions"/> to the <see cref="Open.IdentityServer.Models.ServerSideSession"/>.
     /// </summary>
     /// <param name="entities">The <see cref="Entities.IdentityServerServerSideSessions"/>.</param>
-    /// <returns>The <see cref="IdentityServerServerSideSessions"/> or an object extending Client.</returns>
+    /// <returns>The <see cref="Open.IdentityServer.Models.ServerSideSession"/> or an object extending Client.</returns>
     /// <remarks>
     /// Makes it possible to return an extended model.
     /// </remarks>
-    protected virtual IdentityServerServerSideSessions? ToModel(Entities.IdentityServerServerSideSessions? entities) => 
+    protected virtual ServerSideSession? ToModel(Entities.IdentityServerServerSideSessions? entities) => 
         entities?.ToModel();
     
     /// <inheritdoc />
-    public async Task<IdentityServerServerSideSessions?> GetSession(string key)
+    public async Task<ServerSideSession?> GetSession(string key)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
@@ -53,7 +52,7 @@ public class IdentityServerServerSideSessionStore(
     }
 
     /// <inheritdoc />
-    public async Task CreateSession(IdentityServerServerSideSessions session)
+    public async Task CreateSession(ServerSideSession session)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
@@ -84,7 +83,7 @@ public class IdentityServerServerSideSessionStore(
     }
 
     /// <inheritdoc />
-    public async Task UpdateSession(IdentityServerServerSideSessions session)
+    public async Task UpdateSession(ServerSideSession session)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
@@ -159,7 +158,7 @@ public class IdentityServerServerSideSessionStore(
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string? subjectId, string? sessionId)
+    public async Task<IEnumerable<ServerSideSession>> FilterSessions(string? subjectId, string? sessionId)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
@@ -173,7 +172,7 @@ public class IdentityServerServerSideSessionStore(
     }
     
     /// <inheritdoc />
-    public async Task<QueryResult<IdentityServerServerSideSessions>> FilterSessions(SessionQuery? inputQuery, CancellationToken ct = default)
+    public async Task<QueryResult<ServerSideSession>> FilterSessions(SessionQuery? inputQuery, CancellationToken ct = default)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
@@ -185,7 +184,7 @@ public class IdentityServerServerSideSessionStore(
 
         if (count < 1)
         {
-            return QueryResult<IdentityServerServerSideSessions>.Empty();
+            return QueryResult<ServerSideSession>.Empty();
         }
         
         int totalPages = (count / query.CountRequested) + (count % query.CountRequested != 0 ? 1 : 0);
@@ -203,11 +202,11 @@ public class IdentityServerServerSideSessionStore(
                 // Fix if page boundary is misaligned with the token
                 if (elementsBeforeToken % query.CountRequested == 0) currentPage--;
                 
-                if (currentPage < 1) return QueryResult<IdentityServerServerSideSessions>.Empty();
+                if (currentPage < 1) return QueryResult<ServerSideSession>.Empty();
             }
             else
             {
-                if (++currentPage > totalPages) return QueryResult<IdentityServerServerSideSessions>.Empty();
+                if (++currentPage > totalPages) return QueryResult<ServerSideSession>.Empty();
             }
         }
 
@@ -216,7 +215,7 @@ public class IdentityServerServerSideSessionStore(
             .Take(query.CountRequested)
             .ToListAsync(ct);
         
-        return new QueryResult<IdentityServerServerSideSessions>
+        return new QueryResult<ServerSideSession>
         {
             TotalCount = count,
             TotalPages = totalPages,
@@ -268,7 +267,7 @@ public class IdentityServerServerSideSessionStore(
     }
     
     /// <inheritdoc />
-    public async Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    public async Task<IEnumerable<ServerSideSession>> GetAndRemoveExpiredSessions(int batchSize = 100)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         

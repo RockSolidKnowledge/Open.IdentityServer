@@ -28,7 +28,7 @@ public class IdentityServerServerSideSessionsExtensionsTests
             Data = "FAKEPROTECTEDDATA"
         };
 
-        Models.IdentityServerServerSideSessions actual = entity.ToModel();
+        Models.ServerSideSession actual = entity.ToModel();
 
         entity.Should().BeEquivalentTo(actual);
     }
@@ -36,7 +36,7 @@ public class IdentityServerServerSideSessionsExtensionsTests
     [Fact]
     public void ModelIdentityServerServerSideSessions_ToEntity_ProducesEntityWithCorrectFields()
     {
-        Models.IdentityServerServerSideSessions model = new Models.IdentityServerServerSideSessions
+        Models.ServerSideSession model = new Models.ServerSideSession
         {
             Key = Guid.NewGuid().ToString(),
             Scheme = "FakeScheme",

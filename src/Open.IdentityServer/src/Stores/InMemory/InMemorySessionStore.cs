@@ -16,26 +16,26 @@ namespace Open.IdentityServer.Stores;
 /// <summary>
 /// In-memory server-side session store
 /// </summary>
-public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
+public class InMemorySessionStore : IIdentityServerServerSideSessionStore
 {
-    private readonly ConcurrentDictionary<string, IdentityServerServerSideSessions> repo = new();
+    private readonly ConcurrentDictionary<string, ServerSideSession> repo = new();
     
     /// <inheritdoc />
-    public Task<IdentityServerServerSideSessions?> GetSession(string key)
+    public Task<ServerSideSession?> GetSession(string key)
     {
-        repo.TryGetValue(key, out IdentityServerServerSideSessions? value);
+        repo.TryGetValue(key, out ServerSideSession? value);
         return Task.FromResult(value);
     }
 
     /// <inheritdoc />
-    public Task CreateSession(IdentityServerServerSideSessions session)
+    public Task CreateSession(ServerSideSession session)
     {
         repo[session.Key] = session;
         return Task.CompletedTask;
     }
 
     /// <inheritdoc />
-    public Task UpdateSession(IdentityServerServerSideSessions session)
+    public Task UpdateSession(ServerSideSession session)
     {
         repo[session.Key] = session;
         return Task.CompletedTask;
@@ -44,7 +44,7 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
     /// <inheritdoc />
     public Task DeleteSession(string key)
     {
-        repo.TryRemove(key, out IdentityServerServerSideSessions? value);
+        repo.TryRemove(key, out ServerSideSession? value);
         return Task.CompletedTask;
     }
 
@@ -56,7 +56,7 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
             throw new ArgumentException($"{nameof(subjectId)} or {nameof(sessionId)} must have a non null or empty value");
         }
         
-        IEnumerable<IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        IEnumerable<ServerSideSession> filteredResults = ApplyFilter(new SessionQuery
         {
             SubjectId = subjectId, SessionId = sessionId,
         }, repo.Values);
@@ -70,9 +70,9 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
     }
 
     /// <inheritdoc />
-    public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string? subjectId, string? sessionId)
+    public Task<IEnumerable<ServerSideSession>> FilterSessions(string? subjectId, string? sessionId)
     {
-        IEnumerable<IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        IEnumerable<ServerSideSession> filteredResults = ApplyFilter(new SessionQuery
         {
             SubjectId = subjectId, SessionId = sessionId,
         }, repo.Values);
@@ -81,17 +81,17 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
     }
 
     /// <inheritdoc />
-    public async Task<QueryResult<IdentityServerServerSideSessions>> FilterSessions(SessionQuery? inputQuery, CancellationToken ct = default)
+    public async Task<QueryResult<ServerSideSession>> FilterSessions(SessionQuery? inputQuery, CancellationToken ct = default)
     {
         SessionQuery query = inputQuery ?? new SessionQuery();
 
-        IEnumerable<IdentityServerServerSideSessions> filteredResults = ApplyFilter(query, repo.Values).ToList();
+        IEnumerable<ServerSideSession> filteredResults = ApplyFilter(query, repo.Values).ToList();
         
         int count = filteredResults.Count();
 
         if (count < 1)
         {
-            return QueryResult<IdentityServerServerSideSessions>.Empty();
+            return QueryResult<ServerSideSession>.Empty();
         }
         
         int totalPages = (count / query.CountRequested) + (count % query.CountRequested != 0 ? 1 : 0);
@@ -109,11 +109,11 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
                 // Fix if page boundary is misaligned with the token
                 if (elementsBeforeToken % query.CountRequested == 0) currentPage--;
                 
-                if (currentPage < 1) return QueryResult<IdentityServerServerSideSessions>.Empty();
+                if (currentPage < 1) return QueryResult<ServerSideSession>.Empty();
             }
             else
             {
-                if (++currentPage > totalPages) return QueryResult<IdentityServerServerSideSessions>.Empty();
+                if (++currentPage > totalPages) return QueryResult<ServerSideSession>.Empty();
             }
         }
 
@@ -122,7 +122,7 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
             .Take(query.CountRequested)
             .ToList();
         
-        return new QueryResult<IdentityServerServerSideSessions>
+        return new QueryResult<ServerSideSession>
         {
             TotalCount = count,
             TotalPages = totalPages,
@@ -149,8 +149,8 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
         return new ValueTuple<string, string>(tokenFirst, tokenLast);
     }
 
-    private IEnumerable<IdentityServerServerSideSessions> ApplyFilter(SessionQuery query,
-        IEnumerable<IdentityServerServerSideSessions> input)
+    private IEnumerable<ServerSideSession> ApplyFilter(SessionQuery query,
+        IEnumerable<ServerSideSession> input)
     {
         if (!string.IsNullOrWhiteSpace(query.SubjectId))
         {
@@ -172,9 +172,9 @@ public class InMemorySessionStore(): IIdentityServerServerSideSessionStore
     }
 
     /// <inheritdoc />
-    public Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    public Task<IEnumerable<ServerSideSession>> GetAndRemoveExpiredSessions(int batchSize = 100)
     {
-        IEnumerable<IdentityServerServerSideSessions> sessions = repo
+        IEnumerable<ServerSideSession> sessions = repo
             .Select(x => x.Value)
             .Where(x => x.Expires < DateTime.UtcNow)
             .OrderBy(x => x.Expires)

@@ -14,7 +14,6 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Xunit;
 using IdentityServerServerSideSessions = Open.IdentityServer.EntityFramework.Entities.IdentityServerServerSideSessions;
-using SessionModel = Open.IdentityServer.Models.IdentityServerServerSideSessions;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores.Compatibility;
 
@@ -63,7 +62,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
-        SessionModel result = await sut.GetSession("missing-key");
+        ServerSideSession result = await sut.GetSession("missing-key");
 
         result.Should().BeNull();
     }
@@ -92,7 +91,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
-        SessionModel result = await sut.GetSession(key);
+        ServerSideSession result = await sut.GetSession(key);
 
         result.Should().NotBeNull();
         result!.Key.Should().Be(seeded.Key);
@@ -130,11 +129,11 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         IdentityServerServerSideSessionStore sut = CreateSutExtended(context);
 
-        SessionModel result = await sut.GetSession(key);
+        ServerSideSession result = await sut.GetSession(key);
 
-        result.Should().BeOfType<ExtendedIdentityServerServerSideSessions>();
+        result.Should().BeOfType<ExtendedServerSideSession>();
         
-        ExtendedIdentityServerServerSideSessions resultExt = result as ExtendedIdentityServerServerSideSessions;
+        ExtendedServerSideSession resultExt = result as ExtendedServerSideSession;
         resultExt.Should().NotBeNull();
         resultExt!.Key.Should().Be(seeded.Key);
         resultExt.Scheme.Should().Be(seeded.Scheme);
@@ -159,7 +158,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
-        SessionModel newSession = BuildSessionModel(key, "sub-new", "sid-new", "new");
+        ServerSideSession newSession = BuildSessionModel(key, "sub-new", "sid-new", "new");
         
         Func<Task> act = async () => await sut.CreateSession(newSession);
 
@@ -187,7 +186,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await context.SaveChangesAsync();
 
         IdentityServerServerSideSessionStore sut = CreateSut(context);
-        SessionModel newSession = BuildSessionModel(key, "sub-new", "sid-new", "new");
+        ServerSideSession newSession = BuildSessionModel(key, "sub-new", "sid-new", "new");
 
         await sut.CreateSession(newSession);
         
@@ -200,7 +199,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
 
         string key = "new-key";
-        SessionModel session = BuildSessionModel(key, "sub-123", "sid-123", "display-123");
+        ServerSideSession session = BuildSessionModel(key, "sub-123", "sid-123", "display-123");
 
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
@@ -231,7 +230,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
         
-        SessionModel session = BuildSessionModel(key, "sub-new", "sid-new", "new");
+        ServerSideSession session = BuildSessionModel(key, "sub-new", "sid-new", "new");
         
         Func<Task> act = async () => await sut.UpdateSession(session);
 
@@ -244,7 +243,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
-        SessionModel session = BuildSessionModel("missing-update-key", "sub", "sid", "display");
+        ServerSideSession session = BuildSessionModel("missing-update-key", "sub", "sid", "display");
 
         await sut.UpdateSession(session);
         
@@ -271,7 +270,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         });
         await context.SaveChangesAsync();
 
-        SessionModel updated = BuildSessionModel(key, "new-sub", "new-sid", "new-display");
+        ServerSideSession updated = BuildSessionModel(key, "new-sub", "new-sid", "new-display");
         updated.Scheme = "new-scheme";
         updated.Data = "{\"version\":2}";
         updated.Created = FakeNow.AddHours(-3);
@@ -608,9 +607,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         foreach (var session in actual)
         {
-            session.Should().BeOfType<ExtendedIdentityServerServerSideSessions>();
+            session.Should().BeOfType<ExtendedServerSideSession>();
 
-            ExtendedIdentityServerServerSideSessions extSession = session as ExtendedIdentityServerServerSideSessions;
+            ExtendedServerSideSession extSession = session as ExtendedServerSideSession;
             extSession.Should().NotBeNull();
             extSession!.DataLength.Should().Be(session.Data.Length);
             extSession!.Lifetime.Should().BeNull();
@@ -630,7 +629,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
-        List<SessionModel> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
+        List<ServerSideSession> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
 
         actual.Should().BeEmpty();
     }
@@ -648,7 +647,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
-        List<SessionModel> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
+        List<ServerSideSession> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
 
         actual.Should().HaveCount(2);
         actual.Should().Contain(x => x.Key == expiredSession0.Key);
@@ -672,7 +671,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
-        List<SessionModel> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
+        List<ServerSideSession> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
 
         actual.Should().HaveCount(2);
         actual.Should().Contain(x => x.Key == expiredSession0.Key);
@@ -696,7 +695,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         ExtendedIdentityServerServerSideSessionStore sut = CreateSutExtended(context);
 
-        List<SessionModel> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
+        List<ServerSideSession> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
 
         actual.Should().HaveCount(2);
         actual.Should().Contain(x => x.Key == expiredSession0.Key);
@@ -704,9 +703,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         foreach (var session in actual)
         {
-            session.Should().BeOfType<ExtendedIdentityServerServerSideSessions>();
+            session.Should().BeOfType<ExtendedServerSideSession>();
 
-            ExtendedIdentityServerServerSideSessions extSession = session as ExtendedIdentityServerServerSideSessions;
+            ExtendedServerSideSession extSession = session as ExtendedServerSideSession;
             extSession.Should().NotBeNull();
             extSession!.DataLength.Should().Be(session.Data.Length);
             extSession!.Lifetime.Should().Be(session.Expires?.Subtract(session.Renewed));
@@ -738,7 +737,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
-        List<SessionModel> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
+        List<ServerSideSession> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
 
         actual.Should().HaveCount(1);
         actual.Should().Contain(x => x.Key == expiredSession0.Key);
@@ -1277,9 +1276,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         foreach (var session in actual.Results)
         {
-            session.Should().BeOfType<ExtendedIdentityServerServerSideSessions>();
+            session.Should().BeOfType<ExtendedServerSideSession>();
 
-            ExtendedIdentityServerServerSideSessions extSession = session as ExtendedIdentityServerServerSideSessions;
+            ExtendedServerSideSession extSession = session as ExtendedServerSideSession;
             extSession.Should().NotBeNull();
             extSession!.DataLength.Should().Be(session.Data.Length);
             extSession!.Lifetime.Should().BeNull();
@@ -1291,9 +1290,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     {
         List<(Func<IdentityServerServerSideSessionStore, Task> actMethod, string traceMethodName)> methods
             = [
-                (store => store.CreateSession(new SessionModel { Key = "FAKE_SESSION_KEY" }), "CreateSession"),
+                (store => store.CreateSession(new ServerSideSession { Key = "FAKE_SESSION_KEY" }), "CreateSession"),
                 (store => store.GetSession("FAKE_SESSION_KEY"), "GetSession"),
-                (store => store.UpdateSession(new SessionModel { Key = "FAKE_SESSION_KEY" }), "UpdateSession"),
+                (store => store.UpdateSession(new ServerSideSession { Key = "FAKE_SESSION_KEY" }), "UpdateSession"),
                 (store => store.DeleteSession("FAKE_SESSION_KEY"), "DeleteSession"),
                 (store => store.DeleteSessions("FAKE_SESSION_KEY", "FAKE_SUBJECT_KEY"), "DeleteSessions"),
                 (store => store.FilterSessions("FAKE_SUBJECT_KEY", "FAKE_SESSION_KEY"), "FilterSessions"),
@@ -1337,9 +1336,9 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         return context;
     }
 
-    private static SessionModel BuildSessionModel(string key, string subjectId, string sessionId, string displayName)
+    private static ServerSideSession BuildSessionModel(string key, string subjectId, string sessionId, string displayName)
     {
-        return new SessionModel
+        return new ServerSideSession
         {
             Key = key,
             Scheme = "cookie",

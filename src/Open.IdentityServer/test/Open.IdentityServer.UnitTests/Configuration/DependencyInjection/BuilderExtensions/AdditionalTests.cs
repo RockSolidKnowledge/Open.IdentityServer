@@ -194,17 +194,17 @@ public class AdditionalTests
 
 public class FakeIdentityServerServerSideSessionStore: IIdentityServerServerSideSessionStore
 {
-    public Task<IdentityServerServerSideSessions> GetSession(string key)
+    public Task<ServerSideSession> GetSession(string key)
     {
         throw new System.NotImplementedException();
     }
 
-    public Task CreateSession(IdentityServerServerSideSessions session)
+    public Task CreateSession(ServerSideSession session)
     {
         throw new System.NotImplementedException();
     }
 
-    public Task UpdateSession(IdentityServerServerSideSessions session)
+    public Task UpdateSession(ServerSideSession session)
     {
         throw new System.NotImplementedException();
     }
@@ -219,17 +219,17 @@ public class FakeIdentityServerServerSideSessionStore: IIdentityServerServerSide
         throw new System.NotImplementedException();
     }
 
-    public Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string subjectId, string sessionId)
+    public Task<IEnumerable<ServerSideSession>> FilterSessions(string subjectId, string sessionId)
     {
         throw new System.NotImplementedException();
     }
 
-    public Task<QueryResult<IdentityServerServerSideSessions>> FilterSessions(SessionQuery query, CancellationToken ct = default)
+    public Task<QueryResult<ServerSideSession>> FilterSessions(SessionQuery query, CancellationToken ct = default)
     {
         throw new System.NotImplementedException();
     }
 
-    public Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    public Task<IEnumerable<ServerSideSession>> GetAndRemoveExpiredSessions(int batchSize = 100)
     {
         throw new System.NotImplementedException();
     }

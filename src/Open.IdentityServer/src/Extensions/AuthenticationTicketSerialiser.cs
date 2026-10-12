@@ -26,7 +26,7 @@ internal static class AuthenticationTicketExtensions
 
     extension(SerializedAuthenticationTicket serializationAuthTicket)
     {
-        public AuthenticationTicket ToAuthTicket(IdentityServerServerSideSessions? session)
+        public AuthenticationTicket ToAuthTicket(ServerSideSession? session)
         {
             var authTicket = new AuthenticationTicket(
                 serializationAuthTicket.User.ToClaimsPrincipal(),

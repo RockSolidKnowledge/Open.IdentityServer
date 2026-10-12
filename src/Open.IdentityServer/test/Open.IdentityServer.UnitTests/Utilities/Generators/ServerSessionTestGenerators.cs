@@ -101,7 +101,7 @@ public static class ServerSessionTestGenerators
         };
     }
 
-    public static IdentityServerServerSideSessions FakeSession(
+    public static ServerSideSession FakeSession(
         string key,
         string scheme, 
         string sessionId, 
@@ -112,7 +112,7 @@ public static class ServerSessionTestGenerators
         DateTime? renewed = null,
         DateTime? expires = null)
     {
-        return new IdentityServerServerSideSessions
+        return new ServerSideSession
         {
             Key = key, Scheme = scheme, SessionId = sessionId, SubjectId = subjectId, DisplayName = displayName, Data = data ?? string.Empty,
             Created = created ?? new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),

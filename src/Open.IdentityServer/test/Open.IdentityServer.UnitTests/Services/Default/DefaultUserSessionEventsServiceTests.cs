@@ -538,7 +538,7 @@ public class DefaultUserSessionEventsServiceTests
 
         DateTime issued = fakeNow.AddDays(-10);
         DateTime expires = fakeNow.AddDays(19);
-        IdentityServerServerSideSessions fakeSession = FakeSession(fakKey, fakeScheme, fakeSessionId, fakeSubjectId, fakeDisplayName, 
+        ServerSideSession fakeSession = FakeSession(fakKey, fakeScheme, fakeSessionId, fakeSubjectId, fakeDisplayName, 
             created: issued, renewed: issued, expires: expires);
         AuthenticationTicket fakeAuthTicket = GenerateAuthenticationTicket(fakeScheme, fakeSubjectId, fakeSessionId, fakeDisplayName,
             isPersistent: isPersistent, allowRefresh: allowRefresh, issuedUtc: issued, expiresUtc: expires);
@@ -549,10 +549,10 @@ public class DefaultUserSessionEventsServiceTests
                 new AuthenticationTicketFilterResult { Session = fakeSession, AuthTicket = fakeAuthTicket },
             ]);
 
-        IdentityServerServerSideSessions? updatedSession = null;
+        ServerSideSession? updatedSession = null;
         Mock.Get(identityServerServerSideSessionStore)
-            .Setup(x => x.UpdateSession(It.IsAny<IdentityServerServerSideSessions>()))
-            .Callback<IdentityServerServerSideSessions>(x => updatedSession = x);
+            .Setup(x => x.UpdateSession(It.IsAny<ServerSideSession>()))
+            .Callback<ServerSideSession>(x => updatedSession = x);
         
         DefaultUserSessionEventsService sut = CreateSut();
         bool actual = await sut.ValidateSession(testCtx);
@@ -567,7 +567,7 @@ public class DefaultUserSessionEventsServiceTests
         updatedSession.Expires.Should().Be(fakeNow.AddDays(29));
         
         Mock.Get(identityServerServerSideSessionStore)
-            .Verify(x => x.UpdateSession(It.IsAny<IdentityServerServerSideSessions>()));
+            .Verify(x => x.UpdateSession(It.IsAny<ServerSideSession>()));
     }
 
     [Theory]
@@ -595,7 +595,7 @@ public class DefaultUserSessionEventsServiceTests
 
         DateTime issued = fakeNow.AddDays(-10);
         DateTime expires = fakeNow.AddDays(19);
-        IdentityServerServerSideSessions fakeSession = FakeSession(fakKey, fakeScheme, fakeSessionId, fakeSubjectId, fakeDisplayName, 
+        ServerSideSession fakeSession = FakeSession(fakKey, fakeScheme, fakeSessionId, fakeSubjectId, fakeDisplayName, 
             created: issued, renewed: issued, expires: expires);
         AuthenticationTicket fakeAuthTicket = GenerateAuthenticationTicket(fakeScheme, fakeSubjectId, fakeSessionId, fakeDisplayName,
             isPersistent: isPersistent, allowRefresh: allowRefresh, issuedUtc: issued, expiresUtc: expires);
@@ -606,10 +606,10 @@ public class DefaultUserSessionEventsServiceTests
                 new AuthenticationTicketFilterResult { Session = fakeSession, AuthTicket = fakeAuthTicket },
             ]);
 
-        IdentityServerServerSideSessions? updatedSession = null;
+        ServerSideSession? updatedSession = null;
         Mock.Get(identityServerServerSideSessionStore)
-            .Setup(x => x.UpdateSession(It.IsAny<IdentityServerServerSideSessions>()))
-            .Callback<IdentityServerServerSideSessions>(x => updatedSession = x);
+            .Setup(x => x.UpdateSession(It.IsAny<ServerSideSession>()))
+            .Callback<ServerSideSession>(x => updatedSession = x);
         
         DefaultUserSessionEventsService sut = CreateSut();
         bool actual = await sut.ValidateSession(testCtx);
@@ -624,7 +624,7 @@ public class DefaultUserSessionEventsServiceTests
         updatedSession.Expires.Should().Be(fakeNow.AddDays(29));
         
         Mock.Get(identityServerServerSideSessionStore)
-            .Verify(x => x.UpdateSession(It.IsAny<IdentityServerServerSideSessions>()));
+            .Verify(x => x.UpdateSession(It.IsAny<ServerSideSession>()));
     }
     
     [Theory]
@@ -652,7 +652,7 @@ public class DefaultUserSessionEventsServiceTests
 
         DateTime issued = fakeNow.AddDays(-10);
         DateTime expires = fakeNow.AddDays(19);
-        IdentityServerServerSideSessions fakeSession = FakeSession(fakKey, fakeScheme, fakeSessionId, fakeSubjectId, fakeDisplayName, 
+        ServerSideSession fakeSession = FakeSession(fakKey, fakeScheme, fakeSessionId, fakeSubjectId, fakeDisplayName, 
             created: issued, renewed: issued, expires: expires);
         AuthenticationTicket fakeAuthTicket = GenerateAuthenticationTicket(fakeScheme, fakeSubjectId, fakeSessionId, fakeDisplayName,
             isPersistent: isPersistent, allowRefresh: allowRefresh, issuedUtc: issued, expiresUtc: expires);
@@ -758,7 +758,7 @@ public class DefaultUserSessionEventsServiceTests
         return new AuthenticationTicket(user.CreatePrincipal(), properties, authScheme);
     }
     
-    private IdentityServerServerSideSessions FakeSession(
+    private ServerSideSession FakeSession(
         string key,
         string scheme, 
         string sessionId, 
@@ -769,7 +769,7 @@ public class DefaultUserSessionEventsServiceTests
         DateTime? renewed = null,
         DateTime? expires = null)
     {
-        return new IdentityServerServerSideSessions
+        return new ServerSideSession
         {
             Key = key, Scheme = scheme, SessionId = sessionId, SubjectId = subjectId, DisplayName = displayName, Data = data ?? string.Empty,
             Created = created ?? new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),

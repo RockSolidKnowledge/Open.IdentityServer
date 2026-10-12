@@ -300,7 +300,9 @@ public static class IdentityServerBuilderExtensionsCrypto
     }
 
     /// <summary>
-    /// Add the signing and validation key stores that target the IdentityServer compatibility key stores
+    /// Add the signing and validation key stores that target the IdentityServer compatibility key stores.
+    /// This will use existing keys in the table, not generate new keys.
+    /// Key lifetime can be configured in the <see cref="CompatibilityKeyStoreOptions"/> class, default expiry is 90 days.
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="configure">Action to configure compatibility key store options</param>

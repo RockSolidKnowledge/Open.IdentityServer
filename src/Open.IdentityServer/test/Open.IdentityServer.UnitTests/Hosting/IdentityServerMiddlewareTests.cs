@@ -273,7 +273,7 @@ public class IdentityServerMiddlewareTests
             .Callback<Func<object, Task>, object>((callback, state) => callback.Invoke(state).GetAwaiter().GetResult());
         _context.Features[typeof(IHttpResponseFeature)] = responseFeatureMock;
 
-        var expiredSession = new IdentityServerServerSideSessions
+        var expiredSession = new ServerSideSession
         {
             SessionId = "expired-session-id",
             SubjectId = "expired-subject-id",
