@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Open.IdentityServer.Stores;
@@ -15,11 +16,11 @@ namespace Open.IdentityServer.Configuration;
 /// IPostConfigureOptions implementation for <see cref="CookieAuthenticationOptions"/>. Registers the <see cref="ITicketStore"/>
 /// implementation to use for storing auth tickets.
 /// </summary>
-/// <param name="services">The service provider</param>
+/// <param name="httpContextAccessor">The HTTP context accessor</param>
 /// <param name="idsOptions">Open.IdentityServer options</param>
 /// <param name="authOptions">Authentication options</param>
 public class PostConfigureSessionStoreCookieAuthOptions(
-    IServiceProvider services,
+    IHttpContextAccessor httpContextAccessor,
     IdentityServerOptions idsOptions,
     IOptions<Microsoft.AspNetCore.Authentication.AuthenticationOptions> authOptions): IPostConfigureOptions<CookieAuthenticationOptions>
 {
@@ -37,7 +38,7 @@ public class PostConfigureSessionStoreCookieAuthOptions(
 
         if (scheme == name)
         {
-            options.SessionStore = new SingletonTicketStoreAdapter(services);
+            options.SessionStore = new SingletonTicketStoreAdapter(httpContextAccessor);
         }
     }
 }
@@ -47,11 +48,11 @@ public class PostConfigureSessionStoreCookieAuthOptions(
 /// </summary>
 internal class SingletonTicketStoreAdapter : ITicketStore
 {
-    private readonly IServiceProvider _services;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public SingletonTicketStoreAdapter(IServiceProvider services)
+    public SingletonTicketStoreAdapter(IHttpContextAccessor httpContextAccessor)
     {
-        _services = services;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<string> StoreAsync(AuthenticationTicket ticket) => await ResolveAndExecute(store => store.StoreAsync(ticket));
@@ -66,7 +67,14 @@ internal class SingletonTicketStoreAdapter : ITicketStore
     
     private async Task<T> ResolveAndExecute<T>(Func<ITicketStore, Task<T>> action)
     {
-        var service = _services.GetRequiredService<IServerSessionTicketStore>();
+        var httpContext = _httpContextAccessor.HttpContext;
+        
+        if (httpContext == null)
+        {
+            throw new InvalidOperationException("HttpContext is not available.");
+        }
+        
+        var service = httpContext.RequestServices.GetRequiredService<IServerSessionTicketStore>();
         return await action(service);
     }
 }

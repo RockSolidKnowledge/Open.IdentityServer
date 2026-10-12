@@ -16,7 +16,7 @@ namespace Open.IdentityServer.UnitTests.Configuration;
 
 public class PostConfigureSessionStoreCookieAuthOptionsTests
 {
-    private IServiceProvider services = Mock.Of<IServiceProvider>();
+    private IHttpContextAccessor httpContextAccessor = Mock.Of<IHttpContextAccessor>();
     private IdentityServerOptions idsOptions = new();
     private IOptions<AuthenticationOptions> authOptions = 
         Mock.Of<IOptions<AuthenticationOptions>>();
@@ -30,7 +30,7 @@ public class PostConfigureSessionStoreCookieAuthOptionsTests
             .Returns(authenticationOptions);
     }
     
-    private PostConfigureSessionStoreCookieAuthOptions CreateSut() => new(services, idsOptions, authOptions);
+    private PostConfigureSessionStoreCookieAuthOptions CreateSut() => new(httpContextAccessor, idsOptions, authOptions);
 
     [Fact]
     public void PostConfigure_WhenIdentityServerOptionsCookieAuthenticationSchemeSet_AndMatchesName_ShouldConfigureTicketStore()
