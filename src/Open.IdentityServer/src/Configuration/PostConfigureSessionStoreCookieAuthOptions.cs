@@ -37,37 +37,36 @@ public class PostConfigureSessionStoreCookieAuthOptions(
 
         if (scheme == name)
         {
-            options.SessionStore = new ScopedTicketStoreAdapter(services);
+            options.SessionStore = new SingletonTicketStoreAdapter(services);
         }
     }
 }
 
 /// <summary>
-/// Allows access to scoped dependencies from a singleton service. Wraps the <see cref="IServerSessionTicketStore"/> in a scoped service provider.
+/// Allows access to transient dependencies from a singleton service.
 /// </summary>
-internal class ScopedTicketStoreAdapter : ITicketStore
+internal class SingletonTicketStoreAdapter : ITicketStore
 {
     private readonly IServiceProvider _services;
 
-    public ScopedTicketStoreAdapter(IServiceProvider services)
+    public SingletonTicketStoreAdapter(IServiceProvider services)
     {
         _services = services;
     }
 
-    public async Task<string> StoreAsync(AuthenticationTicket ticket) => await WithScopeAsync(store => store.StoreAsync(ticket));
+    public async Task<string> StoreAsync(AuthenticationTicket ticket) => await ResolveAndExecute(store => store.StoreAsync(ticket));
 
-    public async Task RenewAsync(string key, AuthenticationTicket ticket) => await WithScopeAsync(store => store.RenewAsync(key, ticket));
+    public async Task RenewAsync(string key, AuthenticationTicket ticket) => await ResolveAndExecute(store => store.RenewAsync(key, ticket));
 
-    public async Task<AuthenticationTicket> RetrieveAsync(string key) => await WithScopeAsync(store => store.RetrieveAsync(key));   
+    public async Task<AuthenticationTicket> RetrieveAsync(string key) => await ResolveAndExecute(store => store.RetrieveAsync(key));   
 
-    public async Task RemoveAsync(string key) => await WithScopeAsync(store => store.RemoveAsync(key));
+    public async Task RemoveAsync(string key) => await ResolveAndExecute(store => store.RemoveAsync(key));
     
-    private async Task WithScopeAsync(Func<ITicketStore, Task> action) => await WithScopeAsync(async t => { await action(t); return true; });
+    private async Task ResolveAndExecute(Func<ITicketStore, Task> action) => await ResolveAndExecute(async t => { await action(t); return true; });
     
-    private async Task<T> WithScopeAsync<T>(Func<ITicketStore, Task<T>> action)
+    private async Task<T> ResolveAndExecute<T>(Func<ITicketStore, Task<T>> action)
     {
-        using var scope = _services.CreateScope();
-        var service = scope.ServiceProvider.GetRequiredService<IServerSessionTicketStore>();
+        var service = _services.GetRequiredService<IServerSessionTicketStore>();
         return await action(service);
     }
 }
