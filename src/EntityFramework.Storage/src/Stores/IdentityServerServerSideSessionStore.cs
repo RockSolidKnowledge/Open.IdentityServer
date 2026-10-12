@@ -15,7 +15,6 @@ using Open.IdentityServer.EntityFramework.Mappers;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
-using IdentityServerServerSideSessions = Open.IdentityServer.Models.IdentityServerServerSideSessions;
 
 namespace Open.IdentityServer.EntityFramework.Stores;
 
@@ -29,37 +28,37 @@ public class IdentityServerServerSideSessionStore(
     ILogger<IdentityServerServerSideSessionStore> logger) : IIdentityServerServerSideSessionStore
 {
     /// <summary>
-    /// Maps the <see cref="Entities.IdentityServerServerSideSessions"/> to the <see cref="IdentityServerServerSideSessions"/>.
+    /// Maps the <see cref="Entities.ServerSideSession"/> to the <see cref="Open.IdentityServer.Models.ServerSideSession"/>.
     /// </summary>
-    /// <param name="entities">The <see cref="Entities.IdentityServerServerSideSessions"/>.</param>
-    /// <returns>The <see cref="IdentityServerServerSideSessions"/> or an object extending Client.</returns>
+    /// <param name="entities">The <see cref="Entities.ServerSideSession"/>.</param>
+    /// <returns>The <see cref="Open.IdentityServer.Models.ServerSideSession"/> or an object extending Client.</returns>
     /// <remarks>
     /// Makes it possible to return an extended model.
     /// </remarks>
-    protected virtual IdentityServerServerSideSessions? ToModel(Entities.IdentityServerServerSideSessions? entities) => 
+    protected virtual ServerSideSession? ToModel(Entities.ServerSideSession? entities) => 
         entities?.ToModel();
     
     /// <inheritdoc />
-    public async Task<IdentityServerServerSideSessions?> GetSession(string key)
+    public async Task<ServerSideSession?> GetSession(string key)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
-        Entities.IdentityServerServerSideSessions? session = await dbContext.ServerSideSessions
+        Entities.ServerSideSession? session = await dbContext.ServerSideSessions
             .SingleOrDefaultAsync(x => x.Key == key);
         
         return ToModel(session);
     }
 
     /// <inheritdoc />
-    public async Task CreateSession(IdentityServerServerSideSessions session)
+    public async Task CreateSession(ServerSideSession session)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
         ArgumentException.ThrowIfNullOrWhiteSpace(session.Key);
 
-        Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
+        Entities.ServerSideSession? existing = await dbContext.ServerSideSessions
             .SingleOrDefaultAsync(x => x.Key == session.Key);
 
         if (existing != null)
@@ -69,7 +68,7 @@ public class IdentityServerServerSideSessionStore(
             return;
         }
 
-        Entities.IdentityServerServerSideSessions sessionEntity = session.ToEntity();
+        Entities.ServerSideSession sessionEntity = session.ToEntity();
 
         await dbContext.ServerSideSessions.AddAsync(sessionEntity);
 
@@ -84,13 +83,13 @@ public class IdentityServerServerSideSessionStore(
     }
 
     /// <inheritdoc />
-    public async Task UpdateSession(IdentityServerServerSideSessions session)
+    public async Task UpdateSession(ServerSideSession session)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
         ArgumentException.ThrowIfNullOrWhiteSpace(session.Key);
 
-        Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
+        Entities.ServerSideSession? existing = await dbContext.ServerSideSessions
             .SingleOrDefaultAsync(x => x.Key == session.Key);
 
         if (existing == null)
@@ -118,7 +117,7 @@ public class IdentityServerServerSideSessionStore(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
-        Entities.IdentityServerServerSideSessions? existing = await dbContext.ServerSideSessions
+        Entities.ServerSideSession? existing = await dbContext.ServerSideSessions
             .SingleOrDefaultAsync(x => x.Key == key);
 
         if (existing == null)
@@ -149,7 +148,7 @@ public class IdentityServerServerSideSessionStore(
             throw new ArgumentException($"{nameof(subjectId)} or {nameof(sessionId)} must have a non null or empty value");
         }
         
-        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        IQueryable<Entities.ServerSideSession> filteredResults = ApplyFilter(new SessionQuery
         {
             SessionId = sessionId, SubjectId = subjectId,
         }, dbContext.ServerSideSessions.AsQueryable());
@@ -159,11 +158,11 @@ public class IdentityServerServerSideSessionStore(
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<IdentityServerServerSideSessions>> FilterSessions(string? subjectId, string? sessionId)
+    public async Task<IEnumerable<ServerSideSession>> FilterSessions(string? subjectId, string? sessionId)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
-        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(new SessionQuery
+        IQueryable<Entities.ServerSideSession> filteredResults = ApplyFilter(new SessionQuery
         {
             SessionId = sessionId, SubjectId = subjectId,
         }, dbContext.ServerSideSessions.AsQueryable());
@@ -173,19 +172,19 @@ public class IdentityServerServerSideSessionStore(
     }
     
     /// <inheritdoc />
-    public async Task<QueryResult<IdentityServerServerSideSessions>> FilterSessions(SessionQuery? inputQuery, CancellationToken ct = default)
+    public async Task<QueryResult<ServerSideSession>> FilterSessions(SessionQuery? inputQuery, CancellationToken ct = default)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
         SessionQuery query = inputQuery ?? new SessionQuery();
 
-        IQueryable<Entities.IdentityServerServerSideSessions> filteredResults = ApplyFilter(query, dbContext.ServerSideSessions.AsQueryable());
+        IQueryable<Entities.ServerSideSession> filteredResults = ApplyFilter(query, dbContext.ServerSideSessions.AsQueryable());
 
         int count = await filteredResults.CountAsync(cancellationToken: ct);
 
         if (count < 1)
         {
-            return QueryResult<IdentityServerServerSideSessions>.Empty();
+            return QueryResult<ServerSideSession>.Empty();
         }
         
         int totalPages = (count / query.CountRequested) + (count % query.CountRequested != 0 ? 1 : 0);
@@ -203,11 +202,11 @@ public class IdentityServerServerSideSessionStore(
                 // Fix if page boundary is misaligned with the token
                 if (elementsBeforeToken % query.CountRequested == 0) currentPage--;
                 
-                if (currentPage < 1) return QueryResult<IdentityServerServerSideSessions>.Empty();
+                if (currentPage < 1) return QueryResult<ServerSideSession>.Empty();
             }
             else
             {
-                if (++currentPage > totalPages) return QueryResult<IdentityServerServerSideSessions>.Empty();
+                if (++currentPage > totalPages) return QueryResult<ServerSideSession>.Empty();
             }
         }
 
@@ -216,7 +215,7 @@ public class IdentityServerServerSideSessionStore(
             .Take(query.CountRequested)
             .ToListAsync(ct);
         
-        return new QueryResult<IdentityServerServerSideSessions>
+        return new QueryResult<ServerSideSession>
         {
             TotalCount = count,
             TotalPages = totalPages,
@@ -245,8 +244,8 @@ public class IdentityServerServerSideSessionStore(
         return new ValueTuple<long, long>(tokenFirst, tokenLast);
     }
 
-    private IQueryable<Entities.IdentityServerServerSideSessions> ApplyFilter(SessionQuery query,
-        IQueryable<Entities.IdentityServerServerSideSessions> input)
+    private IQueryable<Entities.ServerSideSession> ApplyFilter(SessionQuery query,
+        IQueryable<Entities.ServerSideSession> input)
     {
         if (!string.IsNullOrWhiteSpace(query.SubjectId))
         {
@@ -268,7 +267,7 @@ public class IdentityServerServerSideSessionStore(
     }
     
     /// <inheritdoc />
-    public async Task<IEnumerable<IdentityServerServerSideSessions>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    public async Task<IEnumerable<ServerSideSession>> GetAndRemoveExpiredSessions(int batchSize = 100)
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         

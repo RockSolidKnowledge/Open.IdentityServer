@@ -18,7 +18,7 @@ public class AuthenticationTicketFilterResult
     /// <summary>
     /// Session model returned from filtering
     /// </summary>
-    public IdentityServerServerSideSessions Session { get; set; } = null!;
+    public ServerSideSession Session { get; set; } = null!;
     
     /// <summary>
     /// AuthenticationTicket deserialized from the data property on the session entity

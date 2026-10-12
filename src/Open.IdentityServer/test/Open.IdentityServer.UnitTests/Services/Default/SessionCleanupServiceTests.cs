@@ -176,7 +176,7 @@ public class SessionCleanupServiceTests
     private static AuthenticationTicketFilterResult FakeSessionSession(string subject, string sessionId,
         bool expired = false, string[]? clientsIds = null)
     {
-        var session = new IdentityServerServerSideSessions
+        var session = new ServerSideSession
         {
             Key = Guid.NewGuid().ToString(),
             Scheme = Guid.NewGuid().ToString(),
@@ -203,7 +203,7 @@ public class SessionCleanupServiceTests
         };
     }
     
-    private static AuthenticationTicket GenerateAuthenticationTicket(IdentityServerServerSideSessions session, string[]? clientIds = null)
+    private static AuthenticationTicket GenerateAuthenticationTicket(ServerSideSession session, string[]? clientIds = null)
     {
         IdentityServerUser user = new(session.SubjectId);
         AuthenticationProperties properties = new();

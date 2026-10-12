@@ -10,7 +10,7 @@ namespace Open.IdentityServer.Models;
 /// <summary>
 /// A model for Server Side Sessions stored in a IdentityServer database
 /// </summary>
-public class IdentityServerServerSideSessions
+public class ServerSideSession
 {
     /// <summary>
     /// Get or set key

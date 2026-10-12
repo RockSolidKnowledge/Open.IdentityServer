@@ -69,7 +69,7 @@ public class ServerSessionTicketStore(
         
         trace?.AddTag(TelemetryConstants.TagConstants.Key, key);
         
-        IdentityServerServerSideSessions session = await StoreNewSession(key, ticket);
+        ServerSideSession session = await StoreNewSession(key, ticket);
         trace?.AddTag(TelemetryConstants.TagConstants.Subject, session.SubjectId);
         trace?.AddTag(TelemetryConstants.TagConstants.Session, session.SessionId);
 
@@ -84,7 +84,7 @@ public class ServerSessionTicketStore(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
-        IdentityServerServerSideSessions? existingSession = await serverServerSideSessionStore.GetSession(key);
+        ServerSideSession? existingSession = await serverServerSideSessionStore.GetSession(key);
 
         if (existingSession == null)
         {
@@ -130,7 +130,7 @@ public class ServerSessionTicketStore(
 
         logger.RetrieveAuthenticationTicket(key);
 
-        IdentityServerServerSideSessions? existingSession = await serverServerSideSessionStore.GetSession(key);
+        ServerSideSession? existingSession = await serverServerSideSessionStore.GetSession(key);
 
         if (existingSession == null)
         {
@@ -176,7 +176,7 @@ public class ServerSessionTicketStore(
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
-        IEnumerable<IdentityServerServerSideSessions> sessions = await serverServerSideSessionStore.FilterSessions(subjectId, sessionId);
+        IEnumerable<ServerSideSession> sessions = await serverServerSideSessionStore.FilterSessions(subjectId, sessionId);
         
         return sessions.Select(x => new AuthenticationTicketFilterResult
         {
@@ -190,7 +190,7 @@ public class ServerSessionTicketStore(
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
-        QueryResult<IdentityServerServerSideSessions> sessions = await serverServerSideSessionStore.FilterSessions(query, ct);
+        QueryResult<ServerSideSession> sessions = await serverServerSideSessionStore.FilterSessions(query, ct);
 
         return sessions.MapTo<AuthenticationTicketFilterResult>(x => new AuthenticationTicketFilterResult
         {
@@ -213,7 +213,7 @@ public class ServerSessionTicketStore(
         });
     }
 
-    private async Task<IdentityServerServerSideSessions> StoreNewSession(string key, AuthenticationTicket ticket)
+    private async Task<ServerSideSession> StoreNewSession(string key, AuthenticationTicket ticket)
     {
         logger.CreatingNewSessionFromTicket(key, ticket.Properties.ExpiresUtc);
         
@@ -228,7 +228,7 @@ public class ServerSessionTicketStore(
             ? null
             : ticket.Principal.FindFirstValue(options.ServerSideSessions.UserDisplayNameClaimType);
         
-        IdentityServerServerSideSessions serverSideSession = new IdentityServerServerSideSessions
+        ServerSideSession serverSideSession = new ServerSideSession
         {
             Key = key,
             Scheme = ticket.AuthenticationScheme,
@@ -256,7 +256,7 @@ public class ServerSessionTicketStore(
         }, JsonSettings);
     }
     
-    private AuthenticationTicket? DeserializeAuthTicket(IdentityServerServerSideSessions existingSession)
+    private AuthenticationTicket? DeserializeAuthTicket(ServerSideSession existingSession)
     {
         DataProtectedSessionData? dataProtectedSessionData;
 

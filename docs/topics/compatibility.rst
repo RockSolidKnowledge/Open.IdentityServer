@@ -21,3 +21,8 @@ signing key that exists and use it for signing, and all signing keys in the tabl
             //IdS Config
         })
         .AddCompatibilityKeyStores();
+
+.. note:: 
+   By default, keys will expire after 90 days. You can configure this behavior in the ``CompatabilityKeyStoreOptions``.
+
+   If you need automatic key rotation, see your KeyRotation component on `identityserver.com products page <https://www.identityserver.com/products>`_.

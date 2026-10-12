@@ -17,7 +17,7 @@ namespace Open.IdentityServer.UnitTests.Stores;
 
 public class InMemorySessionStoreTests
 {
-    private InMemorySessionStore CreateSut(IEnumerable<IdentityServerServerSideSessions>? seedSessions = null)
+    private InMemorySessionStore CreateSut(IEnumerable<ServerSideSession>? seedSessions = null)
     {
         InMemorySessionStore sut = new InMemorySessionStore();
 
@@ -34,7 +34,7 @@ public class InMemorySessionStoreTests
     {
         InMemorySessionStore sut = CreateSut();
 
-        IdentityServerServerSideSessions? actual = await sut.GetSession("non-session-key");
+        ServerSideSession? actual = await sut.GetSession("non-session-key");
 
         actual.Should().BeNull();
     }
@@ -43,8 +43,8 @@ public class InMemorySessionStoreTests
     public async Task GetSession_WhenSessionWithKeyStored_ShouldReturnSession()
     {
         const string testKey = "session-2";
-        IdentityServerServerSideSessions testSession = new() { Key = testKey, DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() };
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        ServerSideSession testSession = new() { Key = testKey, DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() };
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
             new() { Key = "session-1", DisplayName = "Session 1", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
             testSession,
@@ -53,7 +53,7 @@ public class InMemorySessionStoreTests
         
         InMemorySessionStore sut = CreateSut(seededSessions);
 
-        IdentityServerServerSideSessions? actual = await sut.GetSession(testKey);
+        ServerSideSession? actual = await sut.GetSession(testKey);
 
         actual.Should().BeEquivalentTo(testSession);
     }
@@ -61,34 +61,34 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task CreateSession_WhenSessionWithKeyExists_ShouldStoreSession()
     {
-        IdentityServerServerSideSessions existingSession = new()
+        ServerSideSession existingSession = new()
         {
             Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
         
-        IdentityServerServerSideSessions newSession = new()
+        ServerSideSession newSession = new()
         {
             Key = existingSession.Key, DisplayName = "Session 0 Updated", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
 
         InMemorySessionStore sut = CreateSut([existingSession]);
-        IdentityServerServerSideSessions? preTestMethodsCall = await sut.GetSession(newSession.Key);
+        ServerSideSession? preTestMethodsCall = await sut.GetSession(newSession.Key);
         preTestMethodsCall.Should().BeEquivalentTo(existingSession);
         
         await sut.CreateSession(newSession);
-        IdentityServerServerSideSessions? actual = await sut.GetSession(newSession.Key);
+        ServerSideSession? actual = await sut.GetSession(newSession.Key);
         actual.Should().BeEquivalentTo(newSession);
     }
     
     [Fact]
     public async Task CreateSession_WhenSessionWithKeyExists_ShouldNotThrow()
     {
-        IdentityServerServerSideSessions existingSession = new()
+        ServerSideSession existingSession = new()
         {
             Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
         
-        IdentityServerServerSideSessions newSession = new()
+        ServerSideSession newSession = new()
         {
             Key = existingSession.Key, DisplayName = "Session 0 Updated", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
@@ -103,17 +103,17 @@ public class InMemorySessionStoreTests
     public async Task CreateSession_WhenDoesntExist_ShouldStoreSession()
     {
         const string testKey = "session-0";
-        IdentityServerServerSideSessions sessionToCreate = new()
+        ServerSideSession sessionToCreate = new()
         {
             Key = testKey, DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
 
         InMemorySessionStore sut = CreateSut();
-        IdentityServerServerSideSessions? preTestMethodsCall = await sut.GetSession(testKey);
+        ServerSideSession? preTestMethodsCall = await sut.GetSession(testKey);
         preTestMethodsCall.Should().BeNull();
         
         await sut.CreateSession(sessionToCreate);
-        IdentityServerServerSideSessions? actual = await sut.GetSession(testKey);
+        ServerSideSession? actual = await sut.GetSession(testKey);
         actual.Should().BeEquivalentTo(sessionToCreate);
     }
     
@@ -121,7 +121,7 @@ public class InMemorySessionStoreTests
     public async Task UpdateSession_WhenSessionDoesntExistsWithKey_ShouldStoreSession()
     {
         const string testKey = "session-0";
-        IdentityServerServerSideSessions newSession = new()
+        ServerSideSession newSession = new()
         {
             Key = testKey, DisplayName = "Session 0 Updated", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
@@ -129,7 +129,7 @@ public class InMemorySessionStoreTests
         InMemorySessionStore sut = CreateSut();
         
         await sut.UpdateSession(newSession);
-        IdentityServerServerSideSessions? actual = await sut.GetSession(testKey);
+        ServerSideSession? actual = await sut.GetSession(testKey);
         actual.Should().BeEquivalentTo(newSession);
     }
     
@@ -137,7 +137,7 @@ public class InMemorySessionStoreTests
     public async Task UpdateSession_WhenSessionDoesntExistsWithKey_ShouldNotThrow()
     {
         const string testKey = "session-0";
-        IdentityServerServerSideSessions newSession = new()
+        ServerSideSession newSession = new()
         {
             Key = testKey, DisplayName = "Session 0 Updated", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
@@ -152,29 +152,29 @@ public class InMemorySessionStoreTests
     public async Task UpdateSession_WhenSessionExistsWithKey_ShouldReplaceStoredSession()
     {
         const string testKey = "session-0";
-        IdentityServerServerSideSessions existingSession = new()
+        ServerSideSession existingSession = new()
         {
             Key = testKey, DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
         
-        IdentityServerServerSideSessions newSession = new()
+        ServerSideSession newSession = new()
         {
             Key = testKey, DisplayName = "Session 0 Updated", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString()
         };
 
         InMemorySessionStore sut = CreateSut([existingSession]);
-        IdentityServerServerSideSessions? preTestMethodsCall = await sut.GetSession(testKey);
+        ServerSideSession? preTestMethodsCall = await sut.GetSession(testKey);
         preTestMethodsCall.Should().BeEquivalentTo(existingSession);
         
         await sut.UpdateSession(newSession);
-        IdentityServerServerSideSessions? actual = await sut.GetSession(testKey);
+        ServerSideSession? actual = await sut.GetSession(testKey);
         actual.Should().BeEquivalentTo(newSession);
     }
     
     [Fact]
     public async Task DeleteSession_WhenSessionDoesntExists_ShouldNotThrow()
     {
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
             new() { Key = "session-1", DisplayName = "Session 1", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
             new() { Key = "session-2", DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
@@ -191,8 +191,8 @@ public class InMemorySessionStoreTests
     public async Task DeleteSession_WhenSessionExists_ShouldBeRemoved()
     {
         const string testKey = "session-2";
-        IdentityServerServerSideSessions testSession = new() { Key = testKey, DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() };
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        ServerSideSession testSession = new() { Key = testKey, DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() };
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
             new() { Key = "session-1", DisplayName = "Session 1", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
             testSession,
@@ -200,12 +200,12 @@ public class InMemorySessionStoreTests
         ];
         
         InMemorySessionStore sut = CreateSut(seededSessions);
-        IdentityServerServerSideSessions? preTestMethodsCall = await sut.GetSession(testKey);
+        ServerSideSession? preTestMethodsCall = await sut.GetSession(testKey);
         preTestMethodsCall.Should().BeEquivalentTo(testSession);
         
         await sut.DeleteSession(testKey);
 
-        IdentityServerServerSideSessions? actual = await sut.GetSession(testKey);
+        ServerSideSession? actual = await sut.GetSession(testKey);
         actual.Should().BeNull();
     }
     
@@ -232,7 +232,7 @@ public class InMemorySessionStoreTests
         var testSessionKey1 = "session-0";
         var testSessionKey2 = "session-3";
         
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = "bob" },
             new() { Key = "session-1", DisplayName = "Session 1", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
             new() { Key = "session-2", DisplayName = "Session 2", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
@@ -255,7 +255,7 @@ public class InMemorySessionStoreTests
         var testSessionKey1 = "session-1";
         var testSessionKey2 = "session-2";
         
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = Guid.NewGuid().ToString() },
             new() { Key = "session-1", DisplayName = "Session 1", SessionId = "sessionA", SubjectId = Guid.NewGuid().ToString() },
             new() { Key = "session-2", DisplayName = "Session 2", SessionId = "sessionA", SubjectId = Guid.NewGuid().ToString() },
@@ -278,7 +278,7 @@ public class InMemorySessionStoreTests
         var testSessionKey1 = "session-1";
         var testSessionKey2 = "session-3";
         
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "session-0", DisplayName = "Session 0", SessionId = Guid.NewGuid().ToString(), SubjectId = "bob" },
             new() { Key = "session-1", DisplayName = "Session 1", SessionId = "sessionA", SubjectId = "bob" },
             new() { Key = "session-2", DisplayName = "Session 2", SessionId = "sessionA", SubjectId = Guid.NewGuid().ToString() },
@@ -298,7 +298,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WhenSessionDontMatch_ShouldReturnEmptySet()
     {
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "key-0", SubjectId = "bob", SessionId = "session-0" },
             new() { Key = "key-1", SubjectId = "alice", SessionId = "session-1" },
             new() { Key = "key-2", SubjectId = "bob", SessionId = "session-2" },
@@ -328,7 +328,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WhenSessionIdAndSubjectIdNull_ShouldReturnAll()
     {
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "key-0", SubjectId = "bob", SessionId = "session-0" },
             new() { Key = "key-1", SubjectId = "alice", SessionId = "session-1" },
             new() { Key = "key-2", SubjectId = "bob", SessionId = "session-2" },
@@ -355,7 +355,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WhenSessionIdNull_ShouldReturnMatchingSubjectIdOnly()
     {
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "key-0", SubjectId = "bob", SessionId = "session-0" },
             new() { Key = "key-1", SubjectId = "alice", SessionId = "session-1" },
             new() { Key = "key-2", SubjectId = "bob", SessionId = "session-2" },
@@ -378,7 +378,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WhenSubjectIdNull_ShouldReturnMatchingSessionIdOnly()
     {
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "key-0", SubjectId = "bob", SessionId = "session-0" },
             new() { Key = "key-1", SubjectId = "alice", SessionId = "session-1" },
             new() { Key = "key-2", SubjectId = "bob", SessionId = "session-2" },
@@ -400,7 +400,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WhenSessionMatch_ShouldReturnMatchingSessions()
     {
-        IEnumerable<IdentityServerServerSideSessions> seededSessions = [
+        IEnumerable<ServerSideSession> seededSessions = [
             new() { Key = "key-0", SubjectId = "bob", SessionId = "session-0" },
             new() { Key = "key-1", SubjectId = "alice", SessionId = "session-1" },
             new() { Key = "key-2", SubjectId = "bob", SessionId = "session-2" },
@@ -438,7 +438,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WithQuery_WhenNullQuery_ShouldUseDefaultValues()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
@@ -473,7 +473,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WithQuery_WhenNoTokenInQuery_ShouldGetFirstPage()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
@@ -506,7 +506,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WithQuery_WhenTokenInQueryAndGetPreviousFalse_ShouldGetNextPage()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
@@ -542,7 +542,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WithQuery_WhenTokenInQueryAndGetPreviousTrue_ShouldGetPreviousPage()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             
@@ -581,7 +581,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WhenOnFinalPage_GetNextPageReturnsEmptyQueryResult()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
@@ -604,13 +604,13 @@ public class InMemorySessionStoreTests
             CountRequested = 2,
         }, TestContext.Current.CancellationToken);
         
-        actual.Should().BeEquivalentTo(QueryResult<IdentityServerServerSideSessions>.Empty());
+        actual.Should().BeEquivalentTo(QueryResult<ServerSideSession>.Empty());
     }
     
     [Fact]
     public async Task FilterSessions_WhenOnFirstPage_GetNextPreviousPageReturnsEmptyQueryResult()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
@@ -633,13 +633,13 @@ public class InMemorySessionStoreTests
             CountRequested = 2,
         }, TestContext.Current.CancellationToken);
         
-        actual.Should().BeEquivalentTo(QueryResult<IdentityServerServerSideSessions>.Empty());
+        actual.Should().BeEquivalentTo(QueryResult<ServerSideSession>.Empty());
     }
     
     [Fact]
     public async Task FilterSessions_WhenUnderlyingDataChangedAndResultTokenSpansPageBoundary_GetNextPageReturnsResultsAlignedWithPageCountAndSize()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             
@@ -681,7 +681,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WhenUnderlyingDataChangedAndResultTokenSpansPageBoundary_GetPreviousPageReturnsResultsAlignedWithPageCountAndSize()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             
@@ -723,7 +723,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WhenMovingToFinalPageAndResultsAreLessThanPageSize_ReturnsExpectedResults()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             
@@ -760,7 +760,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WithQuery_WhenSessionIdProvided_ShouldGetFilteredResult()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
@@ -794,7 +794,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WithQuery_WhenSubjectIdProvided_ShouldGetFilteredResult()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             new() { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
@@ -828,7 +828,7 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task FilterSessions_WithQuery_WhenDisplayNameProvided_ShouldGetFilteredResult()
     {
-        List<IdentityServerServerSideSessions> seededSessions = [
+        List<ServerSideSession> seededSessions = [
             new() { Key = "key-0", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
             new() { Key = "key-1", Scheme = "cookie", DisplayName = "Laura", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
             new() { Key = "key-2", Scheme = "cookie", DisplayName = "Robert", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
@@ -862,15 +862,15 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task GetAndRemoveExpiredSessions_WhenNoExpiredSessionsExist_ShouldRemoveNothingAndReturnEmptyCollection()
     {
-        IdentityServerServerSideSessions validSession0 = FakeSessionSession("123", "session1");
-        IdentityServerServerSideSessions validSession1 = FakeSessionSession("456", "session2");
+        ServerSideSession validSession0 = FakeSessionSession("123", "session1");
+        ServerSideSession validSession1 = FakeSessionSession("456", "session2");
         
         InMemorySessionStore sut = CreateSut([validSession0, validSession1]);
 
         (await sut.GetSession(validSession0.Key)).Should().NotBeNull();
         (await sut.GetSession(validSession1.Key)).Should().NotBeNull();
 
-        List<IdentityServerServerSideSessions> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
+        List<ServerSideSession> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
 
         actual.Should().BeEmpty();
 
@@ -881,15 +881,15 @@ public class InMemorySessionStoreTests
     [Fact]
     public async Task GetAndRemoveExpiredSessions_WhenExpiredSessionsExist_AndUnderBatchSize_ShouldDeleteExpiredSessionsAndReturnACollectionContainingRemovedSessions()
     {
-        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true);
-        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true);
+        ServerSideSession expiredSession0 = FakeSessionSession("123", "session1", true);
+        ServerSideSession expiredSession1 = FakeSessionSession("456", "session2", true);
         
         InMemorySessionStore sut = CreateSut([expiredSession0, expiredSession1]);
 
         (await sut.GetSession(expiredSession0.Key)).Should().NotBeNull();
         (await sut.GetSession(expiredSession1.Key)).Should().NotBeNull();
 
-        List<IdentityServerServerSideSessions> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
+        List<ServerSideSession> actual = (await sut.GetAndRemoveExpiredSessions()).ToList();
 
         actual.Should().HaveCount(2);
         actual.Should().Contain(x => x.Key == expiredSession0.Key);
@@ -904,13 +904,13 @@ public class InMemorySessionStoreTests
     {
         // Offset to guarantee sort order
         int offset = 0;
-        IdentityServerServerSideSessions expiredSession0 = FakeSessionSession("123", "session1", true,
+        ServerSideSession expiredSession0 = FakeSessionSession("123", "session1", true,
             expiryOffset: TimeSpan.FromSeconds(offset++));
-        IdentityServerServerSideSessions expiredSession1 = FakeSessionSession("456", "session2", true,
+        ServerSideSession expiredSession1 = FakeSessionSession("456", "session2", true,
             expiryOffset: TimeSpan.FromSeconds(offset++));
-        IdentityServerServerSideSessions expiredSession2 = FakeSessionSession("789", "session3", true,
+        ServerSideSession expiredSession2 = FakeSessionSession("789", "session3", true,
             expiryOffset: TimeSpan.FromSeconds(offset));
-        IdentityServerServerSideSessions validSession0 = FakeSessionSession("234", "session4");
+        ServerSideSession validSession0 = FakeSessionSession("234", "session4");
 
         InMemorySessionStore sut = CreateSut([
             expiredSession0, expiredSession1, expiredSession2, validSession0
@@ -921,7 +921,7 @@ public class InMemorySessionStoreTests
         (await sut.GetSession(expiredSession2.Key)).Should().NotBeNull();
         (await sut.GetSession(validSession0.Key)).Should().NotBeNull();
 
-        List<IdentityServerServerSideSessions> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
+        List<ServerSideSession> actual = (await sut.GetAndRemoveExpiredSessions(2)).ToList();
 
         actual.Should().HaveCount(2);
         actual.Select(x => x.Key).Should().BeEquivalentTo(new[] { expiredSession0.Key, expiredSession1.Key });
@@ -935,13 +935,13 @@ public class InMemorySessionStoreTests
         (await sut.GetSession(validSession0.Key)).Should().NotBeNull();
     }
 
-    private static IdentityServerServerSideSessions FakeSessionSession(
+    private static ServerSideSession FakeSessionSession(
         string subject, 
         string sessionId, 
         bool expired = false, 
         TimeSpan expiryOffset = default(TimeSpan))
     {
-        IdentityServerServerSideSessions session = new IdentityServerServerSideSessions
+        ServerSideSession session = new ServerSideSession
         {
             Key = Guid.NewGuid().ToString(),
             Scheme = Guid.NewGuid().ToString(),
