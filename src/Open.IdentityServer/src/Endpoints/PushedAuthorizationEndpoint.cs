@@ -55,7 +55,7 @@ internal class PushedAuthorizationRequestEndpoint(
         {
             return Error(OidcConstants.TokenErrors.InvalidRequest);
         }
-        var validationContext = new PushedAuthorizationRequestValidationContext(parParameters);
+        var validationContext = new PushedAuthorizationRequestValidationContext(parParameters, clientValidationResult.Client);
         return await ProcessRequest(requestContext, validationContext);
     }
 

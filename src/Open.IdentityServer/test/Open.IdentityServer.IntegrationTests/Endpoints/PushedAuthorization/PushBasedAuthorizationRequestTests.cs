@@ -30,6 +30,7 @@ public class PushBasedAuthorizationRequestTests
     private readonly IdentityServerPipeline mockPipeline = new IdentityServerPipeline();
 
     private readonly Client parTestClient;
+    private readonly Client otherParTestClient;
 
     public PushBasedAuthorizationRequestTests()
     {
@@ -46,6 +47,20 @@ public class PushBasedAuthorizationRequestTests
         };
         
         mockPipeline.Clients.Add(parTestClient);
+        
+        otherParTestClient = new Client
+        {
+            ClientId = "other PAR test client",
+            ClientSecrets = [new Secret("other-secret".Sha256())],
+            AllowedGrantTypes = GrantTypes.Code,
+            RequireClientSecret = true,
+            RequireConsent = false,
+            RequirePkce = false,
+            AllowedScopes = ["openid", "profile", "api1", "api2"],
+            RedirectUris = ["https://other-app.com/callback"],
+        };
+
+        mockPipeline.Clients.Add(otherParTestClient);
 
         mockPipeline.Users.Add(new TestUser
         {
@@ -120,9 +135,7 @@ public class PushBasedAuthorizationRequestTests
         json.RootElement.GetProperty("request_uri").GetString().Should().NotBeNullOrWhiteSpace();
         json.RootElement.GetProperty("expires_in").GetInt32().Should().BeGreaterThan(0);
     }
-
-   
-
+    
     [Fact]
     public async Task post_request_and_get_auth_code_should_return_redirect_with_code()
     {
@@ -193,8 +206,43 @@ public class PushBasedAuthorizationRequestTests
             .Select(c => c.Value).ToList();
 
         scopes.Should().BeEquivalentTo(requestedScopes);
-        
-         return;
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task post_request_authenticated_as_different_client_should_return_bad_request()
+    {
+        HttpClient? client = mockPipeline.BackChannelClient;
+        client.Should().NotBeNull();
+
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            IdentityServerPipeline.PushedAuthorizatioRequestEndpoint);
+
+        string credentials = Convert.ToBase64String(
+            System.Text.Encoding.UTF8.GetBytes($"{parTestClient.ClientId}:secret"));
+
+        request.Headers.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credentials);
+
+        request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            [OidcConstants.AuthorizeRequest.ClientId] = otherParTestClient.ClientId,
+            [OidcConstants.AuthorizeRequest.RedirectUri] = otherParTestClient.RedirectUris.First(),
+            [OidcConstants.AuthorizeRequest.ResponseType] = OidcConstants.ResponseTypes.Code,
+            [OidcConstants.AuthorizeRequest.Scope] = "api1",
+            [OidcConstants.AuthorizeRequest.State] = "1234567890",
+        });
+
+        using var response = await client.SendAsync(
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        string body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        using var json = System.Text.Json.JsonDocument.Parse(body);
+        json.RootElement.GetProperty("error").GetString().Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
     }
     
     private async Task<HttpResponseMessage> SendRequestForUri(HttpClient client , params IEnumerable<string> scopes)

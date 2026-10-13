@@ -26,7 +26,7 @@ public interface IPushedAuthorizationRequestService
     /// <param name="client">The client making the request</param>
     /// <param name="parameters">The parameters to store, and to be used for a subsequence AuthCode flow</param>
     /// <returns>An expiring response, used to obtain the parameters during an AuthCode flow</returns>
-    Task<PushedAuthorization> CreateAsync(Client client,NameValueCollection parameters);
+    Task<PushedAuthorization> CreateAsync(Client client, NameValueCollection parameters);
     /// <summary>
     /// Returns a NameValue collection associated with the key assuming it has not expired
     /// </summary>

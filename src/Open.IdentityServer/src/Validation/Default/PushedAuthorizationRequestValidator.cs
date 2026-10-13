@@ -1,6 +1,7 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,17 @@ internal class PushedAuthorizationRequestValidator(
     public async Task<PushAuthorizationRequestValidationResult> ValidateAsync(PushedAuthorizationRequestValidationContext validationContext, CancellationToken ct)
     {
         logger.LogDebug("Starting pushed authorization request validation");
-       
+
+        var requestClientId = validationContext.RequestParameters.
+            GetValues(OidcConstants.AuthorizeRequest.ClientId)
+            ?.SingleOrDefault();
+        if (requestClientId != validationContext.PushingClient.ClientId)
+        {
+            return new PushAuthorizationRequestValidationResult(
+                OidcConstants.AuthorizeErrors.InvalidRequest, 
+                "client_id does not match the client making the request");
+        }
+        
         if (validationContext.RequestParameters.GetValues(OidcConstants.AuthorizeRequest.RequestUri) != null)
         {
             return new PushAuthorizationRequestValidationResult( $"{OidcConstants.AuthorizeRequest.RequestUri} not allowed" , $"{OidcConstants.AuthorizeRequest.RequestUri} can only be used at the authorization endpoint");

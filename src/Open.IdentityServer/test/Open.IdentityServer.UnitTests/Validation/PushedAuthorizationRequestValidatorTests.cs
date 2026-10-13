@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Open.IdentityServer;
+using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
 using Xunit;
 
@@ -15,17 +17,32 @@ public class PushedAuthorizationRequestValidatorTests
 {
     private readonly Mock<IAuthorizeRequestValidator> authorizeRequestValidator = new();
     private readonly Mock<ILogger<PushedAuthorizationRequestValidator>> logger = new();
-    private readonly  PushedAuthorizationRequestValidationContext 
-        validPushAuthorizationRequestValidationContext = new(new NameValueCollection());
     
+    private readonly Client callingClient;
+    private readonly PushedAuthorizationRequestValidationContext validPushAuthorizationRequestValidationContext;
+
+    public PushedAuthorizationRequestValidatorTests()
+    {
+        callingClient = new Client
+        {
+            ClientId = "client",
+            ClientName = "Client",
+        };
+        validPushAuthorizationRequestValidationContext = new(new NameValueCollection(){ { "client_id", "client" } }, callingClient);
+    }
+
     [Fact]
     public async Task ValidateAsync_when_called_with_request_that_contains_request_uri_should_respond_with_error()
     {
         var sut = CreateSut();
 
-        var parameters =new NameValueCollection() { { "request_uri", "urn:somethingRandom" } };
+        var parameters =new NameValueCollection()
+        {
+            { "client_id", "client" },
+            { "request_uri", "urn:somethingRandom" }
+        };
         
-        PushAuthorizationRequestValidationResult result = await sut.ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters),CancellationToken.None);
+        PushAuthorizationRequestValidationResult result = await sut.ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters, callingClient),CancellationToken.None);
         
         result.IsError.Should().BeTrue();
     }
@@ -34,12 +51,15 @@ public class PushedAuthorizationRequestValidatorTests
     public async Task ValidateAsync_when_called_with_request_should_call_authorize_endpoint_validator()
     {
         var sut = CreateSut();
-        var parameters = new NameValueCollection();
+        var parameters = new NameValueCollection
+        {
+            { "client_id", "client" }
+        };
         
         StubAuthorizeRequestValidatorSuccess(parameters);
         
         PushAuthorizationRequestValidationResult result = await sut
-            .ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters),CancellationToken.None);
+            .ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters, callingClient),CancellationToken.None);
 
         authorizeRequestValidator.Verify(arv=>arv.ValidateAsync(
                 parameters,
@@ -58,7 +78,10 @@ public class PushedAuthorizationRequestValidatorTests
     public async Task ValidateAsync_when_called_with_valid_request_should_return_good_validation_result()
     {
         var sut = CreateSut();
-        var parameters = new NameValueCollection();
+        var parameters = new NameValueCollection()
+        {
+            { "client_id", "client" }
+        };
         var expectedValidatedAuthorizeRequest = new ValidatedAuthorizeRequest();
         
         authorizeRequestValidator.Setup(arv=>arv.ValidateAsync(
@@ -67,7 +90,7 @@ public class PushedAuthorizationRequestValidatorTests
             .ReturnsAsync(new AuthorizeRequestValidationResult(expectedValidatedAuthorizeRequest));
         
         PushAuthorizationRequestValidationResult result = await sut
-            .ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters),CancellationToken.None);
+            .ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters, callingClient),CancellationToken.None);
 
       result.ValidatedAuthorizeRequest.Should().Be(expectedValidatedAuthorizeRequest);
       result.IsError.Should().BeFalse();
@@ -77,7 +100,10 @@ public class PushedAuthorizationRequestValidatorTests
     public async Task ValidateAsync_when_called_with_invalid_request_should_return_validation_result_with_error()
     {
         var sut = CreateSut();
-        var parameters = new NameValueCollection();
+        var parameters = new NameValueCollection()
+        {
+            { "client_id", "client" }
+        };
         var expectedValidatedAuthorizeRequest = new ValidatedAuthorizeRequest();
         var expectedError = "authorize validation failed";
         var expectedErrorDescription = "authorize validation failed description";
@@ -88,7 +114,7 @@ public class PushedAuthorizationRequestValidatorTests
             .ReturnsAsync(new AuthorizeRequestValidationResult(expectedValidatedAuthorizeRequest,expectedError,expectedErrorDescription));
         
         PushAuthorizationRequestValidationResult result = await sut
-            .ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters),
+            .ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters, callingClient),
                            CancellationToken.None);
         
         result.IsError.Should().BeTrue();
@@ -101,7 +127,7 @@ public class PushedAuthorizationRequestValidatorTests
     {
         var sut = CreateSut();
 
-        StubAuthorizeRequestValidatorSuccess();
+        StubAuthorizeRequestValidatorSuccess(validPushAuthorizationRequestValidationContext.RequestParameters);
         
         PushAuthorizationRequestValidationResult result = await sut.ValidateAsync(
             validPushAuthorizationRequestValidationContext,CancellationToken.None);
@@ -109,7 +135,24 @@ public class PushedAuthorizationRequestValidatorTests
         VerifyLog(LogLevel.Debug,"Starting pushed authorization request validation");
         VerifyLog(LogLevel.Trace,"Pushed authorization request validation completed. Success.");
     }
-    
+
+    [Fact]
+    public async Task ValidateAsync_when_called_with_request_for_another_client_should_be_invalid()
+    {
+        var sut = CreateSut();
+        var parameters = new NameValueCollection()
+        {
+            { "client_id", "different-client" }
+        };
+        var expectedError = OidcConstants.AuthorizeErrors.InvalidRequest;
+        
+        PushAuthorizationRequestValidationResult result = await sut
+            .ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters, callingClient),
+                CancellationToken.None);
+        
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(expectedError);
+    }
     
     private void VerifyLog(LogLevel logLevel, string expectedMessage)
     {
