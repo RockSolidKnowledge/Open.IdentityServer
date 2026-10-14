@@ -27,7 +27,7 @@ public interface IPersistedGrantCompatibilityDbContext: IDisposable
     /// <value>
     /// The server side sessions.
     /// </value>
-    DbSet<IdentityServerServerSideSessions> ServerSideSessions { get; set; }
+    DbSet<ServerSideSession> ServerSideSessions { get; set; }
     
     /// <summary>
     /// Gets or sets the pushed authorization requests.
@@ -35,5 +35,5 @@ public interface IPersistedGrantCompatibilityDbContext: IDisposable
     /// <value>
     /// The pushed authorization requests.
     /// </value>
-    DbSet<IdentityServerPushedAuthorizationRequests> PushedAuthorizationRequests { get; set; }
+    DbSet<PushedAuthorizationRequest> PushedAuthorizationRequests { get; set; }
 }

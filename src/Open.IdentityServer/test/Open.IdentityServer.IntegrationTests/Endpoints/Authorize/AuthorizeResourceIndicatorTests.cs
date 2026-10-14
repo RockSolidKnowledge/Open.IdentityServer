@@ -70,7 +70,7 @@ public class AuthorizeResourceIndicatorTests: ResourceIndicatorTests
 
         var response = await mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("https://server/cb");
 
@@ -215,7 +215,7 @@ public class AuthorizeResourceIndicatorTests: ResourceIndicatorTests
 
         var response = await mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("https://server/cb");
     }
@@ -296,7 +296,7 @@ public class AuthorizeResourceIndicatorTests: ResourceIndicatorTests
 
         var response = await mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("oob://implicit/cb");
 
@@ -326,7 +326,7 @@ public class AuthorizeResourceIndicatorTests: ResourceIndicatorTests
 
         var response = await mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("oob://implicit/cb");
 
@@ -360,7 +360,7 @@ public class AuthorizeResourceIndicatorTests: ResourceIndicatorTests
 
         var response = await mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("oob://implicit/cb");
 
@@ -491,7 +491,7 @@ public class AuthorizeResourceIndicatorTests: ResourceIndicatorTests
 
         var response = await mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString().Should().StartWith("https://server/cb");
 

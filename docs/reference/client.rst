@@ -16,6 +16,10 @@ Basics
     Specifies whether this client needs a secret to request tokens from the token endpoint (defaults to ``true``)
 ``RequireRequestObject``
     Specifies whether this client needs to wrap the authorize request parameters in a JWT (defaults to ``false``)
+``RequirePushedAuthorization``
+    Specifies whether this client must use the pushed authorization endpoint before starting an authorization request (defaults to ``false``)
+``PushedAuthorizationLifetime``
+    Overrides the default lifetime of this client's pushed authorization request URI, in seconds. If not set, the server default is used.
 ``AllowedGrantTypes``
     Specifies the grant types the client is allowed to use. Use the ``GrantTypes`` class for common combinations.
 ``RequirePkce``
@@ -128,5 +132,3 @@ Unused :ref:`Compatibility <refCompatibility>` Properties
 ``DPoPClockSkew``
 ``DPoPValidationMode``
 ``RequireDPoP``
-``PushedAuthorizationLifetime``
-``RequirePushedAuthorization``

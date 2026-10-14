@@ -74,7 +74,8 @@ public class Startup
             .AddProfileService<HostProfileService>()
             .AddCustomTokenRequestValidator<ParameterizedScopeTokenRequestValidator>()
             .AddScopeParser<ParameterizedScopeParser>()
-            .AddMutualTlsSecretValidators();
+            .AddMutualTlsSecretValidators()
+            .AddServerSideSessions();
 
         // use this for persisted grants store
         // var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;

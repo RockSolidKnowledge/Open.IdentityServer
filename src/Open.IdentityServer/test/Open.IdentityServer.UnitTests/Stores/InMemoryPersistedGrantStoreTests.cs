@@ -38,17 +38,14 @@ public class InMemoryPersistedGrantStoreTests
     [Fact]
     public async Task GetAll_should_filter()
     {
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key1", SubjectId = "sub1", ClientId = "client1", SessionId = "session1" });
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key2", SubjectId = "sub1", ClientId = "client2", SessionId = "session1" });
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key3", SubjectId = "sub1", ClientId = "client1", SessionId = "session2" });
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key4", SubjectId = "sub1", ClientId = "client3", SessionId = "session2" });
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key5", SubjectId = "sub1", ClientId = "client4", SessionId = "session3" });
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key6", SubjectId = "sub1", ClientId = "client4", SessionId = "session4" });
-
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key7", SubjectId = "sub2", ClientId = "client4", SessionId = "session4" });
-
-
-
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key1", SubjectId = "sub1", ClientId = "client1", SessionId = "session1", Type = "typeA"});
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key2", SubjectId = "sub1", ClientId = "client2", SessionId = "session1", Type = "typeB" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key3", SubjectId = "sub1", ClientId = "client1", SessionId = "session2", Type = "typeB" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key4", SubjectId = "sub1", ClientId = "client3", SessionId = "session2", Type = "typeA" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key5", SubjectId = "sub1", ClientId = "client4", SessionId = "session3", Type = "typeC" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key6", SubjectId = "sub1", ClientId = "client4", SessionId = "session4", Type = "typeA" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key7", SubjectId = "sub2", ClientId = "client4", SessionId = "session4", Type = "typeC" });
+        
         (await _subject.GetAllAsync(new PersistedGrantFilter
             {
                 SubjectId = "sub1"
@@ -194,6 +191,25 @@ public class InMemoryPersistedGrantStoreTests
                 SessionId = "session5"
             }))
             .Select(x => x.Key).Should().BeEmpty();
+
+        (await _subject.GetAllAsync(new PersistedGrantFilter
+            {
+                ClientIds = ["client1", "client4"],
+            }))
+            .Select(x => x.Key).Should().BeEquivalentTo("key1", "key3", "key5", "key6", "key7");
+
+        (await _subject.GetAllAsync(new PersistedGrantFilter
+            {
+                Types = ["typeA", "typeC"],
+            }))
+            .Select(x => x.Key).Should().BeEquivalentTo("key1", "key4", "key5", "key6", "key7");
+
+        (await _subject.GetAllAsync(new PersistedGrantFilter
+            {
+                ClientIds = ["client2", "client3"],
+                Types = ["typeA", "typeB"],
+            }))
+            .Select(x => x.Key).Should().BeEquivalentTo("key2", "key4");
     }
 
     [Fact]
@@ -521,17 +537,73 @@ public class InMemoryPersistedGrantStoreTests
             (await _subject.GetAsync("key6")).Should().NotBeNull();
             (await _subject.GetAsync("key7")).Should().NotBeNull();
         }
+        {
+            await Populate();
+            await _subject.RemoveAllAsync(new PersistedGrantFilter
+            {
+                ClientIds = ["client1", "client2"],
+            });
+            (await _subject.GetAsync("key1")).Should().BeNull();
+            (await _subject.GetAsync("key2")).Should().BeNull();
+            (await _subject.GetAsync("key3")).Should().BeNull();
+            (await _subject.GetAsync("key4")).Should().NotBeNull();
+            (await _subject.GetAsync("key5")).Should().NotBeNull();
+            (await _subject.GetAsync("key6")).Should().NotBeNull();
+            (await _subject.GetAsync("key7")).Should().NotBeNull();
+        }
+        {
+            await Populate();
+            await _subject.RemoveAllAsync(new PersistedGrantFilter
+            {
+                Type = "typeA",
+            });
+            (await _subject.GetAsync("key1")).Should().BeNull();
+            (await _subject.GetAsync("key2")).Should().NotBeNull();
+            (await _subject.GetAsync("key3")).Should().NotBeNull();
+            (await _subject.GetAsync("key4")).Should().BeNull();
+            (await _subject.GetAsync("key5")).Should().NotBeNull();
+            (await _subject.GetAsync("key6")).Should().NotBeNull();
+            (await _subject.GetAsync("key7")).Should().BeNull();
+        }
+        {
+            await Populate();
+            await _subject.RemoveAllAsync(new PersistedGrantFilter
+            {
+                Types = ["typeB", "typeC"],
+            });
+            (await _subject.GetAsync("key1")).Should().NotBeNull();
+            (await _subject.GetAsync("key2")).Should().BeNull();
+            (await _subject.GetAsync("key3")).Should().BeNull();
+            (await _subject.GetAsync("key4")).Should().NotBeNull();
+            (await _subject.GetAsync("key5")).Should().BeNull();
+            (await _subject.GetAsync("key6")).Should().BeNull();
+            (await _subject.GetAsync("key7")).Should().NotBeNull();
+        }
+        {
+            await Populate();
+            await _subject.RemoveAllAsync(new PersistedGrantFilter
+            {
+                ClientIds = ["client3", "client4"],
+                Types = ["typeA", "typeC"],
+            });
+            (await _subject.GetAsync("key1")).Should().NotBeNull();
+            (await _subject.GetAsync("key2")).Should().NotBeNull();
+            (await _subject.GetAsync("key3")).Should().NotBeNull();
+            (await _subject.GetAsync("key4")).Should().BeNull();
+            (await _subject.GetAsync("key5")).Should().BeNull();
+            (await _subject.GetAsync("key6")).Should().BeNull();
+            (await _subject.GetAsync("key7")).Should().BeNull();
+        }
     }
 
     private async Task Populate()
     {
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key1", SubjectId = "sub1", ClientId = "client1", SessionId = "session1" });
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key2", SubjectId = "sub1", ClientId = "client2", SessionId = "session1" });
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key3", SubjectId = "sub1", ClientId = "client1", SessionId = "session2" });
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key4", SubjectId = "sub1", ClientId = "client3", SessionId = "session2" });
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key5", SubjectId = "sub1", ClientId = "client4", SessionId = "session3" });
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key6", SubjectId = "sub1", ClientId = "client4", SessionId = "session4" });
-
-        await _subject.StoreAsync(new PersistedGrant() { Key = "key7", SubjectId = "sub2", ClientId = "client4", SessionId = "session4" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key1", SubjectId = "sub1", ClientId = "client1", SessionId = "session1", Type = "typeA" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key2", SubjectId = "sub1", ClientId = "client2", SessionId = "session1", Type = "typeB" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key3", SubjectId = "sub1", ClientId = "client1", SessionId = "session2", Type = "typeB" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key4", SubjectId = "sub1", ClientId = "client3", SessionId = "session2", Type = "typeA" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key5", SubjectId = "sub1", ClientId = "client4", SessionId = "session3", Type = "typeC" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key6", SubjectId = "sub1", ClientId = "client4", SessionId = "session4", Type = "typeC" });
+        await _subject.StoreAsync(new PersistedGrant() { Key = "key7", SubjectId = "sub2", ClientId = "client4", SessionId = "session4", Type = "typeA" });
     }
 }

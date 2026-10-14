@@ -431,8 +431,17 @@ public class Client
         }
     }
     
-    //Unused Compatibility Properties
+    /// <summary>
+    /// Used to override the server default value configured with IdentityServerOptions.Authentication.CoordinateClientLifetimesWithUserSession.
+    /// Specifies if the user session ending should revoke client revocable tokens, and also if token validation should
+    /// check for a valid user session.
+    /// </summary>
+    /// <value>
+    /// <c>true</c> if coordination enabled; <c>false</c> if coordination disabled; otherwise, <c>null</c>.
+    /// </value>
+    public bool? CoordinateLifetimeWithUserSession { get; set; }
     
+    //Unused Compatibility Properties
     /// <summary>
     /// Gets or sets CIBA lifetime (Unused, added for compatibility)
     /// </summary>
@@ -442,11 +451,6 @@ public class Client
     /// Gets or sets polling interval (Unused, added for compatibility)
     /// </summary>
     public int? PollingInterval { get; set; }
-    
-    /// <summary>
-    /// Gets or sets coordinate lifetime with user session (Unused, added for compatibility)
-    /// </summary>
-    public bool? CoordinateLifetimeWithUserSession { get; set; }
     
     /// <summary>
     /// Gets or sets initiate login URI (Unused, added for compatibility)

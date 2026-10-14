@@ -6,6 +6,10 @@ mkdir nuget
 
 dotnet tool restore
 
+pushd ./src/Open.IdentityServer.Test.Utilities
+dotnet build
+popd
+
 pushd ./src/Storage
 ./build.sh "$@"
 popd

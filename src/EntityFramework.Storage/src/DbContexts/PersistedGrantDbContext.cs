@@ -115,7 +115,7 @@ public class PersistedGrantDbContext<TContext> : DbContext, IPersistedGrantDbCon
     /// <value>
     /// The server side sessions.
     /// </value>
-    public DbSet<IdentityServerServerSideSessions> ServerSideSessions { get; set; }
+    public DbSet<ServerSideSession> ServerSideSessions { get; set; }
     
     /// <summary>
     /// Gets or sets the pushed authorization requests.
@@ -123,5 +123,5 @@ public class PersistedGrantDbContext<TContext> : DbContext, IPersistedGrantDbCon
     /// <value>
     /// The pushed authorization requests.
     /// </value>
-    public DbSet<IdentityServerPushedAuthorizationRequests> PushedAuthorizationRequests { get; set; }
+    public DbSet<PushedAuthorizationRequest> PushedAuthorizationRequests { get; set; }
 }

@@ -87,6 +87,8 @@ public static class ClientMappingExtensions
                 UserCodeType = clientEntity.UserCodeType,
                 DeviceCodeLifetime = clientEntity.DeviceCodeLifetime,
                 AllowedCorsOrigins = clientEntity.AllowedCorsOrigins.ToStringCollection(),
+                RequirePushedAuthorization = clientEntity.RequirePushedAuthorization,
+                PushedAuthorizationLifetime = clientEntity.PushedAuthorizationLifetime,
                 Properties = clientEntity.Properties.ToModelDictionary(),
                 PollingInterval = clientEntity.PollingInterval,
             };
@@ -192,6 +194,8 @@ public static class ClientMappingExtensions
                 UserCodeType = clientModel.UserCodeType,
                 DeviceCodeLifetime = clientModel.DeviceCodeLifetime,
                 AllowedCorsOrigins = clientModel.AllowedCorsOrigins?.Select(x => new ClientCorsOrigin { Origin = x }).ToList() ?? [],
+                PushedAuthorizationLifetime = clientModel.PushedAuthorizationLifetime,
+                RequirePushedAuthorization = clientModel.RequirePushedAuthorization,
                 Properties = clientModel.Properties.ToEntityList<Entities.ClientProperty>(),
                 PollingInterval = clientModel.PollingInterval,
             };

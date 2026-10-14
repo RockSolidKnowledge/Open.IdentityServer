@@ -14,10 +14,11 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
+using Open.IdentityServer.EntityFramework.IntegrationTests;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
-using Open.IdentityServer.UnitTests;
+using Open.IdentityServer.Test.Utilities;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Stores.Compatibility;
@@ -57,7 +58,8 @@ public class IdentityServerSigningCredentialStoreTests
         dataProtectedIdentityServerKeyMaterialConverter, 
         timeProvider, 
         fakeOptions,
-        telemetry);
+        telemetry,
+        new MockLogger<IdentityServerSigningCredentialStore>());
 
     [Fact]
     public async Task GetSigningCredentialsAsync_WhenUnspecifiedDateTime_ShouldTreatAsUtcTime()

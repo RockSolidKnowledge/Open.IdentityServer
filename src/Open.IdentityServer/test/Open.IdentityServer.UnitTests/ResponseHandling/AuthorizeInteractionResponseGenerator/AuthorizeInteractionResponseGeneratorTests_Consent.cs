@@ -172,6 +172,24 @@ public class AuthorizeInteractionResponseGeneratorTests_Consent
         (await act.Should().ThrowAsync<ArgumentException>()).And.Message.Should().Contain("PromptMode");
     }
 
+    [Fact]
+    public async Task ProcessConsentAsync_PromptModeIsCreate_Throws()
+    {
+        RequiresConsent(true);
+        var request = new ValidatedAuthorizeRequest
+        {
+            ResponseMode = OidcConstants.ResponseModes.Fragment,
+            State = "12345",
+            RedirectUri = "https://client.com/callback",
+            PromptModes = [OidcConstants.PromptModes.Create],
+            RequestedScopes = ["openid", "read", "write"],
+            ValidatedResources = GetValidatedResources("openid", "read", "write"),
+        };
+
+        Func<Task> act = () => _subject.ProcessConsentAsync(request);
+
+        (await act.Should().ThrowAsync<ArgumentException>()).And.Message.Should().Contain("PromptMode");
+    }
 
     [Fact]
     public async Task ProcessConsentAsync_RequiresConsentButPromptModeIsNone_ReturnsErrorResult()

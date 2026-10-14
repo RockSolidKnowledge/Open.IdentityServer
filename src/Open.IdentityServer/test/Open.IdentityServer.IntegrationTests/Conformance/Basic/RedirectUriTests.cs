@@ -125,7 +125,7 @@ public class RedirectUriTests
             nonce: nonce);
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.ToString().Should().StartWith("https://code_client/callback?");
         var authorization = _mockPipeline.ParseAuthorizationResponseUrl(response.Headers.Location.ToString());
         authorization.Code.Should().NotBeNull();

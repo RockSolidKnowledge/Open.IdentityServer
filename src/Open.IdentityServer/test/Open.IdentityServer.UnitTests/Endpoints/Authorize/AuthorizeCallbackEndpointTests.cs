@@ -1,7 +1,11 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 
+
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -39,6 +43,8 @@ public class AuthorizeCallbackEndpointTests
     private NameValueCollection _params = new NameValueCollection();
 
     private StubAuthorizeRequestValidator _stubAuthorizeRequestValidator = new StubAuthorizeRequestValidator();
+    private Mock<IPushedAuthorizationRequestService> _parService =
+        new Mock<IPushedAuthorizationRequestService>();
 
     private StubAuthorizeResponseGenerator _stubAuthorizeResponseGenerator = new StubAuthorizeResponseGenerator();
 
@@ -80,6 +86,47 @@ public class AuthorizeCallbackEndpointTests
         var result = await _subject.ProcessAsync(_context);
 
         result.Should().BeOfType<AuthorizeResult>();
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task ProcessAsync_authorize_with_par_should_use_stored_request_for_consent()
+    {
+        IEnumerable<string> expectedConsentedScopes = ["api1", "api2"];
+        
+        var storedParameters = new NameValueCollection()
+        {
+            { "client_id", "client" },
+            { "nonce", "some_nonce" },
+            { "scope", string.Join(" ",expectedConsentedScopes) }
+        };
+
+        string requestUri = IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix +"blah";
+        
+        var parameters = new NameValueCollection()
+        {
+            { "client_id", "client" },
+            { "request_uri", requestUri },
+        };
+        var request = new ConsentRequest(storedParameters, _user.GetSubjectId());
+        _mockUserConsentResponseMessageStore.Messages.Add(request.Id, new Message<ConsentResponse>(new ConsentResponse()
+        {
+            ScopesValuesConsented = expectedConsentedScopes
+        }));
+
+        _mockUserSession.User = _user;
+
+        _context.Request.Method = "GET";
+        _context.Request.Path = new PathString("/connect/authorize/callback");
+        _context.Request.QueryString = new QueryString("?" + parameters.ToQueryString());
+
+        _parService
+            .Setup(ps => ps.GetRequestAsync(requestUri))
+            .ReturnsAsync(storedParameters);
+
+        var result = await _subject.ProcessAsync(_context);
+
+        _stubInteractionGenerator.SpiedConsent.ScopesValuesConsented.Should().BeEquivalentTo(["api1", "api2"]);
     }
 
     [Fact]
@@ -223,7 +270,7 @@ public class AuthorizeCallbackEndpointTests
     internal void Init()
     {
         _context = new MockHttpContextAccessor().HttpContext;
-
+        
         _validatedAuthorizeRequest = new ValidatedAuthorizeRequest()
         {
             RedirectUri = "http://client/callback",
@@ -256,6 +303,7 @@ public class AuthorizeCallbackEndpointTests
             _stubAuthorizeResponseGenerator,
             _mockUserSession,
             _mockUserConsentResponseMessageStore,
+            _parService.Object,
             _telemetry.Object);
     }
 }

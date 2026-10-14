@@ -26,4 +26,11 @@ public interface IOperationalStoreNotification
     /// <param name="deviceCodes">The device flow codes that have been removed from the store.</param>
     /// <returns>A task that completes when the notification has been handled.</returns>
     Task DeviceCodesRemovedAsync(IEnumerable<DeviceFlowCodes> deviceCodes);
+
+    /// <summary>
+    /// Notification for pushed authorization requests being removed.
+    /// </summary>
+    /// <param name="expiredRequests">The pushed authorization requests that have been removed from the store.</param>
+    /// <returns>A task that completes when the notification has been handled.</returns>
+    Task PushedAuthenticationRequestsRemovedAsync(IEnumerable<PushedAuthorizationRequest> expiredRequests);
 }

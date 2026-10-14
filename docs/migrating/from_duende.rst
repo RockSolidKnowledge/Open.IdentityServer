@@ -68,19 +68,20 @@ Migration Steps
        * - Feature
          - Action Required
        * - Dynamic Providers
-         - Remove all references. Not yet supported in Open.IdentityServer.
+         - Remove all references. Not directly supported in Open.IdentityServer.
        * - Automatic Key Management
          - Remove all references. You will need to configure signing keys manually, or :ref:`configure read-only key store <refCompatibility>`.
-       * - Server Side Sessions
-         - Remove all references. Not yet supported in Open.IdentityServer.
-       * - Pushed Authorisation Requests (PAR)
-         - Remove all references. Not yet supported in Open.IdentityServer.
        * - CIBA (Client Initiated Backchannel Authentication)
          - Remove all references. Not yet supported in Open.IdentityServer.
 
    .. warning::
 
        If your application relies heavily on any of these features, evaluate the impact before proceeding with migration. You may need to implement alternative solutions.
+
+   Pushed Authentication Requests are now supported in Open.IdentityServer. See the :ref:`PAR documentation <refPushedAuthorizationTopic>` for more details.
+
+   There is a Dynamic Providers equivalent package available on `identityserver.com <https://www.identityserver.com/products>`_.  This uses different tables for storing configuration data. Work is in progress to provide a direct data migration.
+
 
 4. **Update service registration**
 
@@ -114,7 +115,7 @@ Migration Steps
        builder.Services.AddIdentityServer()
            .AddSigningCredential(certificate);
                
-   If you have a `Rsk.KeyRoation <https://www.identityserver.com/products/key-rotation>`_ license or an Open.IdentityServer 
+   If you have a `Rsk.KeyRotation <https://www.identityserver.com/products/key-rotation>`_ license or an Open.IdentityServer 
    supporter license, you will also be able to switch to using this product for your key rotation. Here is the 
    `installation guide <https://docs.identityserver.com/key-rotation/installation/>`_ for Open.IdentityServer.
    
@@ -122,6 +123,7 @@ Migration Steps
        If configuring the read-only key store, all keys created within a 90 days will be considered valid, and the newest 
        key within this timespan will be registered as a signing key. The extension method used to register the 
        compatibility store allows you to configure this ``.AddCompatibilityKeyStores(opt => opt.MaxLifetime = TimeSpan.FromDays(120))``.
+
        
 5. **Migrate the database schema (if applicable)**
 

@@ -100,7 +100,7 @@ public class RestrictAccessTokenViaBrowserTests
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client1/callback");
         var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
@@ -119,7 +119,7 @@ public class RestrictAccessTokenViaBrowserTests
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client1/callback");
         var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
@@ -138,7 +138,7 @@ public class RestrictAccessTokenViaBrowserTests
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client2/callback");
         var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
@@ -171,7 +171,7 @@ public class RestrictAccessTokenViaBrowserTests
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client3/callback");
         var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
@@ -191,7 +191,7 @@ public class RestrictAccessTokenViaBrowserTests
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client3/callback");
         var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();
@@ -212,7 +212,7 @@ public class RestrictAccessTokenViaBrowserTests
         _mockPipeline.BrowserClient.AllowAutoRedirect = false;
         var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         response.Headers.Location.AbsoluteUri.Should().StartWith("https://client4/callback");
         var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
         authorization.IdentityToken.Should().NotBeNull();

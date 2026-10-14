@@ -11,7 +11,7 @@ namespace Open.IdentityServer.EntityFramework.Entities;
 /// Class included for compatibility, and to be used in the future when support for Server Side Sessions is added to
 /// Open.IdentityServer
 /// </summary>
-public class IdentityServerServerSideSessions
+public class ServerSideSession
 {
     /// <summary>
     /// Get or set unique identifier

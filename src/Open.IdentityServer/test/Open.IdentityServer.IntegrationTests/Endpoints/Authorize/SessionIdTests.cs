@@ -80,6 +80,7 @@ public class SessionIdTests
     }
 
     [Fact]
+    [Trait("Category", Category)]
     public async Task session_id_should_be_reissued_if_session_cookie_absent()
     {
         await _mockPipeline.LoginAsync("bob");

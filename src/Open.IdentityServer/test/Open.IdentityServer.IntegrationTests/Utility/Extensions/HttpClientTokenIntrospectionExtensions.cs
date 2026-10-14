@@ -45,6 +45,8 @@ public static class HttpClientTokenIntrospectionExtensions
             return ProtocolResponse.FromException<TokenIntrospectionResponse>(ex);
         }
 
+        var content = await response.Content.ReadAsStringAsync();
+        
         return await ProtocolResponse.FromHttpResponseAsync<TokenIntrospectionResponse>(response).ConfigureAwait();
     }
 }

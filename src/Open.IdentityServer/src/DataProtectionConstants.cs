@@ -10,4 +10,7 @@ public static class DataProtectionConstants
 {
     /// <summary>Purpose used when creating key material data protector.</summary>
     public const string KeyProtectorPurpose = "DataProtectionKeyProtector";
+
+    /// <summary>Purpose used when creating server side ticket store data protector.</summary>
+    public const string ServerSideTicketStorePurpose = "Duende.SessionManagement.ServerSideTicketStore";
 }

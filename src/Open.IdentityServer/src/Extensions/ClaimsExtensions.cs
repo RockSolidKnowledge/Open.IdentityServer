@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
+using Open.IdentityServer.Stores.Serialization;
 
 namespace Open.IdentityServer.Extensions;
 
@@ -79,11 +80,24 @@ internal static class ClaimsExtensions
         {
             try
             {
-                return System.Text.Json.JsonSerializer.Deserialize<JsonElement>(claim.Value);
+                return JsonSerializer.Deserialize<JsonElement>(claim.Value);
             }
             catch { }
         }
 
         return claim.Value;
+    }
+    
+    public static ClaimLite[] ToSerializableObj(this IEnumerable<Claim> claims)
+    {
+        return claims.Select(x => new ClaimLite
+        {
+            Type = x.Type, Value = x.Value, ValueType = x.ValueType, Issuer = x.Issuer,
+        }).ToArray();
+    }
+    
+    public static Claim[] ToClaims(this ClaimLite[] claims)
+    {
+        return claims.Select(x => new Claim(x.Type, x.Value, x.ValueType, x.Issuer)).ToArray();
     }
 }

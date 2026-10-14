@@ -90,6 +90,6 @@ public class EndSessionResult : IEndpointResult
             redirect = redirect.AddQueryString(_options.UserInteraction.LogoutIdParameter, id);
         }
 
-        context.Response.Redirect(redirect);
+        context.Response.RedirectToAbsoluteUrl(redirect);
     }
 }

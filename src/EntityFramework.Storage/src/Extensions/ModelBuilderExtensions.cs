@@ -390,7 +390,7 @@ public static class ModelBuilderExtensions
                 builder.HasIndex(x => x.Use);
             });
 
-            modelBuilder.Entity<IdentityServerServerSideSessions>(builder =>
+            modelBuilder.Entity<ServerSideSession>(builder =>
             {
                 builder.ToTable(storeOptions.ServerSideSessions).HasKey(x => x.Id);
                 
@@ -410,7 +410,7 @@ public static class ModelBuilderExtensions
                 builder.HasIndex(x => x.SubjectId);
             });
 
-            modelBuilder.Entity<IdentityServerPushedAuthorizationRequests>(builder =>
+            modelBuilder.Entity<PushedAuthorizationRequest>(builder =>
             {
                 builder.ToTable(storeOptions.PushedAuthorizationRequests).HasKey(x => x.Id);
                 

@@ -2,7 +2,7 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
+#nullable enable
 using System;
 using System.Linq;
 using AwesomeAssertions;
@@ -137,9 +137,8 @@ public class ClientMappersTests
                 nameof(Entities.Client.InitiateLoginUri),
                 nameof(Entities.Client.DPoPClockSkew),
                 nameof(Entities.Client.DPoPValidationMode),
-                nameof(Entities.Client.RequireDPoP),
-                nameof(Entities.Client.PushedAuthorizationLifetime),
-                nameof(Entities.Client.RequirePushedAuthorization))
+                nameof(Entities.Client.RequireDPoP)
+                )
             .Verify(model => model.ToEntity());
     }
 

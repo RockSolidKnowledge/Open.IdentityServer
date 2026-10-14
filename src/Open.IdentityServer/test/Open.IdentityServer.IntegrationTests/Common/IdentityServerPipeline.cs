@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 #nullable enable
@@ -27,6 +28,9 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Options;
+using Open.IdentityServer.Stores;
 
 namespace IdentityServer.IntegrationTests.Common;
 
@@ -36,6 +40,8 @@ public class IdentityServerPipeline
     public const string LoginPage = BaseUrl + "/account/login";
     public const string ConsentPage = BaseUrl + "/account/consent";
     public const string ErrorPage = BaseUrl + "/home/error";
+    public const string CreatePageRelative = "/account/create";
+    public const string CreatePage = BaseUrl + CreatePageRelative;
 
     public const string DeviceAuthorization = BaseUrl + "/connect/deviceauthorization";
     public const string DiscoveryEndpoint = BaseUrl + "/.well-known/openid-configuration";
@@ -49,11 +55,15 @@ public class IdentityServerPipeline
     public const string EndSessionEndpoint = BaseUrl + "/connect/endsession";
     public const string EndSessionCallbackEndpoint = BaseUrl + "/connect/endsession/callback";
     public const string CheckSessionEndpoint = BaseUrl + "/connect/checksession";
-
+    public const string PushedAuthorizatioRequestEndpoint = BaseUrl + "/connect/par";
+    
     public const string FederatedSignOutPath = "/signout-oidc";
     public const string FederatedSignOutUrl = BaseUrl + FederatedSignOutPath;
 
+    public const string AuthCookieSessionIdClaimType = "Microsoft.AspNetCore.Authentication.Cookies-SessionId";
+
     public IdentityServerOptions? Options { get; set; }
+    
     public List<Client> Clients { get; set; } = new List<Client>();
     public List<IdentityResource> IdentityScopes { get; set; } = new List<IdentityResource>();
     public List<ApiResource> ApiResources { get; set; } = new List<ApiResource>();
@@ -76,14 +86,28 @@ public class IdentityServerPipeline
 
     public Func<HttpContext, Task<bool>>? OnFederatedSignout;
 
+    public AuthenticationProperties? AuthenticationProperties { get; set; } = new();
+    
+    // Enableable Features
+    public bool EnableServerSideSessions { get; set; }
+
     public void Initialize(string? basePath = null, bool enableLogging = false)
+    {
+        Initialize(_ => { }, basePath, enableLogging);
+    }
+
+    public void Initialize(Action<IServiceCollection> configureServices , string? basePath = null, bool enableLogging = false)
     {
         var hostBuilder = new HostBuilder()
             .ConfigureWebHost(webBuilder =>
             {
                 webBuilder.UseTestServer();
 
-                webBuilder.ConfigureServices(ConfigureServices);
+                webBuilder.ConfigureServices(sc =>
+                {
+                    configureServices(sc);
+                    ConfigureServices(sc);
+                });
                 webBuilder.Configure(app =>
                 {
                     if (basePath != null)
@@ -131,10 +155,15 @@ public class IdentityServerPipeline
             return handler;
         });
 
-        services.AddIdentityServer(options =>
+        var idsBuilder = services.AddIdentityServer(options =>
             {
                 Options = options;
 
+                if (EnableServerSideSessions)
+                {
+                    options.Authentication.CookieSlidingExpiration = true;
+                }
+                
                 options.Events = new EventsOptions
                 {
                     RaiseErrorEvents = true,
@@ -149,6 +178,11 @@ public class IdentityServerPipeline
             .AddInMemoryApiScopes(ApiScopes)
             .AddTestUsers(Users)
             .AddDeveloperSigningCredential(persistKey: false);
+
+        if (EnableServerSideSessions)
+        {
+            idsBuilder.AddServerSideSessions();
+        }
 
         services.AddHttpClient(IdentityServerConstants.HttpClients.BackChannelLogoutHttpClient)
             .AddHttpMessageHandler(() => BackChannelMessageHandler);
@@ -166,27 +200,32 @@ public class IdentityServerPipeline
         app.UseIdentityServer();
 
         // UI endpoints
-        app.Map(Constants.UIConstants.DefaultRoutePaths.Login.EnsureLeadingSlash(), path =>
+        app.Map(Constants.UIConstants.DefaultRoutePaths.Login.EnsureLeadingSlash()!, path =>
         {
             path.Run(ctx => OnLogin(ctx));
         });
-        app.Map(Constants.UIConstants.DefaultRoutePaths.Logout.EnsureLeadingSlash(), path =>
+        app.Map(Constants.UIConstants.DefaultRoutePaths.Logout.EnsureLeadingSlash()!, path =>
         {
             path.Run(ctx => OnLogout(ctx));
         });
-        app.Map(Constants.UIConstants.DefaultRoutePaths.Consent.EnsureLeadingSlash(), path =>
+        app.Map(Constants.UIConstants.DefaultRoutePaths.Consent.EnsureLeadingSlash()!, path =>
         {
             path.Run(ctx => OnConsent(ctx));
         });
-        app.Map(Constants.UIConstants.DefaultRoutePaths.Error.EnsureLeadingSlash(), path =>
+        app.Map(Constants.UIConstants.DefaultRoutePaths.Error.EnsureLeadingSlash()!, path =>
         {
             path.Run(ctx => OnError(ctx));
+        });
+        app.Map(CreatePageRelative, path =>
+        {
+            path.Run(ctx => OnCreate(ctx));
         });
 
         OnPostConfigure(app);
     }
 
     public bool LoginWasCalled { get; set; }
+    public string? LoginReturnUrl { get; set; }
     public AuthorizationRequest? LoginRequest { get; set; }
     public ClaimsPrincipal? Subject { get; set; }
     public bool FollowLoginReturnUrl { get; set; }
@@ -201,20 +240,21 @@ public class IdentityServerPipeline
     private async Task ReadLoginRequest(HttpContext ctx)
     {
         var interaction = ctx.RequestServices.GetRequiredService<IIdentityServerInteractionService>();
-        LoginRequest = await interaction.GetAuthorizationContextAsync(ctx.Request.Query["returnUrl"].FirstOrDefault());
+        LoginReturnUrl = ctx.Request.Query["returnUrl"].FirstOrDefault();
+        LoginRequest = await interaction.GetAuthorizationContextAsync(LoginReturnUrl);
     }
 
     private async Task IssueLoginCookie(HttpContext ctx)
     {
         if (Subject != null)
         {
-            var props = new AuthenticationProperties();
+            var props = AuthenticationProperties ?? new AuthenticationProperties();
             await ctx.SignInAsync(Subject, props);
             Subject = null;
             var url = ctx.Request.Query[Options!.UserInteraction.LoginReturnUrlParameter].FirstOrDefault();
             if (url != null)
             {
-                ctx.Response.Redirect(url);
+                ctx.Response.RedirectToAbsoluteUrl(url);
             }
         }
     }
@@ -263,7 +303,7 @@ public class IdentityServerPipeline
             var url = ctx.Request.Query[Options!.UserInteraction.ConsentReturnUrlParameter].FirstOrDefault();
             if (url != null)
             {
-                ctx.Response.Redirect(url);
+                ctx.Response.RedirectToAbsoluteUrl(url);
             }
         }
     }
@@ -275,6 +315,21 @@ public class IdentityServerPipeline
     {
         ErrorWasCalled = true;
         await ReadErrorMessage(ctx);
+    }
+
+    public bool CreateWasCalled { get; set; }
+    public AuthorizationRequest? CreateRequest { get; set; }
+
+    private async Task OnCreate(HttpContext ctx)
+    {
+        CreateWasCalled = true;
+        await ReadCreateMessage(ctx);
+    }
+
+    private async Task ReadCreateMessage(HttpContext ctx)
+    {
+        var interaction = ctx.RequestServices.GetRequiredService<IIdentityServerInteractionService>();
+        CreateRequest = await interaction.GetAuthorizationContextAsync(ctx.Request.Query["returnUrl"].FirstOrDefault());
     }
 
     private async Task ReadErrorMessage(HttpContext ctx)
@@ -291,7 +346,7 @@ public class IdentityServerPipeline
 
         Subject = subject;
         await BrowserClient.GetAsync(LoginPage);
-
+        
         BrowserClient.AllowAutoRedirect = old;
     }
 
@@ -313,6 +368,30 @@ public class IdentityServerPipeline
         return BrowserClient!.GetCookie(BaseUrl, IdentityServerConstants.DefaultCheckSessionCookieName);
     }
 
+    public Cookie GetLoginCookie()
+    {
+        return BrowserClient!.GetCookie(BaseUrl, IdentityServerConstants.DefaultCookieAuthenticationScheme);
+    }
+
+    public string? GetTicketStoreKeyFromAuthCookie()
+    {
+        var authCookie = GetLoginCookie();
+        if (authCookie == null || string.IsNullOrWhiteSpace(authCookie.Value))
+        {
+            return null;
+        }
+
+        var optionsMonitor = Server!.Services.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>();
+        var cookieOptions = optionsMonitor.Get(IdentityServerConstants.DefaultCookieAuthenticationScheme);
+
+        var ticket = cookieOptions.TicketDataFormat.Unprotect(authCookie.Value);
+        return ticket?.Principal?.FindFirst(AuthCookieSessionIdClaimType)?.Value;
+    }
+    public ITicketStore GetTicketStore()
+    {
+        return Server.Services.GetRequiredService<IServerSessionTicketStore>();
+    }
+
     public string CreateAuthorizeUrl(
         string clientId = null!,
         string responseType = null!,
@@ -329,7 +408,7 @@ public class IdentityServerPipeline
     {
         var url = new RequestUrl(AuthorizeEndpoint).CreateAuthorizeUrl(
             clientId: clientId,
-            responseType: responseType,
+            responseType: responseType ?? "",
             scope: scope,
             redirectUri: redirectUri,
             state: state,
@@ -367,7 +446,7 @@ public class IdentityServerPipeline
 
         var url = CreateAuthorizeUrl(clientId, responseType, scope, redirectUri, state, nonce, loginHint, acrValues, responseMode, codeChallenge, codeChallengeMethod, extra);
         var result = await BrowserClient.GetAsync(url);
-        result.StatusCode.Should().Be(HttpStatusCode.Found);
+        result.StatusCode.Should().Be(HttpStatusCode.SeeOther);
 
         BrowserClient.AllowAutoRedirect = old;
 
@@ -382,6 +461,18 @@ public class IdentityServerPipeline
         }
 
         return new AuthorizeResponse(redirect);
+    }
+
+    public string? CreateParUrl(string clientId, string requestUri)
+    {
+        var url = new RequestUrl(AuthorizeEndpoint);
+
+        var requestUriParam = new KeyValuePair<string, string>(OidcConstants.AuthorizeRequest.RequestUri, requestUri);
+        var clientIdParam = new KeyValuePair<string, string>(OidcConstants.AuthorizeRequest.ClientId, clientId);
+        
+        IEnumerable<KeyValuePair<string, string>> parameters = [ clientIdParam,requestUriParam];
+
+        return url.Create(new Parameters(parameters));
     }
 }
 
