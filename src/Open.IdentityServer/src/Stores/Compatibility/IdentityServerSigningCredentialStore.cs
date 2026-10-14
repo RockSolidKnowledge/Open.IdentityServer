@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
@@ -19,12 +20,14 @@ namespace Open.IdentityServer.Stores;
 /// <param name="timeProvider">Time provider implementation</param>
 /// <param name="options">Compatibility key store options</param>
 /// <param name="telemetry">The telemetry service</param>
+/// <param name="logger">The logger</param>
 public class IdentityServerSigningCredentialStore(
     IIdentityServerKeyStore identityServerKeyStore,
     DataProtectedIdentityServerKeyMaterialConverter dataProtectedIdentityServerKeyMaterialConverter,
     TimeProvider timeProvider,
     CompatibilityKeyStoreOptions options,
-    ITelemetryService telemetry
+    ITelemetryService telemetry,
+    ILogger<IdentityServerSigningCredentialStore> logger
     ): 
     IdentityServerSigningKeyStore(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, options), 
     ISigningCredentialStore
@@ -36,9 +39,16 @@ public class IdentityServerSigningCredentialStore(
     public async Task<SigningCredentials> GetSigningCredentialsAsync()
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
-        
-        return GetKeys()
+
+        var credentials = GetKeys()
             .Select(x => x.Credentials)
             .FirstOrDefault();
+
+        if (credentials == null)
+        {
+            logger.LogWarning("No non-expired signing credentials found in the key store.");
+        }
+        
+        return credentials;
     }
 }
