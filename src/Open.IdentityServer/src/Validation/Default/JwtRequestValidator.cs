@@ -198,6 +198,11 @@ public class JwtRequestValidator
             RequireSignedTokens = true,
             RequireExpirationTime = true
         };
+        
+        if (Options.Endpoints.SupportedJwtRequestSigningAlgorithms?.Any() == true)
+        {
+            tokenValidationParameters.ValidAlgorithms = Options.Endpoints.SupportedJwtRequestSigningAlgorithms;
+        }
 
         if (Options.StrictJarValidation)
         {

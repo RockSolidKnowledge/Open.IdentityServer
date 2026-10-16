@@ -477,6 +477,76 @@ public class DiscoveryResponseGeneratorTests
     }
 
     [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointDisabled_ShouldNotContainRequestParameterSigningAlgValuesSupported()
+    {
+        _options.Endpoints.EnableAuthorizeEndpoint = false;
+        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = ["RS256", "ES256"];
+
+        var sut = CreateSut();
+        
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
+        
+        actual.Should().NotContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported);
+    }
+    
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndNullSupportedJwtRequestSigningAlgorithms_ShouldNotContainRequestObjectSigningAlgorithmsSupported()
+    {
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
+        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = null;
+
+        var sut = CreateSut();
+
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
+
+        actual.Should().NotContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported);
+    }
+    
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndNoSupportedJwtRequestSigningAlgorithms_ShouldNotContainRequestObjectSigningAlgorithmsSupported()
+    {
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
+        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = [];
+
+        var sut = CreateSut();
+
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
+
+        actual.Should().NotContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported);
+    }
+
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndJwtSigningAlgorithmsSet_ShouldShouldContainSetSigningAlgorithms()
+    {
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
+        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = ["RS256", "ES256"];
+        
+        var sut = CreateSut();
+        
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
+        
+        actual.Should().ContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported)
+            .WhoseValue.Should().BeAssignableTo<ICollection<string>>()
+            .Which.Should().Contain("RS256")
+            .And.Contain("ES256");
+    }
+    
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndJwtSigningAlgorithmsDefault_ShouldShouldContainDefaultSigningAlgorithms()
+    {
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
+        
+        var sut = CreateSut();
+        
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
+
+        actual.Should().ContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported)
+            .WhoseValue.Should().BeEquivalentTo(new[] { "RS256", "RS384", "RS512", 
+                                                        "PS256", "PS384", "PS512",
+                                                        "ES256", "ES384", "ES512" });
+    }
+
+    [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenJwtRequestUriEnabled_ShouldContainRequestUriParameterSupported()
     {
         _options.Endpoints.EnableAuthorizeEndpoint = true;
