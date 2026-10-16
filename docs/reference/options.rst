@@ -26,6 +26,9 @@ By default all endpoints are enabled, but you can lock down your server by disab
 
 * ``EnableJwtRequestUri``
     JWT request_uri processing is enabled on the authorize endpoint. Defaults to ``false``.
+* ``SupportedJwtRequestSigningAlgorithms``
+    Specifies the signing algorithms that are permitted for JWT request objects. Defaults to ``RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384, ES512``.
+    When set to a non-empty list, the specified algorithms will be accepted for JWT request objects and published in the discovery document.
 * ``EnablePushedAuthorizationRequestEndpoint``
     Enables the pushed authorization request endpoint. Defaults to ``true``. See :ref:`Pushed Authorization Requests <refPushedAuthorizationTopic>`.
 

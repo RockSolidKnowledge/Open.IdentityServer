@@ -5,7 +5,9 @@ This makes the parameters tamper proof and you can authenticate the client alrea
 
 You can either transmit them by value or by reference to the authorize endpoint - see the `spec <https://openid.net/specs/openid-connect-core-1_0.html#JWTRequests>`_ for more details.
 
-Open.IdentityServer requires the request JWTs to be signed. We support X509 certificates and JSON web keys, e.g.
+Open.IdentityServer requires the request JWTs to be signed. By default, the permitted signing algorithms are RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384 and ES512.  This can be configured in the Open.IdentityServer options under ``EndpointOptions.SupportedJwtRequestSigningAlgorithms``.
+
+We support X509 certificates and JSON web keys, e.g.
 
 .. code-block:: csharp
 
