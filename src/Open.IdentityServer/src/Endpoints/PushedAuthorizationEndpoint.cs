@@ -82,7 +82,7 @@ internal class PushedAuthorizationRequestEndpoint(
         PushedAuthorizationResponse response = await responseGenerator
             .CreateResponseAsync(result.ValidatedAuthorizeRequest);
         
-        logger.LogTrace("End processing pushed authorization request");
+        logger.LogDebug("End processing pushed authorization request");
         return new PushedAuthorizationResult(response);
     }
     

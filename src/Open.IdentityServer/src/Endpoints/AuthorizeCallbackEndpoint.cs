@@ -88,7 +88,7 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
 
             var result = await ProcessAuthorizeRequestAsync(parameters, user, consent?.Data);
 
-            Logger.LogTrace("End Authorize Request. Result type: {0}", result?.GetType().ToString() ?? "-none-");
+            Logger.LogDebug("End authorize callback request. Result type: {0}", result?.GetType().ToString() ?? "-none-");
 
             return result;
         }

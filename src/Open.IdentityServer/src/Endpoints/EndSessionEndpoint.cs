@@ -57,7 +57,7 @@ internal class EndSessionEndpoint : IEndpointHandler
 
         var user = await _userSession.GetUserAsync();
 
-        _logger.LogDebug("Processing signout request for {subjectId}", user?.GetSubjectId() ?? "anonymous");
+        _logger.LogDebug("Start signout request for {subjectId}", user?.GetSubjectId() ?? "anonymous");
 
         var result = await _endSessionRequestValidator.ValidateAsync(parameters, user);
 
@@ -67,9 +67,10 @@ internal class EndSessionEndpoint : IEndpointHandler
         }
         else
         {
-            _logger.LogDebug("Success validating end session request from {clientId}", result.ValidatedRequest?.Client?.ClientId);
+            _logger.LogTrace("Success validating end session request from {clientId}", result.ValidatedRequest?.Client?.ClientId);
         }
 
+        _logger.LogDebug("End signout request");
         return new EndSessionResult(result);
     }
 }

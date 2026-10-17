@@ -63,6 +63,7 @@ internal class DiscoveryEndpoint : IEndpointHandler
         _logger.LogTrace("Calling into discovery response generator: {type}", _responseGenerator.GetType().FullName);
         var response = await _responseGenerator.CreateDiscoveryDocumentAsync(baseUrl, issuerUri);
 
+        _logger.LogDebug("End discovery request");
         return new DiscoveryDocumentResult(response, _options.Discovery.ResponseCacheInterval);
     }
 }

@@ -83,7 +83,7 @@ internal class IntrospectionEndpoint : IEndpointHandler
 
     private async Task<IEndpointResult> ProcessIntrospectionRequestAsync(HttpContext context)
     {
-        _logger.LogDebug("Starting introspection request.");
+        _logger.LogDebug("Start introspection request.");
 
         // caller validation
         var apiResult = await _apiSecretValidator.ValidateAsync(context);
@@ -120,6 +120,7 @@ internal class IntrospectionEndpoint : IEndpointHandler
 
         // render result
         LogSuccess(validationResult.IsActive, validationResult.Api.Name);
+        _logger.LogDebug("End introspection request.");
         return new IntrospectionResult(response);
     }
 
