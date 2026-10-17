@@ -465,6 +465,33 @@ public class DiscoveryResponseGeneratorTests
     }
 
     [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabled_ShouldContainSignedRequestObjectAlgorithmsWithoutNone()
+    {
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
+
+        var sut = CreateSut();
+
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
+
+        actual.Should().ContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported)
+            .WhoseValue.Should().BeAssignableTo<IEnumerable<string>>()
+            .Which.Should().Contain("RS256")
+            .And.NotContain("none");
+    }
+
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointDisabled_ShouldNotContainRequestObjectSigningAlgorithmsSupported()
+    {
+        _options.Endpoints.EnableAuthorizeEndpoint = false;
+
+        var sut = CreateSut();
+
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
+
+        actual.Should().NotContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported);
+    }
+
+    [Fact]
     public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointDisabled_ShouldNotContainRequestParameterSupported()
     {
         _options.Endpoints.EnableAuthorizeEndpoint = false;

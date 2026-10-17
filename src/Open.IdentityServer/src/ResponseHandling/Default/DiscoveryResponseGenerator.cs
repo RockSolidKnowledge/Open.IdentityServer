@@ -335,6 +335,7 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
         if (Options.Endpoints.EnableAuthorizeEndpoint)
         {
             entries.Add(OidcConstants.Discovery.RequestParameterSupported, true);
+            entries.Add(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported, IdentityServerConstants.SupportedSigningAlgorithms.ToArray());
             entries.Add(OidcConstants.Discovery.AuthorizationResponseIssParameterSupported, Options.EnableAuthorizeResponseIssuerParam);
 
             if (Options.Endpoints.EnableJwtRequestUri)
