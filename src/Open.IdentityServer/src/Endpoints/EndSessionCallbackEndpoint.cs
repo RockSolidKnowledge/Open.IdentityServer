@@ -40,7 +40,7 @@ internal class EndSessionCallbackEndpoint : IEndpointHandler
             return new StatusCodeResult(HttpStatusCode.MethodNotAllowed);
         }
 
-        _logger.LogDebug("Processing signout callback request");
+        _logger.LogDebug("Start signout callback request");
 
         var parameters = context.Request.Query.AsNameValueCollection();
         var result = await _endSessionRequestValidator.ValidateCallbackAsync(parameters);
@@ -53,7 +53,8 @@ internal class EndSessionCallbackEndpoint : IEndpointHandler
         {
             _logger.LogError("Error validating signout callback: {error}", result.Error);
         }
-            
+
+        _logger.LogDebug("End signout callback request");
         return new EndSessionCallbackResult(result);
     }
 }

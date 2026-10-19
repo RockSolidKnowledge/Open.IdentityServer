@@ -59,6 +59,7 @@ internal class DiscoveryKeyEndpoint : IEndpointHandler
         _logger.LogTrace("Calling into discovery response generator: {type}", _responseGenerator.GetType().FullName);
         var response = await _responseGenerator.CreateJwkDocumentAsync();
 
+        _logger.LogDebug("End key discovery request");
         return new JsonWebKeysResult(response, _options.Discovery.ResponseCacheInterval);
     }
 }

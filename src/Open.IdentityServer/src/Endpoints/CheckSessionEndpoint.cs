@@ -30,6 +30,8 @@ internal class CheckSessionEndpoint : IEndpointHandler
     {
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         
+        _logger.LogDebug("Start check session request");
+
         IEndpointResult result;
 
         if (!HttpMethods.IsGet(context.Request.Method))
@@ -39,9 +41,11 @@ internal class CheckSessionEndpoint : IEndpointHandler
         }
         else
         {
-            _logger.LogDebug("Rendering check session result");
+            _logger.LogTrace("Rendering check session result");
             result = new CheckSessionResult();
         }
+
+        _logger.LogDebug("End check session request");
 
         return Task.FromResult(result);
     }
