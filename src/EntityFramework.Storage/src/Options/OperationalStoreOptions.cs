@@ -34,6 +34,14 @@ public class OperationalStoreOptions: StoreOptions
     public TableConfiguration ServerSideSessions { get; set; } = new("ServerSideSessions");
 
     /// <summary>
+    /// Gets or sets the pushed authorization requests table configuration.
+    /// </summary>
+    /// <value>
+    /// The pushed authorization requests config.
+    /// </value>
+    public TableConfiguration PushedAuthorizationRequests { get; set; } = new("PushedAuthorizationRequests");
+
+    /// <summary>
     /// Gets or sets a value indicating whether stale entries will be automatically cleaned up from the database.
     /// This is implemented by periodically connecting to the database (according to the TokenCleanupInterval) from the hosting application.
     /// Defaults to false.
@@ -68,12 +76,4 @@ public class OperationalStoreOptions: StoreOptions
     /// The keys table config.
     /// </value>
     public TableConfiguration Keys { get; set; } = new("Keys");
-
-    /// <summary>
-    /// Gets or sets the pushed authorization requests table configuration.
-    /// </summary>
-    /// <value>
-    /// The pushed authorization requests config.
-    /// </value>
-    public TableConfiguration PushedAuthorizationRequests { get; set; } = new("PushedAuthorizationRequests");
 }

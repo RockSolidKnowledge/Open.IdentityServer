@@ -77,6 +77,22 @@ public class PersistedGrantDbContext<TContext> : DbContext, IPersistedGrantDbCon
     /// The keys.
     /// </value>
     public DbSet<IdentityServerKeyMaterial> Keys { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the server side sessions.
+    /// </summary>
+    /// <value>
+    /// The server side sessions.
+    /// </value>
+    public DbSet<ServerSideSession> ServerSideSessions { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the pushed authorization requests.
+    /// </summary>
+    /// <value>
+    /// The pushed authorization requests.
+    /// </value>
+    public DbSet<PushedAuthorizationRequest> PushedAuthorizationRequests { get; set; }
 
     /// <summary>
     /// Saves the changes.
@@ -106,22 +122,4 @@ public class PersistedGrantDbContext<TContext> : DbContext, IPersistedGrantDbCon
 
         base.OnModelCreating(modelBuilder);
     }
-    
-    //Schema compatibility, placeholders unused
-    
-    /// <summary>
-    /// Gets or sets the server side sessions.
-    /// </summary>
-    /// <value>
-    /// The server side sessions.
-    /// </value>
-    public DbSet<ServerSideSession> ServerSideSessions { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the pushed authorization requests.
-    /// </summary>
-    /// <value>
-    /// The pushed authorization requests.
-    /// </value>
-    public DbSet<PushedAuthorizationRequest> PushedAuthorizationRequests { get; set; }
 }

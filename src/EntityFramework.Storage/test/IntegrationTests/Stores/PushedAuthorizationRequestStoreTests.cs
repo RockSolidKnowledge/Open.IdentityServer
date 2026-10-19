@@ -122,6 +122,7 @@ public class PushedAuthorizationRequestStoreTests : IntegrationTest<PushedAuthor
         DateTime storedExpires)
     {
         await using var context = new PersistedGrantDbContext(options, StoreOptions);
+        await context.Database.EnsureCreatedAsync();
         
         context.PushedAuthorizationRequests
             .Add(new PushedAuthorizationRequest()
