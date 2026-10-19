@@ -3,6 +3,7 @@
 
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Open.IdentityServer.Configuration;
 
@@ -29,18 +30,9 @@ public class EndpointsOptions
     /// Defaults to RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384, ES512.
     /// A null or empty collection will omit the "request_object_signing_alg_values_supported" entry from the discovery document.
     /// </summary>
-    public ICollection<string> SupportedJwtRequestSigningAlgorithms { get; set; } = [
-        OidcConstants.Algorithms.Asymmetric.RS256,
-        OidcConstants.Algorithms.Asymmetric.RS384,
-        OidcConstants.Algorithms.Asymmetric.RS512,
-        OidcConstants.Algorithms.Asymmetric.PS256,
-        OidcConstants.Algorithms.Asymmetric.PS384,
-        OidcConstants.Algorithms.Asymmetric.PS512,
-        OidcConstants.Algorithms.Asymmetric.ES256,
-        OidcConstants.Algorithms.Asymmetric.ES384,
-        OidcConstants.Algorithms.Asymmetric.ES512
-    ];
-
+    public ICollection<string> SupportedJwtRequestSigningAlgorithms { get; set; } =
+        IdentityServerConstants.SupportedSigningAlgorithms.ToHashSet();
+    
     /// <summary>
     /// Gets or sets a value indicating whether the token endpoint is enabled.
     /// </summary>
