@@ -80,7 +80,7 @@ public class JwtRequestValidatorTests
     [MemberData(nameof(SigningAlgorithms))]
     public async Task ValidateAsync_WhenSigningAlgorithmIsSupported_ShouldSucceed(string algorithm)
     {
-        _options.Endpoints.SupportedJwtRequestSigningAlgorithms =
+        _options.SupportedRequestObjectSigningAlgorithms =
         [
             GetAlternativeAlgorithm(algorithm),
             algorithm
@@ -97,7 +97,7 @@ public class JwtRequestValidatorTests
     [MemberData(nameof(SigningAlgorithms))]
     public async Task ValidateAsync_WhenSigningAlgorithmIsNotSupported_ShouldFail(string algorithm)
     {
-        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = [GetAlternativeAlgorithm(algorithm)];
+        _options.SupportedRequestObjectSigningAlgorithms = [GetAlternativeAlgorithm(algorithm)];
 
         var (client, jwt) = CreateSignedJwt(algorithm);
 
@@ -110,7 +110,7 @@ public class JwtRequestValidatorTests
     [MemberData(nameof(SigningAlgorithms))]
     public async Task ValidateAsync_WhenSupportedSigningAlgorithmsIsNull_ShouldSucceed(string algorithm)
     {
-        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = null;
+        _options.SupportedRequestObjectSigningAlgorithms = null;
 
         var (client, jwt) = CreateSignedJwt(algorithm);
 
@@ -123,7 +123,7 @@ public class JwtRequestValidatorTests
     [MemberData(nameof(SigningAlgorithms))]
     public async Task ValidateAsync_WhenSupportedSigningAlgorithmsIsEmpty_ShouldSucceed(string algorithm)
     {
-        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = [];
+        _options.SupportedRequestObjectSigningAlgorithms = [];
 
         var (client, jwt) = CreateSignedJwt(algorithm);
 

@@ -337,12 +337,12 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
             entries.Add(OidcConstants.Discovery.RequestParameterSupported, true);
             entries.Add(OidcConstants.Discovery.AuthorizationResponseIssParameterSupported, Options.EnableAuthorizeResponseIssuerParam);
 
-            if (Options.Endpoints.SupportedJwtRequestSigningAlgorithms != null && 
-                Options.Endpoints.SupportedJwtRequestSigningAlgorithms.Count != 0)
+            if (Options.SupportedRequestObjectSigningAlgorithms != null && 
+                Options.SupportedRequestObjectSigningAlgorithms.Count != 0)
             {
                 entries.Add(
                     OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported, 
-                    Options.Endpoints.SupportedJwtRequestSigningAlgorithms);
+                    Options.SupportedRequestObjectSigningAlgorithms);
             }
             
             if (Options.Endpoints.EnableJwtRequestUri)
