@@ -18,6 +18,12 @@ IdentityServer Options
 * ``EmitStaticAudienceClaim``
     Emits an ``aud`` claim with the format issuer/resources. Defaults to false.
 
+* ``StrictJarValidation``
+    When enabled, applies strict JWT-secured authorization request validation, including typ and content-type checks, according to IETF spec. Defaults to ``false``.
+
+* ``EnableAuthorizeResponseIssuerParam``
+    When enabled, the authorize response will include the issuer ``iss`` parameter, and advertises support in the discovery document. Defaults to ``false``.
+
 Endpoints
 ^^^^^^^^^
 Allows enabling/disabling individual endpoints, e.g. token, authorize, userinfo etc.
@@ -37,6 +43,12 @@ Discovery
 Allows enabling/disabling various sections of the discovery document, e.g. endpoints, scopes, claims, grant types etc.
 
 The ``CustomEntries`` dictionary allows adding custom elements to the discovery document.
+
+* ``ExpandRelativePathsInCustomEntries``
+    Specifies whether relative paths in the ``CustomEntries`` dictionary should be expanded to absolute URLs based on the issuer URI. Defaults to ``true``.
+
+* ``ResponseCacheInterval``
+    Specifies the interval of the ``maxage`` cache control directive for the discovery document. ``0`` will set no-cache headers. ``null`` will not set a cache control header. Defaults to ``null``
 
 Authentication
 ^^^^^^^^^^^^^^
@@ -67,6 +79,9 @@ Authentication
 * ``RequireCspFrameSrcForSignout``
     If set, will require frame-src CSP headers being emitting on the end session callback endpoint which renders iframes to clients for front-channel signout notification. Defaults to true.
 
+* ``CoordinateClientLifetimesWithUserSession``
+    If set, refresh token lifetimes will be tied to the users' session. This setting can be overridden at the client level. Defaults to ``false``.
+
 Pushed Authorization Requests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 See :ref:`Pushed Authorization Requests <refPushedAuthorizationTopic>` for the complete PAR configuration and client settings.
@@ -93,7 +108,7 @@ UserInteraction
     Sets the name of the return URL parameter passed to the login page. Defaults to *returnUrl*.
 * ``LogoutIdParameter``
     Sets the name of the logout message id parameter passed to the logout page. Defaults to *logoutId*.
-* ``CreateAccountIdParameter``
+* ``CreateAccountReturnUrlParameter``
     Sets the name of the return URL parameter passed to the create account page. Defaults to *returnUrl*.
 * ``ConsentReturnUrlParameter``
     Sets the name of the return URL parameter passed to the consent page. Defaults to *returnUrl*.
@@ -120,10 +135,13 @@ Caching
 These settings only apply if the respective caching has been enabled in the services configuration in startup.
 
 * ``ClientStoreExpiration``
-    Cache duration of client configuration loaded from the client store.
+    Cache duration of client configuration loaded from the client store. Default is 15 minutes.
 
 * ``ResourceStoreExpiration``
-    Cache duration of identity and API resource configuration loaded from the resource store.
+    Cache duration of identity and API resource configuration loaded from the resource store. Default is 15 minutes.
+
+* ``CorsExpiration``
+    Cache duration the Caching CORS policy service. Default is 15 minutes.
 
 CORS
 ^^^^
@@ -197,3 +215,18 @@ Server-Side Sessions
 
 * ``RemoveExpiredSessionsBatchSize``
     Specifies how many expired sessions should be removed in a single pass. The default value is 100.
+
+Validation Options
+^^^^^^^^^^^^^^^^^^
+
+* ``InvalidRedirectUriPrefixes``
+    URI scheme prefixes rejected in authorization ``redirect_uri`` values. Defaults to ``javascript:``, ``file:``, ``data:``, ``mailto:``, ``ftp:``, ``blob:``, ``about:``, ``ssh:``, ``tel:``, ``view-source:``, ``ws:``, and ``wss:``.
+
+Logging Options
+^^^^^^^^^^^^^^^
+
+* ``TokenRequestSensitiveValuesFilter``
+    Names of token-endpoint request parameters whose values must be redacted when the request is written to the log. Defaults to ``client_secret``, ``password``, ``client_assertion``, ``refresh_token`` and ``device_code``.
+
+* ``AuthorizeRequestSensitiveValuesFilter``
+    Names of authorize-endpoint request parameters whose values must be redacted when the request is written to the log. Defaults to ``id_token_hint``.
