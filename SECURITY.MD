@@ -69,8 +69,6 @@ If you are unsure whether an issue originates in Open.IdentityServer or your imp
 
 ## Security Testing
 
-Open.IdentityServer undergoes regular security testing, including independent penetration testing of the framework
-
 In addition to ongoing security review during development, Open.IdentityServer is subject to regular independent penetration testing. The purpose of this testing is to identify potential vulnerabilities in the framework and provide additional assurance around its security.
 
 Security testing of Open.IdentityServer should not, however, be considered a substitute for security testing of applications built using it.
@@ -80,3 +78,5 @@ Security testing of Open.IdentityServer should not, however, be considered a sub
 We therefore strongly recommend that organisations perform appropriate security testing, including penetration testing, of their complete deployed solution, particularly before production deployment and following significant changes.
 
 A penetration test of Open.IdentityServer itself cannot provide assurance that a particular implementation or deployment of Open.IdentityServer is secure.
+
+Rock Solid Knowledge can provide a [in depth review](https://www.identityserver.com/services/developer-support) of your implementation and provide developer guidance, to allow you to deploy with confidence. 
