@@ -2,6 +2,9 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Open.IdentityServer.Configuration;
 
 /// <summary>
@@ -46,6 +49,14 @@ public class IdentityServerOptions
     /// This might break older OIDC conformant request objects.
     /// </summary>
     public bool StrictJarValidation { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the supported JWT request object signing algorithms.
+    /// Defaults to an empty collection.
+    /// From version 4.0.0, will default to RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384, ES512.
+    /// A null or empty collection will omit the "request_object_signing_alg_values_supported" entry from the discovery document.
+    /// </summary>
+    public ICollection<string> SupportedRequestObjectSigningAlgorithms { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the endpoint configuration.

@@ -271,7 +271,7 @@ public class JwtRequestAuthorizeTests
     public async Task authorize_should_accept_valid_JWT_request_object_parameters_using_symmetric_jwk()
     {
         // Defaults do not include HS algs
-        _mockPipeline.Options.Endpoints.SupportedJwtRequestSigningAlgorithms.Add("HS256");
+        _mockPipeline.Options.SupportedRequestObjectSigningAlgorithms.Add("HS256");
         
         var requestJwt = CreateRequestJwt(
             issuer: _client.ClientId,

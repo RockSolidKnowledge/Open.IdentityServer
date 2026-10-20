@@ -480,7 +480,7 @@ public class DiscoveryResponseGeneratorTests
     public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointDisabled_ShouldNotContainRequestParameterSigningAlgValuesSupported()
     {
         _options.Endpoints.EnableAuthorizeEndpoint = false;
-        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = ["RS256", "ES256"];
+        _options.SupportedRequestObjectSigningAlgorithms = ["RS256", "ES256"];
 
         var sut = CreateSut();
         
@@ -493,7 +493,7 @@ public class DiscoveryResponseGeneratorTests
     public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndNullSupportedJwtRequestSigningAlgorithms_ShouldNotContainRequestObjectSigningAlgorithmsSupported()
     {
         _options.Endpoints.EnableAuthorizeEndpoint = true;
-        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = null;
+        _options.SupportedRequestObjectSigningAlgorithms = null;
 
         var sut = CreateSut();
 
@@ -506,7 +506,7 @@ public class DiscoveryResponseGeneratorTests
     public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndNoSupportedJwtRequestSigningAlgorithms_ShouldNotContainRequestObjectSigningAlgorithmsSupported()
     {
         _options.Endpoints.EnableAuthorizeEndpoint = true;
-        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = [];
+        _options.SupportedRequestObjectSigningAlgorithms = [];
 
         var sut = CreateSut();
 
@@ -516,10 +516,10 @@ public class DiscoveryResponseGeneratorTests
     }
 
     [Fact]
-    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndJwtSigningAlgorithmsSet_ShouldShouldContainSetSigningAlgorithms()
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndRequestObjectSigningAlgorithmsSet_ShouldShouldContainSetSigningAlgorithms()
     {
         _options.Endpoints.EnableAuthorizeEndpoint = true;
-        _options.Endpoints.SupportedJwtRequestSigningAlgorithms = ["RS256", "ES256"];
+        _options.SupportedRequestObjectSigningAlgorithms = ["RS256", "ES256"];
         
         var sut = CreateSut();
         
@@ -532,7 +532,7 @@ public class DiscoveryResponseGeneratorTests
     }
     
     [Fact]
-    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndJwtSigningAlgorithmsDefault_ShouldShouldContainDefaultSigningAlgorithms()
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndRequestObjectSigningAlgorithmsDefault_ShouldShouldOmitSigningAlgorithms()
     {
         _options.Endpoints.EnableAuthorizeEndpoint = true;
         
@@ -540,10 +540,7 @@ public class DiscoveryResponseGeneratorTests
         
         var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
 
-        actual.Should().ContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported)
-            .WhoseValue.Should().BeEquivalentTo(new[] { "RS256", "RS384", "RS512", 
-                                                        "PS256", "PS384", "PS512",
-                                                        "ES256", "ES384", "ES512" });
+        actual.Should().NotContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported);
     }
 
     [Fact]
