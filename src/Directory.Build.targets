@@ -5,7 +5,7 @@
         <ExtensionsVersion>10.0.12</ExtensionsVersion>
         <EntityFrameworkVersion>10.0.12</EntityFrameworkVersion>
 
-        <IdentityServerVersion>3.0.0-*</IdentityServerVersion>
+        <IdentityServerVersion>3.1.1-*</IdentityServerVersion>
     </PropertyGroup>
 
     <ItemGroup>
