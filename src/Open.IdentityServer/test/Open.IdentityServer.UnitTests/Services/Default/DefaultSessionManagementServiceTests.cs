@@ -33,7 +33,7 @@ public class DefaultSessionManagementServiceTests
     {
         Mock.Get(serverSessionTicketStore)
             .Setup(x => x.FilterServerAuthenticationTickets(It.IsAny<SessionQuery?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(QueryResult<AuthenticationTicketFilterResult>.Empty());
+            .ReturnsAsync(QueryResult<ServerSideSession>.Empty());
     }
     
     private DefaultSessionManagementService CreateSut() => new(persistedGrantStore, backChannelLogoutService, serverSessionTicketStore, serverSessionStore, telemetry);
@@ -68,7 +68,7 @@ public class DefaultSessionManagementServiceTests
     [Fact]
     public async Task QuerySessionsAsync_WhenResultsReturned_ShouldMapToUserSessionCorrectly()
     {
-        QueryResult<AuthenticationTicketFilterResult> fakeResultWithData = new()
+        QueryResult<ServerSideSession> fakeResultWithData = new()
         {
             ResultsToken = "sess1,sess4",
             HasPrevResults = false,
@@ -100,14 +100,14 @@ public class DefaultSessionManagementServiceTests
 
         foreach (var (expected, actualSession) in fakeResultWithData.Results.Zip(actual.Results, (e, a) => (e, a)))
         {
-            actualSession.SubjectId.Should().Be(expected.Session.SubjectId);
-            actualSession.SessionId.Should().Be(expected.Session.SessionId);
-            actualSession.DisplayName.Should().Be(expected.Session.DisplayName);
-            actualSession.Created.Should().Be(expected.Session.Created);
-            actualSession.Renewed.Should().Be(expected.Session.Renewed);
-            actualSession.Expires.Should().Be(expected.Session.Expires);
-            actualSession.AuthenticationTicket.Should().BeEquivalentTo(expected.AuthTicket);
-            actualSession.ClientIds.Should().BeEquivalentTo(expected.AuthTicket!.Properties.GetClientList());
+            actualSession.SubjectId.Should().Be(expected.SubjectId);
+            actualSession.SessionId.Should().Be(expected.SessionId);
+            actualSession.DisplayName.Should().Be(expected.DisplayName);
+            actualSession.Created.Should().Be(expected.Created);
+            actualSession.Renewed.Should().Be(expected.Renewed);
+            actualSession.Expires.Should().Be(expected.Expires);
+            actualSession.AuthenticationTicket.Should().BeEquivalentTo(expected.AuthenticationTicket);
+            actualSession.ClientIds.Should().BeEquivalentTo(expected.AuthenticationTicket!.Properties.GetClientList());
         }
 
         Mock.Get(serverSessionTicketStore)
@@ -124,7 +124,7 @@ public class DefaultSessionManagementServiceTests
     [InlineData("alice", "session-002")]
     public async Task RemoveSessionsAsync_WhenFilterSpecified_ShouldRemoveAllSessionsWithUsingFilter(string? testSubjectIdFilter, string? testSessionIdFilter)
     {
-        List<AuthenticationTicketFilterResult> fakeSessions =
+        List<ServerSideSession> fakeSessions =
         [
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
@@ -147,10 +147,10 @@ public class DefaultSessionManagementServiceTests
         {
             Mock.Get(backChannelLogoutService)
                 .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
-                    ctx.SessionId == fakeSession.Session.SessionId &&
-                    ctx.SubjectId == fakeSession.Session.SubjectId &&
-                    fakeSession.AuthTicket != null &&
-                    ctx.ClientIds == fakeSession.AuthTicket.Properties.GetClientList())));
+                    ctx.SessionId == fakeSession.SessionId &&
+                    ctx.SubjectId == fakeSession.SubjectId &&
+                    fakeSession.AuthenticationTicket != null &&
+                    ctx.ClientIds == fakeSession.AuthenticationTicket.Properties.GetClientList())));
         }
         
         Mock.Get(persistedGrantStore)
@@ -169,7 +169,7 @@ public class DefaultSessionManagementServiceTests
     {
         string[] fakeClientIds = ["client-a", "client-b", "client-c", "client-d"];
         var fakeSession = ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice", clientIds: fakeClientIds);
-        List<AuthenticationTicketFilterResult> fakeSessions = [fakeSession];
+        List<ServerSideSession> fakeSessions = [fakeSession];
 
         Mock.Get(serverSessionTicketStore)
             .Setup(x => x.FilterServerAuthenticationTickets("alice", null))
@@ -186,8 +186,8 @@ public class DefaultSessionManagementServiceTests
         string[] expectedClientIds = ["client-b", "client-d"];
         Mock.Get(backChannelLogoutService)
             .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
-                ctx.SessionId == fakeSession.Session.SessionId &&
-                ctx.SubjectId == fakeSession.Session.SubjectId &&
+                ctx.SessionId == fakeSession.SessionId &&
+                ctx.SubjectId == fakeSession.SubjectId &&
                 ctx.ClientIds.ToHashSet().SetEquals(expectedClientIds))));
         
         Mock.Get(persistedGrantStore)
@@ -205,7 +205,7 @@ public class DefaultSessionManagementServiceTests
     public async Task RemoveSessionsAsync_WhenRemoveSessionsSetToFalse_ShouldNotRemoveSessions()
     {
         string fakeSessionId = "session-0002";
-        List<AuthenticationTicketFilterResult> fakeSessions =
+        List<ServerSideSession> fakeSessions =
         [
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
@@ -228,10 +228,10 @@ public class DefaultSessionManagementServiceTests
         {
             Mock.Get(backChannelLogoutService)
                 .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
-                    ctx.SessionId == fakeSession.Session.SessionId &&
-                    ctx.SubjectId == fakeSession.Session.SubjectId &&
-                    fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    ctx.SessionId == fakeSession.SessionId &&
+                    ctx.SubjectId == fakeSession.SubjectId &&
+                    fakeSession.AuthenticationTicket != null &&
+                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthenticationTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)
@@ -249,7 +249,7 @@ public class DefaultSessionManagementServiceTests
     public async Task RemoveSessionsAsync_WhenSendBackchannelFalse_ShouldNotSendBackchannelNotification()
     {
         string fakeSessionId = "session-0002";
-        List<AuthenticationTicketFilterResult> fakeSessions =
+        List<ServerSideSession> fakeSessions =
         [
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
@@ -286,7 +286,7 @@ public class DefaultSessionManagementServiceTests
     public async Task RemoveSessionsAsync_WhenRevokeTokensFalse_ShouldNotRevokeTokens()
     {
         string fakeSessionId = "session-0002";
-        List<AuthenticationTicketFilterResult> fakeSessions =
+        List<ServerSideSession> fakeSessions =
         [
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
@@ -309,10 +309,10 @@ public class DefaultSessionManagementServiceTests
         {
             Mock.Get(backChannelLogoutService)
                 .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
-                    ctx.SessionId == fakeSession.Session.SessionId &&
-                    ctx.SubjectId == fakeSession.Session.SubjectId &&
-                    fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    ctx.SessionId == fakeSession.SessionId &&
+                    ctx.SubjectId == fakeSession.SubjectId &&
+                    fakeSession.AuthenticationTicket != null &&
+                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthenticationTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)
@@ -330,7 +330,7 @@ public class DefaultSessionManagementServiceTests
     public async Task RemoveSessionsAsync_WhenRevokeConsentsFalse_ShouldNotRevokeConsents()
     {
         string fakeSessionId = "session-0002";
-        List<AuthenticationTicketFilterResult> fakeSessions =
+        List<ServerSideSession> fakeSessions =
         [
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
@@ -353,10 +353,10 @@ public class DefaultSessionManagementServiceTests
         {
             Mock.Get(backChannelLogoutService)
                 .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
-                    ctx.SessionId == fakeSession.Session.SessionId &&
-                    ctx.SubjectId == fakeSession.Session.SubjectId &&
-                    fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    ctx.SessionId == fakeSession.SessionId &&
+                    ctx.SubjectId == fakeSession.SubjectId &&
+                    fakeSession.AuthenticationTicket != null &&
+                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthenticationTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)
@@ -374,7 +374,7 @@ public class DefaultSessionManagementServiceTests
     public async Task RemoveSessionsAsync_WhenRevokeTokensAndConsentsFalse_ShouldNotRevokeAnyGrants()
     {
         string fakeSessionId = "session-0002";
-        List<AuthenticationTicketFilterResult> fakeSessions =
+        List<ServerSideSession> fakeSessions =
         [
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
@@ -397,10 +397,10 @@ public class DefaultSessionManagementServiceTests
         {
             Mock.Get(backChannelLogoutService)
                 .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
-                    ctx.SessionId == fakeSession.Session.SessionId &&
-                    ctx.SubjectId == fakeSession.Session.SubjectId &&
-                    fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    ctx.SessionId == fakeSession.SessionId &&
+                    ctx.SubjectId == fakeSession.SubjectId &&
+                    fakeSession.AuthenticationTicket != null &&
+                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthenticationTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)

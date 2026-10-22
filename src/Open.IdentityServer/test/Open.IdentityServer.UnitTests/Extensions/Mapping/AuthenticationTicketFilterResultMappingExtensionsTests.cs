@@ -16,13 +16,13 @@ public class AuthenticationTicketFilterResultMappingExtensionsTests
 
         var actualSession = sut.ToUserSession();
 
-        actualSession.SubjectId.Should().Be(sut.Session.SubjectId);
-        actualSession.SessionId.Should().Be(sut.Session.SessionId);
-        actualSession.DisplayName.Should().Be(sut.Session.DisplayName);
-        actualSession.Created.Should().Be(sut.Session.Created);
-        actualSession.Renewed.Should().Be(sut.Session.Renewed);
-        actualSession.Expires.Should().Be(sut.Session.Expires);
-        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.AuthTicket);
+        actualSession.SubjectId.Should().Be(sut.SubjectId);
+        actualSession.SessionId.Should().Be(sut.SessionId);
+        actualSession.DisplayName.Should().Be(sut.DisplayName);
+        actualSession.Created.Should().Be(sut.Created);
+        actualSession.Renewed.Should().Be(sut.Renewed);
+        actualSession.Expires.Should().Be(sut.Expires);
+        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.AuthenticationTicket);
         actualSession.Issuer.Should().BeNullOrWhiteSpace();
         actualSession.ClientIds.Should().BeNullOrEmpty();
     }
@@ -35,15 +35,15 @@ public class AuthenticationTicketFilterResultMappingExtensionsTests
 
         var actualSession = sut.ToUserSession();
 
-        actualSession.SubjectId.Should().Be(sut.Session.SubjectId);
-        actualSession.SessionId.Should().Be(sut.Session.SessionId);
-        actualSession.DisplayName.Should().Be(sut.Session.DisplayName);
-        actualSession.Created.Should().Be(sut.Session.Created);
-        actualSession.Renewed.Should().Be(sut.Session.Renewed);
-        actualSession.Expires.Should().Be(sut.Session.Expires);
+        actualSession.SubjectId.Should().Be(sut.SubjectId);
+        actualSession.SessionId.Should().Be(sut.SessionId);
+        actualSession.DisplayName.Should().Be(sut.DisplayName);
+        actualSession.Created.Should().Be(sut.Created);
+        actualSession.Renewed.Should().Be(sut.Renewed);
+        actualSession.Expires.Should().Be(sut.Expires);
         actualSession.Issuer.Should().BeNullOrWhiteSpace();
-        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.AuthTicket);
-        actualSession.ClientIds.Should().BeEquivalentTo(sut.AuthTicket!.Properties.GetClientList());
+        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.AuthenticationTicket);
+        actualSession.ClientIds.Should().BeEquivalentTo(sut.AuthenticationTicket!.Properties.GetClientList());
     }
     
     [Fact]
@@ -56,14 +56,14 @@ public class AuthenticationTicketFilterResultMappingExtensionsTests
 
         var actualSession = sut.ToUserSession();
 
-        actualSession.SubjectId.Should().Be(sut.Session.SubjectId);
-        actualSession.SessionId.Should().Be(sut.Session.SessionId);
-        actualSession.DisplayName.Should().Be(sut.Session.DisplayName);
-        actualSession.Created.Should().Be(sut.Session.Created);
-        actualSession.Renewed.Should().Be(sut.Session.Renewed);
-        actualSession.Expires.Should().Be(sut.Session.Expires);
+        actualSession.SubjectId.Should().Be(sut.SubjectId);
+        actualSession.SessionId.Should().Be(sut.SessionId);
+        actualSession.DisplayName.Should().Be(sut.DisplayName);
+        actualSession.Created.Should().Be(sut.Created);
+        actualSession.Renewed.Should().Be(sut.Renewed);
+        actualSession.Expires.Should().Be(sut.Expires);
         actualSession.Issuer.Should().Be(fakeIssuer);
-        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.AuthTicket);
-        actualSession.ClientIds.Should().BeEquivalentTo(sut.AuthTicket!.Properties.GetClientList());
+        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.AuthenticationTicket);
+        actualSession.ClientIds.Should().BeEquivalentTo(sut.AuthenticationTicket!.Properties.GetClientList());
     }
 }

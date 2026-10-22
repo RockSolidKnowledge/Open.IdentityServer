@@ -34,7 +34,7 @@ public class DefaultSessionManagementService(
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
 
-        QueryResult<AuthenticationTicketFilterResult> results = await serverSessionTicketStore.FilterServerAuthenticationTickets(filter, ct);
+        QueryResult<ServerSideSession> results = await serverSessionTicketStore.FilterServerAuthenticationTickets(filter, ct);
 
         return results.MapTo<UserSession>(x => x.ToUserSession());
     }
@@ -49,7 +49,7 @@ public class DefaultSessionManagementService(
             var sessions = await serverSessionTicketStore.FilterServerAuthenticationTickets(context.SubjectId, context.SessionId);
             foreach (var session in sessions)
             {
-                List<string>? sessionClientList = session.AuthTicket?.Properties.GetClientList().ToList();
+                List<string>? sessionClientList = session.AuthenticationTicket?.Properties.GetClientList().ToList();
                 string[] clientIds = [];
 
                 if (!sessionClientList.IsNullOrEmpty() && !context.ClientIds.IsNullOrEmpty())
@@ -59,8 +59,8 @@ public class DefaultSessionManagementService(
                 
                 await backChannelLogoutService.SendLogoutNotificationsAsync(new LogoutNotificationContext
                 {
-                    SubjectId = session.Session.SubjectId,
-                    SessionId = session.Session.SessionId,
+                    SubjectId = session.SubjectId,
+                    SessionId = session.SessionId,
                     ClientIds = clientIds,
                 });
             }
