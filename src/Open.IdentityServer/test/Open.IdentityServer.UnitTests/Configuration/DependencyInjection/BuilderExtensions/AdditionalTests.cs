@@ -11,11 +11,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Configuration.DependencyInjection;
+using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.EntityFramework;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Services.Default;
 using Open.IdentityServer.Stores;
+using Open.IdentityServer.Stores.Serialization;
 using Open.IdentityServer.Validation;
 using Xunit;
 
@@ -42,6 +44,11 @@ public class AdditionalTests
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(IPostConfigureOptions<CookieAuthenticationOptions>) &&
             d.ImplementationType == typeof(PostConfigureSessionStoreCookieAuthOptions) &&
+            d.Lifetime == ServiceLifetime.Singleton);
+        
+        serviceCollection.Should().ContainSingle(d =>
+            d.ServiceType == typeof(IAuthenticationTicketSerializer) &&
+            d.ImplementationType == typeof(AuthenticationTicketSerializer) &&
             d.Lifetime == ServiceLifetime.Singleton);
         
         serviceCollection.Should().ContainSingle(d =>
@@ -126,6 +133,11 @@ public class AdditionalTests
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(IPostConfigureOptions<CookieAuthenticationOptions>) &&
             d.ImplementationType == typeof(PostConfigureSessionStoreCookieAuthOptions) &&
+            d.Lifetime == ServiceLifetime.Singleton);
+        
+        serviceCollection.Should().ContainSingle(d =>
+            d.ServiceType == typeof(IAuthenticationTicketSerializer) &&
+            d.ImplementationType == typeof(AuthenticationTicketSerializer) &&
             d.Lifetime == ServiceLifetime.Singleton);
         
         serviceCollection.Should().ContainSingle(d =>

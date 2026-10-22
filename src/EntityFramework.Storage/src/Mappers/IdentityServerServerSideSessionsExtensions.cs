@@ -5,6 +5,7 @@
 
 using Open.IdentityServer.EntityFramework.Entities;
 using Open.IdentityServer.Models;
+using Open.IdentityServer.Stores.Serialization;
 
 namespace Open.IdentityServer.EntityFramework.Mappers;
 
@@ -23,15 +24,15 @@ public static class IdentityServerServerSideSessionsExtensions
         /// Mapper for <see cref="Entities.ServerSideSession"/> to convert into an instance of <see cref="Open.IdentityServer.Models.ServerSideSession"/>
         /// </summary>
         /// <returns>mapped instance of <see cref="Open.IdentityServer.Models.ServerSideSession"/></returns>
-        public Models.ServerSideSession ToModel() =>
-            sessionEntity.ToModel<Models.ServerSideSession>();
+        public Models.ServerSideSession ToModel(IAuthenticationTicketSerializer authTicketSerializer) =>
+            sessionEntity.ToModel<Models.ServerSideSession>(authTicketSerializer);
         
         /// <summary>
         /// Mapper for <see cref="Entities.ServerSideSession"/> to convert into an instance of <typeparamref name="TModel"/>.
         /// </summary>
         /// <typeparam name="TModel">The type of <see cref="Open.IdentityServer.Models.ServerSideSession"/> model to map to.</typeparam>
         /// <returns>mapped instance of <typeparamref name="TModel"/>.</returns>
-        public TModel ToModel<TModel>()
+        public TModel ToModel<TModel>(IAuthenticationTicketSerializer authTicketSerializer)
             where TModel: Models.ServerSideSession, new()
         {
             return new TModel
@@ -44,7 +45,8 @@ public static class IdentityServerServerSideSessionsExtensions
                 Created = sessionEntity.Created,
                 Renewed = sessionEntity.Renewed,
                 Expires = sessionEntity.Expires,
-                Data = sessionEntity.Data
+                Data = sessionEntity.Data,
+                AuthenticationTicket = authTicketSerializer.Deserialize(sessionEntity.Data),
             };
         }
     }
@@ -58,10 +60,11 @@ public static class IdentityServerServerSideSessionsExtensions
         /// <summary>
         /// Mapper for <see cref="Open.IdentityServer.Models.ServerSideSession"/> to convert into an instance of <see cref="Entities.ServerSideSession"/>
         /// </summary>
+        /// <param name="authTicketSerializer">authentication ticket serializer</param>
         /// <returns>mapped instance of <see cref="Entities.ServerSideSession"/></returns>
-        public Entities.ServerSideSession ToEntity()
+        public Entities.ServerSideSession ToEntity(IAuthenticationTicketSerializer authTicketSerializer)
         {
-            return new Entities.ServerSideSession
+            Entities.ServerSideSession newEntity = new()
             {
                 Key = sessionModel.Key,
                 Scheme = sessionModel.Scheme,
@@ -71,15 +74,22 @@ public static class IdentityServerServerSideSessionsExtensions
                 Created = sessionModel.Created,
                 Renewed = sessionModel.Renewed,
                 Expires = sessionModel.Expires,
-                Data = sessionModel.Data
             };
+            
+            if (sessionModel.AuthenticationTicket != null)
+            {
+                newEntity.Data = authTicketSerializer.Serialize(sessionModel.AuthenticationTicket);
+            }
+            
+            return newEntity;
         }
-        
+
         /// <summary>
         /// Updates <see cref="Entities.ServerSideSession"/> with instance of <see cref="Open.IdentityServer.Models.ServerSideSession"/>
         /// </summary>
+        /// <param name="authTicketSerializer">authentication ticket serializer</param>
         /// <param name="existingEntity">The entity.</param>
-        public void UpdateEntity(Entities.ServerSideSession existingEntity)
+        public void UpdateEntity(IAuthenticationTicketSerializer authTicketSerializer, Entities.ServerSideSession existingEntity)
         {
             existingEntity.Key = sessionModel.Key;
             existingEntity.Scheme = sessionModel.Scheme;
@@ -89,7 +99,11 @@ public static class IdentityServerServerSideSessionsExtensions
             existingEntity.Created = sessionModel.Created;
             existingEntity.Renewed = sessionModel.Renewed;
             existingEntity.Expires = sessionModel.Expires;
-            existingEntity.Data = sessionModel.Data;
+
+            if (sessionModel.AuthenticationTicket != null)
+            {
+                existingEntity.Data = authTicketSerializer.Serialize(sessionModel.AuthenticationTicket);
+            }
         }
     }
 }
