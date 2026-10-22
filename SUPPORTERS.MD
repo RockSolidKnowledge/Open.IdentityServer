@@ -18,7 +18,7 @@ A huge thank you to everyone listed below.
 
 [PM International](https://www.pm-international.com/)
 
-[Swank Motion Pictures Inc](https://www.pm-international.com/)
+[Swank Motion Pictures Inc](https://www.swank.com/)
 
 [Thinventory Holdings Limited](https://thinventory.com/)
 
