@@ -16,8 +16,10 @@ using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services.Default;
+using Open.IdentityServer.Stores.Serialization;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -474,6 +476,7 @@ public static class IdentityServerBuilderExtensionsAdditional
     public static IIdentityServerBuilder AddServerSideSessions(this IIdentityServerBuilder builder)
     {
         builder.Services.AddSingleton<IPostConfigureOptions<CookieAuthenticationOptions>, PostConfigureSessionStoreCookieAuthOptions>();
+        builder.Services.AddSingleton<IAuthenticationTicketSerializer, AuthenticationTicketSerializer>();
         builder.Services.TryAddTransient<IServerSessionTicketStore, ServerSessionTicketStore>();
         
         // Token Validators
