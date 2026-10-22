@@ -3,6 +3,7 @@
 
 #nullable enable
 
+using System;
 using Open.IdentityServer.EntityFramework.Entities;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores.Serialization;
@@ -35,6 +36,17 @@ public static class IdentityServerServerSideSessionsExtensions
         public TModel ToModel<TModel>(IAuthenticationTicketSerializer authTicketSerializer)
             where TModel: Models.ServerSideSession, new()
         {
+            var authenticationTicket = authTicketSerializer.Deserialize(sessionEntity.Data);
+            
+            if (authenticationTicket != null)
+            {
+                authenticationTicket.Properties.IssuedUtc = new DateTimeOffset(sessionEntity.Renewed, TimeSpan.Zero);
+                if (sessionEntity.Expires.HasValue)
+                {
+                    authenticationTicket.Properties.ExpiresUtc = new DateTimeOffset(sessionEntity.Expires.Value, TimeSpan.Zero);
+                }
+            }
+            
             return new TModel
             {
                 Key = sessionEntity.Key,
@@ -46,7 +58,7 @@ public static class IdentityServerServerSideSessionsExtensions
                 Renewed = sessionEntity.Renewed,
                 Expires = sessionEntity.Expires,
                 Data = sessionEntity.Data,
-                AuthenticationTicket = authTicketSerializer.Deserialize(sessionEntity.Data),
+                AuthenticationTicket = authenticationTicket,
             };
         }
     }

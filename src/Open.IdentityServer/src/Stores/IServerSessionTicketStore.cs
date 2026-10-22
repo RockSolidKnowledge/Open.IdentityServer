@@ -23,7 +23,7 @@ public interface IServerSessionTicketStore: ITicketStore
     /// <param name="subjectId">subject id filter to apply</param>
     /// <param name="sessionId">session id filter to apply</param>
     /// <returns>collection of auth ticket matching filter</returns>
-    Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string? subjectId, string? sessionId);
+    Task<IEnumerable<ServerSideSession>> FilterServerAuthenticationTickets(string? subjectId, string? sessionId);
 
     /// <summary>
     /// Filters auth tickets stored server-side using the provided session query object
@@ -31,12 +31,12 @@ public interface IServerSessionTicketStore: ITicketStore
     /// <param name="query">query to applied to server auth tickets</param>
     /// <param name="ct">cancellation token</param>
     /// <returns>QueryResult produced using provided query</returns>
-    Task<QueryResult<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(SessionQuery? query, CancellationToken ct = default);
+    Task<QueryResult<ServerSideSession>> FilterServerAuthenticationTickets(SessionQuery? query, CancellationToken ct = default);
     
     /// <summary>
     /// Removes expired auth tickets and returns a collection of these auth tokens and the session objects they come from
     /// </summary>
     /// <param name="batchSize">optional batch size value, defaults to 100</param>
     /// <returns>removed expired sessions</returns>
-    public Task<IEnumerable<AuthenticationTicketFilterResult>> GetAndRemoveExpiredSessions(int batchSize = 100);
+    public Task<IEnumerable<ServerSideSession>> GetAndRemoveExpiredSessions(int batchSize = 100);
 }

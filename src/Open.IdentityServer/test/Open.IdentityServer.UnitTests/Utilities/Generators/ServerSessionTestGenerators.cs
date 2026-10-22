@@ -127,7 +127,7 @@ public static class ServerSessionTestGenerators
         };
     }
     
-    public static AuthenticationTicketFilterResult GenerateAuthenticationTicketFilterResult(
+    public static ServerSideSession GenerateAuthenticationTicketFilterResult(
         string key,
         string authScheme, 
         string subjectId, 
@@ -142,11 +142,12 @@ public static class ServerSessionTestGenerators
         created ??= new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         renewed ??= new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc);
         expires ??= new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc);
+
+        ServerSideSession session = FakeSession(key, authScheme, sessionId, subjectId, displayName, string.Empty, created, renewed, expires);
+
+        session.AuthenticationTicket = GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName,
+            renewed, expires, issuer, clientIds);
         
-        return new AuthenticationTicketFilterResult
-        {
-            Session = FakeSession(key, authScheme, sessionId, subjectId, displayName, string.Empty, created, renewed, expires),
-            AuthTicket = GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName, renewed, expires, issuer, clientIds),
-        };
+        return session;
     }
 }

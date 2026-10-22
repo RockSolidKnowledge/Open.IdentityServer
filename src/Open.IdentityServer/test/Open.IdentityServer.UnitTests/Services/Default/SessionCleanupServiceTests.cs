@@ -133,8 +133,8 @@ public class SessionCleanupServiceTests
             .Verify(x => x.HandleUserSessionExpiry(It.IsAny<EndUserSessionEventContext>()), Times.Once);
 
         context.Should().NotBeNull();
-        context.SessionId.Should().Be(expiredSession0.Session.SessionId);
-        context.SubjectId.Should().Be(expiredSession0.Session.SubjectId);
+        context.SessionId.Should().Be(expiredSession0.SessionId);
+        context.SubjectId.Should().Be(expiredSession0.SubjectId);
         context.ClientIds.Should().BeEquivalentTo(fakeClientIds);
     }
 
@@ -173,7 +173,7 @@ public class SessionCleanupServiceTests
             .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
     }
 
-    private static AuthenticationTicketFilterResult FakeSessionSession(string subject, string sessionId,
+    private static ServerSideSession FakeSessionSession(string subject, string sessionId,
         bool expired = false, string[]? clientsIds = null)
     {
         var session = new ServerSideSession
@@ -196,11 +196,9 @@ public class SessionCleanupServiceTests
             session.Expires = DateTime.UtcNow.AddDays(-3);
         }
 
-        return new AuthenticationTicketFilterResult
-        {
-            Session = session,
-            AuthTicket = GenerateAuthenticationTicket(session, clientsIds),
-        };
+        session.AuthenticationTicket = GenerateAuthenticationTicket(session, clientsIds);
+
+        return session;
     }
     
     private static AuthenticationTicket GenerateAuthenticationTicket(ServerSideSession session, string[]? clientIds = null)

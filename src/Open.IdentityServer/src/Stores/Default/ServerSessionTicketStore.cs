@@ -30,7 +30,6 @@ namespace Open.IdentityServer.Stores;
 /// implementation in Open.IdentityServer
 /// </summary>
 /// <param name="serverServerSideSessionStore"></param>
-/// <param name="authenticationTicketSerializer">authentication ticket serializer</param>
 /// <param name="persistedGrantStore">persisted grant store</param>
 /// <param name="handleGenerationService">handle generation service</param>
 /// <param name="timeProvider">time provider</param>
@@ -40,7 +39,6 @@ namespace Open.IdentityServer.Stores;
 /// <param name="logger">the logger</param>
 public class ServerSessionTicketStore(
     IIdentityServerServerSideSessionStore serverServerSideSessionStore,
-    IAuthenticationTicketSerializer authenticationTicketSerializer,
     IPersistedGrantStore persistedGrantStore,
     IHandleGenerationService handleGenerationService,
     TimeProvider timeProvider,
@@ -104,7 +102,7 @@ public class ServerSessionTicketStore(
         existingSession.DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name);
         existingSession.Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
         existingSession.Expires = ticket.Properties.ExpiresUtc?.UtcDateTime;
-        existingSession.Data = authenticationTicketSerializer.Serialize(ticket);
+        existingSession.AuthenticationTicket = ticket;
 
         await serverServerSideSessionStore.UpdateSession(existingSession);
     }
@@ -127,17 +125,16 @@ public class ServerSessionTicketStore(
             return null;
         }
        
-        var authTicket = DeserializeAuthTicket(existingSession);
-        if(authTicket == null)
+        if(existingSession.AuthenticationTicket == null)
         {
             logger.FailedToRetrieveTicketFromStore(key);
         }
         else
         {
-            logger.TicketFoundInStore(key, authTicket.Properties.ExpiresUtc);
+            logger.TicketFoundInStore(key, existingSession.AuthenticationTicket.Properties.ExpiresUtc);
         }
         
-        return authTicket;
+        return existingSession.AuthenticationTicket;
     }
 
     /// <inheritdoc />
@@ -154,52 +151,34 @@ public class ServerSessionTicketStore(
         var session = await serverServerSideSessionStore.GetSession(key);
         if(session != null)
         {
-            httpContextAccessor.HttpContext.SetSessionExpired(session, DeserializeAuthTicket(session));
+            httpContextAccessor.HttpContext.SetSessionExpired(session);
         }
         
         await serverServerSideSessionStore.DeleteSession(key);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string subjectId, string sessionId)
+    public async Task<IEnumerable<ServerSideSession>> FilterServerAuthenticationTickets(string subjectId, string sessionId)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
-        IEnumerable<ServerSideSession> sessions = await serverServerSideSessionStore.FilterSessions(subjectId, sessionId);
-        
-        return sessions.Select(x => new AuthenticationTicketFilterResult
-        {
-            Session = x,
-            AuthTicket = DeserializeAuthTicket(x),
-        }).Where(x => x.AuthTicket != null);
+        return await serverServerSideSessionStore.FilterSessions(subjectId, sessionId);
     }
 
     /// <inheritdoc />
-    public async Task<QueryResult<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(SessionQuery? query, CancellationToken ct = default)
+    public async Task<QueryResult<ServerSideSession>> FilterServerAuthenticationTickets(SessionQuery? query, CancellationToken ct = default)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
-        QueryResult<ServerSideSession> sessions = await serverServerSideSessionStore.FilterSessions(query, ct);
-
-        return sessions.MapTo<AuthenticationTicketFilterResult>(x => new AuthenticationTicketFilterResult
-        {
-            Session = x,
-            AuthTicket = DeserializeAuthTicket(x),
-        });
+        return await serverServerSideSessionStore.FilterSessions(query, ct);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<AuthenticationTicketFilterResult>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    public async Task<IEnumerable<ServerSideSession>> GetAndRemoveExpiredSessions(int batchSize = 100)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
-        var sessionRemoved = await serverServerSideSessionStore.GetAndRemoveExpiredSessions(batchSize);
-        
-        return sessionRemoved.Select(x => new AuthenticationTicketFilterResult
-        {
-            Session = x,
-            AuthTicket = DeserializeAuthTicket(x),
-        });
+        return await serverServerSideSessionStore.GetAndRemoveExpiredSessions(batchSize);
     }
 
     private async Task<ServerSideSession> StoreNewSession(string key, AuthenticationTicket ticket)
@@ -227,7 +206,7 @@ public class ServerSessionTicketStore(
             Created = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
             Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
             Expires = ticket.Properties.ExpiresUtc?.UtcDateTime,
-            Data = authenticationTicketSerializer.Serialize(ticket),
+            AuthenticationTicket = ticket,
         };
 
         await serverServerSideSessionStore.CreateSession(serverSideSession);
@@ -235,19 +214,19 @@ public class ServerSessionTicketStore(
         return serverSideSession;
     }
     
-    private AuthenticationTicket? DeserializeAuthTicket(ServerSideSession existingSession)
-    {
-        AuthenticationTicket? authenticationTicket = authenticationTicketSerializer.Deserialize(existingSession.Data);
-
-        if (authenticationTicket != null)
-        {
-            authenticationTicket.Properties.IssuedUtc = new DateTimeOffset(existingSession.Renewed, TimeSpan.Zero);
-            if (existingSession.Expires.HasValue)
-            {
-                authenticationTicket.Properties.ExpiresUtc = new DateTimeOffset(existingSession.Expires.Value, TimeSpan.Zero);
-            }
-        }
-        
-        return authenticationTicket;
-    }
+    // private AuthenticationTicket? DeserializeAuthTicket(ServerSideSession existingSession)
+    // {
+    //     AuthenticationTicket? authenticationTicket = authenticationTicketSerializer.Deserialize(existingSession.Data);
+    //
+    //     if (authenticationTicket != null)
+    //     {
+    //         authenticationTicket.Properties.IssuedUtc = new DateTimeOffset(existingSession.Renewed, TimeSpan.Zero);
+    //         if (existingSession.Expires.HasValue)
+    //         {
+    //             authenticationTicket.Properties.ExpiresUtc = new DateTimeOffset(existingSession.Expires.Value, TimeSpan.Zero);
+    //         }
+    //     }
+    //     
+    //     return authenticationTicket;
+    // }
 }
