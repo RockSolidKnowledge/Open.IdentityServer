@@ -166,4 +166,11 @@ public class IdentityServerOptions
     /// PAR authorization options
     /// </summary>
     public PushedAuthorizationOptions PushedAuthorization {get;} = new PushedAuthorizationOptions();
+
+    /// <summary>
+    /// CIMD options
+    /// </summary>
+    public ClientInitiatedMetadataDocumentOptions ClientInitiatedMetadataDocuments { get; } =
+        new ClientInitiatedMetadataDocumentOptions();
+    
 }
