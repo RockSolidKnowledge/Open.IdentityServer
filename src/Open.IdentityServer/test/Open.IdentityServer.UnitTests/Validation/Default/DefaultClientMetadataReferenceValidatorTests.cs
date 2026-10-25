@@ -14,7 +14,7 @@ public class DefaultClientMetadataReferenceValidatorTests
 {
     private readonly IdentityServerOptions options = new();
     private readonly Mock<ILogger<DefaultClientMetadataReferenceValidator>> logger = new();
-    private readonly Mock<IClientMetadataReferenceTrustPolicy> trustPolicy = new();
+    private readonly Mock<IClientMetadataReferenceTrustValidator> trustPolicy = new();
     
     
     [Fact]
