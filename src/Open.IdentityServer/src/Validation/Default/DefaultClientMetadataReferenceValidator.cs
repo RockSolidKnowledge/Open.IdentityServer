@@ -17,7 +17,7 @@ namespace Open.IdentityServer.Validation;
 /// Finally consults a collection of metadata reference trust validators,
 /// </summary>
 public class DefaultClientMetadataReferenceValidator(
-    IClientMetadataReferenceTrustPolicy trustPolicy,
+    IClientMetadataReferenceTrustValidator trustPolicy,
     IdentityServerOptions options,
     ILogger<DefaultClientMetadataReferenceValidator> logger) : IClientMetadataReferenceValidator
 {
