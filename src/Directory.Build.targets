@@ -1,11 +1,11 @@
 <Project>
 
     <PropertyGroup>
-        <FrameworkVersion>10.0.12</FrameworkVersion>
-        <ExtensionsVersion>10.0.12</ExtensionsVersion>
-        <EntityFrameworkVersion>10.0.12</EntityFrameworkVersion>
+        <FrameworkVersion>10.0.14</FrameworkVersion>
+        <ExtensionsVersion>10.0.14</ExtensionsVersion>
+        <EntityFrameworkVersion>10.0.14</EntityFrameworkVersion>
 
-        <IdentityServerVersion>3.1.1-*</IdentityServerVersion>
+        <IdentityServerVersion>3.1.2-*</IdentityServerVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -35,6 +35,7 @@
         <PackageReference Update="Microsoft.Extensions.Http" Version="$(ExtensionsVersion)"/>
         <PackageReference Update="Microsoft.Extensions.Http.Polly" Version="$(ExtensionsVersion)"/>
         <PackageReference Update="Microsoft.Extensions.Logging" Version="$(ExtensionsVersion)"/>
+        <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="$(ExtensionsVersion)"/>
         <PackageReference Update="Microsoft.Extensions.Logging.Console" Version="$(ExtensionsVersion)"/>
         <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(ExtensionsVersion)"/>
 
