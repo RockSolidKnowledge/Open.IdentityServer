@@ -18,19 +18,24 @@ internal class DefaultServerSideSessionTokenValidator(
     IUserSessionEventsService userSessionEventsService,
     ITelemetryService telemetry): ITokenValidator
 {
-    private ITokenValidator decoratedService = decorator?.Instance ?? throw new ArgumentNullException(nameof(decorator));
+    private ITokenValidator decoratedService = decorator.Instance ?? throw new ArgumentNullException(nameof(decorator));
     
     /// <inheritdoc />
-    public async Task<TokenValidationResult?> ValidateAccessTokenAsync(string token, string? expectedScope = null)
+    public async Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string? expectedScope = null)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         
-        TokenValidationResult? validatedAccessToken = await decoratedService.ValidateAccessTokenAsync(token, expectedScope);
+        TokenValidationResult validatedAccessToken = await decoratedService.ValidateAccessTokenAsync(token, expectedScope);
         
-        Claim? sid = validatedAccessToken?.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId);
-        Claim? sub = validatedAccessToken?.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject);
+        if (validatedAccessToken.IsError)
+        {
+            return validatedAccessToken;
+        }
+        
+        Claim? sid = validatedAccessToken.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId);
+        Claim? sub = validatedAccessToken.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject);
 
-        if (validatedAccessToken == null || sid == null || sub == null)
+        if (sid == null || sub == null)
         {
             return validatedAccessToken;
         }

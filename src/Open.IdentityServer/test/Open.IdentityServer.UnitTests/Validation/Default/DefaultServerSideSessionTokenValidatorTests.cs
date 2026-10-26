@@ -27,6 +27,35 @@ public class DefaultServerSideSessionTokenValidatorTests
     private DefaultServerSideSessionTokenValidator CreateSut() =>
         new(new Decorator<ITokenValidator>(decoratedService), userSessionEventsService, telemetry);
 
+    public DefaultServerSideSessionTokenValidatorTests()
+    {
+        Mock.Get(decoratedService)
+            .Setup(x => x.ValidateAccessTokenAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new TokenValidationResult());
+    }
+
+    [Fact]
+    public async Task ValidateAccessTokenAsync_WhenDecoratedResultIsInvalidAndClaimsSetNull_ShouldNotValidateUserSession()
+    {
+        const string fakeToken = "fake_token";
+
+        var fakeResult = new TokenValidationResult { Claims = null, IsError = true, Error = "fake_error" };
+
+        Mock.Get(decoratedService)
+            .Setup(x => x.ValidateAccessTokenAsync(fakeToken, It.IsAny<string>()))
+            .ReturnsAsync(fakeResult);
+
+        DefaultServerSideSessionTokenValidator sut = CreateSut();
+
+        TokenValidationResult? actual = await sut.ValidateAccessTokenAsync(fakeToken);
+
+        actual.Should().NotBeNull();
+        actual.Should().Be(fakeResult);
+
+        Mock.Get(userSessionEventsService)
+            .Verify(x => x.ValidateSession(It.IsAny<ValidateUserSessionEventContext>()), Times.Never);
+    }
+
 
     [Fact]
     public async Task ValidateAccessTokenAsync_WhenDecoratedResultIsInvalid_ShouldNotValidateUserSession()
