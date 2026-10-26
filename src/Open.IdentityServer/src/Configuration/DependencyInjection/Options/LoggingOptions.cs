@@ -22,7 +22,9 @@ public class LoggingOptions
             OidcConstants.TokenRequest.Password,
             OidcConstants.TokenRequest.ClientAssertion,
             OidcConstants.TokenRequest.RefreshToken,
-            OidcConstants.TokenRequest.DeviceCode
+            OidcConstants.TokenRequest.DeviceCode,
+            OidcConstants.TokenRequest.Code,
+            OidcConstants.TokenRequest.SubjectToken
         };
 
     /// <summary>
@@ -32,6 +34,9 @@ public class LoggingOptions
     public ICollection<string> AuthorizeRequestSensitiveValuesFilter { get; set; } = 
         new HashSet<string>
         {
-            OidcConstants.AuthorizeRequest.IdTokenHint
+            OidcConstants.AuthorizeRequest.IdTokenHint,
+            OidcConstants.TokenRequest.ClientAssertion,
+            OidcConstants.TokenRequest.ClientSecret,
+            OidcConstants.AuthorizeRequest.Request,
         };
 }
