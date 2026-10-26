@@ -11,7 +11,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Configuration.DependencyInjection;
-using Open.IdentityServer.EntityFramework;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Services.Default;

@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Open.IdentityServer.Configuration;
-using Open.IdentityServer.EntityFramework;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
