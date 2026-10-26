@@ -11,6 +11,7 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
+using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer.Validation;
 using Xunit;
 
@@ -31,7 +32,7 @@ public class Authorize_PushedAuthorizationRequests
     private readonly Mock<IUserSession> userSession = new();
 
     private readonly JwtRequestValidator jwtRequestValidator =
-        new JwtRequestValidator("", new Mock<ILogger<JwtRequestValidator>>().Object);
+        new JwtRequestValidator("", new NopTelemetryService(), new Mock<ILogger<JwtRequestValidator>>().Object);
     private readonly Mock<IJwtRequestUriHttpClient> jwtRequestUriHttpClient = new();
     private readonly Mock<ITelemetryService> telemetry = new();
 
