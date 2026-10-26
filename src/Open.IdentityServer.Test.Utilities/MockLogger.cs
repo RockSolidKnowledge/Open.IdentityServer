@@ -3,11 +3,10 @@
 
 #nullable enable
 
-using System;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Open.IdentityServer.EntityFramework.IntegrationTests;
+namespace Open.IdentityServer.Test.Utilities;
 
 public class MockLogger<T> : ILogger<T>
 {
@@ -48,5 +47,18 @@ public class MockLogger<T> : ILogger<T>
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             times ?? Times.Once());
+    }
+    
+    public void VerifyDoesNotLog(string message)
+    {
+        Mock.Get(_mock)
+            .Verify(
+            x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains(message)),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Never());
     }
 }

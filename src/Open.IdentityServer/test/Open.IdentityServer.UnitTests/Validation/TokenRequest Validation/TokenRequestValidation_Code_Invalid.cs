@@ -14,6 +14,8 @@ using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
+using Open.IdentityServer.Test.Utilities;
+using Open.IdentityServer.Validation;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Validation.TokenRequest_Validation;
@@ -404,5 +406,43 @@ public class TokenRequestValidation_Code_Invalid
 
         result.IsError.Should().BeTrue();
         result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Code_on_failure_should_not_log_code()
+    {
+        var mockLogger = new MockLogger<TokenRequestValidator>();
+        
+        var client = await _clients.FindEnabledClientByIdAsync("codeclient");
+        var store = Factory.CreateAuthorizationCodeStore();
+
+        var code = new AuthorizationCode
+        {
+            CreationTime = DateTime.UtcNow,
+            ClientId = client.ClientId,
+            Lifetime = client.AuthorizationCodeLifetime,
+            IsOpenId = true,
+            RedirectUri = "https://server/cb",
+            Subject = _subject
+
+        };
+
+        var handle = await store.StoreAuthorizationCodeAsync(code);
+
+        var validator = Factory.CreateTokenRequestValidator(
+            authorizationCodeStore: store,
+            logger: mockLogger);
+
+        var parameters = new NameValueCollection();
+        parameters.Add(OidcConstants.TokenRequest.GrantType, OidcConstants.GrantTypes.AuthorizationCode);
+        parameters.Add(OidcConstants.TokenRequest.Code, handle);
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.TokenErrors.UnauthorizedClient);
+        
+        mockLogger.VerifyDoesNotLog(handle);
     }
 }

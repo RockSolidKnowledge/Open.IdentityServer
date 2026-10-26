@@ -17,12 +17,12 @@ using Microsoft.Extensions.Time.Testing;
 using Moq;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
-using Open.IdentityServer.EntityFramework.IntegrationTests;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
+using Open.IdentityServer.Test.Utilities;
 using Open.IdentityServer.UnitTests.Utilities.Generators;
 using Xunit;
 

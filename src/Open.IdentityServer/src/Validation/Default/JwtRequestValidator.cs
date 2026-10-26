@@ -90,9 +90,10 @@ public class JwtRequestValidator
     /// <summary>
     /// Instantiates an instance of private_key_jwt secret validator (used for testing)
     /// </summary>
-    internal JwtRequestValidator(string audience, ILogger<JwtRequestValidator> logger)
+    internal JwtRequestValidator(string audience, ITelemetryService telemetry, ILogger<JwtRequestValidator> logger)
     {
         _audienceUri = audience;
+        Telemetry = telemetry;
         Logger = logger;
         Options = new IdentityServerOptions();
     }

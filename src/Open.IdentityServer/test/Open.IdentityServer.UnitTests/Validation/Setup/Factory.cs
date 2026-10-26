@@ -18,6 +18,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Test.Utilities;
 
 namespace Open.IdentityServer.UnitTests.Validation.Setup;
 
@@ -42,7 +43,8 @@ internal static class Factory
         IRefreshTokenService refreshTokenService = null,
         IResourceValidator resourceValidator = null,
         IEventService events = null,
-        ITelemetryService telemetry = null)
+        ITelemetryService telemetry = null,
+        MockLogger<TokenRequestValidator> logger = null)
     {
         if (options == null)
         {
@@ -136,7 +138,7 @@ internal static class Factory
             events,
             new StubClock(), 
             telemetry,
-            TestLogger.Create<TokenRequestValidator>());
+            logger ?? TestLogger.Create<TokenRequestValidator>());
     }
 
     private static IRefreshTokenService CreateRefreshTokenService(IRefreshTokenStore store, IProfileService profile)
@@ -210,7 +212,8 @@ internal static class Factory
         IResourceValidator resourceValidator = null,
         JwtRequestValidator jwtRequestValidator = null,
         IJwtRequestUriHttpClient jwtRequestUriHttpClient = null,
-        ITelemetryService telemetry = null)
+        ITelemetryService telemetry = null,
+        MockLogger<AuthorizeRequestValidator> logger = null)
     {
         if (options == null)
         {
@@ -241,10 +244,18 @@ internal static class Factory
         {
             resourceValidator = CreateResourceValidator(resourceStore);
         }
+        
+        if (telemetry == null)
+        {
+            telemetry = new NopTelemetryService();
+        }
 
         if (jwtRequestValidator == null)
         {
-            jwtRequestValidator = new JwtRequestValidator("https://identityserver", new LoggerFactory().CreateLogger<JwtRequestValidator>());
+            jwtRequestValidator = new JwtRequestValidator(
+                "https://identityserver",
+                telemetry,
+                new LoggerFactory().CreateLogger<JwtRequestValidator>()){};
         }
 
         if (jwtRequestUriHttpClient == null)
@@ -254,11 +265,6 @@ internal static class Factory
                 options, 
                 new NopTelemetryService(),
                 new LoggerFactory());
-        }
-
-        if (telemetry == null)
-        {
-            telemetry = new NopTelemetryService();
         }
 
         var userSession = new MockUserSession();
@@ -280,7 +286,7 @@ internal static class Factory
             jwtRequestUriHttpClient,
             parService,
             telemetry,
-            TestLogger.Create<AuthorizeRequestValidator>());
+            logger ?? TestLogger.Create<AuthorizeRequestValidator>());
     }
 
     public static TokenValidator CreateTokenValidator(

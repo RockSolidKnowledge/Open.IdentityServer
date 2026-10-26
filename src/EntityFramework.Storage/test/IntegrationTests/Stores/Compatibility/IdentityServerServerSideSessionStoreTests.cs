@@ -12,6 +12,7 @@ using Open.IdentityServer.EntityFramework.Options;
 using Open.IdentityServer.EntityFramework.Stores;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
+using Open.IdentityServer.Test.Utilities;
 using Xunit;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores.Compatibility;

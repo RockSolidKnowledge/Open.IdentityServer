@@ -7,8 +7,12 @@ using System;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
 using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer;
+using Open.IdentityServer.Models;
+using Open.IdentityServer.Test.Utilities;
+using Open.IdentityServer.Validation;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;
@@ -487,5 +491,40 @@ public class Authorize_ProtocolValidation_Invalid
 
         result.IsError.Should().BeTrue();
         result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task on_failure_should_not_log_sensitive_data()
+    {
+        var request = Guid.NewGuid().ToString();
+        var assertion = Guid.NewGuid().ToString();
+        var clientSecret = Guid.NewGuid().ToString();
+        var mockLogger = new MockLogger<AuthorizeRequestValidator>();
+        var parameters = new NameValueCollection
+        {
+            { OidcConstants.AuthorizeRequest.ClientId, "codeclient" },
+            { OidcConstants.AuthorizeRequest.Scope, "openid" },
+            { OidcConstants.AuthorizeRequest.RedirectUri, "https://server/invalid" },
+            { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
+            { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
+            { OidcConstants.AuthorizeRequest.Prompt, "unsupported" },
+            { OidcConstants.TokenRequest.ClientSecret, clientSecret },
+            { OidcConstants.AuthorizeRequest.Request, request },
+            { OidcConstants.TokenRequest.ClientAssertion, assertion }
+        };
+
+        
+        
+        var validator = Factory.CreateAuthorizeRequestValidator( 
+            logger: mockLogger);
+        var result = await validator.ValidateAsync(parameters);
+        
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequestObject);
+        
+        mockLogger.VerifyDoesNotLog(clientSecret);
+        mockLogger.VerifyDoesNotLog(request);
+        mockLogger.VerifyDoesNotLog(assertion);
     }
 }

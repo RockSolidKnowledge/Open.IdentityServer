@@ -14,7 +14,6 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.DataProtection;
-using Open.IdentityServer.EntityFramework.IntegrationTests;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
