@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Moq;
 using Open.IdentityServer.DataProtection;
-using Open.IdentityServer.EntityFramework.IntegrationTests;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Stores.Serialization;
+using Open.IdentityServer.Test.Utilities;
 using Open.IdentityServer.UnitTests.Utilities.Generators;
 using Xunit;
 
