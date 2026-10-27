@@ -12,6 +12,9 @@ IdentityServer Options
 * ``AccessTokenJwtType``
     Specifies the value used for the JWT typ header for access tokens (defaults to ``at+jwt``).
 
+* ``LogoutTokenJwtType``
+    Specifies the value used for the JWT typ header for back-channel logout tokens (defaults to ``logout+jwt``). ``null`` or empty will use ``JWT``.
+
 * ``IdentityTokenJwtTypes``
     Specifies the allowable JWT typ values during identity token validation. (defaults to ``JWT``).
 
