@@ -37,8 +37,12 @@ public class IdentityServerServerSideSessionStore(
     /// <remarks>
     /// Makes it possible to return an extended model.
     /// </remarks>
-    protected virtual ServerSideSession? ToModel(Entities.ServerSideSession? entities) => 
-        entities?.ToModel(authTicketSerializer);
+    protected virtual ServerSideSession? ToModel(Entities.ServerSideSession? entities)
+    {
+        var result = entities?.ToModel(authTicketSerializer);
+
+        return result;
+    }
     
     /// <inheritdoc />
     public async Task<ServerSideSession?> GetSession(string key)
