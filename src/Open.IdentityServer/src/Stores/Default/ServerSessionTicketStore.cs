@@ -7,21 +7,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Open.IdentityServer.Configuration;
-using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores.Default;
-using Open.IdentityServer.Stores.Serialization;
 
 namespace Open.IdentityServer.Stores;
 
@@ -158,27 +154,30 @@ public class ServerSessionTicketStore(
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<ServerSideSession>> FilterServerAuthenticationTickets(string subjectId, string sessionId)
+    public async Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string subjectId, string sessionId)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
-        return await serverServerSideSessionStore.FilterSessions(subjectId, sessionId);
+        return (await serverServerSideSessionStore.FilterSessions(subjectId, sessionId))
+            .Select(x => new AuthenticationTicketFilterResult { Session = x });
     }
 
     /// <inheritdoc />
-    public async Task<QueryResult<ServerSideSession>> FilterServerAuthenticationTickets(SessionQuery? query, CancellationToken ct = default)
+    public async Task<QueryResult<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(SessionQuery? query, CancellationToken ct = default)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
-        return await serverServerSideSessionStore.FilterSessions(query, ct);
+        return (await serverServerSideSessionStore.FilterSessions(query, ct))
+            .MapTo(x => new AuthenticationTicketFilterResult { Session = x });
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<ServerSideSession>> GetAndRemoveExpiredSessions(int batchSize = 100)
+    public async Task<IEnumerable<AuthenticationTicketFilterResult>> GetAndRemoveExpiredSessions(int batchSize = 100)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
-        return await serverServerSideSessionStore.GetAndRemoveExpiredSessions(batchSize);
+        return (await serverServerSideSessionStore.GetAndRemoveExpiredSessions(batchSize))
+            .Select(x => new AuthenticationTicketFilterResult { Session = x });
     }
 
     private async Task<ServerSideSession> StoreNewSession(string key, AuthenticationTicket ticket)

@@ -68,9 +68,9 @@ public class SessionCleanupService(
             {
                 await userSessionEventsService.HandleUserSessionExpiry(new EndUserSessionEventContext()
                 {
-                    SubjectId = expiredSession.SubjectId,
-                    SessionId = expiredSession.SessionId,
-                    ClientIds = expiredSession.AuthenticationTicket?.Properties.GetClientList().ToArray() ?? [],
+                    SubjectId = expiredSession.Session.SubjectId,
+                    SessionId = expiredSession.Session.SessionId,
+                    ClientIds = expiredSession.Session.AuthenticationTicket?.Properties.GetClientList().ToArray() ?? [],
                 });
             }
         } while (found >= options.ServerSideSessions.RemoveExpiredSessionsBatchSize);

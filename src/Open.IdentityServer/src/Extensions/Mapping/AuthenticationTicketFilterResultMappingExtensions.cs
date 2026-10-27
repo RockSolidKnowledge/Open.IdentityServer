@@ -8,7 +8,7 @@ namespace Open.IdentityServer.Extensions.Mapping;
 /// </summary>
 public static class AuthenticationTicketFilterResultMappingExtensions
 {
-    extension(ServerSideSession result)
+    extension(AuthenticationTicketFilterResult result)
     {
         /// <summary>
         /// Maps object to an instance of the <see cref="UserSession"/> model
@@ -18,19 +18,19 @@ public static class AuthenticationTicketFilterResultMappingExtensions
         {
             string issuer = null;
         
-            result.AuthenticationTicket?.Properties.Items.TryGetValue(JwtClaimTypes.Issuer, out issuer);
+            result.AuthTicket?.Properties.Items.TryGetValue(JwtClaimTypes.Issuer, out issuer);
         
             return new UserSession
             {
-                SubjectId = result.SubjectId,
-                SessionId = result.SessionId,
-                DisplayName = result.DisplayName,
-                Created = result.Created,
-                Renewed = result.Renewed,
-                Expires = result.Expires,
+                SubjectId = result.Session.SubjectId,
+                SessionId = result.Session.SessionId,
+                DisplayName = result.Session.DisplayName,
+                Created = result.Session.Created,
+                Renewed = result.Session.Renewed,
+                Expires = result.Session.Expires,
                 Issuer = issuer,
-                ClientIds = result.AuthenticationTicket?.Properties.GetClientList().ToList() ?? [],
-                AuthenticationTicket = result.AuthenticationTicket,
+                ClientIds = result.AuthTicket?.Properties.GetClientList().ToList() ?? [],
+                AuthenticationTicket = result.AuthTicket,
             };
         }
     }

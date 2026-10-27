@@ -127,7 +127,7 @@ public static class ServerSessionTestGenerators
         };
     }
     
-    public static ServerSideSession GenerateAuthenticationTicketFilterResult(
+    public static AuthenticationTicketFilterResult GenerateAuthenticationTicketFilterResult(
         string key,
         string authScheme, 
         string subjectId, 
@@ -148,6 +148,6 @@ public static class ServerSessionTestGenerators
         session.AuthenticationTicket = GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName,
             renewed, expires, issuer, clientIds);
         
-        return session;
+        return new AuthenticationTicketFilterResult { Session = session };
     }
 }
