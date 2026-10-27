@@ -799,7 +799,7 @@ public class ServerSessionTicketStoreTests
             .ReturnsAsync([]);
         
         ServerSessionTicketStore sut = CreateSut();
-        IEnumerable<ServerSideSession> actual = await sut.FilterServerAuthenticationTickets(testSubjectId, testSessionId);
+        IEnumerable<AuthenticationTicketFilterResult> actual = await sut.FilterServerAuthenticationTickets(testSubjectId, testSessionId);
 
         actual.Should().BeEmpty();
     }
@@ -821,10 +821,11 @@ public class ServerSessionTicketStoreTests
             .ReturnsAsync(sessions);
         
         ServerSessionTicketStore sut = CreateSut();
-        IEnumerable<ServerSideSession> actual =
-            (await sut.FilterServerAuthenticationTickets(testSubjectId, testSessionId)).ToList();
+        IEnumerable<AuthenticationTicketFilterResult> actual = [.. await sut.FilterServerAuthenticationTickets(testSubjectId, testSessionId)];
 
-        actual.Should().BeEquivalentTo(sessions);
+        List<AuthenticationTicketFilterResult> expected = [.. sessions.Select(x => new AuthenticationTicketFilterResult { Session = x })];
+        
+        actual.Should().BeEquivalentTo(expected);
     }
     
     [Fact]
@@ -843,10 +844,11 @@ public class ServerSessionTicketStoreTests
             .ReturnsAsync(sessions);
         
         ServerSessionTicketStore sut = CreateSut();
-        IEnumerable<ServerSideSession> actual =
-            (await sut.GetAndRemoveExpiredSessions(batchSize)).ToList();
+        IEnumerable<AuthenticationTicketFilterResult> actual = [.. await sut.GetAndRemoveExpiredSessions(batchSize)];
 
-        actual.Should().BeEquivalentTo(sessions);
+        List<AuthenticationTicketFilterResult> expected = [.. sessions.Select(x => new AuthenticationTicketFilterResult { Session = x })];
+
+        actual.Should().BeEquivalentTo(expected);
     }
     
     [Fact]
@@ -875,11 +877,21 @@ public class ServerSessionTicketStoreTests
             .ReturnsAsync(fakeResult);
         
         ServerSessionTicketStore sut = CreateSut();
-        QueryResult<ServerSideSession> actual =
-            (await sut.FilterServerAuthenticationTickets(fakeQuery, TestContext.Current.CancellationToken));
+        QueryResult<AuthenticationTicketFilterResult> actual = await sut.FilterServerAuthenticationTickets(fakeQuery, TestContext.Current.CancellationToken);
+
+        var expected = new QueryResult<AuthenticationTicketFilterResult>
+        {
+            ResultsToken = fakeResult.ResultsToken,
+            HasPrevResults = fakeResult.HasPrevResults,
+            HasNextResults = fakeResult.HasNextResults,
+            TotalCount = fakeResult.TotalCount,
+            TotalPages = fakeResult.TotalPages,
+            CurrentPage = fakeResult.CurrentPage,
+            Results = [.. fakeResult.Results.Select(x => new AuthenticationTicketFilterResult { Session = x })],
+        };
         
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(fakeResult);
+        actual.Should().BeEquivalentTo(expected);
     }
 
     [Fact]

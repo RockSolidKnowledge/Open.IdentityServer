@@ -107,36 +107,36 @@ public class DefaultUserSessionEventsService(
             return true;
         }
 
-        List<ServerSideSession> sessions =
+        List<AuthenticationTicketFilterResult> sessions =
             (await serverSessionTicketStore.FilterServerAuthenticationTickets(sessionEventContext.SubjectId,
                 sessionEventContext.SessionId))
             .ToList();
 
-        if (sessions.Count == 0 || sessions.All(x => x.Expires.HasValue &&
-                                                     x.Expires < timeProvider.GetUtcNow().UtcDateTime))
+        if (sessions.Count == 0 || sessions.All(x => x.Session.Expires.HasValue &&
+                                                     x.Session.Expires < timeProvider.GetUtcNow().UtcDateTime))
         {
             logger.LogDebug("no valid server-side sessions found for subject {subjectId} and session {sessionId}",
                 sessionEventContext.SubjectId, sessionEventContext.SessionId);
             return false;
         }
 
-        foreach (ServerSideSession session in sessions)
+        foreach (AuthenticationTicketFilterResult session in sessions)
         {
-            TimeSpan? diff = session.Expires - session.Renewed;
-            session.Renewed = timeProvider.GetUtcNow().UtcDateTime;
-            session.Expires = session.Renewed + diff;
-            session.AuthenticationTicket?.Properties.IssuedUtc = session.Renewed;
-            session.AuthenticationTicket?.Properties.ExpiresUtc = session.Expires;
+            TimeSpan? diff = session.Session.Expires - session.Session.Renewed;
+            session.Session.Renewed = timeProvider.GetUtcNow().UtcDateTime;
+            session.Session.Expires = session.Session.Renewed + diff;
+            session.Session.AuthenticationTicket?.Properties.IssuedUtc = session.Session.Renewed;
+            session.Session.AuthenticationTicket?.Properties.ExpiresUtc = session.Session.Expires;
             
             if (idsOptions.Authentication.CookieSlidingExpiration &&
-                session.AuthenticationTicket?.Properties is { IsPersistent: true, AllowRefresh: true or null })
+                session.Session.AuthenticationTicket?.Properties is { IsPersistent: true, AllowRefresh: true or null })
             {
-                session.AuthenticationTicket.Properties.SetString(IdentityServerConstants.ForceCookieRefresh, string.Empty);
-                await serverSessionTicketStore.RenewAsync(session.Key, session.AuthenticationTicket);
+                session.Session.AuthenticationTicket.Properties.SetString(IdentityServerConstants.ForceCookieRefresh, string.Empty);
+                await serverSessionTicketStore.RenewAsync(session.Session.Key, session.Session.AuthenticationTicket);
             }
             else
             {
-                await identityServerServerSideSessionStore.UpdateSession(session);
+                await identityServerServerSideSessionStore.UpdateSession(session.Session);
             }
         }
 

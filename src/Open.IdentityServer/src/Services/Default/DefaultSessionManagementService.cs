@@ -35,7 +35,7 @@ public class DefaultSessionManagementService(
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
 
-        QueryResult<ServerSideSession> results = await serverSessionTicketStore.FilterServerAuthenticationTickets(filter, ct);
+        QueryResult<AuthenticationTicketFilterResult> results = await serverSessionTicketStore.FilterServerAuthenticationTickets(filter, ct);
 
         return results.MapTo<UserSession>(x => x.ToUserSession());
     }
@@ -55,7 +55,7 @@ public class DefaultSessionManagementService(
             var sessions = await serverSessionTicketStore.FilterServerAuthenticationTickets(context.SubjectId, context.SessionId);
             foreach (var session in sessions)
             {
-                List<string>? sessionClientList = session.AuthenticationTicket?.Properties.GetClientList().ToList();
+                List<string>? sessionClientList = session.Session.AuthenticationTicket?.Properties.GetClientList().ToList();
                 string[] clientIds = [];
 
                 if (!sessionClientList.IsNullOrEmpty() && !context.ClientIds.IsNullOrEmpty())
@@ -65,8 +65,8 @@ public class DefaultSessionManagementService(
                 
                 await backChannelLogoutService.SendLogoutNotificationsAsync(new LogoutNotificationContext
                 {
-                    SubjectId = session.SubjectId,
-                    SessionId = session.SessionId,
+                    SubjectId = session.Session.SubjectId,
+                    SessionId = session.Session.SessionId,
                     ClientIds = context.ClientIds.IsNullOrEmpty() ? sessionClientList : clientIds,
                     Issuer = session.AuthenticationTicket?.Properties.GetString(JwtClaimTypes.Issuer)
                 });
