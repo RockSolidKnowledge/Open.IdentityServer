@@ -22,6 +22,8 @@ A huge thank you to everyone listed below.
 
 [Thinventory Holdings Limited](https://thinventory.com/)
 
+[Eric Quist](https://github.com/equist)
+
 ## Become a Supporter
 
 If your organisation relies on Open.IdentityServer, you can help support its continued development by purchasing a Supporter Licence.
