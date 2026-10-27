@@ -158,12 +158,22 @@ public class DefaultUserSession : IUserSession
     /// </exception>
     public virtual async Task<string> CreateSessionIdAsync(ClaimsPrincipal principal, AuthenticationProperties properties)
     {
-        if (principal == null) throw new ArgumentNullException(nameof(principal));
-        if (properties == null) throw new ArgumentNullException(nameof(properties));
+        ArgumentNullException.ThrowIfNull(principal);
+        ArgumentNullException.ThrowIfNull(properties);
 
-        var currentSubjectId = (await GetUserAsync())?.GetSubjectId();
+        await AuthenticateAsync();
+        
+        var currentSessionId = Properties?.GetSessionId();
+        var currentSubjectId = Principal?.GetSubjectId();
         var newSubjectId = principal.GetSubjectId();
-
+        
+        if (properties.GetSessionId() == null && currentSessionId != null)
+        {
+            properties.SetSessionId(currentSessionId);
+            var clients = Properties.GetClientList().ToList();
+            properties.SetClientList(clients);
+        }
+        
         if (properties.GetSessionId() == null || currentSubjectId != newSubjectId)
         {
             properties.SetSessionId(CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex));
