@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Open.IdentityServer.Configuration;
@@ -27,11 +28,15 @@ public class IdentityServerSigningCredentialStore(
     TimeProvider timeProvider,
     CompatibilityKeyStoreOptions options,
     ITelemetryService telemetry,
-    ILogger<IdentityServerSigningCredentialStore> logger
-    ): 
+    ILogger<IdentityServerSigningCredentialStore> logger): 
     IdentityServerSigningKeyStore(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, options), 
     ISigningCredentialStore
 {
+    /// <summary>
+    /// Specifies signing algorthm of signing key to retrieve
+    /// </summary>
+    public string Algorithm = Constants.SigningAlgorithms.RSA_SHA_256; //Default
+    
     /// <summary>
     /// Gets the key to be used for signing from the key store, will be the newest key 
     /// </summary>
@@ -41,6 +46,7 @@ public class IdentityServerSigningCredentialStore(
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
         var credentials = GetKeys()
+            .Where(x => x.Credentials.Algorithm == Algorithm)
             .Select(x => x.Credentials)
             .FirstOrDefault();
 

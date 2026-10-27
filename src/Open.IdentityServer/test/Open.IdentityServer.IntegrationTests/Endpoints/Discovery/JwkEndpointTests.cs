@@ -96,7 +96,7 @@ public class JwkEndpointTests
         var alg = key.GetProperty("alg");
         alg.Should().NotBeNull();
 
-        alg.GetString().Should().Be(Constants.SigningAlgorithms.RSA_SHA_256);
+        alg.GetString().Should().Be(SecurityAlgorithms.RsaSha256);
     }
 
     [Theory]
@@ -179,14 +179,14 @@ public class JwkEndpointTests
         var jwks = new JsonWebKeySet(json);
 
         //RSA Keys
-        jwks.Keys.Should().Contain(x => x.KeyId == "FakeRSA_RS256" && x.Alg == "RS256");
+        jwks.Keys.Should().Contain(x => x.KeyId == "FakeRSA_RS256" && x.Alg == SecurityAlgorithms.RsaSha256);
         
         //EC Curve Keys
-        jwks.Keys.Should().Contain(x => x.KeyId == "FakeEC_ES256" && x.Alg == "ES256");
-        jwks.Keys.Should().Contain(x => x.KeyId == "FakeEC_ES384" && x.Alg == "ES384");
-        jwks.Keys.Should().Contain(x => x.KeyId == "FakeEC_ES521" && x.Alg == "ES521");
+        jwks.Keys.Should().Contain(x => x.KeyId == "FakeEC_ES256" && x.Alg == SecurityAlgorithms.EcdsaSha256);
+        jwks.Keys.Should().Contain(x => x.KeyId == "FakeEC_ES384" && x.Alg == SecurityAlgorithms.EcdsaSha384);
+        jwks.Keys.Should().Contain(x => x.KeyId == "FakeEC_ES512" && x.Alg == SecurityAlgorithms.EcdsaSha512);
         
         //Non Signing Keys
-        jwks.Keys.Should().NotContain(x => x.KeyId == "FakeRSA_PS256_NONSIGN" && x.Alg == "RS256");
+        jwks.Keys.Should().NotContain(x => x.KeyId == "FakeRSA_PS256_NONSIGN" && x.Alg == SecurityAlgorithms.RsaSha256);
     }
 }
