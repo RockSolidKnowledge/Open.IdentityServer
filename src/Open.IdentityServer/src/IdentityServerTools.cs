@@ -66,6 +66,22 @@ public class IdentityServerTools
     /// <exception cref="System.ArgumentNullException">claims</exception>
     public virtual async Task<string> IssueJwtAsync(int lifetime, string issuer, IEnumerable<Claim> claims)
     {
+        return await IssueJwtAsync(lifetime, issuer, IdentityServerConstants.TokenTypes.AccessToken, claims);
+    }
+
+    /// <summary>
+    /// Issues a JWT.
+    /// </summary>
+    /// <param name="lifetime">The lifetime of the JWT in seconds.</param>
+    /// <param name="issuer">The issuer to include in the JWT.</param>
+    /// <param name="tokenType">The token type to include in the JWT.</param>
+    /// <param name="claims">The claims to include in the JWT.</param>
+    /// <returns>
+    /// A task that resolves to the signed JWT string.
+    /// </returns>
+    /// <exception cref="System.ArgumentNullException">claims</exception>
+    public virtual async Task<string> IssueJwtAsync(int lifetime, string issuer, string tokenType, IEnumerable<Claim> claims)
+    {
         if (String.IsNullOrWhiteSpace(issuer)) throw new ArgumentNullException(nameof(issuer));
         if (claims == null) throw new ArgumentNullException(nameof(claims));
 
@@ -75,6 +91,7 @@ public class IdentityServerTools
         {
             CreationTime = _clock.GetUtcNow().UtcDateTime,
             Issuer = issuer,
+            Type = tokenType,
             Lifetime = lifetime,
             Claims = new HashSet<Claim>(claims, new ClaimComparer()),
             Audiences = audiences

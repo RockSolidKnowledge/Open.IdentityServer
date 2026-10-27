@@ -40,6 +40,14 @@ public class IdentityServerOptions
     public ICollection<string> IdentityTokenJwtTypes { get; set; } = ["JWT"];
 
     /// <summary>
+    /// Gets or sets the value for the JWT typ header for logout tokens.
+    /// </summary>
+    /// <value>
+    /// The JWT typ value.
+    /// </value>
+    public string LogoutTokenJwtType { get; set; } = "logout+jwt";
+
+    /// <summary>
     /// Emits an aud claim with the format issuer/resources. That's needed for some older access token validation plumbing. Defaults to false.
     /// </summary>
     public bool EmitStaticAudienceClaim { get; set; } = false;
