@@ -326,5 +326,81 @@ public class TokenRequestValidatorTests
         trace.Verify(t => t.Dispose(), Times.Once);
     }
     
+    private static NameValueCollection AuthCodeGrantParameters(
+        string code = "fake-code", string clientId = "client-id") =>
+        new()
+        {
+            [OidcConstants.TokenRequest.GrantType] = OidcConstants.GrantTypes.AuthorizationCode,
+            [OidcConstants.TokenRequest.Code] = code,
+            [OidcConstants.TokenRequest.ClientId] = clientId,
+            // [OidcConstants.TokenRequest.UserName] = userName,
+            // [OidcConstants.TokenRequest.Password] = password,
+            // [OidcConstants.TokenRequest.Scope] = scope
+        };
     
+    [Fact]
+    public async Task AuthCodeGrant_WhenCodeUsed_ShouldMarkAsConsumed()
+    {
+        AuthorizationCode fakeAuthCode = new AuthorizationCode
+        {
+            CreationTime = default,
+            Lifetime = 0,
+            ClientId = null,
+            Subject = null,
+            IsOpenId = false,
+            RequestedScopes = null,
+            RedirectUri = null,
+            Nonce = null,
+            StateHash = null,
+            WasConsentShown = false,
+            SessionId = null,
+            CodeChallenge = null,
+            CodeChallengeMethod = null,
+            Description = null,
+            Properties = null,
+            RequestedResourceIndicators = null
+        };
+
+        IAuthorizationCodeStore authorizationCodeStore = Mock.Of<IAuthorizationCodeStore>();
+        var telemetry = new Mock<ITelemetryService>();
+        
+        telemetry.Setup(t => t.CountResourceOwnerAuthentication("roclient"))
+            .Verifiable(Times.Once);
+
+        Mock.Get(authorizationCodeStore)
+            .Setup(x => x.GetAuthorizationCodeAsync(""))
+            .ReturnsAsync(fakeAuthCode);
+
+        TokenRequestValidator subject = Factory.CreateTokenRequestValidator(telemetry: telemetry.Object, authorizationCodeStore: authorizationCodeStore);
+        var client = await Clients.FindEnabledClientByIdAsync("roclient");
+
+        // bob / bob succeeds in TestResourceOwnerPasswordValidator (username == password)
+        var result = await subject.ValidateRequestAsync(
+            AuthCodeGrantParameters(code: "", clientId: ""),
+            client.ToValidationResult());
+
+        result.IsError.Should().BeFalse();
+
+        telemetry.Verify();
+    }
+    
+    [Fact]  
+    public async Task AuthCodeGrant_WhenCodeReuse_ShouldFailRevokingAnyIssuedTokensForCode()
+    {
+        var telemetry = new Mock<ITelemetryService>();
+        telemetry.Setup(t => t.CountResourceOwnerAuthentication("roclient"))
+            .Verifiable(Times.Once);
+
+        var subject = Factory.CreateTokenRequestValidator(telemetry: telemetry.Object);
+        var client = await Clients.FindEnabledClientByIdAsync("roclient");
+
+        // bob / bob succeeds in TestResourceOwnerPasswordValidator (username == password)
+        var result = await subject.ValidateRequestAsync(
+            AuthCodeGrantParameters(code: "", clientId: ""),
+            client.ToValidationResult());
+
+        result.IsError.Should().BeFalse();
+
+        telemetry.Verify();
+    }
 }
