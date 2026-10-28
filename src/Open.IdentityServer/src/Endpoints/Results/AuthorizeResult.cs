@@ -85,7 +85,9 @@ internal class AuthorizeResult : IEndpointResult
             Response.Error == OidcConstants.AuthorizeErrors.ConsentRequired ||
             Response.Error == OidcConstants.AuthorizeErrors.InteractionRequired;
 
-        if (isSafeError)
+        var returnToClientInStrictMode = _options.StrictAuthorizeErrorResponses && Response.RedirectUri != null &&
+                                         Response.Request?.ResponseMode != null;
+        if (isSafeError || returnToClientInStrictMode)
         {
             // this scenario we can return back to the client
             await ProcessResponseAsync(context);
