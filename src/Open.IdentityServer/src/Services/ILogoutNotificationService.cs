@@ -54,4 +54,9 @@ public class BackChannelLogoutRequest
     /// Gets a value indicating whether the session identifier is required.
     /// </summary>
     public bool SessionIdRequired { get; set; }
+
+    /// <summary>
+    /// Gets or sets the issuer of the user's session.
+    /// </summary>
+    public string Issuer { get; set; }
 }
