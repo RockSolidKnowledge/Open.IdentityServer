@@ -30,6 +30,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
     private readonly IResourceStore _resourceStore;
     private readonly ITokenValidator _tokenValidator;
     private readonly IRefreshTokenService _refreshTokenService;
+    private readonly ITokenRevocationService _tokenRevocationService;
     private readonly IEventService _events;
     private readonly IResourceOwnerPasswordValidator _resourceOwnerValidator;
     private readonly IProfileService _profile;
@@ -55,6 +56,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
     /// <param name="tokenValidator">The token validator.</param>
     /// <param name="refreshTokenService">The refresh token service used to validate refresh tokens.</param>
     /// <param name="events">The events.</param>
+    /// <param name="tokenRevocationService">The token revocation service</param>
     /// <param name="clock">The clock.</param>
     /// <param name="telemetry">the telemetry service</param>
     /// <param name="logger">The logger.</param>
@@ -70,6 +72,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         ITokenValidator tokenValidator,
         IRefreshTokenService refreshTokenService,
         IEventService events,
+        ITokenRevocationService tokenRevocationService,
         TimeProvider clock,
         ITelemetryService telemetry,
         ILogger<TokenRequestValidator> logger)
@@ -87,6 +90,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         _resourceStore = resourceStore;
         _tokenValidator = tokenValidator;
         _refreshTokenService = refreshTokenService;
+        _tokenRevocationService = tokenRevocationService;
         _events = events;
         _telemetry = telemetry;
     }
@@ -308,7 +312,16 @@ internal class TokenRequestValidator : ITokenRequestValidator
 
         // remove code from store
         // todo: set to consumed in the future?
-        await _authorizationCodeStore.RemoveAuthorizationCodeAsync(code);
+        // await _authorizationCodeStore.RemoveAuthorizationCodeAsync(code);
+        if (authCode.ConsumedTime != null)
+        {
+            LogError("Authorization code reuse detected, revoking issued tokens", new { consumed = authCode.ConsumedTime });
+            await _tokenRevocationService.RevokeGrantFamily(authCode);
+            return Invalid(OidcConstants.TokenErrors.InvalidGrant);
+        }
+
+        authCode.ConsumedTime = _clock.GetUtcNow().UtcDateTime;
+        await _authorizationCodeStore.UpdateAuthorizationCodeAsync(code, authCode);
 
         if (authCode.CreationTime.HasExceeded(authCode.Lifetime, _clock.GetUtcNow().UtcDateTime))
         {

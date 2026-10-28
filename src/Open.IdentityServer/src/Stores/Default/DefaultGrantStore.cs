@@ -103,7 +103,7 @@ public class DefaultGrantStore<T>
     {
         var hashedKey = GetHashedKey(key);
 
-        var grant = await Store.GetAsync(hashedKey);
+        PersistedGrant grant = await Store.GetAsync(hashedKey);
         if (grant != null && grant.Type == GrantType)
         {
             try

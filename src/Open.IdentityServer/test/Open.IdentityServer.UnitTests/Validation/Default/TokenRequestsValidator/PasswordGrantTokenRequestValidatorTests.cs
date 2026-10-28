@@ -14,9 +14,9 @@ using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace Open.IdentityServer.UnitTests.Validation.Default;
+namespace Open.IdentityServer.UnitTests.Validation.Default.TokenRequestsValidator;
 
-public class TokenRequestValidatorTests
+public class PasswordGrantTokenRequestValidatorTests
 {
     private static NameValueCollection PasswordGrantParameters(
         string userName = "bob", string password = "bob", string scope = "resource") =>
@@ -325,6 +325,4 @@ public class TokenRequestValidatorTests
             TelemetryConstants.TraceCategories.Validation, subject, "ValidateRequestAsync"));
         trace.Verify(t => t.Dispose(), Times.Once);
     }
-    
-    
 }

@@ -32,7 +32,7 @@ public class AuthorizationCode
     /// <value>
     /// The consumed time.
     /// </value>
-    public DateTime ConsumedTime { get; set; }
+    public DateTime? ConsumedTime { get; set; }
 
     /// <summary>
     /// Gets or sets the life time in seconds.

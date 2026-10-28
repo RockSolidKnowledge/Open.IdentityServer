@@ -18,6 +18,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Open.IdentityServer.Test.Utilities;
 
 namespace Open.IdentityServer.UnitTests.Validation.Setup;
@@ -43,7 +44,9 @@ internal static class Factory
         IRefreshTokenService refreshTokenService = null,
         IResourceValidator resourceValidator = null,
         IEventService events = null,
+        ITokenRevocationService tokenRevocationService = null,
         ITelemetryService telemetry = null,
+        TimeProvider timeProvider = null,
         MockLogger<TokenRequestValidator> logger = null)
     {
         if (options == null)
@@ -136,7 +139,8 @@ internal static class Factory
             tokenValidator,
             refreshTokenService,
             events,
-            new StubClock(), 
+            tokenRevocationService ?? Mock.Of<ITokenRevocationService>(),
+            timeProvider ?? new StubClock(), 
             telemetry,
             logger ?? TestLogger.Create<TokenRequestValidator>());
     }
