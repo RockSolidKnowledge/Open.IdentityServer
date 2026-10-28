@@ -138,6 +138,30 @@ public class SessionCleanupServiceTests
     }
 
     [Fact]
+    public async Task RemoveExpiredServerSideSessionsAsync_WhenExpiredSessionHasIssuer_ExpectIssuerPassedToSessionExpiry()
+    {
+        var expiredSession = FakeSessionSession("123", "sesh1", true);
+        expiredSession.AuthTicket!.Properties.Items[JwtClaimTypes.Issuer] = "https://issuer.test";
+
+        Mock.Get(serverSideSessionStore)
+            .SetupSequence(x =>
+                x.GetAndRemoveExpiredSessions(options.ServerSideSessions.RemoveExpiredSessionsBatchSize))
+            .ReturnsAsync([expiredSession]);
+
+        EndUserSessionEventContext? context = null;
+        Mock.Get(userSessionEventsService)
+            .Setup(x => x.HandleUserSessionExpiry(It.IsAny<EndUserSessionEventContext>()))
+            .Callback<EndUserSessionEventContext>(x => context = x);
+
+        var sut = CreateSut();
+
+        await sut.RemoveExpiredServerSideSessionsAsync();
+
+        context.Should().NotBeNull();
+        context.Issuer.Should().Be("https://issuer.test");
+    }
+
+    [Fact]
     public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace()
     {
         List<(Func<SessionCleanupService, Task> actMethod, string traceMethodName)> methods =

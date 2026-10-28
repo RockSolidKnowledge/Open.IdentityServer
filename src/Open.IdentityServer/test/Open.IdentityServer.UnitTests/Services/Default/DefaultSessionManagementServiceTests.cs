@@ -236,6 +236,25 @@ public class DefaultSessionManagementServiceTests
         Mock.Get(serverSessionStore)
             .Verify(x => x.DeleteSessions(fakeContext.SubjectId, fakeContext.SessionId));
     }
+
+    [Fact]
+    public async Task RemoveSessionsAsync_WhenSessionHasIssuer_ShouldPassIssuerToLogoutNotification()
+    {
+        var fakeSession = ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice", issuer: "https://issuer.test");
+
+        Mock.Get(serverSessionTicketStore)
+            .Setup(x => x.FilterServerAuthenticationTickets("alice", "session-0002"))
+            .ReturnsAsync([fakeSession]);
+
+        DefaultSessionManagementService sut = CreateSut();
+
+        await sut.RemoveSessionsAsync(new RemoveSessionsContext { SubjectId = "alice", SessionId = "session-0002" },
+            TestContext.Current.CancellationToken);
+
+        Mock.Get(backChannelLogoutService)
+            .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
+                ctx.Issuer == "https://issuer.test")));
+    }
     
     [Fact]
     public async Task RemoveSessionsAsync_WhenRemoveSessionsSetToFalse_ShouldNotRemoveSessions()
