@@ -12,7 +12,9 @@ Keys Compatibility Store
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 You will be able to configure read-only access to the ``Keys`` table in Open.IdentityServer. This will take the latest 
-signing key that exists and use it for signing, and all signing keys in the table will be used for validation. We have added the extension method ``IIdentityServerBuilder.AddCompatibilityKeyStores`` which will register these key stores in the DI container for you.
+signing key that exists for each configured algorithm and use it for signing, and all non-expired signing keys in the 
+table will be used for validation. We have added the extension method ``IIdentityServerBuilder.AddCompatibilityKeyStores`` 
+which will register these key stores in the DI container for you.
 
 .. code-block:: csharp
 
@@ -22,7 +24,12 @@ signing key that exists and use it for signing, and all signing keys in the tabl
         })
         .AddCompatibilityKeyStores();
 
-.. note:: 
-   By default keys will expire after 90 days. You can configure this behavior in the ``CompatabilityKeyStoreOptions``.
-
-   If you need automatic key rotation, see our KeyRotation component on `identityserver.com products page <https://www.identityserver.com/products>`_.
+.. note::
+    By default, the default propagation time will be respected if possible, and only RS256 keys will be loaded for signing, 
+    and keys will expire (not used for signing or validation) after 90 days.
+    
+    You can configure this behaviour in the ``CompatibilityKeyStoreOptions``.
+    
+    This store is intended only for transitioning to Open.IdentityServer, more robust key management should be 
+    set up before keys reach expiry. If you need automatic key rotation, see our KeyRotation component on 
+    `identityserver.com products page <https://www.identityserver.com/products>`_.

@@ -13,8 +13,9 @@ namespace Open.IdentityServer.Configuration;
 public class CompatibilityKeyStoreOptions
 {
     /// <summary>
-    /// Maximum lifetime for keys read from the key store, defaults to 90 days.
+    /// Maximum lifetime for keys read from the key store
     /// </summary>
+    /// <value>defaults to 90 days</value>
     public TimeSpan MaxLifetime { get; set; } = TimeSpan.FromDays(90);
 
     /// <summary>
@@ -29,7 +30,8 @@ public class CompatibilityKeyStoreOptions
     public ICollection<string> SupportedAlgorithms { get; set; } = [SecurityAlgorithms.RsaSha256];
 
     /// <summary>
-    /// Key propagation time, if a valid key exists with a creation time greater than this TimeSpan away will be used,
+    /// Key propagation time, if a valid key exists older than this timespan, it will be used. If none are older than
+    /// timespan, the oldest key will be used
     /// else newest key
     /// </summary>
     /// <value>defaults to 14 days</value>
