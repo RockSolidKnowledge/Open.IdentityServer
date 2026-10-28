@@ -28,15 +28,16 @@ public class IdentityServerSigningCredentialStore(
     TimeProvider timeProvider,
     CompatibilityKeyStoreOptions options,
     ITelemetryService telemetry,
-    ILogger<IdentityServerSigningCredentialStore> logger): 
-    IdentityServerSigningKeyStore(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, options), 
+    ILogger<IdentityServerSigningCredentialStore> logger) :
+    IdentityServerSigningKeyStore(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider,
+        options),
     ISigningCredentialStore
 {
     /// <summary>
-    /// Specifies signing algorthm of signing key to retrieve
+    /// Specifies signing algorthm of signing key to retrieve, defaults to <c>RS256</c>
     /// </summary>
-    public string Algorithm = Constants.SigningAlgorithms.RSA_SHA_256; //Default
-    
+    public string Algorithm = SecurityAlgorithms.RsaSha256;
+
     /// <summary>
     /// Gets the key to be used for signing from the key store, will be the newest key 
     /// </summary>
@@ -45,16 +46,25 @@ public class IdentityServerSigningCredentialStore(
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
-        var credentials = GetKeys()
+        var query = GetKeys()
             .Where(x => x.Credentials.Algorithm == Algorithm)
-            .Select(x => x.Credentials)
-            .FirstOrDefault();
+            .ToList();
+
+        var credPublished =
+            query.FirstOrDefault(x => x.Created.Add(options.KeyPropagationTime) < timeProvider.GetUtcNow());
+
+        if (credPublished != null)
+        {
+            return credPublished.Credentials;
+        }
+
+        var credentials = query.LastOrDefault();
 
         if (credentials == null)
         {
-            logger.LogWarning("No non-expired signing credentials found in the key store.");
+            logger.LogWarning("No non-expired signing credentials found in the key store");
         }
-        
-        return credentials;
+
+        return credentials?.Credentials;
     }
 }

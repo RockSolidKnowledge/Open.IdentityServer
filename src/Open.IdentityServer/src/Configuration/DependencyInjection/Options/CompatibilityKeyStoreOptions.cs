@@ -25,5 +25,13 @@ public class CompatibilityKeyStoreOptions
     /// Supported values are <c>RS256</c>, <c>RS384</c>, <c>RS512</c>, <c>PS256</c>,
     /// <c>PS384</c>, <c>PS512</c>, <c>ES256</c>, <c>ES384</c>, and <c>ES512</c>.
     /// </remarks>
+    /// <value>defaults to [<c>RS256</c>]</value>
     public ICollection<string> SupportedAlgorithms { get; set; } = [SecurityAlgorithms.RsaSha256];
+
+    /// <summary>
+    /// Key propagation time, if a valid key exists with a creation time greater than this TimeSpan away will be used,
+    /// else newest key
+    /// </summary>
+    /// <value>defaults to 14 days</value>
+    public TimeSpan KeyPropagationTime = TimeSpan.FromDays(14);
 }

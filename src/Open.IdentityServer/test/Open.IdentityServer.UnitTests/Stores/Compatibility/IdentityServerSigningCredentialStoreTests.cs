@@ -469,6 +469,83 @@ public class IdentityServerSigningCredentialStoreTests
     }
 
     [Fact]
+    public async Task GetSigningCredentialsAsync_WhenThreeKeysOneYoungerThanDefaultPropagationTime_ShouldReturnNewestPublishedCredential()
+    {
+        var fakeNewestRsaKey = new RsaIdentityServerKeyData
+        {
+            Id = "Fake_RS256_Newest",
+            Created = fakeNow.AddDays(-2),
+            Algorithm = SecurityAlgorithms.RsaSha256,
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        var fakeNewestPublishedRsaKey = new RsaIdentityServerKeyData
+        {
+            Id = "Fake_RS256_NewestPublished",
+            Created = fakeNow.AddDays(-20),
+            Algorithm = SecurityAlgorithms.RsaSha256,
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        var fakeOldestPublishedRsaKey = new RsaIdentityServerKeyData
+        {
+            Id = "Fake_RS256_OldestPublished",
+            Created = fakeNow.AddDays(-25),
+            Algorithm = SecurityAlgorithms.RsaSha256,
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        fakeKeyMaterials = [
+            new IdentityServerKeyMaterial { Id = fakeNewestPublishedRsaKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeNewestPublishedRsaKey.Algorithm, Data = fakeNewestPublishedRsaKey.ToExpectedJson() },
+            new IdentityServerKeyMaterial { Id = fakeNewestRsaKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeNewestRsaKey.Algorithm, Data = fakeNewestRsaKey.ToExpectedJson() },
+            new IdentityServerKeyMaterial { Id = fakeOldestPublishedRsaKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeOldestPublishedRsaKey.Algorithm, Data = fakeOldestPublishedRsaKey.ToExpectedJson() },
+        ];
+
+        Mock.Get(identityServerKeyStore)
+            .Setup(x => x.GetKeys())
+            .Returns(fakeKeyMaterials);
+
+        var sut = CreateSut();
+        var actual = await sut.GetSigningCredentialsAsync();
+
+        actual.Kid.Should().Be(fakeNewestPublishedRsaKey.Id);
+    }
+
+    [Fact]
+    public async Task GetSigningCredentialsAsync_WhenAllKeysYoungerThanDefaultPropagationTime_ShouldReturnOldestCredential()
+    {
+        var fakeNewestRsaKey = new RsaIdentityServerKeyData
+        {
+            Id = "Fake_RS256_Newest",
+            Created = fakeNow.AddDays(-2),
+            Algorithm = SecurityAlgorithms.RsaSha256,
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        var fakeOldestRsaKey = new RsaIdentityServerKeyData
+        {
+            Id = "Fake_RS256_Oldest",
+            Created = fakeNow.AddDays(-10),
+            Algorithm = SecurityAlgorithms.RsaSha256,
+            Parameters = FakeKeyData.RsaSecurityKey256,
+        };
+        
+        fakeKeyMaterials = [
+            new IdentityServerKeyMaterial { Id = fakeOldestRsaKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeOldestRsaKey.Algorithm, Data = fakeOldestRsaKey.ToExpectedJson() },
+            new IdentityServerKeyMaterial { Id = fakeNewestRsaKey.Id, Version = 1, Use = "signing", DataProtected = false, Algorithm = fakeNewestRsaKey.Algorithm, Data = fakeNewestRsaKey.ToExpectedJson() },
+        ];
+
+        Mock.Get(identityServerKeyStore)
+            .Setup(x => x.GetKeys())
+            .Returns(fakeKeyMaterials);
+
+        var sut = CreateSut();
+        var actual = await sut.GetSigningCredentialsAsync();
+
+        actual.Kid.Should().Be(fakeOldestRsaKey.Id);
+    }
+
+    [Fact]
     public async Task GetSigningCredentialsAsync_WhenCalled_ShouldTelemetryTrace()
     {
         Mock.Get(telemetry).Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
@@ -481,7 +558,7 @@ public class IdentityServerSigningCredentialStoreTests
         // Verify that the telemetry trace was called
         Mock.Get(telemetry)
             .Verify(t => t.Trace(
-                TelemetryConstants.TraceCategories.Stores, sut, "GetSigningCredentialsAsync"));
+                TelemetryConstants.TraceCategories.Stores, sut, nameof(sut.GetSigningCredentialsAsync)));
         Mock.Get(trace).Verify(t => t.Dispose(), Times.Once);
     }
 }
