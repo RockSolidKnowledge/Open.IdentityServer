@@ -45,6 +45,8 @@ public class PushedAuthorizationRequestValidatorTests
         PushAuthorizationRequestValidationResult result = await sut.ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters, callingClient),CancellationToken.None);
         
         result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+        result.ErrorDescription.Should().Be("request_uri can only be used at the authorization endpoint");
     }
 
     [Fact]
