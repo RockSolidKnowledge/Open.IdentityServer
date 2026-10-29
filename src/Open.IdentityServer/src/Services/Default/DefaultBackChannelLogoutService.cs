@@ -153,7 +153,7 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
             throw new InvalidOperationException("nonce claim is not allowed in the back-channel signout token.");
         }
 
-        var issuer = Tools.ContextAccessor.HttpContext.GetIdentityServerIssuerUri();
+        var issuer = request.Issuer ?? Tools.ContextAccessor.HttpContext.GetIdentityServerIssuerUri();
         return await Tools.IssueJwtAsync(DefaultLogoutTokenLifetime, issuer, IdentityServerConstants.TokenTypes.LogoutToken, claims);
     }
 

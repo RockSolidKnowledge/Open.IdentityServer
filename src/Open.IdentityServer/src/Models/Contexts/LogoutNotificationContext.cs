@@ -24,4 +24,9 @@ public class LogoutNotificationContext
     /// The list of client Ids that the user has authenticated to.
     /// </summary>
     public IEnumerable<string> ClientIds { get; set; }
+
+    /// <summary>
+    /// The issuer of the user's session.
+    /// </summary>
+    public string Issuer { get; set; }
 }

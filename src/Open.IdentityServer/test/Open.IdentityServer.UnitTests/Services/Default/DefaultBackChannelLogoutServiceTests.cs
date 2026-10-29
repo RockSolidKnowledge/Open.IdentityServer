@@ -29,11 +29,11 @@ public class DefaultBackChannelLogoutServiceTests
         _tools = new MockIdentityServerTools(Mock.Of<IHttpContextAccessor>(), _tokenCreation.Object, _clock);
     }
 
-    private DefaultBackChannelLogoutService CreateSubject()
+    private DefaultBackChannelLogoutService CreateSubject(IdentityServerTools tools = null)
     {
         return new DefaultBackChannelLogoutService(
             _clock,
-            _tools,
+            tools ?? _tools,
             _logoutNotification.Object,
             _backChannelLogoutHttpClient.Object,
             _telemetry.Object,
@@ -57,6 +57,30 @@ public class DefaultBackChannelLogoutServiceTests
         _telemetry.Verify(t => t.Trace(
             TelemetryConstants.TraceCategories.Services, subject, "SendLogoutNotificationsAsync"));
         _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task SendLogoutNotificationsAsync_WhenRequestHasIssuer_ShouldIssueTokenWithoutHttpContext()
+    {
+        _logoutNotification.Setup(ln => ln.GetBackChannelLogoutNotificationsAsync(It.IsAny<LogoutNotificationContext>()))
+            .ReturnsAsync([
+                new BackChannelLogoutRequest
+                {
+                    ClientId = "client1",
+                    SubjectId = "bob",
+                    SessionId = "session1",
+                    LogoutUri = "https://client1/logout",
+                    Issuer = "https://issuer.test"
+                }
+            ]);
+
+        // real tools, as MockIdentityServerTools drops the issuer; the accessor has no HttpContext,
+        // as when the session cleanup service sends the notification
+        var subject = CreateSubject(new IdentityServerTools(Mock.Of<IHttpContextAccessor>(), _tokenCreation.Object, _clock));
+
+        await subject.SendLogoutNotificationsAsync(new LogoutNotificationContext());
+
+        _tokenCreation.Verify(x => x.CreateTokenAsync(It.Is<Token>(t => t.Issuer == "https://issuer.test")), Times.Once);
     }
 }
 
