@@ -7,8 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Moq" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <PackageReference Include="Moq" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="2.3.13" />
     </ItemGroup>
 
 </Project>

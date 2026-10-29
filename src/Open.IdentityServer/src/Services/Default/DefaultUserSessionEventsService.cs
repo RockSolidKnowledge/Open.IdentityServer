@@ -122,14 +122,14 @@ public class DefaultUserSessionEventsService(
             TimeSpan? diff = session.Session.Expires - session.Session.Renewed;
             session.Session.Renewed = timeProvider.GetUtcNow().UtcDateTime;
             session.Session.Expires = session.Session.Renewed + diff;
+            session.Session.AuthenticationTicket?.Properties.IssuedUtc = session.Session.Renewed;
+            session.Session.AuthenticationTicket?.Properties.ExpiresUtc = session.Session.Expires;
             
             if (idsOptions.Authentication.CookieSlidingExpiration &&
-                session.AuthTicket?.Properties is { IsPersistent: true, AllowRefresh: true or null })
+                session.Session.AuthenticationTicket?.Properties is { IsPersistent: true, AllowRefresh: true or null })
             {
-                session.AuthTicket.Properties.IssuedUtc = session.Session.Renewed;
-                session.AuthTicket.Properties.ExpiresUtc = session.Session.Expires;
-                session.AuthTicket.Properties.SetString(IdentityServerConstants.ForceCookieRefresh, string.Empty);
-                await serverSessionTicketStore.RenewAsync(session.Session.Key, session.AuthTicket);
+                session.Session.AuthenticationTicket.Properties.SetString(IdentityServerConstants.ForceCookieRefresh, string.Empty);
+                await serverSessionTicketStore.RenewAsync(session.Session.Key, session.Session.AuthenticationTicket);
             }
             else
             {

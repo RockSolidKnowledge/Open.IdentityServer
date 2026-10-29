@@ -15,7 +15,6 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
-using Open.IdentityServer.Services.Default;
 using Open.IdentityServer.Stores;
 using Xunit;
 
@@ -195,11 +194,9 @@ public class SessionCleanupServiceTests
             session.Expires = DateTime.UtcNow.AddDays(-3);
         }
 
-        return new AuthenticationTicketFilterResult
-        {
-            Session = session,
-            AuthTicket = GenerateAuthenticationTicket(session, clientsIds),
-        };
+        session.AuthenticationTicket = GenerateAuthenticationTicket(session, clientsIds);
+
+        return new AuthenticationTicketFilterResult { Session = session };
     }
     
     private static AuthenticationTicket GenerateAuthenticationTicket(ServerSideSession session, string[]? clientIds = null)

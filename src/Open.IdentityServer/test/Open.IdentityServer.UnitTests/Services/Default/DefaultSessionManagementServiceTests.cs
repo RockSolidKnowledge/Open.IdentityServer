@@ -106,8 +106,8 @@ public class DefaultSessionManagementServiceTests
             actualSession.Created.Should().Be(expected.Session.Created);
             actualSession.Renewed.Should().Be(expected.Session.Renewed);
             actualSession.Expires.Should().Be(expected.Session.Expires);
-            actualSession.AuthenticationTicket.Should().BeEquivalentTo(expected.AuthTicket);
-            actualSession.ClientIds.Should().BeEquivalentTo(expected.AuthTicket!.Properties.GetClientList());
+            actualSession.AuthenticationTicket.Should().BeEquivalentTo(expected.Session.AuthenticationTicket);
+            actualSession.ClientIds.Should().BeEquivalentTo(expected.Session.AuthenticationTicket!.Properties.GetClientList());
         }
 
         Mock.Get(serverSessionTicketStore)
@@ -149,8 +149,8 @@ public class DefaultSessionManagementServiceTests
                 .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
                     ctx.SessionId == fakeSession.Session.SessionId &&
                     ctx.SubjectId == fakeSession.Session.SubjectId &&
-                    fakeSession.AuthTicket != null &&
-                    ctx.ClientIds == fakeSession.AuthTicket.Properties.GetClientList())));
+                    fakeSession.Session.AuthenticationTicket != null &&
+                    ctx.ClientIds == fakeSession.Session.AuthenticationTicket.Properties.GetClientList())));
         }
         
         Mock.Get(persistedGrantStore)
@@ -230,8 +230,8 @@ public class DefaultSessionManagementServiceTests
                 .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
                     ctx.SessionId == fakeSession.Session.SessionId &&
                     ctx.SubjectId == fakeSession.Session.SubjectId &&
-                    fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    fakeSession.Session.AuthenticationTicket != null &&
+                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.Session.AuthenticationTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)
@@ -311,8 +311,8 @@ public class DefaultSessionManagementServiceTests
                 .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
                     ctx.SessionId == fakeSession.Session.SessionId &&
                     ctx.SubjectId == fakeSession.Session.SubjectId &&
-                    fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    fakeSession.Session.AuthenticationTicket != null &&
+                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.Session.AuthenticationTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)
@@ -355,8 +355,8 @@ public class DefaultSessionManagementServiceTests
                 .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
                     ctx.SessionId == fakeSession.Session.SessionId &&
                     ctx.SubjectId == fakeSession.Session.SubjectId &&
-                    fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    fakeSession.Session.AuthenticationTicket != null &&
+                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.Session.AuthenticationTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)
@@ -399,8 +399,8 @@ public class DefaultSessionManagementServiceTests
                 .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
                     ctx.SessionId == fakeSession.Session.SessionId &&
                     ctx.SubjectId == fakeSession.Session.SubjectId &&
-                    fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    fakeSession.Session.AuthenticationTicket != null &&
+                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.Session.AuthenticationTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)

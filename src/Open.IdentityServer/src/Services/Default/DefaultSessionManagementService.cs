@@ -49,7 +49,7 @@ public class DefaultSessionManagementService(
             var sessions = await serverSessionTicketStore.FilterServerAuthenticationTickets(context.SubjectId, context.SessionId);
             foreach (var session in sessions)
             {
-                List<string>? sessionClientList = session.AuthTicket?.Properties.GetClientList().ToList();
+                List<string>? sessionClientList = session.Session.AuthenticationTicket?.Properties.GetClientList().ToList();
                 string[] clientIds = [];
 
                 if (!sessionClientList.IsNullOrEmpty() && !context.ClientIds.IsNullOrEmpty())

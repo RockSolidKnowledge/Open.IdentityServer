@@ -70,7 +70,7 @@ public class SessionCleanupService(
                 {
                     SubjectId = expiredSession.Session.SubjectId,
                     SessionId = expiredSession.Session.SessionId,
-                    ClientIds = expiredSession.AuthTicket?.Properties.GetClientList().ToArray() ?? [],
+                    ClientIds = expiredSession.Session.AuthenticationTicket?.Properties.GetClientList().ToArray() ?? [],
                 });
             }
         } while (found >= options.ServerSideSessions.RemoveExpiredSessionsBatchSize);

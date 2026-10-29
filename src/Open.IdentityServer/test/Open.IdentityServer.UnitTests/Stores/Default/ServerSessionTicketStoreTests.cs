@@ -6,22 +6,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 using Open.IdentityServer.Configuration;
-using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
-using Open.IdentityServer.Stores.Serialization;
 using Open.IdentityServer.Test.Utilities;
 using Open.IdentityServer.UnitTests.Utilities.Generators;
 using Xunit;
@@ -36,16 +32,14 @@ public class ServerSessionTicketStoreTests
     private readonly IPersistedGrantStore persistedGrantStore =
         Mock.Of<IPersistedGrantStore>();
 
-    private readonly IDataProtectionProvider dataProtectionProvider = Mock.Of<IDataProtectionProvider>();
     private readonly IHandleGenerationService handleGenerationService = Mock.Of<IHandleGenerationService>();
-    private readonly MockDataProtector dataProtector = new();
     private readonly FakeTimeProvider fakeTimeProvider = new();
     private readonly IHttpContextAccessor httpContextAccessor = Mock.Of<IHttpContextAccessor>(); 
     private readonly ITelemetryService telemetry = Mock.Of<ITelemetryService>();
     private readonly MockLogger<ServerSessionTicketStore> logger = new();
 
     private readonly IdentityServerOptions fakeOptions = new();
-    private readonly IServiceProvider fakeserviceProvider = Mock.Of<IServiceProvider>();
+    private readonly IServiceProvider fakeServiceProvider = Mock.Of<IServiceProvider>();
     private readonly HttpContext fakeHttpContext = new DefaultHttpContext();
 
     private static readonly DateTime FakeNow = new(2026, 01, 01, 12, 0, 0, DateTimeKind.Utc);
@@ -55,11 +49,7 @@ public class ServerSessionTicketStoreTests
     {
         fakeTimeProvider.SetUtcNow(FakeNow);
         fakeOptions.IssuerUri = FakeIssuer;
-        fakeHttpContext.RequestServices = fakeserviceProvider;
-        
-        Mock.Get(dataProtectionProvider)
-            .Setup(x => x.CreateProtector(DataProtectionConstants.ServerSideTicketStorePurpose))
-            .Returns(dataProtector);
+        fakeHttpContext.RequestServices = fakeServiceProvider;
 
         Mock.Get(handleGenerationService)
             .Setup(x => x.GenerateAsync(32))
@@ -69,7 +59,7 @@ public class ServerSessionTicketStoreTests
             .Setup(x => x.FilterSessions(It.IsAny<SessionQuery>()))
             .ReturnsAsync(QueryResult<ServerSideSession>.Empty);
 
-        Mock.Get(fakeserviceProvider)
+        Mock.Get(fakeServiceProvider)
             .Setup(x => x.GetService(typeof(IdentityServerOptions)))
             .Returns(fakeOptions);
         
@@ -79,8 +69,7 @@ public class ServerSessionTicketStoreTests
     }
 
     private ServerSessionTicketStore CreateSut() => new(
-        serverServerSideSessionStore, 
-        dataProtectionProvider,
+        serverServerSideSessionStore,
         persistedGrantStore,
         handleGenerationService,
         fakeTimeProvider, fakeOptions, httpContextAccessor, telemetry, logger);
@@ -115,19 +104,7 @@ public class ServerSessionTicketStoreTests
         createdSessionModel.Created.Should().Be(FakeNow);
         createdSessionModel.Renewed.Should().Be(FakeNow);
         createdSessionModel.Expires.Should().BeNull();
-
-        var jsonElement = JsonElement.Parse(createdSessionModel.Data);
-
-        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
-        var actualPayload = jsonElement.GetProperty("Payload").GetString();
-        actualPayload.Should().NotBeNull();
-
-        var expectedAuthTicket = authenticationTicket.Clone();
-        expectedAuthTicket.Properties.Items[JwtClaimTypes.Issuer] = FakeIssuer;
-        
-        string expectedJson = JsonSerializer.Serialize(expectedAuthTicket.ToSerializableObj(),
-            ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
+        createdSessionModel.AuthenticationTicket.Should().Be(authenticationTicket);
     }
 
     [Fact]
@@ -164,19 +141,7 @@ public class ServerSessionTicketStoreTests
         createdSessionModel.Created.Should().Be(issuedUtc);
         createdSessionModel.Renewed.Should().Be(issuedUtc);
         createdSessionModel.Expires.Should().Be(expiresUtc);
-
-        var jsonElement = JsonElement.Parse(createdSessionModel.Data);
-
-        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
-        var actualPayload = jsonElement.GetProperty("Payload").GetString();
-        actualPayload.Should().NotBeNull();
-
-        var expectedAuthTicket = authenticationTicket.Clone();
-        expectedAuthTicket.Properties.Items[JwtClaimTypes.Issuer] = FakeIssuer;
-        
-        string expectedJson = JsonSerializer.Serialize(expectedAuthTicket.ToSerializableObj(),
-            ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
+        createdSessionModel.AuthenticationTicket.Should().Be(authenticationTicket);
     }
 
     [Theory]
@@ -217,19 +182,7 @@ public class ServerSessionTicketStoreTests
         createdSessionModel.Created.Should().Be(issuedUtc);
         createdSessionModel.Renewed.Should().Be(issuedUtc);
         createdSessionModel.Expires.Should().Be(expiresUtc);
-
-        var jsonElement = JsonElement.Parse(createdSessionModel.Data);
-
-        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
-        var actualPayload = jsonElement.GetProperty("Payload").GetString();
-        actualPayload.Should().NotBeNull();
-
-        var expectedAuthTicket = authenticationTicket.Clone();
-        expectedAuthTicket.Properties.Items[JwtClaimTypes.Issuer] = FakeIssuer;
-        
-        string expectedJson = JsonSerializer.Serialize(expectedAuthTicket.ToSerializableObj(),
-            ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
+        createdSessionModel.AuthenticationTicket.Should().Be(authenticationTicket);
     }
 
     [Fact]
@@ -274,22 +227,12 @@ public class ServerSessionTicketStoreTests
         createdSessionModel.Created.Should().Be(existingSession.Created);
         createdSessionModel.Renewed.Should().Be(FakeNow);
         createdSessionModel.Expires.Should().BeNull();
-
-        var jsonElement = JsonElement.Parse(createdSessionModel.Data);
-
-        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
-        var actualPayload = jsonElement.GetProperty("Payload").GetString();
-        actualPayload.Should().NotBeNull();
-
-        string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
-            ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
+        createdSessionModel.AuthenticationTicket.Should().Be(authenticationTicket);
     }
 
     [Fact]
     public async Task RenewAsync_WhenSessionOverwritten_ShouldExpirePreviousGrants()
     {
-        
         ServerSideSession existingSession = new ServerSideSession
         {
             Key = Guid.NewGuid().ToString(), Scheme = "AuthScheme", 
@@ -357,7 +300,7 @@ public class ServerSessionTicketStoreTests
 
         AuthenticationTicket authenticationTicket =
             ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, subjectId, sessionId, displayName, issuedUtc, expiresUtc);
-
+        
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.GetSession(existingSession.Key))
             .ReturnsAsync(existingSession);
@@ -381,16 +324,7 @@ public class ServerSessionTicketStoreTests
         updatedSessionModel.Created.Should().Be(existingSession.Created);
         updatedSessionModel.Renewed.Should().Be(issuedUtc);
         updatedSessionModel.Expires.Should().Be(expiresUtc);
-
-        var jsonElement = JsonElement.Parse(updatedSessionModel.Data);
-
-        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
-        var actualPayload = jsonElement.GetProperty("Payload").GetString();
-        actualPayload.Should().NotBeNull();
-
-        string expectedJson = JsonSerializer.Serialize(authenticationTicket.ToSerializableObj(),
-            ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
+        updatedSessionModel.AuthenticationTicket.Should().Be(authenticationTicket);
     }
     
     [Fact]
@@ -401,7 +335,7 @@ public class ServerSessionTicketStoreTests
         string sessionId = Guid.NewGuid().ToString();
 
         AuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, subjectId, sessionId);
-
+        
         ServerSideSession? createdSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.CreateSession(It.IsAny<ServerSideSession>()))
@@ -422,19 +356,7 @@ public class ServerSessionTicketStoreTests
         createdSessionModel.Created.Should().Be(FakeNow);
         createdSessionModel.Renewed.Should().Be(FakeNow);
         createdSessionModel.Expires.Should().BeNull();
-
-        var jsonElement = JsonElement.Parse(createdSessionModel.Data);
-
-        jsonElement.GetProperty("Version").GetInt32().Should().Be(1);
-        var actualPayload = jsonElement.GetProperty("Payload").GetString();
-        actualPayload.Should().NotBeNull();
-
-        var expectedAuthTicket = authenticationTicket.Clone();
-        expectedAuthTicket.Properties.Items[JwtClaimTypes.Issuer] = FakeIssuer;
-        
-        string expectedJson = JsonSerializer.Serialize(expectedAuthTicket.ToSerializableObj(),
-            ServerSessionTicketStore.JsonSettings);
-        dataProtector.ValidateProtectedData(actualPayload, expectedJson);
+        createdSessionModel.AuthenticationTicket.Should().Be(authenticationTicket);
     }
 
     [Theory]
@@ -496,10 +418,9 @@ public class ServerSessionTicketStoreTests
             Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
             Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
         };
-        SerializedAuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateSerializedAuthenticationTicket(
+        existingSession.AuthenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(
             existingSession.Scheme, existingSession.SubjectId, existingSession.SessionId, 
             existingSession.DisplayName, existingSession.Renewed, existingSession.Expires);
-        existingSession.Data = GenerateFakeProtectedData(authenticationTicket);
 
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.GetSession(existingSession.Key))
@@ -508,16 +429,7 @@ public class ServerSessionTicketStoreTests
         ServerSessionTicketStore sut = CreateSut();
         AuthenticationTicket? actual = await sut.RetrieveAsync(existingSession.Key);
 
-        actual.Should().BeOfType<AuthenticationTicket>();
-        actual.AuthenticationScheme.Should().Be(existingSession.Scheme);
-        actual.Principal.Identity.Should().NotBeNull();
-        actual.Principal.Identity?.AuthenticationType.Should()
-            .BeEquivalentTo(authenticationTicket.User.AuthenticationType);
-        actual.Principal.Identity?.Name.Should().BeEquivalentTo(existingSession.DisplayName);
-        actual.Principal.Identities.Should().Contain(x => 
-            x.NameClaimType == JwtClaimTypes.Name && 
-            x.RoleClaimType == JwtClaimTypes.Role);
-        actual.Properties.Items.Should().BeEquivalentTo(authenticationTicket.Items);
+        actual.Should().BeEquivalentTo(existingSession.AuthenticationTicket);
     }
 
     [Theory]
@@ -556,15 +468,16 @@ public class ServerSessionTicketStoreTests
             Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
             Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
             Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
-            Data = GenerateFakeProtectedData(ServerSessionTestGenerators.GenerateSerializedAuthenticationTicket(
-                "AuthScheme", 
-                "bob", 
-                "session_id",
-                "bob", 
-                new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc), 
-                new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
-                ["1", "2"]))
+            Data = Guid.NewGuid().ToString(),
         };
+        existingSession.AuthenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(
+            "AuthScheme", 
+            "bob", 
+            "session_id",
+            "bob", 
+            new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc), 
+            new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
+            clientIds: ["1", "2"]);
 
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.GetSession(keyId))
@@ -580,40 +493,11 @@ public class ServerSessionTicketStoreTests
 
         var expiredTicket = fakeHttpContext.Items["idsvr:TicketExpired"] as AuthenticationTicket;
         expiredTicket.Should().NotBeNull();
-        expiredTicket!.Principal.GetSubjectId().Should().Be("bob");
+        expiredTicket.Principal.GetSubjectId().Should().Be("bob");
         expiredTicket.Properties.GetSessionId().Should().Be("session_id");
 
         Mock.Get(serverServerSideSessionStore)
             .Verify(x => x.DeleteSession(keyId));
-    }
-
-    [Theory]
-    [InlineData("{invalid.json}")]
-    [InlineData("{\"Version\": 2, Payload: \"SOMEDATA\"}")]
-    public async Task FilterServerAuthenticationTickets_WhenSessionDataDeserialisationFails_ShouldReturnSkipFailingAuthTicket(string data)
-    {
-        const string testSubjectId = "bob";
-        const string testSessionId = "session-0";
-        
-        IEnumerable<ServerSideSession> sessions = [
-            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: data),
-            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-        ];
-
-        List<SerializedAuthenticationTicket> expectedAuthTickets = [];
-        sessions = sessions.Select(session => GenerateSerialisedData(expectedAuthTickets, session));
-        
-        Mock.Get(serverServerSideSessionStore)
-            .Setup(x => x.FilterSessions(testSubjectId, testSessionId))
-            .ReturnsAsync(sessions);
-        
-        ServerSessionTicketStore sut = CreateSut();
-        IEnumerable<AuthenticationTicketFilterResult> actual =
-            (await sut.FilterServerAuthenticationTickets(testSubjectId, testSessionId)).ToList();
-
-        actual.Should().NotBeNullOrEmpty();
-        actual.Should().HaveCount(expectedAuthTickets.Count);
     }
 
     [Fact]
@@ -638,31 +522,22 @@ public class ServerSessionTicketStoreTests
         const string testSubjectId = "bob";
         const string testSessionId = "session-0";
         
-        IEnumerable<ServerSideSession> sessions = [
-            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+        List<ServerSideSession> sessions = [
+            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: Guid.NewGuid().ToString()),
+            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: Guid.NewGuid().ToString()),
+            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: Guid.NewGuid().ToString()),
         ];
-
-        List<SerializedAuthenticationTicket> expectedAuthTickets = [];
-        sessions = sessions.Select(x => GenerateSerialisedData(expectedAuthTickets, x))
-            .ToList();
         
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.FilterSessions(testSubjectId, testSessionId))
             .ReturnsAsync(sessions);
         
         ServerSessionTicketStore sut = CreateSut();
-        IEnumerable<AuthenticationTicketFilterResult> actual =
-            (await sut.FilterServerAuthenticationTickets(testSubjectId, testSessionId)).ToList();
+        IEnumerable<AuthenticationTicketFilterResult> actual = [.. await sut.FilterServerAuthenticationTickets(testSubjectId, testSessionId)];
 
-        actual.Should().NotBeNullOrEmpty();
-        actual.Should().HaveCount(expectedAuthTickets.Count);
-
-        foreach (var session in sessions)
-        {
-            ValidateAutTicketExists(actual, session);
-        }
+        List<AuthenticationTicketFilterResult> expected = [.. sessions.Select(x => new AuthenticationTicketFilterResult { Session = x })];
+        
+        actual.Should().BeEquivalentTo(expected);
     }
     
     [Fact]
@@ -670,40 +545,22 @@ public class ServerSessionTicketStoreTests
     {
         const int batchSize = 5;
         
-        IEnumerable<ServerSideSession> sessions = [
-            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+        List<ServerSideSession> sessions = [
+            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: Guid.NewGuid().ToString()),
+            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: Guid.NewGuid().ToString()),
+            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: Guid.NewGuid().ToString()),
         ];
-
-        List<SerializedAuthenticationTicket> expectedAuthTickets = [];
-        sessions = sessions.Select(x => GenerateSerialisedData(expectedAuthTickets, x))
-            .ToList();
         
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.GetAndRemoveExpiredSessions(batchSize))
             .ReturnsAsync(sessions);
         
         ServerSessionTicketStore sut = CreateSut();
-        IEnumerable<AuthenticationTicketFilterResult> actual =
-            (await sut.GetAndRemoveExpiredSessions(batchSize)).ToList();
+        IEnumerable<AuthenticationTicketFilterResult> actual = [.. await sut.GetAndRemoveExpiredSessions(batchSize)];
 
-        actual.Should().NotBeNullOrEmpty();
-        actual.Should().HaveCount(expectedAuthTickets.Count);
+        List<AuthenticationTicketFilterResult> expected = [.. sessions.Select(x => new AuthenticationTicketFilterResult { Session = x })];
 
-        foreach (var session in sessions)
-        {
-            ValidateAutTicketExists(actual, session);
-        }
-    }
-
-    private void ValidateAutTicketExists(IEnumerable<AuthenticationTicketFilterResult> result, ServerSideSession sesison)
-    {
-        result.Should().Contain(x =>
-            x.AuthTicket != null &&
-            x.AuthTicket.AuthenticationScheme == sesison.Scheme &&
-            x.AuthTicket.Principal.GetSubjectId() == sesison.SubjectId &&
-            x.AuthTicket.Properties.GetSessionId() == sesison.SessionId);
+        actual.Should().BeEquivalentTo(expected);
     }
     
     [Fact]
@@ -716,17 +573,15 @@ public class ServerSessionTicketStoreTests
         };
 
         QueryResult<ServerSideSession> fakeResult;
-        IEnumerable<ServerSideSession> sessions = [
-            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
-            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith"),
+        List<ServerSideSession> sessions = [
+            ServerSessionTestGenerators.FakeSession(key: "key-0", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: Guid.NewGuid().ToString()),
+            ServerSessionTestGenerators.FakeSession(key: "key-4", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: Guid.NewGuid().ToString()),
+            ServerSessionTestGenerators.FakeSession(key: "key-5", scheme: "AuthScheme", subjectId: "bob", sessionId: "session-0", displayName: "Bob Smith", data: Guid.NewGuid().ToString()),
         ];
-
-        List<SerializedAuthenticationTicket> expectedAuthTickets = [];
+        
         fakeResult = new QueryResult<ServerSideSession>
         {
-            
-            Results = sessions.Select(x => GenerateSerialisedData(expectedAuthTickets, x)).ToList(),
+            Results = sessions,
         };
         
         Mock.Get(serverServerSideSessionStore)
@@ -734,13 +589,21 @@ public class ServerSessionTicketStoreTests
             .ReturnsAsync(fakeResult);
         
         ServerSessionTicketStore sut = CreateSut();
-        QueryResult<AuthenticationTicketFilterResult> actual =
-            (await sut.FilterServerAuthenticationTickets(fakeQuery, TestContext.Current.CancellationToken));
+        QueryResult<AuthenticationTicketFilterResult> actual = await sut.FilterServerAuthenticationTickets(fakeQuery, TestContext.Current.CancellationToken);
+
+        var expected = new QueryResult<AuthenticationTicketFilterResult>
+        {
+            ResultsToken = fakeResult.ResultsToken,
+            HasPrevResults = fakeResult.HasPrevResults,
+            HasNextResults = fakeResult.HasNextResults,
+            TotalCount = fakeResult.TotalCount,
+            TotalPages = fakeResult.TotalPages,
+            CurrentPage = fakeResult.CurrentPage,
+            Results = [.. fakeResult.Results.Select(x => new AuthenticationTicketFilterResult { Session = x })],
+        };
         
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(fakeResult, cnf => cnf.Excluding(x => x.Results));
-        actual.Results.Should().NotBeNullOrEmpty();
-        actual.Results.Should().HaveCount(expectedAuthTickets.Count);
+        actual.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
@@ -786,31 +649,22 @@ public class ServerSessionTicketStoreTests
             .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
     }
 
-    private ServerSideSession GenerateSerialisedData(
-        List<SerializedAuthenticationTicket> expectedAuthTickets,
-        ServerSideSession ServerSideSession)
-    {
-        if (string.IsNullOrWhiteSpace(ServerSideSession.Data))
-        {
-            SerializedAuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateSerializedAuthenticationTicket(
-                ServerSideSession.Scheme, ServerSideSession.SubjectId, ServerSideSession.SessionId,
-                ServerSideSession.DisplayName, ServerSideSession.Renewed, ServerSideSession.Expires);
-            ServerSideSession.Data = GenerateFakeProtectedData(authenticationTicket);
-            
-            expectedAuthTickets.Add(authenticationTicket);
-        }
-            
-        return ServerSideSession;
-    }
-
-    private string GenerateFakeProtectedData(SerializedAuthenticationTicket serializedAuthenticationTicket)
-    {
-        DataProtectedSessionData sessionData = new DataProtectedSessionData
-        {
-            Payload = dataProtector.GenerateFakeProtectedData(JsonSerializer.Serialize(serializedAuthenticationTicket,
-                    ServerSessionTicketStore.JsonSettings))
-        };
-
-        return JsonSerializer.Serialize(sessionData, ServerSessionTicketStore.JsonSettings);
-    }
+    // private List<AuthenticationTicket> SetupAuthTicketDeserialisation(IEnumerable<ServerSideSession> sessions)
+    // {
+    //     List<AuthenticationTicket> expectedTickets = [];
+    //     
+    //     foreach (var session in sessions)
+    //     {
+    //         var ticket = ServerSessionTestGenerators.GenerateAuthenticationTicket(session.Scheme, session.SubjectId,
+    //             session.SessionId, session.DisplayName, session.Renewed, session.Expires);
+    //
+    //         Mock.Get(authenticationTicketSerializer)
+    //             .Setup(x => x.Deserialize(session.Data))
+    //             .Returns(ticket);
+    //         
+    //         expectedTickets.Add(ticket);
+    //     }
+    //
+    //     return expectedTickets;
+    // }
 }
