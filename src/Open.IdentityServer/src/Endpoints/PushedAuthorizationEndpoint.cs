@@ -67,14 +67,15 @@ internal class PushedAuthorizationRequestEndpoint(
             .ValidateAsync(validationContext, requestContext.RequestAborted);
 
         telemetry.CountPushedAuthorizationRequest(
-            result.ValidatedAuthorizeRequest.ClientId ,
+            validationContext.PushingClient.ClientId ,
             result.IsError ? result.Error : null);
         
         if (result.IsError)
         {
-            logger.LogError("Bad PAR request from {0}: {1}",
-                result.ValidatedAuthorizeRequest.ClientId,
-                result.Error);
+            logger.LogError("Bad PAR request from {clientId}: {error} ({description})",
+                validationContext.PushingClient.ClientId,
+                result.Error,
+                result.ErrorDescription);
             
             return new BadRequestResult(result.Error, result.ErrorDescription);
         }
@@ -110,7 +111,7 @@ internal class PushedAuthorizationRequestEndpoint(
             Custom = custom
         };
 
-        logger.LogError("PushedAuthorizationRequest error: {error}:{errorDescriptions}", error, error ?? "-no message-");
+        logger.LogError("PushedAuthorizationRequest error: {error}:{errorDescriptions}", error, errorDescription ?? "-no message-");
 
         return new TokenErrorResult(response);
     }
