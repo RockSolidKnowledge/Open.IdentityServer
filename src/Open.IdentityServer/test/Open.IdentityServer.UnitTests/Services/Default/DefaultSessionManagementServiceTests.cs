@@ -127,7 +127,7 @@ public class DefaultSessionManagementServiceTests
         List<AuthenticationTicketFilterResult> fakeSessions =
         [
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice"),
-            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice"),
+            ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key4", "SchemeB", "alice", "session-0002", "Alice", clientIds: ["fake-client-a", "fake-client-b"]),
             ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key7", "SchemeC", "alice", "session-0002", "Alice"),
         ];
 
@@ -150,15 +150,51 @@ public class DefaultSessionManagementServiceTests
                     ctx.SessionId == fakeSession.Session.SessionId &&
                     ctx.SubjectId == fakeSession.Session.SubjectId &&
                     fakeSession.AuthTicket != null &&
-                    ctx.ClientIds == fakeSession.AuthTicket.Properties.GetClientList())));
+                    ctx.ClientIds.SequenceEqual(fakeSession.AuthTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(f =>
                 f.SessionId == fakeContext.SessionId &&
                 f.SubjectId == fakeContext.SubjectId &&
-                f.Types.AsEnumerable().ToHashSet().SetEquals(AllGrantTypes) &&
+                f.Types.AsEnumerable().SequenceEqual(AllGrantTypes) &&
                 f.ClientIds == (fakeContext.ClientIds ?? Array.Empty<string>()))));
+        
+        Mock.Get(serverSessionStore)
+            .Verify(x => x.DeleteSessions(fakeContext.SubjectId, fakeContext.SessionId));
+    }
+    
+    [Fact]
+    public async Task RemoveSessionsAsync_WhenClientIdsNotProvided_ShouldOnlyTriggerBackchannelNotificationsAndRevocationsForAllClients()
+    {
+        string[] fakeClientIds = ["client-a", "client-b", "client-c", "client-d"];
+        var fakeSession = ServerSessionTestGenerators.GenerateAuthenticationTicketFilterResult("key2", "SchemeA", "alice", "session-0002", "Alice", clientIds: fakeClientIds);
+        List<AuthenticationTicketFilterResult> fakeSessions = [fakeSession];
+
+        Mock.Get(serverSessionTicketStore)
+            .Setup(x => x.FilterServerAuthenticationTickets("alice", null))
+            .ReturnsAsync(fakeSessions);
+        
+        RemoveSessionsContext fakeContext = new RemoveSessionsContext
+        {
+            SubjectId = "alice", SessionId = null,
+        };
+        DefaultSessionManagementService sut = CreateSut();
+
+        await sut.RemoveSessionsAsync(fakeContext, TestContext.Current.CancellationToken);
+
+        Mock.Get(backChannelLogoutService)
+            .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
+                ctx.SessionId == fakeSession.Session.SessionId &&
+                ctx.SubjectId == fakeSession.Session.SubjectId &&
+                ctx.ClientIds.SequenceEqual(fakeClientIds))));
+        
+        Mock.Get(persistedGrantStore)
+            .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(f =>
+                f.SessionId == fakeContext.SessionId &&
+                f.SubjectId == fakeContext.SubjectId &&
+                f.Types.AsEnumerable().SequenceEqual(AllGrantTypes) &&
+                f.ClientIds.SequenceEqual(fakeContext.ClientIds ?? Array.Empty<string>()))));
         
         Mock.Get(serverSessionStore)
             .Verify(x => x.DeleteSessions(fakeContext.SubjectId, fakeContext.SessionId));
@@ -188,14 +224,14 @@ public class DefaultSessionManagementServiceTests
             .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
                 ctx.SessionId == fakeSession.Session.SessionId &&
                 ctx.SubjectId == fakeSession.Session.SubjectId &&
-                ctx.ClientIds.ToHashSet().SetEquals(expectedClientIds))));
+                ctx.ClientIds.SequenceEqual(expectedClientIds))));
         
         Mock.Get(persistedGrantStore)
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(f =>
                 f.SessionId == fakeContext.SessionId &&
                 f.SubjectId == fakeContext.SubjectId &&
-                f.Types.AsEnumerable().ToHashSet().SetEquals(AllGrantTypes) &&
-                f.ClientIds.ToHashSet().SetEquals(fakeContext.ClientIds ?? Array.Empty<string>()))));
+                f.Types.AsEnumerable().SequenceEqual(AllGrantTypes) &&
+                f.ClientIds.SequenceEqual(fakeContext.ClientIds ?? Array.Empty<string>()))));
         
         Mock.Get(serverSessionStore)
             .Verify(x => x.DeleteSessions(fakeContext.SubjectId, fakeContext.SessionId));
@@ -231,15 +267,15 @@ public class DefaultSessionManagementServiceTests
                     ctx.SessionId == fakeSession.Session.SessionId &&
                     ctx.SubjectId == fakeSession.Session.SubjectId &&
                     fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    ctx.ClientIds.SequenceEqual(fakeSession.AuthTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(f =>
                 f.SessionId == fakeContext.SessionId &&
                 f.SubjectId == fakeContext.SubjectId &&
-                f.Types.AsEnumerable().ToHashSet().SetEquals(AllGrantTypes) &&
-                f.ClientIds.ToHashSet().SetEquals(fakeContext.ClientIds ?? Array.Empty<string>()))));
+                f.Types.AsEnumerable().SequenceEqual(AllGrantTypes) &&
+                f.ClientIds.SequenceEqual(fakeContext.ClientIds ?? Array.Empty<string>()))));
         
         Mock.Get(serverSessionStore)
             .Verify(x => x.DeleteSessions(fakeContext.SubjectId, fakeContext.SessionId), Times.Never);
@@ -275,8 +311,8 @@ public class DefaultSessionManagementServiceTests
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(f =>
                 f.SessionId == fakeContext.SessionId &&
                 f.SubjectId == fakeContext.SubjectId &&
-                f.Types.AsEnumerable().ToHashSet().SetEquals(AllGrantTypes) &&
-                f.ClientIds.ToHashSet().SetEquals(fakeContext.ClientIds ?? Array.Empty<string>()))));
+                f.Types.AsEnumerable().SequenceEqual(AllGrantTypes) &&
+                f.ClientIds.SequenceEqual(fakeContext.ClientIds ?? Array.Empty<string>()))));
         
         Mock.Get(serverSessionStore)
             .Verify(x => x.DeleteSessions(fakeContext.SubjectId, fakeContext.SessionId));
@@ -312,15 +348,15 @@ public class DefaultSessionManagementServiceTests
                     ctx.SessionId == fakeSession.Session.SessionId &&
                     ctx.SubjectId == fakeSession.Session.SubjectId &&
                     fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    ctx.ClientIds.SequenceEqual(fakeSession.AuthTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(f =>
                 f.SessionId == fakeContext.SessionId &&
                 f.SubjectId == fakeContext.SubjectId &&
-                f.Types.AsEnumerable().ToHashSet().SetEquals(ConsentGrantTypes) &&
-                f.ClientIds.ToHashSet().SetEquals(fakeContext.ClientIds ?? Array.Empty<string>()))));
+                f.Types.AsEnumerable().SequenceEqual(ConsentGrantTypes) &&
+                f.ClientIds.SequenceEqual(fakeContext.ClientIds ?? Array.Empty<string>()))));
         
         Mock.Get(serverSessionStore)
             .Verify(x => x.DeleteSessions(fakeContext.SubjectId, fakeContext.SessionId));
@@ -356,15 +392,15 @@ public class DefaultSessionManagementServiceTests
                     ctx.SessionId == fakeSession.Session.SessionId &&
                     ctx.SubjectId == fakeSession.Session.SubjectId &&
                     fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    ctx.ClientIds.SequenceEqual(fakeSession.AuthTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(f =>
                 f.SessionId == fakeContext.SessionId &&
                 f.SubjectId == fakeContext.SubjectId &&
-                f.Types.AsEnumerable().ToHashSet().SetEquals(TokenGrantTypes) &&
-                f.ClientIds.ToHashSet().SetEquals(fakeContext.ClientIds ?? Array.Empty<string>()))));
+                f.Types.AsEnumerable().SequenceEqual(TokenGrantTypes) &&
+                f.ClientIds.SequenceEqual(fakeContext.ClientIds ?? Array.Empty<string>()))));
         
         Mock.Get(serverSessionStore)
             .Verify(x => x.DeleteSessions(fakeContext.SubjectId, fakeContext.SessionId));
@@ -400,7 +436,7 @@ public class DefaultSessionManagementServiceTests
                     ctx.SessionId == fakeSession.Session.SessionId &&
                     ctx.SubjectId == fakeSession.Session.SubjectId &&
                     fakeSession.AuthTicket != null &&
-                    ctx.ClientIds.ToHashSet().SetEquals(fakeSession.AuthTicket.Properties.GetClientList()))));
+                    ctx.ClientIds.SequenceEqual(fakeSession.AuthTicket.Properties.GetClientList()))));
         }
         
         Mock.Get(persistedGrantStore)

@@ -54,14 +54,14 @@ public class DefaultSessionManagementService(
 
                 if (!sessionClientList.IsNullOrEmpty() && !context.ClientIds.IsNullOrEmpty())
                 {
-                    clientIds = sessionClientList!.Where(x => context.ClientIds!.Contains(x)).ToArray();
+                    clientIds = [..sessionClientList!.Where(x => context.ClientIds!.Contains(x))];
                 }
                 
                 await backChannelLogoutService.SendLogoutNotificationsAsync(new LogoutNotificationContext
                 {
                     SubjectId = session.Session.SubjectId,
                     SessionId = session.Session.SessionId,
-                    ClientIds = clientIds,
+                    ClientIds = context.ClientIds.IsNullOrEmpty() ? sessionClientList : clientIds,
                 });
             }
         }
@@ -85,7 +85,7 @@ public class DefaultSessionManagementService(
                 SubjectId = context.SubjectId,
                 SessionId = context.SessionId,
                 ClientIds = context.ClientIds?.ToArray() ?? [],
-                Types = typeFilter.ToArray(),
+                Types = [..typeFilter],
             });
         }
         
