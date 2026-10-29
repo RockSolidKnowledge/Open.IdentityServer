@@ -119,6 +119,24 @@ public class DefaultSessionManagementServiceTests
     private static readonly string[] ConsentGrantTypes = [IdentityServerConstants.PersistedGrantTypes.UserConsent];
     
     [Theory]
+    [InlineData(null, null)]
+    [InlineData("", null)]
+    [InlineData(null, " ")]
+    [InlineData(" ", "")]
+    public async Task RemoveSessionsAsync_WhenSubjectIdAndSessionIdNotSpecified_ShouldThrowArgumentException(string? testSubjectIdFilter, string? testSessionIdFilter)
+    {
+        RemoveSessionsContext fakeContext = new RemoveSessionsContext
+        {
+            SubjectId = testSubjectIdFilter, SessionId = testSessionIdFilter,
+        };
+        DefaultSessionManagementService sut = CreateSut();
+
+        Func<Task> act = async () => await sut.RemoveSessionsAsync(fakeContext, TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+    
+    [Theory]
     [InlineData(null, "session-002")]
     [InlineData("alice", null)]
     [InlineData("alice", "session-002")]
@@ -449,7 +467,10 @@ public class DefaultSessionManagementServiceTests
     [Fact]
     public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace()
     {
-        RemoveSessionsContext fakeRemovalContext = new RemoveSessionsContext();
+        RemoveSessionsContext fakeRemovalContext = new RemoveSessionsContext
+        {
+            SessionId = "session-0",
+        };
 
         List<(Func<DefaultSessionManagementService, Task> actMethod, string traceMethodName)> methods
             = [

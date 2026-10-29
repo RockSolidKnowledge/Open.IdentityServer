@@ -3,6 +3,7 @@
 
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -43,6 +44,11 @@ public class DefaultSessionManagementService(
     public async Task RemoveSessionsAsync(RemoveSessionsContext context, CancellationToken ct = default)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
+        
+        if (string.IsNullOrWhiteSpace(context.SubjectId) && string.IsNullOrWhiteSpace(context.SessionId))
+        {
+            throw new ArgumentException("remove session context should contain session id and/or subject id", nameof(context));
+        }
 
         if (context.SendBackchannelLogoutNotification)
         {
