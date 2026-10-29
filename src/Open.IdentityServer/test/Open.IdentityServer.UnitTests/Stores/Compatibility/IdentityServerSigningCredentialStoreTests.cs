@@ -52,13 +52,16 @@ public class IdentityServerSigningCredentialStoreTests
         dataProtectedIdentityServerKeyMaterialConverter = new DataProtectedIdentityServerKeyMaterialConverter(dataProtectionProvider);
     }
     
-    private IdentityServerSigningCredentialStore CreateSut() => new(
+    private IdentityServerSigningCredentialStore CreateSut(string algorithm = SecurityAlgorithms.RsaSha256) => new(
         identityServerKeyStore, 
         dataProtectedIdentityServerKeyMaterialConverter, 
         timeProvider, 
         fakeOptions,
         telemetry,
-        new MockLogger<IdentityServerSigningCredentialStore>());
+        new MockLogger<IdentityServerSigningCredentialStore>())
+    {
+        Algorithm = algorithm,
+    };
 
     [Fact]
     public async Task GetSigningCredentialsAsync_WhenUnspecifiedDateTime_ShouldTreatAsUtcTime()
@@ -158,8 +161,7 @@ public class IdentityServerSigningCredentialStoreTests
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
 
-        var sut = CreateSut();
-        sut.Algorithm = SecurityAlgorithms.EcdsaSha256;
+        var sut = CreateSut(SecurityAlgorithms.EcdsaSha256);
         var actual = await sut.GetSigningCredentialsAsync();
 
         ECDsa expectedEcDsa = ECDsa.Create(new ECParameters
@@ -204,14 +206,6 @@ public class IdentityServerSigningCredentialStoreTests
         var actual = await sut.GetSigningCredentialsAsync();
 
         actual.Should().BeNull();
-
-        // ECDsa expectedEcDsa = ECDsa.Create(new ECParameters
-        // {
-        //     Curve = CryptoHelper.GetCurveFromCrvValue("P-256"), D = fakeEcKey.D, Q = fakeEcKey.Q,
-        // });
-        // SigningCredentials expectedSigningCredentials = new SigningCredentials(new ECDsaSecurityKey(expectedEcDsa) { KeyId = fakeEcKey.Id }, fakeEcKey.Algorithm);
-        //
-        // actual.Should().BeEquivalentTo(expectedSigningCredentials);
     }
 
     [Fact]
@@ -329,8 +323,7 @@ public class IdentityServerSigningCredentialStoreTests
                 b => Convert.ToBase64String(b) == fakeEcKeyJsonProtectedBase64)))
             .Returns(Encoding.UTF8.GetBytes(fakeEcKeyJson));
 
-        var sut = CreateSut();
-        sut.Algorithm = SecurityAlgorithms.EcdsaSha384;
+        var sut = CreateSut(SecurityAlgorithms.EcdsaSha384);
         var actual = await sut.GetSigningCredentialsAsync();
 
         ECDsa expectedEcDsa = ECDsa.Create(new ECParameters
@@ -363,8 +356,7 @@ public class IdentityServerSigningCredentialStoreTests
             .Setup(x => x.GetKeys())
             .Returns(fakeKeyMaterials);
 
-        var sut = CreateSut();
-        sut.Algorithm = SecurityAlgorithms.EcdsaSha512;
+        var sut = CreateSut(SecurityAlgorithms.EcdsaSha512);
         var actual = await sut.GetSigningCredentialsAsync();
 
         ECDsa expectedEcDsa = ECDsa.Create(new ECParameters
@@ -445,8 +437,7 @@ public class IdentityServerSigningCredentialStoreTests
                 b => Convert.ToBase64String(b) == fakeX509PfxProtectedBase64)))
             .Returns(Encoding.UTF8.GetBytes(fakeX509Json));
 
-        var sut = CreateSut();
-        sut.Algorithm = SecurityAlgorithms.EcdsaSha384;
+        var sut = CreateSut(SecurityAlgorithms.EcdsaSha384);
         var actual = await sut.GetSigningCredentialsAsync();
 
         var expectedCert = X509CertificateLoader.LoadPkcs12(Convert.FromBase64String(fakeX509CertData.CertificateRawData), null);

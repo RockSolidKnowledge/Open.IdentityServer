@@ -36,7 +36,7 @@ public class IdentityServerSigningCredentialStore(
     /// <summary>
     /// Specifies signing algorthm of signing key to retrieve, defaults to <c>RS256</c>
     /// </summary>
-    public string Algorithm = SecurityAlgorithms.RsaSha256;
+    public string Algorithm { get; init; } = SecurityAlgorithms.RsaSha256;
 
     /// <summary>
     /// Gets the key to be used for signing from the key store, will be the newest key 

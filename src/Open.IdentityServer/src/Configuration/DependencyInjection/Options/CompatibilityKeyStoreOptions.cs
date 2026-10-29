@@ -35,5 +35,5 @@ public class CompatibilityKeyStoreOptions
     /// else newest key
     /// </summary>
     /// <value>defaults to 14 days</value>
-    public TimeSpan KeyPropagationTime = TimeSpan.FromDays(14);
+    public TimeSpan KeyPropagationTime { get; set; } = TimeSpan.FromDays(14);
 }
