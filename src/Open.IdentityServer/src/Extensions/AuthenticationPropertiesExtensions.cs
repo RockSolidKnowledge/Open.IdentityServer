@@ -61,6 +61,25 @@ public static class AuthenticationPropertiesExtensions
     }
 
     /// <summary>
+    /// Sets the list of client ids, removes if null
+    /// </summary>
+    /// <param name="properties">The authentication properties from which to remove the client list.</param>
+    /// <param name="clientIds">List of client ids to set</param>
+    public static void SetClientList(this AuthenticationProperties properties, IEnumerable<string> clientIds)
+    {
+        var values = EncodeList(clientIds);
+
+        if (string.IsNullOrWhiteSpace(values))
+        {
+            properties.RemoveClientList();
+        }
+        else
+        {
+            properties.Items[ClientListKey] = values;
+        }
+    }
+
+    /// <summary>
     /// Removes the list of client ids.
     /// </summary>
     /// <param name="properties">The authentication properties from which to remove the client list.</param>
