@@ -121,6 +121,13 @@ public class DefaultTokenCreationService : ITokenCreationService
                 header["typ"] = Options.AccessTokenJwtType;
             }
         }
+        else if (token.Type == TokenTypes.LogoutToken)
+        {
+            if (Options.LogoutTokenJwtType.IsPresent())
+            {
+                header["typ"] = Options.LogoutTokenJwtType;
+            }
+        }
 
         return header;
     }

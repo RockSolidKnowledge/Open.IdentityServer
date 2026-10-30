@@ -154,7 +154,7 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
         }
 
         var issuer = request.Issuer ?? Tools.ContextAccessor.HttpContext.GetIdentityServerIssuerUri();
-        return await Tools.IssueJwtAsync(DefaultLogoutTokenLifetime, issuer, claims);
+        return await Tools.IssueJwtAsync(DefaultLogoutTokenLifetime, issuer, IdentityServerConstants.TokenTypes.LogoutToken, claims);
     }
 
     /// <summary>
