@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
@@ -208,6 +209,7 @@ public class PushedAuthorizationTests
         
         var sut = CreateSut();
         var context = CreateHttpContext();
+        StubPushingClient(expectedClientId);
         var requestValidatorResult = CreatePushAuthorizationRequestValidationResult(expectedClientId);
         var expectedResult = new PushedAuthorizationResponse(new Uri("urn:foo"), 10);
         
@@ -223,18 +225,70 @@ public class PushedAuthorizationTests
     {
         string expectedClientId = "parClient";
         string expectedError = "very bad request";
-        
+
         var sut = CreateSut();
         var context = CreateHttpContext();
-        var requestValidatorResult = CreatePushAuthorizationRequestValidationResult(expectedClientId, expectedError);
-        
+        StubPushingClient(expectedClientId);
+        // failed validation results carry an empty request, so the client comes from the client authentication
+        var requestValidatorResult = new PushAuthorizationRequestValidationResult(expectedError, "error_description");
+
         SetupRequestResponse(context, requestValidatorResult, null!);
 
         var result = (BadRequestResult)await sut.ProcessAsync(context);
 
         telemetry.Verify(t=>t.CountPushedAuthorizationRequest(expectedClientId,expectedError),Times.Once);
     }
-    
+
+    [Fact]
+    public async Task ProcessAsync_when_called_with_invalid_request_should_log_client_error_and_description()
+    {
+        var sut = CreateSut();
+        var context = CreateHttpContext();
+        StubPushingClient("parClient");
+
+        SetupRequestResponse(context, new PushAuthorizationRequestValidationResult("very bad request", "the reason"), null!);
+
+        _ = await sut.ProcessAsync(context);
+
+        logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => HasLogValue(v, "clientId", "parClient") &&
+                                          HasLogValue(v, "error", "very bad request") &&
+                                          HasLogValue(v, "description", "the reason")),
+            It.IsAny<Exception>(), (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_when_client_validation_fails_should_not_log_the_error_as_its_description()
+    {
+        var sut = CreateSut();
+        HttpContext context = CreateHttpContext();
+
+        AddRequest(new NameValueCollection());
+        clientSecretValidator.Setup(csv => csv.ValidateAsync(context))
+            .ReturnsAsync(new ClientSecretValidationResult());
+
+        _ = await sut.ProcessAsync(context);
+
+        logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString() == "PushedAuthorizationRequest error: invalid_client:-no message-"),
+            It.IsAny<Exception>(), (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()), Times.Once);
+    }
+
+    private void StubPushingClient(string clientId)
+    {
+        clientSecretValidator.Setup(csv => csv.ValidateAsync(It.IsAny<HttpContext>()))
+            .ReturnsAsync(new ClientSecretValidationResult
+            {
+                IsError = false,
+                Client = new Client { ClientId = clientId }
+            });
+    }
+
+    private static bool HasLogValue(object state, string key, string value)
+    {
+        return ((IReadOnlyList<KeyValuePair<string, object?>>)state).Any(v => v.Key == key && Equals(v.Value, value));
+    }
+
     private static PushAuthorizationRequestValidationResult CreatePushAuthorizationRequestValidationResult(string clientId, string? error = null)
     {
         return new PushAuthorizationRequestValidationResult(new ValidatedAuthorizeRequest()

@@ -165,14 +165,14 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         
         if (numberOfParUris > 1)
         {
-            return Invalid(request, "Too many request Uris", "Only one request uri is allowed");
+            return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest, "Only one request uri is allowed");
         }
 
         string parRequestUri = requestUris[0];
         NameValueCollection storedRequest = await _parService.GetRequestAsync(parRequestUri);
         if (storedRequest == null)
         {
-            return new AuthorizeRequestValidationResult(OidcConstants.AuthorizeErrors.InvalidRequest);
+            return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest, "Expired or unknown pushed authorization request");
         }
 
         string storedClientId = storedRequest.GetValues(OidcConstants.AuthorizeRequest.ClientId)?.Single();
