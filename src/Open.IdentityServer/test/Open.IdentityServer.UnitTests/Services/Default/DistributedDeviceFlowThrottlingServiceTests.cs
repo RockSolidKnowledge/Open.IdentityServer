@@ -4,6 +4,7 @@
 
 using AwesomeAssertions;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Time.Testing;
 using Moq;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
@@ -62,13 +63,27 @@ public class DistributedDeviceFlowThrottlingServiceTests
         CheckCacheEntry(handle);
     }
 
-    private DistributedDeviceFlowThrottlingService CreateSubject()
+    [Fact]
+    public async Task First_Poll_Should_Expire_Cache_Entry_Lifetime_After_Stored_Time()
+    {
+        var handle = Guid.NewGuid().ToString();
+        // every read moves the clock on, so separate reads give different times
+        var service = CreateSubject(new FakeTimeProvider { AutoAdvanceAmount = TimeSpan.FromSeconds(1) });
+
+        await service.ShouldSlowDown(handle, deviceCode);
+
+        cache.Items.TryGetValue(CacheKey + handle, out var values).Should().BeTrue();
+        var storedTime = DateTimeOffset.Parse(Encoding.UTF8.GetString(values.Item1));
+        values.Item2.AbsoluteExpiration.Should().Be(storedTime.AddSeconds(deviceCode.Lifetime));
+    }
+
+    private DistributedDeviceFlowThrottlingService CreateSubject(TimeProvider clock = null)
     {
         return new DistributedDeviceFlowThrottlingService(
-            cache, 
+            cache,
             _clientStore.Object,
-            new StubClock {UtcNowFunc = () => testDate}, 
-            options, 
+            clock ?? new StubClock {UtcNowFunc = () => testDate},
+            options,
             _telemetry.Object);
     }
 

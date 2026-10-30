@@ -162,6 +162,11 @@ public class IdentityServerServerSideSessionStore(
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
+        if (string.IsNullOrWhiteSpace(subjectId) && string.IsNullOrWhiteSpace(sessionId))
+        {
+            throw new ArgumentException($"{nameof(subjectId)} or {nameof(sessionId)} must have a non null or empty value");
+        }
+
         IQueryable<Entities.ServerSideSession> filteredResults = ApplyFilter(new SessionQuery
         {
             SessionId = sessionId, SubjectId = subjectId,

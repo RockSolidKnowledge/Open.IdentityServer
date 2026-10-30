@@ -135,8 +135,9 @@ public class DefaultTokenService : ITokenService
             claims.Add(new Claim(JwtClaimTypes.Nonce, request.Nonce));
         }
 
+        var now = Clock.GetUtcNow();
         // add iat claim
-        claims.Add(new Claim(JwtClaimTypes.IssuedAt, Clock.GetUtcNow().ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64));
+        claims.Add(new Claim(JwtClaimTypes.IssuedAt, now.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64));
 
         // add at_hash claim
         if (request.AccessTokenToHash.IsPresent())
@@ -172,7 +173,7 @@ public class DefaultTokenService : ITokenService
 
         var token = new Token(OidcConstants.TokenTypes.IdentityToken)
         {
-            CreationTime = Clock.GetUtcNow().UtcDateTime,
+            CreationTime = now.UtcDateTime,
             Audiences = { request.ValidatedRequest.Client.ClientId },
             Issuer = issuer,
             Lifetime = request.ValidatedRequest.Client.IdentityTokenLifetime,
@@ -218,14 +219,15 @@ public class DefaultTokenService : ITokenService
             claims.Add(new Claim(JwtClaimTypes.SessionId, request.ValidatedRequest.SessionId));
         }
             
+        var now = Clock.GetUtcNow();
         // iat claim as required by JWT profile
-        claims.Add(new Claim(JwtClaimTypes.IssuedAt, Clock.GetUtcNow().ToUnixTimeSeconds().ToString(),
+        claims.Add(new Claim(JwtClaimTypes.IssuedAt, now.ToUnixTimeSeconds().ToString(),
             ClaimValueTypes.Integer64));
 
         var issuer = ContextAccessor.HttpContext.GetIdentityServerIssuerUri();
         var token = new Token(OidcConstants.TokenTypes.AccessToken)
         {
-            CreationTime = Clock.GetUtcNow().UtcDateTime,
+            CreationTime = now.UtcDateTime,
             Issuer = issuer,
             Lifetime = request.ValidatedRequest.AccessTokenLifetime,
             Claims = claims.Distinct(new ClaimComparer()).ToList(),
