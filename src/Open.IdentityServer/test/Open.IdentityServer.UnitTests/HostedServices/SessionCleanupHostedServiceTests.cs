@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +11,6 @@ using Moq;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Services;
 using Xunit;
-using Range = Moq.Range;
 
 namespace Open.IdentityServer.UnitTests.HostedServices;
 
@@ -52,54 +52,72 @@ public class SessionCleanupHostedServiceTests
             .Returns(serviceProvider);
     }
     
-    private SessionCleanupHostedService CreateSut() => new(serviceProvider, options, logger);
+    private TestableSessionCleanupHostedService CreateSut(int completedDelaysBeforeCancel, int fuzzSeconds = 0) =>
+        new(serviceProvider, options, logger, completedDelaysBeforeCancel, fuzzSeconds);
 
     [Fact]
     public async Task SessionCleanupHostedService_WhenCleanupDisabled_ShouldNeverTrigger()
     {
         options.ServerSideSessions.RemoveExpiredSessions = false;
-        
-        CancellationTokenSource ctSrc = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
-        
-        var sut = CreateSut();
+        var sut = CreateSut(completedDelaysBeforeCancel: 4);
 
-        await sut.StartAsync(ctSrc.Token);
-        await Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        await sut.StopAsync(ctSrc.Token);
-        
+        await sut.RunAsync();
+
+        Assert.Equal(5, sut.Delays.Count);
         Mock.Get(sessionCleanupService)
             .Verify(x => x.RemoveExpiredServerSideSessionsAsync(), Times.Never);
     }
 
     [Fact]
-    public async Task SessionCleanupHostedService_WhenFuzzDisabled_ShouldTriggerAtLeast3Time()
+    public async Task SessionCleanupHostedService_WhenFuzzDisabled_ShouldTriggerOncePerInterval()
     {
-        CancellationTokenSource ctSrc = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
-        
-        var sut = CreateSut();
+        var sut = CreateSut(completedDelaysBeforeCancel: 3);
 
-        await sut.StartAsync(ctSrc.Token);
-        await Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        await sut.StopAsync(ctSrc.Token);
-        
+        await sut.RunAsync();
+
+        Assert.All(sut.Delays, d => Assert.Equal(options.ServerSideSessions.RemoveExpiredSessionsFrequency, d));
         Mock.Get(sessionCleanupService)
-            .Verify(x => x.RemoveExpiredServerSideSessionsAsync(), Times.Between(3, 5, Range.Inclusive));
+            .Verify(x => x.RemoveExpiredServerSideSessionsAsync(), Times.Exactly(3));
     }
 
     [Fact]
-    public async Task SessionCleanupHostedService_WhenFuzzEnabled_ShouldTriggerAtMost2Times()
+    public async Task SessionCleanupHostedService_WhenFuzzEnabled_ShouldDelayByFuzzBeforeFirstTrigger()
     {
         options.ServerSideSessions.FuzzExpiredSessionsFrequency = true;
-        
-        CancellationTokenSource ctSrc = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
-        
-        var sut = CreateSut();
+        var sut = CreateSut(completedDelaysBeforeCancel: 3, fuzzSeconds: 42);
 
-        await sut.StartAsync(ctSrc.Token);
-        await Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        await sut.StopAsync(ctSrc.Token);
-        
+        await sut.RunAsync();
+
+        Assert.Equal(TimeSpan.FromSeconds(42), sut.Delays[0]);
+        Assert.Equal(options.ServerSideSessions.RemoveExpiredSessionsFrequency, sut.Delays[1]);
         Mock.Get(sessionCleanupService)
-            .Verify(x => x.RemoveExpiredServerSideSessionsAsync(), Times.AtMost(2));
+            .Verify(x => x.RemoveExpiredServerSideSessionsAsync(), Times.Exactly(2));
+    }
+
+    // Completes the first N delays instantly, then cancels so the loop exits.
+    private sealed class TestableSessionCleanupHostedService(
+        IServiceProvider serviceProvider,
+        IdentityServerOptions options,
+        ILogger<SessionCleanupHostedService> logger,
+        int completedDelaysBeforeCancel,
+        int fuzzSeconds)
+        : SessionCleanupHostedService(serviceProvider, options, logger)
+    {
+        private readonly CancellationTokenSource cts = new();
+
+        public List<TimeSpan> Delays { get; } = [];
+
+        public Task RunAsync() => StartInternalAsync(cts.Token);
+
+        protected override int GetFuzzDelaySeconds() => fuzzSeconds;
+
+        protected override Task Delay(TimeSpan delay, CancellationToken cancellationToken)
+        {
+            Delays.Add(delay);
+            if (Delays.Count <= completedDelaysBeforeCancel) return Task.CompletedTask;
+
+            cts.Cancel();
+            return Task.FromCanceled(cts.Token);
+        }
     }
 }
