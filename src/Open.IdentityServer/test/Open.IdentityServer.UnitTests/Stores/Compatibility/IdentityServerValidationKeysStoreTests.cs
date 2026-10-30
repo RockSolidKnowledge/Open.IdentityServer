@@ -69,7 +69,7 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_RS256_0",
             Created = new DateTime(fakeRsaKey0Created.Year, fakeRsaKey0Created.Month, fakeRsaKey0Created.Day, fakeRsaKey0Created.Hour, fakeRsaKey0Created.Minute, fakeRsaKey0Created.Second, DateTimeKind.Unspecified), //Subtracts in total 89 days, 23 hours
-            Algorithm = "RS256",
+            Algorithm = SecurityAlgorithms.RsaSha256,
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
         
@@ -77,7 +77,7 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_RS256_1",
             Created = fakeNow.AddDays(-10),
-            Algorithm = "RS256",
+            Algorithm = SecurityAlgorithms.RsaSha256,
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
         
@@ -86,16 +86,16 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_ES384_0",
             Created = new DateTime(fakeEcKey0Created.Year, fakeEcKey0Created.Month, fakeEcKey0Created.Day, fakeEcKey0Created.Hour, fakeEcKey0Created.Minute, fakeEcKey0Created.Second, DateTimeKind.Unspecified), //Subtracts in total 89 days, 22 hours
-            Algorithm = "ES384",
+            Algorithm = SecurityAlgorithms.EcdsaSha384,
             D = FakeKeyData.EcDsaSecurityKey384.D,
             Q = FakeKeyData.EcDsaSecurityKey384.Q,
         };
         
         var fakeEcKey1 = new EcIdentityServerKeyData
         {
-            Id = "Fake_ES521_0",
+            Id = "Fake_ES512_0",
             Created = fakeNow.AddDays(-45),
-            Algorithm = "ES521",
+            Algorithm = SecurityAlgorithms.EcdsaSha512,
             D = FakeKeyData.EcDsaSecurityKey521.D,
             Q = FakeKeyData.EcDsaSecurityKey521.Q,
         };
@@ -142,7 +142,7 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_RS256_0",
             Created = fakeNow.AddDays(-20),
-            Algorithm = "RS256",
+            Algorithm = SecurityAlgorithms.RsaSha256,
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
         
@@ -150,7 +150,7 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_RS256_1",
             Created = fakeNow.AddDays(-10),
-            Algorithm = "RS256",
+            Algorithm = SecurityAlgorithms.RsaSha256,
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
         
@@ -158,16 +158,16 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_ES384_0",
             Created = fakeNow.AddDays(-30),
-            Algorithm = "ES384",
+            Algorithm = SecurityAlgorithms.EcdsaSha384,
             D = FakeKeyData.EcDsaSecurityKey384.D,
             Q = FakeKeyData.EcDsaSecurityKey384.Q,
         };
         
         var fakeEcKey1 = new EcIdentityServerKeyData
         {
-            Id = "Fake_ES521_0",
+            Id = "Fake_ES512_0",
             Created = fakeNow.AddDays(-45),
-            Algorithm = "ES521",
+            Algorithm = SecurityAlgorithms.EcdsaSha512,
             D = FakeKeyData.EcDsaSecurityKey521.D,
             Q = FakeKeyData.EcDsaSecurityKey521.Q,
         };
@@ -214,7 +214,7 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_RS256_0",
             Created = fakeNow.AddDays(-10),
-            Algorithm = "RS256",
+            Algorithm = SecurityAlgorithms.RsaSha256,
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
         
@@ -222,7 +222,7 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_RS256_1",
             Created = fakeNow.AddDays(-30),
-            Algorithm = "RS256",
+            Algorithm = SecurityAlgorithms.RsaSha256,
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
         
@@ -230,16 +230,16 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_ES256_0",
             Created = fakeNow.AddHours(-12),
-            Algorithm = "ES256",
+            Algorithm = SecurityAlgorithms.EcdsaSha256,
             D = FakeKeyData.EcDsaSecurityKey256.D,
             Q = FakeKeyData.EcDsaSecurityKey256.Q,
         };
         
         var fakeEcKey1 = new EcIdentityServerKeyData
         {
-            Id = "Fake_ES521_0",
+            Id = "Fake_ES512_0",
             Created = fakeNow.AddDays(-20),
-            Algorithm = "ES521",
+            Algorithm = SecurityAlgorithms.EcdsaSha512,
             D = FakeKeyData.EcDsaSecurityKey521.D,
             Q = FakeKeyData.EcDsaSecurityKey521.Q,
         };
@@ -279,7 +279,7 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_RS256_0",
             Created = fakeNow.AddDays(-30),
-            Algorithm = "RS256",
+            Algorithm = SecurityAlgorithms.RsaSha256,
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
         
@@ -287,7 +287,7 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_RS256_1",
             Created = fakeNow.AddHours(-12),
-            Algorithm = "RS256",
+            Algorithm = SecurityAlgorithms.RsaSha256,
             Parameters = FakeKeyData.RsaSecurityKey256,
         };
         
@@ -295,16 +295,16 @@ public class IdentityServerValidationKeysStoreTests
         {
             Id = "Fake_ES256_0",
             Created = fakeNow.AddDays(-100),
-            Algorithm = "ES256",
+            Algorithm = SecurityAlgorithms.EcdsaSha256,
             D = FakeKeyData.EcDsaSecurityKey256.D,
             Q = FakeKeyData.EcDsaSecurityKey256.Q,
         };
         
         var fakeEcKey1 = new EcIdentityServerKeyData
         {
-            Id = "Fake_ES521_0",
+            Id = "Fake_ES512_0",
             Created = fakeNow.AddDays(-10),
-            Algorithm = "ES521",
+            Algorithm = SecurityAlgorithms.EcdsaSha512,
             D = FakeKeyData.EcDsaSecurityKey521.D,
             Q = FakeKeyData.EcDsaSecurityKey521.Q,
         };
