@@ -457,34 +457,20 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
         currentSessions.Should().Contain(x => x.Key == "key-4");
         currentSessions.Should().Contain(x => x.Key == "key-6");
     }
-
-    [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task FilterSessions_WhenSubjectIdsSessionIsNull_ShouldReturnAll(DbContextOptions<PersistedGrantDbContext> options)
+    
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData(null, "")]
+    [InlineData(" ", null)]
+    [InlineData("", " ")]
+    public async Task FilterSessions_WhenFiltersNullOrEmpty_ShouldThrowArgumentException(string subjectId, string sessionId)
     {
-        await using var context = await CreateCleanContext(options);
+        await using PersistedGrantDbContext context = await CreateCleanContext(TestDatabaseProviders.FirstOrDefault());
         IdentityServerServerSideSessionStore sut = CreateSut(context);
+        
+        Func<Task> act = async () => await sut.FilterSessions(subjectId, sessionId);
 
-        await context.ServerSideSessions.AddRangeAsync([
-            new Entities.ServerSideSession { Key = "key-0", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-            new Entities.ServerSideSession { Key = "key-2", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new Entities.ServerSideSession { Key = "key-3", Scheme = "cookie", SubjectId = "alice", SessionId = "session-3", Data = "{\"delete\":true}" },
-            new Entities.ServerSideSession { Key = "key-4", Scheme = "cookie", SubjectId = "bob", SessionId = "session-0", Data = "{\"delete\":true}" },
-            new Entities.ServerSideSession { Key = "key-5", Scheme = "cookie", SubjectId = "bob", SessionId = "session-2", Data = "{\"delete\":true}" },
-            new Entities.ServerSideSession { Key = "key-6", Scheme = "cookie", SubjectId = "alice", SessionId = "session-1", Data = "{\"delete\":true}" },
-        ]);
-        await context.SaveChangesAsync();
-
-        var actual = (await sut.FilterSessions(null, null)).ToList();
-
-        actual.Should().HaveCount(7);
-        actual.Should().Contain(x => x.Key == "key-0");
-        actual.Should().Contain(x => x.Key == "key-1");
-        actual.Should().Contain(x => x.Key == "key-2");
-        actual.Should().Contain(x => x.Key == "key-3");
-        actual.Should().Contain(x => x.Key == "key-4");
-        actual.Should().Contain(x => x.Key == "key-5");
-        actual.Should().Contain(x => x.Key == "key-6");
+        await act.Should().ThrowAsync<ArgumentException>();
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]

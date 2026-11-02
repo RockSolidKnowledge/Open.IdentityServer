@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Open.IdentityServer.UnitTests.Common;
@@ -11,6 +12,7 @@ using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Time.Testing;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Validation.Secrets;
@@ -135,6 +137,32 @@ public class SecretValidation
 
         var result = await _validator.ValidateAsync(client.ClientSecrets, secret);
         result.Success.Should().BeFalse();
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Secret_Expiring_During_Validation_Should_Be_Checked_Against_One_Clock_Read()
+    {
+        var start = new DateTimeOffset(2026, 1, 1, 12, 0, 0, TimeSpan.Zero);
+
+        // every read moves the clock on: the secret is current at the first read and expired at the second
+        var validator = new SecretValidator(
+            new FakeTimeProvider(start) { AutoAdvanceAmount = TimeSpan.FromSeconds(1) },
+            new[] { _hashedSecretValidator },
+            new Logger<SecretValidator>(new LoggerFactory()));
+
+        var secrets = new[] { new Secret("secret".Sha256()) { Expiration = start.UtcDateTime.AddMilliseconds(500) } };
+
+        var secret = new ParsedSecret
+        {
+            Id = "client",
+            Credential = "secret",
+            Type = IdentityServerConstants.ParsedSecretTypes.SharedSecret
+        };
+
+        var result = await validator.ValidateAsync(secrets, secret);
+
+        result.Success.Should().BeTrue();
     }
 
     [Fact]

@@ -99,4 +99,16 @@ public class JwtPayloadCreationTests
         payload.NotBefore.Should().Be(expectedNotBefore);
         payload.Expiration.Should().Be(expectedExpiry);
     }
+
+    [Fact]
+    public void Should_take_not_before_and_expiration_from_one_clock_read()
+    {
+        IdentityServerOptions options = new IdentityServerOptions();
+        // every read moves the clock on, so separate reads give different seconds
+        FakeTimeProvider fakeTimeProvider = new() { AutoAdvanceAmount = TimeSpan.FromSeconds(1) };
+
+        JwtPayload payload = _token.CreateJwtPayload(fakeTimeProvider, options, TestLogger.Create<JwtPayloadCreationTests>());
+
+        (payload.Expiration - payload.NotBefore).Should().Be(_token.Lifetime);
+    }
 }

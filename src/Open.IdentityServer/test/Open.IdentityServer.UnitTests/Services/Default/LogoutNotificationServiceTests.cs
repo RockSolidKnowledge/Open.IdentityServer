@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Open.IdentityServer.Models;
@@ -77,5 +78,23 @@ public class LogoutNotificationServiceTests
             subject,
             "GetBackChannelLogoutNotificationsAsync"));
         _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetBackChannelLogoutNotificationsAsync_WhenContextHasIssuer_ShouldSetIssuerOnRequests()
+    {
+        _clientStore.Setup(x => x.FindClientByIdAsync("client1"))
+            .ReturnsAsync(new Client { ClientId = "client1", BackChannelLogoutUri = "https://client1/logout" });
+
+        var subject = CreateSubject();
+
+        var requests = await subject.GetBackChannelLogoutNotificationsAsync(new LogoutNotificationContext
+        {
+            ClientIds = new[] { "client1" },
+            SessionId = "session1",
+            Issuer = "https://issuer.test"
+        });
+
+        requests.Should().ContainSingle().Which.Issuer.Should().Be("https://issuer.test");
     }
 }

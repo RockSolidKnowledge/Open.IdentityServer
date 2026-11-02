@@ -131,6 +131,28 @@ public class ServerSessionTicketStoreTests
     }
 
     [Fact]
+    public async Task StoreAsync_WhenIssuedUtcNotProvided_ShouldSetCreatedAndRenewedFromOneClockRead()
+    {
+        AuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(
+            "FakeAuthScheme", Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+
+        ServerSideSession? createdSessionModel = null;
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.CreateSession(It.IsAny<ServerSideSession>()))
+            .Callback<ServerSideSession>((session) => { createdSessionModel = session; });
+
+        // every read moves the clock on, so separate reads give different times
+        fakeTimeProvider.AutoAdvanceAmount = TimeSpan.FromSeconds(1);
+
+        ServerSessionTicketStore sut = CreateSut();
+
+        await sut.StoreAsync(authenticationTicket);
+
+        createdSessionModel.Should().NotBeNull();
+        createdSessionModel.Renewed.Should().Be(createdSessionModel.Created);
+    }
+
+    [Fact]
     public async Task StoreAsync_WhenOptionalValuesProvided_ShouldUseThem()
     {
         const string authScheme = "FakeAuthScheme";
@@ -333,6 +355,36 @@ public class ServerSessionTicketStoreTests
                     sessions.Created == FakeNow.AddMinutes(1) &&
                     sessions.Expires == null
                     )));
+    }
+
+    [Fact]
+    public async Task RenewAsync_WhenSessionOverwrittenWithoutIssuedUtc_ShouldSetCreatedAndRenewedFromOneClockRead()
+    {
+        ServerSideSession existingSession = new ServerSideSession
+        {
+            Key = Guid.NewGuid().ToString(), Scheme = "AuthScheme",
+            SessionId = "session_id",
+            SubjectId = "subject_id",
+            Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
+            Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
+            Data = "EXISTING_PROTECTED_DATA",
+        };
+
+        AuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(
+            "FakeAuthScheme", Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.GetSession(existingSession.Key))
+            .ReturnsAsync(existingSession);
+
+        // every read moves the clock on, so separate reads give different times
+        fakeTimeProvider.AutoAdvanceAmount = TimeSpan.FromSeconds(1);
+
+        ServerSessionTicketStore sut = CreateSut();
+
+        await sut.RenewAsync(existingSession.Key, authenticationTicket);
+
+        existingSession.Renewed.Should().Be(existingSession.Created);
     }
 
     [Fact]

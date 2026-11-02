@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 using Microsoft.Extensions.Logging;
+using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Utility;
 
 namespace Open.IdentityServer.Services;
@@ -152,7 +153,8 @@ public class DefaultBackChannelLogoutService : IBackChannelLogoutService
             throw new InvalidOperationException("nonce claim is not allowed in the back-channel signout token.");
         }
 
-        return await Tools.IssueJwtAsync(DefaultLogoutTokenLifetime, claims);
+        var issuer = request.Issuer ?? Tools.ContextAccessor.HttpContext.GetIdentityServerIssuerUri();
+        return await Tools.IssueJwtAsync(DefaultLogoutTokenLifetime, issuer, claims);
     }
 
     /// <summary>

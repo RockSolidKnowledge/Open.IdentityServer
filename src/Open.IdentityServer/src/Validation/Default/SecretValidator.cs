@@ -46,14 +46,15 @@ public class SecretValidator : ISecretsListValidator
     {
         var secretsArray = secrets as Secret[] ?? secrets.ToArray();
 
-        var expiredSecrets = secretsArray.Where(s => s.Expiration.HasExpired(_clock.GetUtcNow().UtcDateTime)).ToList();
+        var now = _clock.GetUtcNow();
+        var expiredSecrets = secretsArray.Where(s => s.Expiration.HasExpired(now.UtcDateTime)).ToList();
         if (expiredSecrets.Any())
         {
             expiredSecrets.ForEach(
                 ex => _logger.LogInformation("Secret [{description}] is expired", ex.Description ?? "no description"));
         }
 
-        var currentSecrets = secretsArray.Where(s => !s.Expiration.HasExpired(_clock.GetUtcNow().UtcDateTime)).ToArray();
+        var currentSecrets = secretsArray.Where(s => !s.Expiration.HasExpired(now.UtcDateTime)).ToArray();
 
         // see if a registered validator can validate the secret
         foreach (var validator in _validators)

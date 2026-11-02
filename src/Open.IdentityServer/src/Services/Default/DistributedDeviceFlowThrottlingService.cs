@@ -61,14 +61,15 @@ public class DistributedDeviceFlowThrottlingService : IDeviceFlowThrottlingServi
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Services, this);
         
         var key = KeyPrefix + deviceCode;
-        var options = new DistributedCacheEntryOptions {AbsoluteExpiration = _clock.GetUtcNow().AddSeconds(details.Lifetime)};
+        var now = _clock.GetUtcNow();
+        var options = new DistributedCacheEntryOptions { AbsoluteExpiration = now.AddSeconds(details.Lifetime) };
 
         var lastSeenAsString = await _cache.GetStringAsync(key);
 
         // record new
         if (lastSeenAsString == null)
         {
-            await _cache.SetStringAsync(key, _clock.GetUtcNow().ToString("O"), options);
+            await _cache.SetStringAsync(key, now.ToString("O"), options);
             return false;
         }
 
@@ -76,15 +77,15 @@ public class DistributedDeviceFlowThrottlingService : IDeviceFlowThrottlingServi
         if (DateTime.TryParse(lastSeenAsString, out var lastSeen))
         {
             var client = await _clientStore.FindEnabledClientByIdAsync(details.ClientId);
-            if (_clock.GetUtcNow() < lastSeen.AddSeconds(client?.PollingInterval ?? _options.DeviceFlow.Interval))
+            if (now < lastSeen.AddSeconds(client?.PollingInterval ?? _options.DeviceFlow.Interval))
             {
-                await _cache.SetStringAsync(key, _clock.GetUtcNow().ToString("O"), options);
+                await _cache.SetStringAsync(key, now.ToString("O"), options);
                 return true;
             }
         }
 
         // store current and continue
-        await _cache.SetStringAsync(key, _clock.GetUtcNow().ToString("O"), options);
+        await _cache.SetStringAsync(key, now.ToString("O"), options);
         return false;
     }
 }
