@@ -59,6 +59,30 @@ public class DefaultAuthorizationCodeStoreTests
     }
     
     [Fact]
+    public async Task UpdateAuthorizationCodeAsync_WhenCalled_ShouldStoreGrantWithCorrectProperties()
+    {
+        const string handle = "existing_handle-1";
+        var consumedTime = DateTime.UtcNow;
+        var code = CreateAuthorizationCode();
+        code.ConsumedTime = consumedTime;
+
+        Mock.Get(_store)
+            .Setup(x => x.StoreAsync(It.IsAny<PersistedGrant>()))
+            .Returns(Task.CompletedTask);
+
+        var sut = CreateSut();
+
+        await sut.UpdateAuthorizationCodeAsync(handle, code);
+
+        Mock.Get(_store).Verify(x => x.StoreAsync(It.Is<PersistedGrant>(g =>
+            g.Key == GetHashedKey(handle) &&
+            g.Type == IdentityServerConstants.PersistedGrantTypes.AuthorizationCode &&
+            g.ClientId == code.ClientId &&
+            g.ConsumedTime == consumedTime
+        )), Times.Once);
+    }
+    
+    [Fact]
     public async Task GetAuthorizationCodeAsync_WhenGrantExists_ShouldReturnDeserializedAuthorizationCode()
     {
         const string handle = "test_handle-1";

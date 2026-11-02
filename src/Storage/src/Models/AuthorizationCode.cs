@@ -20,6 +20,14 @@ public class AuthorizationCode
     /// The creation time.
     /// </value>
     public DateTime CreationTime { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the consumed time.
+    /// </summary>
+    /// <value>
+    /// The consumed time.
+    /// </value>
+    public DateTime ConsumedTime { get; set; }
 
     /// <summary>
     /// Gets or sets the life time in seconds.

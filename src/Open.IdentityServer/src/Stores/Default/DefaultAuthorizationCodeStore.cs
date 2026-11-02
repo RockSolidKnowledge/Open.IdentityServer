@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Threading.Tasks;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores.Serialization;
@@ -47,6 +48,18 @@ public class DefaultAuthorizationCodeStore : DefaultGrantStore<AuthorizationCode
         return CreateItemAsync(code, code.ClientId, code.Subject.GetSubjectId(), code.SessionId, code.Description, code.CreationTime, code.Lifetime);
     }
 
+    /// <summary>
+    /// Updates the authorization code asynchronous.
+    /// </summary>
+    /// <param name="code">The code handle.</param>
+    /// <param name="authCode">The updated auth code model.</param>
+    public Task UpdateAuthorizationCodeAsync(string code, AuthorizationCode authCode)
+    {
+        using var trace = TelemetryService.Trace(TelemetryConstants.TraceCategories.Stores, this);
+        
+        return StoreItemAsync(code, authCode, authCode.ClientId, null, authCode.SessionId, authCode.Description, authCode.CreationTime, authCode.CreationTime.AddSeconds(authCode.Lifetime), authCode.ConsumedTime);
+    }
+    
     /// <summary>
     /// Gets the authorization code asynchronous.
     /// </summary>

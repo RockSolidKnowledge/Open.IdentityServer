@@ -20,6 +20,13 @@ public interface IAuthorizationCodeStore
     Task<string> StoreAuthorizationCodeAsync(AuthorizationCode code);
 
     /// <summary>
+    /// Updates the authorization code asynchronous.
+    /// </summary>
+    /// <param name="code">The code handle.</param>
+    /// <param name="authCode">The updated auth code model.</param>
+    Task UpdateAuthorizationCodeAsync(string code, AuthorizationCode authCode);
+
+    /// <summary>
     /// Gets the authorization code.
     /// </summary>
     /// <param name="code">The code.</param>
