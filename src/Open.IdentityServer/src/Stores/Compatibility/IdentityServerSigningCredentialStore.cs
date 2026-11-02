@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Open.IdentityServer.Configuration;
@@ -27,11 +28,16 @@ public class IdentityServerSigningCredentialStore(
     TimeProvider timeProvider,
     CompatibilityKeyStoreOptions options,
     ITelemetryService telemetry,
-    ILogger<IdentityServerSigningCredentialStore> logger
-    ): 
-    IdentityServerSigningKeyStore(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider, options), 
+    ILogger<IdentityServerSigningCredentialStore> logger) :
+    IdentityServerSigningKeyStore(identityServerKeyStore, dataProtectedIdentityServerKeyMaterialConverter, timeProvider,
+        options),
     ISigningCredentialStore
 {
+    /// <summary>
+    /// Specifies signing algorthm of signing key to retrieve, defaults to <c>RS256</c>
+    /// </summary>
+    public string Algorithm { get; init; } = SecurityAlgorithms.RsaSha256;
+
     /// <summary>
     /// Gets the key to be used for signing from the key store, will be the newest key 
     /// </summary>
@@ -40,15 +46,25 @@ public class IdentityServerSigningCredentialStore(
     {
         using var trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
-        var credentials = GetKeys()
-            .Select(x => x.Credentials)
-            .FirstOrDefault();
+        var query = GetKeys()
+            .Where(x => x.Credentials.Algorithm == Algorithm)
+            .ToList();
+
+        var credPublished =
+            query.FirstOrDefault(x => x.Created.Add(options.KeyPropagationTime) < timeProvider.GetUtcNow());
+
+        if (credPublished != null)
+        {
+            return credPublished.Credentials;
+        }
+
+        var credentials = query.LastOrDefault();
 
         if (credentials == null)
         {
-            logger.LogWarning("No non-expired signing credentials found in the key store.");
+            logger.LogWarning("No non-expired signing credentials found in the key store");
         }
-        
-        return credentials;
+
+        return credentials?.Credentials;
     }
 }
