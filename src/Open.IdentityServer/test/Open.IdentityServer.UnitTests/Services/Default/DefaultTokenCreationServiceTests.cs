@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Open.IdentityServer.Configuration;
@@ -48,6 +50,23 @@ public class DefaultTokenCreationServiceTests
             TestLogger.Create<DefaultTokenCreationService>());
     }
 
+    private Token CreateToken(string type)
+    {
+        var now = DateTime.UtcNow;
+
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
+
+        return new Token
+        {
+            Type = type,
+            CreationTime = now,
+            Lifetime = 60,
+            Issuer = "https://issuer.test"
+        };
+    }
+
+    private static string ReadTyp(string jwt) => new JwtSecurityTokenHandler().ReadJwtToken(jwt).Header.Typ;
+
     [Fact]
     public async Task CreateTokenAsync_WhenCalled_ShouldInitiateTelemetryTrace()
     {
@@ -76,5 +95,57 @@ public class DefaultTokenCreationServiceTests
             subject,
             "CreateTokenAsync"));
         _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateTokenAsync_WhenTokenIsLogoutToken_ShouldSetTypToLogoutJwt()
+    {
+        var token = CreateToken(IdentityServerConstants.TokenTypes.LogoutToken);
+
+        var subject = CreateSubject();
+
+        var jwt = await subject.CreateTokenAsync(token);
+
+        ReadTyp(jwt).Should().Be("logout+jwt");
+    }
+
+    [Fact]
+    public async Task CreateTokenAsync_WhenLogoutTokenJwtTypeIsConfigured_ShouldUseConfiguredTyp()
+    {
+        _options.LogoutTokenJwtType = "at+jwt";
+        var token = CreateToken(IdentityServerConstants.TokenTypes.LogoutToken);
+
+        var subject = CreateSubject();
+
+        var jwt = await subject.CreateTokenAsync(token);
+
+        ReadTyp(jwt).Should().Be("at+jwt");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public async Task CreateTokenAsync_WhenLogoutTokenJwtTypeIsEmpty_ShouldFallBackToJwt(string logoutTokenJwtType)
+    {
+        _options.LogoutTokenJwtType = logoutTokenJwtType;
+        var token = CreateToken(IdentityServerConstants.TokenTypes.LogoutToken);
+
+        var subject = CreateSubject();
+
+        var jwt = await subject.CreateTokenAsync(token);
+
+        ReadTyp(jwt).Should().Be("JWT");
+    }
+
+    [Fact]
+    public async Task CreateTokenAsync_WhenTokenIsAccessToken_ShouldKeepAccessTokenTyp()
+    {
+        var token = CreateToken(OidcConstants.TokenTypes.AccessToken);
+
+        var subject = CreateSubject();
+
+        var jwt = await subject.CreateTokenAsync(token);
+
+        ReadTyp(jwt).Should().Be("at+jwt");
     }
 }

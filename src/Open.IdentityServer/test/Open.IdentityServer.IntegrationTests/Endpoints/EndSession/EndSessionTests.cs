@@ -579,6 +579,34 @@ public class EndSessionTests
 
     [Fact]
     [Trait("Category", Category)]
+    public async Task back_channel_logout_token_should_have_logout_jwt_typ()
+    {
+        // assert outside OnInvoke: BackChannelLogoutHttpClient swallows exceptions thrown by the handler
+        string form = null;
+        _mockPipeline.BackChannelMessageHandler.OnInvoke = async req => form = await req.Content.ReadAsStringAsync();
+
+        await _mockPipeline.LoginAsync("bob");
+
+        await _mockPipeline.RequestAuthorizationEndpointAsync(
+            clientId: "client3",
+            responseType: "id_token",
+            scope: "openid",
+            redirectUri: "https://client3/callback",
+            state: "123_state",
+            nonce: "123_nonce");
+
+        await _mockPipeline.BrowserClient.GetAsync(
+            IdentityServerPipeline.EndSessionEndpoint,
+            TestContext.Current.CancellationToken);
+
+        form.Should().StartWith(OidcConstants.BackChannelLogoutRequest.LogoutToken + "=");
+        var token = form.Split('=')[1];
+        var header = JsonElement.Parse(Encoding.UTF8.GetString(Base64Url.Decode(token.Split('.')[0])));
+        header.GetProperty("typ").GetString().Should().Be("logout+jwt");
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
     public async Task back_channel_logout_should_not_affect_end_session_callback()
     {
         _mockPipeline.BackChannelMessageHandler.OnInvoke = _ => throw new Exception("boom!");
