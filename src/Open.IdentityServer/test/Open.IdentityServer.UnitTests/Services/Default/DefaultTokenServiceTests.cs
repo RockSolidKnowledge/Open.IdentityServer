@@ -2,6 +2,7 @@
 // Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -12,6 +13,7 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Open.IdentityServer;
@@ -41,12 +43,17 @@ public class DefaultTokenServiceTests
         svcs.AddSingleton(_options);
         _httpContext.RequestServices = svcs.BuildServiceProvider();
 
-        _subject = new DefaultTokenService(
+        _subject = CreateSubject(_mockSystemClock);
+    }
+
+    private DefaultTokenService CreateSubject(TimeProvider clock)
+    {
+        return new DefaultTokenService(
             _mockClaimsService,
             _mockReferenceTokenStore,
             _mockTokenCreationService,
             new HttpContextAccessor { HttpContext = _httpContext },
-            _mockSystemClock,
+            clock,
             _mockKeyMaterialService,
             _options,
             _telemetry.Object,
@@ -192,6 +199,51 @@ public class DefaultTokenServiceTests
         var result = await _subject.CreateAccessTokenAsync(request);
 
         result.Claims.SingleOrDefault(x => x.Type == JwtClaimTypes.SessionId).Value.Should().Be("123");
+    }
+
+    [Fact]
+    public async Task CreateAccessTokenAsync_WhenClockMovesBetweenReads_ShouldMatchIatToCreationTime()
+    {
+        // every read moves the clock on, so separate reads give different seconds
+        var subject = CreateSubject(new FakeTimeProvider { AutoAdvanceAmount = TimeSpan.FromSeconds(1) });
+
+        var request = new TokenCreationRequest
+        {
+            ValidatedResources = new ResourceValidationResult(),
+            ValidatedRequest = new ValidatedRequest()
+            {
+                Client = new Client { }
+            }
+        };
+
+        var result = await subject.CreateAccessTokenAsync(request);
+
+        result.Claims.Single(x => x.Type == JwtClaimTypes.IssuedAt).Value
+            .Should().Be(new DateTimeOffset(result.CreationTime).ToUnixTimeSeconds().ToString());
+    }
+
+    [Fact]
+    public async Task CreateIdentityTokenAsync_WhenClockMovesBetweenReads_ShouldMatchIatToCreationTime()
+    {
+        _mockKeyMaterialService.SigningCredentials.Add(
+            new SigningCredentials(CryptoHelper.CreateRsaSecurityKey(), "RS256"));
+
+        // every read moves the clock on, so separate reads give different seconds
+        var subject = CreateSubject(new FakeTimeProvider { AutoAdvanceAmount = TimeSpan.FromSeconds(1) });
+
+        var request = new TokenCreationRequest
+        {
+            ValidatedResources = new ResourceValidationResult(),
+            ValidatedRequest = new ValidatedRequest()
+            {
+                Client = new Client { }
+            }
+        };
+
+        var result = await subject.CreateIdentityTokenAsync(request);
+
+        result.Claims.Single(x => x.Type == JwtClaimTypes.IssuedAt).Value
+            .Should().Be(new DateTimeOffset(result.CreationTime).ToUnixTimeSeconds().ToString());
     }
 
     [Fact]

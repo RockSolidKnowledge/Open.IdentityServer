@@ -71,6 +71,7 @@ public class SessionCleanupService(
                     SubjectId = expiredSession.Session.SubjectId,
                     SessionId = expiredSession.Session.SessionId,
                     ClientIds = expiredSession.Session.AuthenticationTicket?.Properties.GetClientList().ToArray() ?? [],
+                    Issuer = expiredSession.Session.AuthenticationTicket?.Properties.GetString(JwtClaimTypes.Issuer)
                 });
             }
         } while (found >= options.ServerSideSessions.RemoveExpiredSessionsBatchSize);

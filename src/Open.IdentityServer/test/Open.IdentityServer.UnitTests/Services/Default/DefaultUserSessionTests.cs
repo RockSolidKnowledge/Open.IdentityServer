@@ -83,6 +83,41 @@ public class DefaultUserSessionTests
     }
 
     [Fact]
+    public async Task CreateSessionId_WhenPropsArgDoesNotContainKey_ShouldPreserveSid()
+    {
+        string existingSid = "999";
+        
+        var propsAuthResult = _props.Clone();
+        propsAuthResult.SetSessionId(existingSid);
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, propsAuthResult, "scheme"));
+
+        _props.GetSessionId().Should().BeNull();
+
+        await _subject.CreateSessionIdAsync(_user, _props);
+
+        _props.GetSessionId().Should().Be(existingSid);
+    }
+
+    [Fact]
+    public async Task CreateSessionId_WhenPropsArgDoesNotContainKey_ShouldPreserveClientList()
+    {
+        string existingSid = "999";
+        string[] existingClientList = ["clientA", "clientB"];
+        
+        var propsAuthResult = _props.Clone();
+        propsAuthResult.SetSessionId(existingSid);
+        propsAuthResult.SetClientList(existingClientList);
+        
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, propsAuthResult, "scheme"));
+
+        _props.GetSessionId().Should().BeNull();
+
+        await _subject.CreateSessionIdAsync(_user, _props);
+
+        _props.GetClientList().Should().BeEquivalentTo(existingClientList);
+    }
+
+    [Fact]
     public async Task CreateSessionId_when_user_is_authenticated_but_different_sub_should_create_new_sid()
     {
         _props.SetSessionId("999");

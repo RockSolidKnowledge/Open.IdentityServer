@@ -97,7 +97,8 @@ public class Authorize_PushedAuthorizationRequests
         AuthorizeRequestValidationResult result = await sut.ValidateAsync(validAuthorizeParameters);
 
         result.IsError.Should().BeTrue();
-        result.Error.Should().Be("Too many request Uris");
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+        result.ErrorDescription.Should().Be("Only one request uri is allowed");
     }
     
     [Fact]
@@ -115,8 +116,10 @@ public class Authorize_PushedAuthorizationRequests
     
         result.IsError.Should().BeTrue();
         result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+        result.ErrorDescription.Should().Be("Expired or unknown pushed authorization request");
+        result.ValidatedRequest.ClientId.Should().Be(ClientIdentifer);
     }
-    
+
     [Fact]
     public async Task
         ValidateAsync_when_called_with_valid_par_request_uri_should_map_stored_info_to_validated_authorize_request()

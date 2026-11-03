@@ -233,6 +233,26 @@ public class DefaultUserSessionEventsServiceTests
                 c.ClientIds.Contains("fake-non-found"))));
     }
 
+    [Fact]
+    public async Task HandleUserSessionLogout_WhenContextHasIssuer_ShouldPassIssuerToLogoutNotification()
+    {
+        EndUserSessionEventContext endUserSessionCtx = new()
+        {
+            SubjectId = "fakeSubject",
+            SessionId = "fakeSession",
+            ClientIds = ["fake-client-one"],
+            Issuer = "https://issuer.test"
+        };
+
+        DefaultUserSessionEventsService sut = CreateSut();
+
+        await sut.HandleUserSessionLogout(endUserSessionCtx);
+
+        Mock.Get(backChannelLogoutService)
+            .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(c =>
+                c.Issuer == "https://issuer.test")));
+    }
+
     [Theory]
     [InlineData("subjectId", null)]
     [InlineData("subjectId", "")]
@@ -421,6 +441,28 @@ public class DefaultUserSessionEventsServiceTests
         
         Mock.Get(backChannelLogoutService)
             .Verify(x => x.SendLogoutNotificationsAsync(It.IsAny<LogoutNotificationContext>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleUserSessionExpiry_WhenContextHasIssuer_ShouldPassIssuerToLogoutNotification()
+    {
+        idsOptions.ServerSideSessions.ExpiredSessionsTriggerBackchannelLogout = true;
+
+        EndUserSessionEventContext endUserSessionCtx = new()
+        {
+            SubjectId = "fakeSubject",
+            SessionId = "fakeSession",
+            ClientIds = ["fake-client-one"],
+            Issuer = "https://issuer.test"
+        };
+
+        DefaultUserSessionEventsService sut = CreateSut();
+
+        await sut.HandleUserSessionExpiry(endUserSessionCtx);
+
+        Mock.Get(backChannelLogoutService)
+            .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(c =>
+                c.Issuer == "https://issuer.test")));
     }
 
     [Fact]

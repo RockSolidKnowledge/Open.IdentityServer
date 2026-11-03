@@ -75,6 +75,7 @@ public class ServerSessionTicketStore(
             return;
         }
         
+        var issued = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
         // If the session id or subject id has changed, remove any previous grants and create a new session
         if(existingSession.SessionId != ticket.Properties.GetSessionId() || 
            existingSession.SubjectId != ticket.Principal.GetSubjectId())
@@ -87,7 +88,7 @@ public class ServerSessionTicketStore(
                 Types = IdentityServerConstants.PersistedGrantTypes.PersistedGrantTokenTypes,
             });
             
-            existingSession.Created = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
+            existingSession.Created = issued;
         }
         
         logger.RenewingTicketInStore(key, ticket.Properties.ExpiresUtc);
@@ -96,7 +97,7 @@ public class ServerSessionTicketStore(
         existingSession.SubjectId = ticket.Principal.GetSubjectId();
         existingSession.SessionId = ticket.Properties.GetSessionId();
         existingSession.DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name);
-        existingSession.Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
+        existingSession.Renewed = issued;
         existingSession.Expires = ticket.Properties.ExpiresUtc?.UtcDateTime;
         existingSession.AuthenticationTicket = ticket;
 
@@ -154,7 +155,7 @@ public class ServerSessionTicketStore(
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string subjectId, string sessionId)
+    public async Task<IEnumerable<AuthenticationTicketFilterResult>> FilterServerAuthenticationTickets(string? subjectId, string? sessionId)
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
@@ -194,7 +195,8 @@ public class ServerSessionTicketStore(
         string? displayName = string.IsNullOrWhiteSpace(options.ServerSideSessions.UserDisplayNameClaimType)
             ? null
             : ticket.Principal.FindFirstValue(options.ServerSideSessions.UserDisplayNameClaimType);
-        
+
+        var issued = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
         ServerSideSession serverSideSession = new ServerSideSession
         {
             Key = key,
@@ -202,8 +204,8 @@ public class ServerSessionTicketStore(
             SubjectId = ticket.Principal.GetSubjectId(),
             SessionId = ticket.Properties.GetSessionId(),
             DisplayName = displayName,
-            Created = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
-            Renewed = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime,
+            Created = issued,
+            Renewed = issued,
             Expires = ticket.Properties.ExpiresUtc?.UtcDateTime,
             AuthenticationTicket = ticket,
         };

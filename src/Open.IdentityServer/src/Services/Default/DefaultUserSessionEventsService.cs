@@ -57,6 +57,7 @@ public class DefaultUserSessionEventsService(
             SubjectId = sessionEventContext.SubjectId,
             SessionId = sessionEventContext.SessionId,
             ClientIds = sessionEventContext.ClientIds,
+            Issuer = sessionEventContext.Issuer,
         });
     }
 
@@ -85,6 +86,7 @@ public class DefaultUserSessionEventsService(
             SubjectId = sessionEventContext.SubjectId,
             SessionId = sessionEventContext.SessionId,
             ClientIds = backChannelClients,
+            Issuer = sessionEventContext.Issuer,
         });
     }
 

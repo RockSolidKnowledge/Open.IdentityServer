@@ -32,12 +32,13 @@ public static class TokenExtensions
     /// <exception cref="Exception">Thrown when a JSON-valued claim cannot be parsed, two conflicting JSON claims exist for the same key, or an unsupported JSON value type is encountered.</exception>
     public static JwtPayload CreateJwtPayload(this Token token, TimeProvider clock, IdentityServerOptions options, ILogger logger)
     {
+        var now = clock.GetUtcNow();
         var payload = new JwtPayload(
             token.Issuer,
             null,
             null,
-            clock.GetUtcNow().UtcDateTime,
-            clock.GetUtcNow().UtcDateTime.AddSeconds(token.Lifetime));
+            now.UtcDateTime,
+            now.UtcDateTime.AddSeconds(token.Lifetime));
 
         foreach (var aud in token.Audiences)
         {
