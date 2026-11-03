@@ -111,4 +111,35 @@ public class JwtPayloadCreationTests
 
         (payload.Expiration - payload.NotBefore).Should().Be(_token.Lifetime);
     }
+
+    [Fact]
+    public void Should_add_issued_at_from_the_same_clock_read_as_not_before()
+    {
+        IdentityServerOptions options = new IdentityServerOptions();
+        // every read moves the clock on, so a separate read gives a different second
+        FakeTimeProvider fakeTimeProvider = new() { AutoAdvanceAmount = TimeSpan.FromSeconds(1) };
+
+        JwtPayload payload = _token.CreateJwtPayload(fakeTimeProvider, options, TestLogger.Create<JwtPayloadCreationTests>());
+
+        payload.Claims.Where(c => c.Type == JwtClaimTypes.IssuedAt).Should().ContainSingle()
+            .Which.Value.Should().Be(payload.NotBefore.ToString());
+        // a NumericDate, not a string
+        payload[JwtClaimTypes.IssuedAt].Should().BeOfType<long>();
+    }
+
+    [Fact]
+    public void Should_keep_issued_at_from_token_claims()
+    {
+        IdentityServerOptions options = new IdentityServerOptions();
+        FakeTimeProvider fakeTimeProvider = new();
+        fakeTimeProvider.SetUtcNow(new DateTime(2026, 02, 19, 17, 00, 00, DateTimeKind.Utc));
+
+        string issuedAt = $"{EpochTime.GetIntDate(new DateTime(2026, 02, 19, 16, 59, 00, DateTimeKind.Utc))}";
+        _token.Claims.Add(new Claim(JwtClaimTypes.IssuedAt, issuedAt, ClaimValueTypes.Integer64));
+
+        JwtPayload payload = _token.CreateJwtPayload(fakeTimeProvider, options, TestLogger.Create<JwtPayloadCreationTests>());
+
+        payload.Claims.Where(c => c.Type == JwtClaimTypes.IssuedAt).Should().ContainSingle()
+            .Which.Value.Should().Be(issuedAt);
+    }
 }
