@@ -24,6 +24,7 @@ namespace Open.IdentityServer.UnitTests.ResponseHandling.TokenResponseGenerator;
 public abstract class TokenResponseGeneratorTests
 {
     protected readonly FakeTimeProvider clock = new();
+    protected readonly IAuthorizationCodeStore authorizationCodeStore = Mock.Of<IAuthorizationCodeStore>();
     protected readonly ITokenService tokenService = Mock.Of<ITokenService>();
     protected readonly IRefreshTokenService refreshTokenService = Mock.Of<IRefreshTokenService>();
     protected readonly IScopeParser scopeParser = new DefaultScopeParser(NullLogger<DefaultScopeParser>.Instance);
@@ -40,7 +41,7 @@ public abstract class TokenResponseGeneratorTests
     }
 
     protected Open.IdentityServer.ResponseHandling.TokenResponseGenerator CreateSut() =>
-        new(clock, tokenService, refreshTokenService, scopeParser, resources, clients, telemetry, logger);
+        new(clock, authorizationCodeStore, tokenService, refreshTokenService, scopeParser, resources, clients, telemetry, logger);
     
     protected class CapturedTokenCreationRequest
     {
@@ -60,7 +61,7 @@ public abstract class TokenResponseGeneratorTests
                 return token;
             });
         Mock.Get(tokenService)
-            .Setup(x => x.CreateSecurityTokenAsync(It.IsAny<Token>()))
+            .Setup(x => x.CreateSecurityTokenAsync(token))
             .ReturnsAsync((Token tokenUsed) =>
             {
                 capturedRequest.TokenValue = tokenUsed;

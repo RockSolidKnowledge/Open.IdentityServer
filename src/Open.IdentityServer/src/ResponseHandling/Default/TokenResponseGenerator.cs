@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Open.IdentityServer.ResponseHandling;
@@ -26,6 +27,11 @@ public class TokenResponseGenerator : ITokenResponseGenerator
     /// </summary>
     protected readonly ILogger Logger;
 
+    /// <summary>
+    /// The auth code store
+    /// </summary>
+    protected readonly IAuthorizationCodeStore AuthorizationCodeStore;
+    
     /// <summary>
     /// The token service
     /// </summary>
@@ -65,6 +71,7 @@ public class TokenResponseGenerator : ITokenResponseGenerator
     /// Initializes a new instance of the <see cref="TokenResponseGenerator" /> class.
     /// </summary>
     /// <param name="clock">The clock.</param>
+    /// <param name="authorizationCodeStore">The auth code store</param>
     /// <param name="tokenService">The token service.</param>
     /// <param name="refreshTokenService">The refresh token service.</param>
     /// <param name="scopeParser">The scope parser.</param>
@@ -72,11 +79,19 @@ public class TokenResponseGenerator : ITokenResponseGenerator
     /// <param name="clients">The clients.</param>
     /// <param name="telemetry">The telemetry.</param>
     /// <param name="logger">The logger.</param>
-    public TokenResponseGenerator(TimeProvider clock, ITokenService tokenService,
-        IRefreshTokenService refreshTokenService, IScopeParser scopeParser, IResourceStore resources,
-        IClientStore clients, ITelemetryService telemetry, ILogger<TokenResponseGenerator> logger)
+    public TokenResponseGenerator(
+        TimeProvider clock,
+        IAuthorizationCodeStore authorizationCodeStore,
+        ITokenService tokenService,
+        IRefreshTokenService refreshTokenService,
+        IScopeParser scopeParser,
+        IResourceStore resources,
+        IClientStore clients,
+        ITelemetryService telemetry,
+        ILogger<TokenResponseGenerator> logger)
     {
         Clock = clock;
+        AuthorizationCodeStore = authorizationCodeStore;
         TokenService = tokenService;
         RefreshTokenService = refreshTokenService;
         ScopeParser = scopeParser;
@@ -93,7 +108,7 @@ public class TokenResponseGenerator : ITokenResponseGenerator
     /// <returns>A task that resolves to a <see cref="TokenResponse"/> for the requested grant type.</returns>
     public virtual async Task<TokenResponse> ProcessAsync(TokenRequestValidationResult request)
     {
-        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
+        using ITrace trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         trace?.AddTag(TelemetryConstants.TagConstants.GrantType, request.ValidatedRequest.GrantType);
         
         switch (request.ValidatedRequest.GrantType)
@@ -151,8 +166,8 @@ public class TokenResponseGenerator : ITokenResponseGenerator
         //////////////////////////
         // access token
         /////////////////////////
-        var (accessToken, refreshToken) = await CreateAccessTokenAsync(request.ValidatedRequest);
-        var response = new TokenResponse
+        (string accessToken, string refreshToken) = await CreateAccessTokenAsync(request.ValidatedRequest);
+        TokenResponse response = new TokenResponse
         {
             AccessToken = accessToken,
             AccessTokenLifetime = request.ValidatedRequest.AccessTokenLifetime,
@@ -185,11 +200,11 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 throw new InvalidOperationException("Client does not exist anymore.");
             }
 
-            var parsedScopesResult =
+            ParsedScopesResult parsedScopesResult =
                 ScopeParser.ParseScopeValues(request.ValidatedRequest.AuthorizationCode.RequestedScopes);
-            var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
+            ResourceValidationResult validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
 
-            var tokenRequest = new TokenCreationRequest
+            TokenCreationRequest tokenRequest = new TokenCreationRequest
             {
                 Subject = request.ValidatedRequest.AuthorizationCode.Subject,
                 ValidatedResources = validatedResources,
@@ -199,8 +214,8 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 ValidatedRequest = request.ValidatedRequest
             };
 
-            var idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
-            var jwt = await TokenService.CreateSecurityTokenAsync(idToken);
+            Token idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
+            string jwt = await TokenService.CreateSecurityTokenAsync(idToken);
             response.IdentityToken = jwt;
         }
 
@@ -216,21 +231,21 @@ public class TokenResponseGenerator : ITokenResponseGenerator
     {
         Logger.LogTrace("Creating response for refresh token request");
 
-        var oldAccessToken = request.ValidatedRequest.RefreshToken.AccessTokens
+        Token oldAccessToken = request.ValidatedRequest.RefreshToken.AccessTokens
                 .GetValueOrDefault(request.ValidatedRequest.RequestedResourceIndicator ?? string.Empty);
         string accessTokenString;
 
         // todo: do we want to just parse here and build up validated result
         // or do we want to fully re-run validation here.
-        var parsedScopesResult = ScopeParser.ParseScopeValues(request.ValidatedRequest.RefreshToken.AuthorizedScopes);
-        var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
+        ParsedScopesResult parsedScopesResult = ScopeParser.ParseScopeValues(request.ValidatedRequest.RefreshToken.AuthorizedScopes);
+        ResourceValidationResult validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
         validatedResources.DownscopeWhenResourceIndicators(request.ValidatedRequest);
 
         if (request.ValidatedRequest.Client.UpdateAccessTokenClaimsOnRefresh || oldAccessToken == null)
         {
-            var subject = request.ValidatedRequest.RefreshToken.Subject;
+            ClaimsPrincipal subject = request.ValidatedRequest.RefreshToken.Subject;
 
-            var creationRequest = new TokenCreationRequest
+            TokenCreationRequest creationRequest = new TokenCreationRequest
             {
                 Subject = subject,
                 Description = request.ValidatedRequest.RefreshToken.Description,
@@ -239,7 +254,7 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 ResourceIndicatorsUsed = request.ValidatedRequest.RequestedResourceIndicator.IsPresent(),
             };
 
-            var newAccessToken = await TokenService.CreateAccessTokenAsync(creationRequest);
+            Token newAccessToken = await TokenService.CreateAccessTokenAsync(creationRequest);
             accessTokenString = await TokenService.CreateSecurityTokenAsync(newAccessToken);
 
             request.ValidatedRequest.RefreshToken.AccessTokens[request.ValidatedRequest.RequestedResourceIndicator ?? string.Empty] = newAccessToken;
@@ -253,7 +268,7 @@ public class TokenResponseGenerator : ITokenResponseGenerator
             accessTokenString = await TokenService.CreateSecurityTokenAsync(oldAccessToken);
         }
 
-        var handle = await RefreshTokenService.UpdateRefreshTokenAsync(request.ValidatedRequest.RefreshTokenHandle,
+        string handle = await RefreshTokenService.UpdateRefreshTokenAsync(request.ValidatedRequest.RefreshTokenHandle,
             request.ValidatedRequest.RefreshToken, request.ValidatedRequest.Client);
 
         return new TokenResponse
@@ -280,8 +295,8 @@ public class TokenResponseGenerator : ITokenResponseGenerator
         //////////////////////////
         // access token
         /////////////////////////
-        var (accessToken, refreshToken) = await CreateAccessTokenAsync(request.ValidatedRequest);
-        var response = new TokenResponse
+        (string accessToken, string refreshToken) = await CreateAccessTokenAsync(request.ValidatedRequest);
+        TokenResponse response = new TokenResponse
         {
             AccessToken = accessToken,
             AccessTokenLifetime = request.ValidatedRequest.AccessTokenLifetime,
@@ -314,10 +329,10 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 throw new InvalidOperationException("Client does not exist anymore.");
             }
 
-            var parsedScopesResult = ScopeParser.ParseScopeValues(request.ValidatedRequest.DeviceCode.AuthorizedScopes);
-            var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
+            ParsedScopesResult parsedScopesResult = ScopeParser.ParseScopeValues(request.ValidatedRequest.DeviceCode.AuthorizedScopes);
+            ResourceValidationResult validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
 
-            var tokenRequest = new TokenCreationRequest
+            TokenCreationRequest tokenRequest = new TokenCreationRequest
             {
                 Subject = request.ValidatedRequest.DeviceCode.Subject,
                 ValidatedResources = validatedResources,
@@ -325,8 +340,8 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 ValidatedRequest = request.ValidatedRequest
             };
 
-            var idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
-            var jwt = await TokenService.CreateSecurityTokenAsync(idToken);
+            Token idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
+            string jwt = await TokenService.CreateSecurityTokenAsync(idToken);
             response.IdentityToken = jwt;
         }
 
@@ -352,8 +367,8 @@ public class TokenResponseGenerator : ITokenResponseGenerator
     /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued access and optional refresh token.</returns>
     protected virtual async Task<TokenResponse> ProcessTokenRequestAsync(TokenRequestValidationResult validationResult)
     {
-        (var accessToken, var refreshToken) = await CreateAccessTokenAsync(validationResult.ValidatedRequest);
-        var response = new TokenResponse
+        (string accessToken, string refreshToken) = await CreateAccessTokenAsync(validationResult.ValidatedRequest);
+        TokenResponse response = new TokenResponse
         {
             AccessToken = accessToken,
             AccessTokenLifetime = validationResult.ValidatedRequest.AccessTokenLifetime,
@@ -398,8 +413,8 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 throw new InvalidOperationException("Client does not exist anymore.");
             }
 
-            var parsedScopesResult = ScopeParser.ParseScopeValues(request.AuthorizationCode.RequestedScopes);
-            var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
+            ParsedScopesResult parsedScopesResult = ScopeParser.ParseScopeValues(request.AuthorizationCode.RequestedScopes);
+            ResourceValidationResult validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
 
             tokenRequest = new TokenCreationRequest
             {
@@ -425,8 +440,8 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 throw new InvalidOperationException("Client does not exist anymore.");
             }
 
-            var parsedScopesResult = ScopeParser.ParseScopeValues(request.DeviceCode.AuthorizedScopes);
-            var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
+            ParsedScopesResult parsedScopesResult = ScopeParser.ParseScopeValues(request.DeviceCode.AuthorizedScopes);
+            ResourceValidationResult validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
 
             tokenRequest = new TokenCreationRequest
             {
@@ -448,18 +463,19 @@ public class TokenResponseGenerator : ITokenResponseGenerator
             };
         }
 
-        var preDownscopeScopes = tokenRequest.ValidatedResources.RawScopeValues.ToList();
+        List<string> preDownscopeScopes = tokenRequest.ValidatedResources.RawScopeValues.ToList();
 
         tokenRequest.ValidatedResources.DownscopeWhenResourceIndicators(request);
         tokenRequest.ResourceIndicatorsUsed = request.RequestedResourceIndicator.IsPresent();
         request.ValidatedResources = tokenRequest.ValidatedResources;
 
-        var at = await TokenService.CreateAccessTokenAsync(tokenRequest);
-        var accessToken = await TokenService.CreateSecurityTokenAsync(at);
-
+        Token at = await TokenService.CreateAccessTokenAsync(tokenRequest);
+        string accessToken = await TokenService.CreateSecurityTokenAsync(at);
+        string refreshToken = null;
+        
         if (createRefreshToken)
         {
-            var refreshToken = await RefreshTokenService.CreateRefreshTokenAsync(new RefreshTokenCreationRequest
+            refreshToken = await RefreshTokenService.CreateRefreshTokenAsync(new RefreshTokenCreationRequest
             {
                 Subject = tokenRequest.Subject,
                 AccessToken = at,
@@ -468,10 +484,22 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 AuthorisedResourceIndicators = request.AuthorizationCode?.RequestedResourceIndicators?.ToList(),
                 RequestedResourceIndicator = request.RequestedResourceIndicator,
             });
-            return (accessToken, refreshToken);
         }
 
-        return (accessToken, null);
+        if (request.AuthorizationCode != null)
+        {
+            var childGrant = refreshToken;
+
+            if (childGrant == null && at.AccessTokenType == AccessTokenType.Reference)
+            {
+                childGrant = accessToken;
+            }
+            
+            request.AuthorizationCode.ChildGrant = childGrant;
+            await AuthorizationCodeStore.UpdateAuthorizationCodeAsync(request.AuthorizationCodeHandle, request.AuthorizationCode);
+        }
+
+        return (accessToken, refreshToken);
     }
 
     /// <summary>
@@ -488,13 +516,13 @@ public class TokenResponseGenerator : ITokenResponseGenerator
             return null;
         }
 
-        var oldAccessToken = request.RefreshToken.AccessTokens
+        Token oldAccessToken = request.RefreshToken.AccessTokens
             .GetValueOrDefault(request.RequestedResourceIndicator ?? string.Empty);
 
-        var parsedScopesResult = ScopeParser.ParseScopeValues(oldAccessToken.Scopes);
-        var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
+        ParsedScopesResult parsedScopesResult = ScopeParser.ParseScopeValues(oldAccessToken.Scopes);
+        ResourceValidationResult validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
 
-        var tokenRequest = new TokenCreationRequest
+        TokenCreationRequest tokenRequest = new TokenCreationRequest
         {
             Subject = request.RefreshToken.Subject,
             ValidatedResources = validatedResources,
@@ -502,7 +530,7 @@ public class TokenResponseGenerator : ITokenResponseGenerator
             AccessTokenToHash = newAccessToken
         };
 
-        var idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
+        Token idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
         return await TokenService.CreateSecurityTokenAsync(idToken);
     }
 }

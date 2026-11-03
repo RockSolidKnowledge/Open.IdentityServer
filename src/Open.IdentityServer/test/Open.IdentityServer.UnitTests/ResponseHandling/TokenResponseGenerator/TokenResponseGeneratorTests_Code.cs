@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Moq;
 using Open.IdentityServer;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Validation;
@@ -127,11 +128,49 @@ public class TokenResponseGeneratorTests_Code : TokenResponseGeneratorTests
     }
 
     [Fact]
-    public async Task ProcessAsync_AuthorizationCode_WithOfflineAccess_ReturnsRefreshToken()
+    public async Task ProcessAsync_AuthorizationCode_WithReferenceToken_ReturnsReferenceToken_AndAddsTokenReferenceToAuthCode()
     {
+        string fakeReferenceTokenHandle = "reference_token";
+        Token fakeReferenceToken = new Token { Lifetime = 3600, AccessTokenType = AccessTokenType.Reference };
+        SetupTokenService(fakeReferenceTokenHandle, fakeReferenceToken);
+
+        var request = new ValidatedTokenRequest
+        {
+            GrantType = OidcConstants.GrantTypes.AuthorizationCode,
+            Client = new Client { ClientId = "codeclient" },
+            AccessTokenLifetime = 3600,
+            AuthorizationCodeHandle = "auth_code_handle",
+            AuthorizationCode = new AuthorizationCode
+            {
+                ClientId = "codeclient",
+                Subject = CreateSubject(),
+                RequestedScopes = ["resource"],
+                IsOpenId = false
+            }
+        };
+
+        AuthorizationCode capturedAuthCode = null;
+        Mock.Get(authorizationCodeStore)
+            .Setup(x => x.UpdateAuthorizationCodeAsync(request.AuthorizationCodeHandle, It.IsAny<AuthorizationCode>()))
+            .Callback<string, AuthorizationCode>((_, authCode) => { capturedAuthCode = authCode; });
+
+        var sut = CreateSut();
+        var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
+
+        response.AccessToken.Should().Be(fakeReferenceTokenHandle);
+
+        capturedAuthCode.Should().NotBeNull();
+        capturedAuthCode.Should().BeEquivalentTo(request.AuthorizationCode, cnf => cnf.Excluding(x => x.ChildGrant));
+        capturedAuthCode.ChildGrant.Should().Be(fakeReferenceTokenHandle);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_AuthorizationCode_WithOfflineAccess_ReturnsRefreshToken_AndAddsTokenReferenceToAuthCode()
+    {
+        string fakeRefreshTokenHandle = "auth_refresh";
         Token fakeAccessToken = new Token { Lifetime = 3600 };
         SetupTokenService("auth_code_token", fakeAccessToken);
-        var capturedRefreshTokenCreation = SetupRefreshTokenService("auth_refresh");
+        var capturedRefreshTokenCreation = SetupRefreshTokenService(fakeRefreshTokenHandle);
 
         var request = new ValidatedTokenRequest
         {
@@ -147,16 +186,25 @@ public class TokenResponseGeneratorTests_Code : TokenResponseGeneratorTests
             }
         };
 
+        AuthorizationCode capturedAuthCode = null;
+        Mock.Get(authorizationCodeStore)
+            .Setup(x => x.UpdateAuthorizationCodeAsync(request.AuthorizationCodeHandle, It.IsAny<AuthorizationCode>()))
+            .Callback<string, AuthorizationCode>((_, authCode) => { capturedAuthCode = authCode; });
+
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
-        response.RefreshToken.Should().Be("auth_refresh");
+        response.RefreshToken.Should().Be(fakeRefreshTokenHandle);
 
         capturedRefreshTokenCreation.Value.Should().NotBeNull();
         capturedRefreshTokenCreation.Value!.AccessToken.Should().BeEquivalentTo(fakeAccessToken);
         capturedRefreshTokenCreation.Value.AuthorisedScopes.Should().BeEquivalentTo(request.AuthorizationCode.RequestedScopes);
         capturedRefreshTokenCreation.Value.AuthorisedResourceIndicators.Should().BeNullOrEmpty();
         capturedRefreshTokenCreation.Value.RequestedResourceIndicator.Should().BeNullOrEmpty();
+
+        capturedAuthCode.Should().NotBeNull();
+        capturedAuthCode.Should().BeEquivalentTo(request.AuthorizationCode, cnf => cnf.Excluding(x => x.ChildGrant));
+        capturedAuthCode.ChildGrant.Should().Be(fakeRefreshTokenHandle);
     }
 
     [Fact]

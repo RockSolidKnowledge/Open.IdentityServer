@@ -169,10 +169,17 @@ public class DefaultRefreshTokenServiceTests
 
         var handle = await _store.StoreRefreshTokenAsync(refreshToken);
 
-        (await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client))
-            .Should().NotBeNull()
+        var newHandle = await _subject.UpdateRefreshTokenAsync(handle, refreshToken, client);
+
+        newHandle.Should().NotBeNull()
             .And
             .NotBe(handle);
+        
+        var oldToken = await _store.GetRefreshTokenAsync(handle);
+        var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
+
+        oldToken.ChildGrant.Should().Be(newHandle);
+        newRefreshToken.ChildGrant.Should().BeNull();
     }
 
     [Fact]
@@ -311,9 +318,12 @@ public class DefaultRefreshTokenServiceTests
 
         newHandle.Should().NotBeNull().And.NotBe(handle);
 
+        var oldToken = await _store.GetRefreshTokenAsync(handle);
         var newRefreshToken = await _store.GetRefreshTokenAsync(newHandle);
 
+        oldToken.ChildGrant.Should().Be(newHandle);
         newRefreshToken.Should().NotBeNull();
+        newRefreshToken.ChildGrant.Should().BeNull();
         newRefreshToken.Lifetime.Should().Be((int)(now - newRefreshToken.CreationTime).TotalSeconds +
                                              client.SlidingRefreshTokenLifetime);
     }
@@ -348,7 +358,9 @@ public class DefaultRefreshTokenServiceTests
         var newToken = await _store.GetRefreshTokenAsync(newHandle);
 
         oldToken.ConsumedTime.Should().Be(now);
+        oldToken.ChildGrant.Should().Be(newHandle);
         newToken.ConsumedTime.Should().BeNull();
+        newToken.ChildGrant.Should().BeNull();
     }
 
     [Fact]

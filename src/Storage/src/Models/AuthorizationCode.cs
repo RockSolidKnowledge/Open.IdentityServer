@@ -14,6 +14,11 @@ namespace Open.IdentityServer.Models;
 public class AuthorizationCode
 {
     /// <summary>
+    /// Gets or sets the child grant reference
+    /// </summary>
+    public string ChildGrant { get; set; }
+    
+    /// <summary>
     /// Gets or sets the creation time.
     /// </summary>
     /// <value>

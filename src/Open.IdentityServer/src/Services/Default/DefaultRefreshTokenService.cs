@@ -291,15 +291,20 @@ public class DefaultRefreshTokenService : IRefreshTokenService
             refreshToken.Lifetime = newLifetime;
             needsUpdate = true;
         }
-
+        
+        string newHandle = null;
+        
         if (needsCreate)
         {
             // set it to null so that we save non-consumed token
-            refreshToken.ConsumedTime = null;
-            handle = await RefreshTokenStore.StoreRefreshTokenAsync(refreshToken);
+            var newRefreshToken = refreshToken.Clone();
+            newHandle = await RefreshTokenStore.StoreRefreshTokenAsync(newRefreshToken);
+            refreshToken.ChildGrant = newHandle;
+            needsUpdate = true;
             Logger.LogDebug("Created refresh token in store");
         }
-        else if (needsUpdate)
+        
+        if (needsUpdate)
         {
             await RefreshTokenStore.UpdateRefreshTokenAsync(handle, refreshToken);
             Logger.LogDebug("Updated refresh token in store");
@@ -309,6 +314,6 @@ public class DefaultRefreshTokenService : IRefreshTokenService
             Logger.LogDebug("No updates to refresh token done");
         }
 
-        return handle;
+        return newHandle ?? handle;
     }
 }

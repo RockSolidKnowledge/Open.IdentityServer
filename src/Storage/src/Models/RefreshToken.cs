@@ -16,6 +16,11 @@ namespace Open.IdentityServer.Models;
 public class RefreshToken
 {
     /// <summary>
+    /// Gets or sets the child grant reference
+    /// </summary>
+    public string? ChildGrant { get; set; }
+
+    /// <summary>
     /// Gets or sets the creation time.
     /// </summary>
     /// <value>
@@ -119,4 +124,28 @@ public class RefreshToken
     /// Placeholder not utilised by Open.IdentityServer yet 
     /// </summary>
     public int? ProofType { get; set; }
+
+    /// <summary>
+    /// Clones the refresh token
+    /// </summary>
+    /// <returns>copy of refresh token</returns>
+    public RefreshToken Clone()
+    {
+        return new RefreshToken
+        {
+            CreationTime = CreationTime,
+            Lifetime = Lifetime,
+            Subject = Subject,
+            Version = Version,
+            ClientId = ClientId,
+            SessionId = SessionId,
+            Description = Description,
+            AuthorizedScopes = AuthorizedScopes,
+            AccessTokens = AccessTokens,
+            AuthorizedResourceIndicators = AuthorizedResourceIndicators,
+            ProofType = ProofType,
+            ConsumedTime = null,
+            ChildGrant = null,
+        };
+    }
 }
