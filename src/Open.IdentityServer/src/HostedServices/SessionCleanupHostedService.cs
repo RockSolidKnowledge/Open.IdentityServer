@@ -1,3 +1,6 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -77,7 +80,8 @@ public class SessionCleanupHostedService : IHostedService
             await Delay(TimeSpan.FromSeconds(seconds), cancellationToken);
         }
 
-        var next = _options.ServerSideSessions.RemoveExpiredSessionsFrequency;
+        var frequency = _options.ServerSideSessions.RemoveExpiredSessionsFrequency;
+        var next = frequency;
         while (true)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -116,8 +120,14 @@ public class SessionCleanupHostedService : IHostedService
             {
                 _logger.LogDebug("Expired session removal disabled");
             }
-            next = _options.ServerSideSessions.RemoveExpiredSessionsFrequency - clock.GetElapsedTime(start);
-            if (next < TimeSpan.Zero) next = TimeSpan.Zero;
+
+            var elapsed = clock.GetElapsedTime(start);
+            next = frequency - elapsed;
+            if (next < TimeSpan.Zero)
+            {
+                _logger.LogWarning("Session cleanup took {Elapsed}, longer than the cleanup frequency of {Frequency}. Starting the next run without waiting", elapsed, frequency);
+                next = TimeSpan.Zero;
+            }
         }
     }
 

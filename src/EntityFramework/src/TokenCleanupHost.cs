@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using Microsoft.Extensions.Hosting;
@@ -124,8 +125,13 @@ public class TokenCleanupHost : IHostedService
 
             var start = clock.GetTimestamp();
             await RemoveExpiredGrantsAsync();
-            next = CleanupInterval - clock.GetElapsedTime(start);
-            if (next < TimeSpan.Zero) next = TimeSpan.Zero;
+            var elapsed = clock.GetElapsedTime(start);
+            next = CleanupInterval - elapsed;
+            if (next < TimeSpan.Zero)
+            {
+                _logger.LogWarning("Token cleanup took {Elapsed}, longer than the cleanup interval of {Interval}. Starting the next run without waiting", elapsed, CleanupInterval);
+                next = TimeSpan.Zero;
+            }
         }
     }
 
