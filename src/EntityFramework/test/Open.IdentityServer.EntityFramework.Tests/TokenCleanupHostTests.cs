@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Time.Testing;
 using Open.IdentityServer.EntityFramework.Options;
 using Xunit;
@@ -18,6 +18,7 @@ namespace Open.IdentityServer.EntityFramework.IntegrationTests;
 public class TokenCleanupHostTests
 {
     private readonly FakeTimeProvider clock = new();
+    private readonly RecordingLogger logger = new();
     private readonly OperationalStoreOptions options = new()
     {
         EnableTokenCleanup = true,
@@ -26,7 +27,7 @@ public class TokenCleanupHostTests
     };
 
     private TestableTokenCleanupHost CreateSut(int completedDelaysBeforeCancel, TimeSpan runDuration = default, int fuzzSeconds = 0) =>
-        new(new ServiceCollection().AddSingleton<TimeProvider>(clock).BuildServiceProvider(), options, clock,
+        new(new ServiceCollection().AddSingleton<TimeProvider>(clock).BuildServiceProvider(), options, logger, clock,
             completedDelaysBeforeCancel, runDuration, fuzzSeconds);
 
     [Fact]
@@ -78,6 +79,7 @@ public class TokenCleanupHostTests
         await sut.RunAsync();
 
         sut.Delays.Should().Equal(TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(40), TimeSpan.FromSeconds(40), TimeSpan.FromSeconds(40));
+        logger.Levels.Should().NotContain(LogLevel.Warning);
     }
 
     [Fact]
@@ -88,17 +90,19 @@ public class TokenCleanupHostTests
         await sut.RunAsync();
 
         sut.Delays[1].Should().Be(TimeSpan.Zero);
+        logger.Levels.Should().Contain(LogLevel.Warning);
     }
 
     // Completes the first N delays instantly, then cancels so the loop exits. Each run advances the clock by runDuration.
     private sealed class TestableTokenCleanupHost(
         IServiceProvider serviceProvider,
         OperationalStoreOptions options,
+        ILogger<TokenCleanupHost> logger,
         FakeTimeProvider clock,
         int completedDelaysBeforeCancel,
         TimeSpan runDuration,
         int fuzzSeconds)
-        : TokenCleanupHost(serviceProvider, options, NullLogger<TokenCleanupHost>.Instance)
+        : TokenCleanupHost(serviceProvider, options, logger)
     {
         private readonly CancellationTokenSource cts = new();
 
@@ -126,5 +130,17 @@ public class TokenCleanupHostTests
             clock.Advance(runDuration);
             return Task.CompletedTask;
         }
+    }
+
+    private sealed class RecordingLogger : ILogger<TokenCleanupHost>
+    {
+        public List<LogLevel> Levels { get; } = [];
+
+        public IDisposable BeginScope<TState>(TState state) where TState : notnull => null;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter) =>
+            Levels.Add(logLevel);
     }
 }

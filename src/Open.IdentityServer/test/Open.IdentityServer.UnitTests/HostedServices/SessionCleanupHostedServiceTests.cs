@@ -112,6 +112,7 @@ public class SessionCleanupHostedServiceTests
 
         Assert.Equal(options.ServerSideSessions.RemoveExpiredSessionsFrequency, sut.Delays[0]);
         Assert.Equal(TimeSpan.FromSeconds(0.15), sut.Delays[1]);
+        VerifyWarnings(Times.Never());
     }
 
     [Fact]
@@ -125,6 +126,14 @@ public class SessionCleanupHostedServiceTests
         await sut.RunAsync();
 
         Assert.Equal(TimeSpan.Zero, sut.Delays[1]);
+        VerifyWarnings(Times.AtLeastOnce());
+    }
+
+    private void VerifyWarnings(Times times)
+    {
+        Mock.Get(logger).Verify(
+            x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            times);
     }
 
     // Completes the first N delays instantly, then cancels so the loop exits.
