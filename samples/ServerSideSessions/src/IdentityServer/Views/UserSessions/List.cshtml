@@ -1,0 +1,93 @@
+@using IdentityServer.Models
+@using Open.IdentityServer.Models
+@model SessionsListViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Active Sessions</title>
+    <link rel="stylesheet" href="/css/sessions-list.css" />
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h1>Active Sessions</h1>
+            <div class="count">@Model.Sessions.Count session(s)</div>
+        </div>
+
+        <div class="filters">
+            <label for="userFilter">User</label>
+            <select id="userFilter" onchange="onUserChange(this.value)">
+                <option value="">All users</option>
+                @foreach (string username in Model.Usernames)
+                {
+                    if (Model.SelectedUsername == username)
+                    {
+                        <option value="@username" selected>@username</option>
+                    }
+                    else
+                    {
+                        <option value="@username">@username</option>
+                    }
+                }
+            </select>
+        </div>
+
+        @if (!Model.Sessions.Any())
+        {
+            <div class="empty">No active sessions found.</div>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Session Id</th>
+                        <th>Subject Id</th>
+                        <th>Clients</th>
+                        <th>Display Name</th>
+                        <th>Renewed</th>
+                        <th>Created</th>
+                        <th>Expires</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (UserSession session in Model.Sessions)
+                    {
+                        <tr>
+                            <td><code>@session.SessionId</code></td>
+                            <td><code>@session.SubjectId</code></td>
+                            <td>@String.Join(", ", session.ClientIds)</td>
+                            <td>@session.DisplayName</td>
+                            <td>@session.Renewed</td>
+                            <td>@session.Created</td>
+                            <td>@session.Expires</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+<script>
+    function onUserChange(username) {
+        if (!username) {
+            window.location.href = "/sessions";
+            return;
+        }
+
+        window.location.href = "/sessions/" + encodeURIComponent(username);
+    }
+</script>
+</body>
+</html>
