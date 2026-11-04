@@ -69,13 +69,15 @@ public class SessionCleanupHostedService : IHostedService
     
     internal async Task StartInternalAsync(CancellationToken cancellationToken)
     {
+        var clock = _serviceProvider.GetService<TimeProvider>() ?? TimeProvider.System;
         if (_options.ServerSideSessions.FuzzExpiredSessionsFrequency)
         {
             var seconds = GetFuzzDelaySeconds();
             _logger.LogDebug("Fuzzing session cleanup service start time by {Seconds}", seconds);
             await Delay(TimeSpan.FromSeconds(seconds), cancellationToken);
         }
-        
+
+        var next = _options.ServerSideSessions.RemoveExpiredSessionsFrequency;
         while (true)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -86,7 +88,7 @@ public class SessionCleanupHostedService : IHostedService
 
             try
             {
-                await Delay(_options.ServerSideSessions.RemoveExpiredSessionsFrequency, cancellationToken);
+                await Delay(next, cancellationToken);
             }
             catch (TaskCanceledException ex)
             {
@@ -105,6 +107,7 @@ public class SessionCleanupHostedService : IHostedService
                 break;
             }
 
+            var start = clock.GetTimestamp();
             if (_options.ServerSideSessions.RemoveExpiredSessions)
             {
                 await RemoveExpiredSessions();
@@ -113,6 +116,8 @@ public class SessionCleanupHostedService : IHostedService
             {
                 _logger.LogDebug("Expired session removal disabled");
             }
+            next = _options.ServerSideSessions.RemoveExpiredSessionsFrequency - clock.GetElapsedTime(start);
+            if (next < TimeSpan.Zero) next = TimeSpan.Zero;
         }
     }
 

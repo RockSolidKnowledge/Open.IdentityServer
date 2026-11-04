@@ -74,8 +74,25 @@ public class TokenCleanupHost : IHostedService
         return Task.CompletedTask;
     }
 
-    private async Task StartInternalAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// Runs the cleanup loop until cancelled. The first run waits <see cref="OperationalStoreOptions.TokenCleanupInterval"/>,
+    /// plus a random delay when <see cref="OperationalStoreOptions.FuzzTokenCleanupStart"/> is set.
+    /// Each later run starts one interval after the previous run started, so the time a run takes
+    /// doesn't push the schedule back.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token that stops the loop.</param>
+    /// <returns>A task that completes when the loop exits.</returns>
+    protected async Task StartInternalAsync(CancellationToken cancellationToken)
     {
+        var clock = _serviceProvider.GetService<TimeProvider>() ?? TimeProvider.System;
+        if (_options.FuzzTokenCleanupStart)
+        {
+            var seconds = GetFuzzDelaySeconds();
+            _logger.LogDebug("Fuzzing token cleanup service start time by {Seconds}", seconds);
+            await Delay(TimeSpan.FromSeconds(seconds), cancellationToken);
+        }
+
+        var next = CleanupInterval;
         while (true)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -86,7 +103,7 @@ public class TokenCleanupHost : IHostedService
 
             try
             {
-                await Task.Delay(CleanupInterval, cancellationToken);
+                await Delay(next, cancellationToken);
             }
             catch (TaskCanceledException ex)
             {
@@ -105,11 +122,36 @@ public class TokenCleanupHost : IHostedService
                 break;
             }
 
+            var start = clock.GetTimestamp();
             await RemoveExpiredGrantsAsync();
+            next = CleanupInterval - clock.GetElapsedTime(start);
+            if (next < TimeSpan.Zero) next = TimeSpan.Zero;
         }
     }
 
-    async Task RemoveExpiredGrantsAsync()
+    /// <summary>
+    /// Gets a random number of seconds, from <c>0</c> up to <see cref="OperationalStoreOptions.TokenCleanupInterval"/>, to delay the first cleanup run.
+    /// Seam exists to allow unit tests to override this behavior.
+    /// </summary>
+    /// <returns>The number of seconds to delay the first run.</returns>
+    protected virtual int GetFuzzDelaySeconds() => Random.Shared.Next(0, _options.TokenCleanupInterval);
+
+    /// <summary>
+    /// Delays the execution for a specified time period.
+    /// Seam exists to allow unit tests to override this behavior and avoid actual delays.
+    /// </summary>
+    /// <param name="delay">The time period to delay.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the delay.</returns>
+    protected virtual Task Delay(TimeSpan delay, CancellationToken cancellationToken) => Task.Delay(delay, cancellationToken);
+
+    /// <summary>
+    /// Removes expired grants, device codes and pushed authorization requests in a new service scope.
+    /// Exceptions are logged and do not stop the cleanup loop.
+    /// Seam exists to allow unit tests to override this behavior.
+    /// </summary>
+    /// <returns>A task that represents the cleanup run.</returns>
+    protected virtual async Task RemoveExpiredGrantsAsync()
     {
         try
         {
