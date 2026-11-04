@@ -139,6 +139,30 @@ public class DefaultUserSessionTests
     }
 
     [Fact]
+    public async Task CreateSessionId_WhenSameSubjectWithExplicitClientList_ShouldNotPreserveOldClientList()
+    {
+        string existingSid = "999";
+        string[] existingClientList = ["clientA", "clientB"];
+        string[] newClientList = ["clientC", "clientD"];
+        
+        var propsAuthResult = _props.Clone();
+        propsAuthResult.SetSessionId(existingSid);
+        propsAuthResult.SetClientList(existingClientList);
+        
+        _props.SetClientList(newClientList);
+        
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, propsAuthResult, "scheme"));
+
+        _props.GetSessionId().Should().BeNull();
+
+        var newSubject = new IdentityServerUser("456").CreatePrincipal();
+
+        await _subject.CreateSessionIdAsync(newSubject, _props);
+
+        _props.GetClientList().Should().BeEquivalentTo(newClientList);
+    }
+
+    [Fact]
     public async Task CreateSessionId_when_user_is_authenticated_but_different_sub_should_create_new_sid()
     {
         _props.SetSessionId("999");

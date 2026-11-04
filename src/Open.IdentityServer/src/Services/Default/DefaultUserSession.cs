@@ -174,8 +174,12 @@ public class DefaultUserSession : IUserSession
             && sameSubject)
         {
             properties.SetSessionId(currentSessionId);
-            var clients = Properties.GetClientList().ToList();
-            properties.SetClientList(clients);
+            
+            // copy client list if there's no new incoming client list
+            if (!properties.GetClientList().Any())
+            {
+                properties.SetClientList(Properties.GetClientList());
+            }
         }
         
         if (properties.GetSessionId() == null || !sameSubject)
