@@ -167,14 +167,18 @@ public class DefaultUserSession : IUserSession
         var currentSubjectId = Principal?.GetSubjectId();
         var newSubjectId = principal.GetSubjectId();
         
-        if (properties.GetSessionId() == null && currentSessionId != null)
+        bool sameSubject = currentSubjectId == newSubjectId;
+        
+        if (properties.GetSessionId() == null 
+            && currentSessionId != null
+            && sameSubject)
         {
             properties.SetSessionId(currentSessionId);
             var clients = Properties.GetClientList().ToList();
             properties.SetClientList(clients);
         }
         
-        if (properties.GetSessionId() == null || currentSubjectId != newSubjectId)
+        if (properties.GetSessionId() == null || !sameSubject)
         {
             properties.SetSessionId(CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex));
         }
