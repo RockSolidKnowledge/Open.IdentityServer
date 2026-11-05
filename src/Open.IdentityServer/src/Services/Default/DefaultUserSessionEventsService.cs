@@ -112,8 +112,10 @@ public class DefaultUserSessionEventsService(
                 sessionEventContext.SessionId))
             .ToList();
 
-        if (sessions.Count == 0 || sessions.All(x => x.Session.Expires.HasValue &&
-                                                     x.Session.Expires < timeProvider.GetUtcNow()))
+        if (sessions.Count == 0 || 
+            sessions.All(x => 
+                x.Session.Expires.HasValue 
+                && x.Session.Expires < timeProvider.GetUtcNow().UtcDateTime))
         {
             logger.LogDebug("");
             return false;
