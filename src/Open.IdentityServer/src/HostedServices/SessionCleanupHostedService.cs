@@ -1,3 +1,6 @@
+// Copyright (c) 2026, Rock Solid Knowledge Ltd
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,13 +72,16 @@ public class SessionCleanupHostedService : IHostedService
     
     internal async Task StartInternalAsync(CancellationToken cancellationToken)
     {
+        var clock = _serviceProvider.GetService<TimeProvider>() ?? TimeProvider.System;
         if (_options.ServerSideSessions.FuzzExpiredSessionsFrequency)
         {
             var seconds = GetFuzzDelaySeconds();
             _logger.LogDebug("Fuzzing session cleanup service start time by {Seconds}", seconds);
             await Delay(TimeSpan.FromSeconds(seconds), cancellationToken);
         }
-        
+
+        var frequency = _options.ServerSideSessions.RemoveExpiredSessionsFrequency;
+        var next = frequency;
         while (true)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -86,7 +92,7 @@ public class SessionCleanupHostedService : IHostedService
 
             try
             {
-                await Delay(_options.ServerSideSessions.RemoveExpiredSessionsFrequency, cancellationToken);
+                await Delay(next, cancellationToken);
             }
             catch (TaskCanceledException ex)
             {
@@ -105,6 +111,7 @@ public class SessionCleanupHostedService : IHostedService
                 break;
             }
 
+            var start = clock.GetTimestamp();
             if (_options.ServerSideSessions.RemoveExpiredSessions)
             {
                 await RemoveExpiredSessions();
@@ -112,6 +119,14 @@ public class SessionCleanupHostedService : IHostedService
             else
             {
                 _logger.LogDebug("Expired session removal disabled");
+            }
+
+            var elapsed = clock.GetElapsedTime(start);
+            next = frequency - elapsed;
+            if (next < TimeSpan.Zero)
+            {
+                _logger.LogWarning("Session cleanup took {Elapsed}, longer than the cleanup frequency of {Frequency}. Starting the next run without waiting", elapsed, frequency);
+                next = TimeSpan.Zero;
             }
         }
     }

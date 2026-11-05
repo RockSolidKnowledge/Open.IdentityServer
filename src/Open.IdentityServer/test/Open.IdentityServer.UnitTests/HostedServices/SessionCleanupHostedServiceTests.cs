@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Time.Testing;
 using Moq;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Services;
@@ -32,6 +33,7 @@ public class SessionCleanupHostedServiceTests
     private IServiceScopeFactory scopeFactory = Mock.Of<IServiceScopeFactory>();
     private IServiceScope serviceScope = Mock.Of<IServiceScope>();
     private ISessionCleanupService sessionCleanupService = Mock.Of<ISessionCleanupService>();
+    private FakeTimeProvider clock = new();
 
     public SessionCleanupHostedServiceTests()
     {
@@ -42,6 +44,10 @@ public class SessionCleanupHostedServiceTests
         Mock.Get(serviceProvider)
             .Setup(x => x.GetService(typeof(ISessionCleanupService)))
             .Returns(sessionCleanupService);
+
+        Mock.Get(serviceProvider)
+            .Setup(x => x.GetService(typeof(TimeProvider)))
+            .Returns(clock);
 
         Mock.Get(scopeFactory)
             .Setup(x => x.CreateScope())
@@ -92,6 +98,42 @@ public class SessionCleanupHostedServiceTests
         Assert.Equal(options.ServerSideSessions.RemoveExpiredSessionsFrequency, sut.Delays[1]);
         Mock.Get(sessionCleanupService)
             .Verify(x => x.RemoveExpiredServerSideSessionsAsync(), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task SessionCleanupHostedService_ShouldMeasureTheIntervalFromTheStartOfEachRun()
+    {
+        Mock.Get(sessionCleanupService)
+            .Setup(x => x.RemoveExpiredServerSideSessionsAsync())
+            .Callback(() => clock.Advance(TimeSpan.FromSeconds(0.1)));
+        var sut = CreateSut(completedDelaysBeforeCancel: 2);
+
+        await sut.RunAsync();
+
+        Assert.Equal(options.ServerSideSessions.RemoveExpiredSessionsFrequency, sut.Delays[0]);
+        Assert.Equal(TimeSpan.FromSeconds(0.15), sut.Delays[1]);
+        VerifyWarnings(Times.Never());
+    }
+
+    [Fact]
+    public async Task SessionCleanupHostedService_WhenARunTakesLongerThanTheInterval_ShouldStartTheNextRunWithoutWaiting()
+    {
+        Mock.Get(sessionCleanupService)
+            .Setup(x => x.RemoveExpiredServerSideSessionsAsync())
+            .Callback(() => clock.Advance(TimeSpan.FromSeconds(1)));
+        var sut = CreateSut(completedDelaysBeforeCancel: 2);
+
+        await sut.RunAsync();
+
+        Assert.Equal(TimeSpan.Zero, sut.Delays[1]);
+        VerifyWarnings(Times.AtLeastOnce());
+    }
+
+    private void VerifyWarnings(Times times)
+    {
+        Mock.Get(logger).Verify(
+            x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            times);
     }
 
     // Completes the first N delays instantly, then cancels so the loop exits.

@@ -315,7 +315,18 @@ public static class IdentityServerBuilderExtensionsCrypto
         builder.Services.AddSingleton(options);
         builder.Services.AddTransient<DataProtectedIdentityServerKeyMaterialConverter>();
         builder.Services.AddScoped<IValidationKeysStore, IdentityServerValidationKeysStore>();
-        builder.Services.AddScoped<ISigningCredentialStore, IdentityServerSigningCredentialStore>();
+
+        builder.Services.AddSingleton<IIdentityServerSigningCredentialStoreFactory, IdentityServerSigningCredentialStoreFactory>();
+
+        foreach (var supportedAlg in options.SupportedAlgorithms)
+        {
+            builder.Services.AddScoped<ISigningCredentialStore>(sp =>
+            {
+                IIdentityServerSigningCredentialStoreFactory factory = sp.GetRequiredService<IIdentityServerSigningCredentialStoreFactory>();
+
+                return factory.Create(supportedAlg);
+            });
+        }
 
         return builder;
     }

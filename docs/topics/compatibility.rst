@@ -11,8 +11,12 @@ these features in Open.IdentityServer.
 Keys Compatibility Store
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-You will be able to configure read-only access to the ``Keys`` table in Open.IdentityServer. This will take the latest 
-signing key that exists and use it for signing, and all signing keys in the table will be used for validation. We have added the extension method ``IIdentityServerBuilder.AddCompatibilityKeyStores`` which will register these key stores in the DI container for you.
+You will be able to configure read-only access to the ``Keys`` table in Open.IdentityServer. This will register the active
+key for each configured algorithm when found in the database. 
+
+An active key is one that was created before the ``CompatibilityKeyStoreOptions.KeyPropagationTime`` and younger than the ``CompatibilityKeyStoreOptions.MaxLifetime``. If all keys are younger than the propagation time setting, then the oldest of these keys will be registered. All non-expired signing keys in the table will be used for validation. 
+
+Key stores are registered per-algorithm based on ``CompatibilityKeyStoreOptions.SupportedAlgorithms``. We have added the extension method ``IIdentityServerBuilder.AddCompatibilityKeyStores`` which will register these key stores in the DI container for you.
 
 .. code-block:: csharp
 
@@ -22,7 +26,9 @@ signing key that exists and use it for signing, and all signing keys in the tabl
         })
         .AddCompatibilityKeyStores();
 
-.. note:: 
-   By default keys will expire after 90 days. You can configure this behavior in the ``CompatabilityKeyStoreOptions``.
-
-   If you need automatic key rotation, see our KeyRotation component on `identityserver.com products page <https://www.identityserver.com/products>`_.
+.. note::
+    The default propagation time will be respected if possible, and only ``RS256`` keys will be loaded for signing by default. Default key expiry (i.e. keys not used for signing or validation) is 90 days.
+    
+    This store is intended only for transitioning to Open.IdentityServer. More robust key management should be 
+    set up before keys reach expiry. If you need automatic key rotation, see our KeyRotation component on 
+    `identityserver.com products page <https://www.identityserver.com/products>`_.

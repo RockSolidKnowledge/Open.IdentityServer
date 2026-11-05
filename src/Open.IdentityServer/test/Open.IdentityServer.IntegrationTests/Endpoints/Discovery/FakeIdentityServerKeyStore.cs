@@ -20,7 +20,7 @@ public class FakeIdentityServerKeyStore: IIdentityServerKeyStore
             new IdentityServerKeyMaterial { Id = "FakeRSA_PS256_NONSIGN", Version = 1, Use = "other", DataProtected = false, Algorithm = "PS256", Data = FakePS256KeyData },
             new IdentityServerKeyMaterial { Id = "FakeRSA_ES256", Version = 1, Use = "signing", DataProtected = false, Algorithm = "ES256", Data = FakeES256KeyData },
             new IdentityServerKeyMaterial { Id = "FakeRSA_ES384", Version = 1, Use = "signing", DataProtected = false, Algorithm = "ES384", Data = FakeES384KeyData },
-            new IdentityServerKeyMaterial { Id = "FakeRSA_ES521", Version = 1, Use = "signing", DataProtected = false, Algorithm = "ES521", Data = FakeES521KeyData },
+            new IdentityServerKeyMaterial { Id = "FakeRSA_ES512", Version = 1, Use = "signing", DataProtected = false, Algorithm = "ES512", Data = FakeES512KeyData },
             new IdentityServerKeyMaterial { Id = "FakeRSA_PS512_Expired", Version = 1, Use = "signing", DataProtected = false, Algorithm = "PS512", Data = FakePS512KeyData },
         ];
     }
@@ -91,15 +91,15 @@ public class FakeIdentityServerKeyStore: IIdentityServerKeyStore
         }
         """;
 
-    private const string FakeES521KeyData = """
+    private const string FakeES512KeyData = """
         {
             "D": "AJ7z4XAnvCP2Ea+Xm2Q8ZW7/10caVvPk+uzVw//4WhNSEUN0uNmvPq6/bUswvlBLDfLMgoH9HaI9l+I/De7OKJnj",
             "Q": {
                 "X": "AJR23zqtji/WXqM+WKcr9IUBA2nErWkXQoahE8P3MejJfNX4ja5bR3fLx23OYF5vU/bvAmMZuhcl16o8+0+GuGpi",
                 "Y": "AIiRICSC2ywpL4tr+7CaWp4nkaIzIJNA2Lt0ip2eFj4grn/qBhBdyy2v6wgnDXqOVELh33gNfoqI9FKxqN+sYUOQ"
             },
-            "Id": "FakeEC_ES521",
-            "Algorithm": "ES521",
+            "Id": "FakeEC_ES512",
+            "Algorithm": "ES512",
             "HasX509Certificate": false,
             "Created": "2026-01-01T12:00:00"
         }
