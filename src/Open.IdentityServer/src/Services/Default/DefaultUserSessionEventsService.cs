@@ -117,7 +117,8 @@ public class DefaultUserSessionEventsService(
                 x.Session.Expires.HasValue 
                 && x.Session.Expires < timeProvider.GetUtcNow().UtcDateTime))
         {
-            logger.LogDebug("");
+            logger.LogDebug("no valid server-side sessions found for subject {subjectId} and session {sessionId}",
+                sessionEventContext.SubjectId, sessionEventContext.SessionId);
             return false;
         }
 
