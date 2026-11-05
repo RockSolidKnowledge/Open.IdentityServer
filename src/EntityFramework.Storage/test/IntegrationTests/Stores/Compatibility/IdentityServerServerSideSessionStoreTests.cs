@@ -1313,6 +1313,89 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
             .Select(m => m.Name)
             .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
     }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task DeleteSessions_WhenSubjectIdProvided_ShouldUseExactMatch(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+    
+        await context.ServerSideSessions.AddRangeAsync([
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "1", SessionId = "session-1", Data = "{\"value\":true}" },
+            new Entities.ServerSideSession { Key = "key-10", Scheme = "cookie", SubjectId = "10", SessionId = "session-10", Data = "{\"value\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+    
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+    
+        await sut.DeleteSessions("1", null);
+    
+        var remainingSessions = context.ServerSideSessions.ToList();
+        remainingSessions.Should().HaveCount(1);
+        remainingSessions.Should().Contain(x => x.Key == "key-10");
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task DeleteSessions_WhenSessionIdProvided_ShouldUseExactMatch(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+    
+        await context.ServerSideSessions.AddRangeAsync([
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "subject-1", SessionId = "1", Data = "{\"value\":true}" },
+            new Entities.ServerSideSession { Key = "key-10", Scheme = "cookie", SubjectId = "subject-10", SessionId = "10", Data = "{\"value\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+    
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+    
+        await sut.DeleteSessions(null, "1");
+    
+        var remainingSessions = context.ServerSideSessions.ToList();
+        remainingSessions.Should().HaveCount(1);
+        remainingSessions.Should().Contain(x => x.Key == "key-10");
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenSubjectIdProvided_ShouldUseExactMatch(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+    
+        await context.ServerSideSessions.AddRangeAsync([
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "1", SessionId = "session-1", Data = "{\"value\":true}" },
+            new Entities.ServerSideSession { Key = "key-10", Scheme = "cookie", SubjectId = "10", SessionId = "session-10", Data = "{\"value\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+    
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+    
+        var actual = (await sut.FilterSessions("1", null)).ToList();
+    
+        actual.Should().HaveCount(1);
+        actual.Should().Contain(x => x.Key == "key-1");
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessions_WhenSessionIdProvided_ShouldUseExactMatch(
+        DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+    
+        await context.ServerSideSessions.AddRangeAsync([
+            new Entities.ServerSideSession
+                { Key = "key-1", Scheme = "cookie", SubjectId = "subject-1", SessionId = "1", Data = "{\"value\":true}" },
+            new Entities.ServerSideSession
+            {
+                Key = "key-10", Scheme = "cookie", SubjectId = "subject-10", SessionId = "10", Data = "{\"value\":true}"
+            },
+        ]);
+        await context.SaveChangesAsync();
+    
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+    
+        var actual = (await sut.FilterSessions(null, "1")).ToList();
+    
+        actual.Should().HaveCount(1);
+        actual.Should().Contain(x => x.Key == "key-1");
+    }
 
     private async Task<PersistedGrantDbContext> CreateCleanContext(DbContextOptions<PersistedGrantDbContext> options)
     {

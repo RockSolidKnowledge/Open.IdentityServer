@@ -934,6 +934,62 @@ public class InMemorySessionStoreTests
         (await sut.GetSession(expiredSession2.Key)).Should().NotBeNull();
         (await sut.GetSession(validSession0.Key)).Should().NotBeNull();
     }
+    
+    [Fact]
+    public async Task DeleteSessions_WhenSubjectIdProvided_ShouldDeleteOnlyExactMatch()
+    {
+        ServerSideSession exactMatch = new() { Key = "subject-exact", SubjectId = "1", SessionId = "sid-exact" };
+        ServerSideSession partialMatch = new() { Key = "subject-partial", SubjectId = "10", SessionId = "sid-partial" };
+        InMemorySessionStore sut = CreateSut([exactMatch, partialMatch]);
+    
+        await sut.DeleteSessions("1", null);
+    
+        (await sut.GetSession(exactMatch.Key)).Should().BeNull();
+        (await sut.GetSession(partialMatch.Key)).Should().BeEquivalentTo(partialMatch);
+    }
+    
+    [Fact]
+    public async Task DeleteSessions_WhenSessionIdProvided_ShouldDeleteOnlyExactMatch()
+    {
+        ServerSideSession exactMatch = new() { Key = "session-exact", SubjectId = "subject-exact", SessionId = "1" };
+        ServerSideSession partialMatch = new() { Key = "session-partial", SubjectId = "subject-partial", SessionId = "10" };
+        InMemorySessionStore sut = CreateSut([exactMatch, partialMatch]);
+    
+        await sut.DeleteSessions(null, "1");
+    
+        (await sut.GetSession(exactMatch.Key)).Should().BeNull();
+        (await sut.GetSession(partialMatch.Key)).Should().BeEquivalentTo(partialMatch);
+    }
+    
+    [Fact]
+    public async Task FilterSessions_WhenSubjectIdProvided_ShouldReturnOnlyExactMatch()
+    {
+        IEnumerable<ServerSideSession> seededSessions = [
+            new() { Key = "subject-exact", SubjectId = "1", SessionId = "sid-exact" },
+            new() { Key = "subject-partial", SubjectId = "10", SessionId = "sid-partial" },
+        ];
+        InMemorySessionStore sut = CreateSut(seededSessions);
+    
+        var actual = (await sut.FilterSessions("1", null)).ToList();
+    
+        actual.Should().HaveCount(1);
+        actual.Should().Contain(x => x.Key == "subject-exact");
+    }
+    
+    [Fact]
+    public async Task FilterSessions_WhenSessionIdProvided_ShouldReturnOnlyExactMatch()
+    {
+        IEnumerable<ServerSideSession> seededSessions = [
+            new() { Key = "session-exact", SubjectId = "subject-exact", SessionId = "1" },
+            new() { Key = "session-partial", SubjectId = "subject-partial", SessionId = "10" },
+        ];
+        InMemorySessionStore sut = CreateSut(seededSessions);
+    
+        var actual = (await sut.FilterSessions(null, "1")).ToList();
+    
+        actual.Should().HaveCount(1);
+        actual.Should().Contain(x => x.Key == "session-exact");
+    }
 
     private static ServerSideSession FakeSessionSession(
         string subject, 

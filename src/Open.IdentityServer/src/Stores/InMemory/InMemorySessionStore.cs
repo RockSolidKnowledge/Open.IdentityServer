@@ -155,12 +155,12 @@ public class InMemorySessionStore : IIdentityServerServerSideSessionStore
         if (!string.IsNullOrWhiteSpace(query.SubjectId))
         {
             input = input
-                .Where(x => x.SubjectId.Contains(query.SubjectId));
+                .Where(x => x.SubjectId == query.SubjectId);
         }
 
         if (!string.IsNullOrWhiteSpace(query.SessionId))
         {
-            input = input.Where(x => x.SessionId != null && x.SessionId.Contains(query.SessionId));
+            input = input.Where(x => x.SessionId != null && x.SessionId == query.SessionId);
         }
 
         if (!string.IsNullOrWhiteSpace(query.DisplayName))

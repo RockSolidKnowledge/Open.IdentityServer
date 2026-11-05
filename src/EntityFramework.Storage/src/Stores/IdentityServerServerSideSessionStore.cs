@@ -255,19 +255,19 @@ public class IdentityServerServerSideSessionStore(
         if (!string.IsNullOrWhiteSpace(query.SubjectId))
         {
             input = input
-                .Where(x => x.SubjectId.Contains(query.SubjectId));
+                .Where(x => x.SubjectId == query.SubjectId);
         }
-
+    
         if (!string.IsNullOrWhiteSpace(query.SessionId))
         {
-            input = input.Where(x => x.SessionId != null && x.SessionId.Contains(query.SessionId));
+            input = input.Where(x => x.SessionId != null && x.SessionId == query.SessionId);
         }
-
+    
         if (!string.IsNullOrWhiteSpace(query.DisplayName))
         {
             input = input.Where(x => x.DisplayName != null && x.DisplayName.Contains(query.DisplayName));
         }
-
+    
         return input.OrderBy(x => x.Id);
     }
     
