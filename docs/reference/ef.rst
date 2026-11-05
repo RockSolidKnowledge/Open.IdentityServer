@@ -177,6 +177,9 @@ This options class contains properties to control the operational store and ``Pe
     Indicates whether expired grants will be automatically cleaned up from the database. The default is ``false``.
 ``TokenCleanupInterval``
     The token cleanup interval (in seconds). The default is 3600 (1 hour).
+``FuzzTokenCleanupStart``
+    Indicates whether the first token cleanup run is delayed by a random amount, up to ``TokenCleanupInterval``.
+    This avoids multiple instances started together running cleanup at the same time. The default is ``true``.
 
 .. note:: The token cleanup feature does *not* remove persisted grants that are *consumed* (see :ref:`persisted grants <refPersistedGrants>`).
 
