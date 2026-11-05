@@ -142,6 +142,40 @@ public class PersistedGrantStore : IPersistedGrantStore
         }
     }
 
+    /// <inheritdoc />
+    public async Task RemoveAsync(IEnumerable<string> keys)
+    {
+        using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
+
+        List<Entities.PersistedGrant> grantsToRemove = [];
+
+        foreach (var key in keys)
+        {
+            Entities.PersistedGrant persistedGrant = (await Context.PersistedGrants.Where(x => x.Key == key).ToArrayAsync())
+                .SingleOrDefault(x => x.Key == key);
+
+            if (persistedGrant == null)
+            {
+                Logger.LogDebug("no {PersistedGrantKey} persisted grant found in database", key);
+            }
+            else
+            {
+                grantsToRemove.Add(persistedGrant);
+            }
+        }
+        
+        Context.PersistedGrants.RemoveRange(grantsToRemove);
+        
+        try
+        {
+            await Context.SaveChangesAsync();
+        }
+        catch(DbUpdateConcurrencyException ex)
+        {
+            Logger.LogInformation("exception removing {PersistedGrantKeys} persisted grant from database: {Error}", keys, ex.Message);
+        }
+    }
+
     /// <inheritdoc/>
     public async Task RemoveAllAsync(PersistedGrantFilter filter)
     {

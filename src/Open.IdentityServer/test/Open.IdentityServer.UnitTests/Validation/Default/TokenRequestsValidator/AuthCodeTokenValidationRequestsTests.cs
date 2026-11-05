@@ -101,7 +101,7 @@ public class AuthCodeTokenValidationRequestsTests
         result.IsError.Should().BeTrue();
         
         Mock.Get(tokenRevocationService)
-            .Verify(x => x.RevokeGrantFamily(fakeAuthCodeGrant));
+            .Verify(x => x.RevokeGrantFamily(fakeAuthCode, fakeAuthCodeGrant));
     }
 
     private AuthorizationCode CreateFakeAuthCode(string clientId, string subjectId, string redirectUri, string[] requestedScopes)

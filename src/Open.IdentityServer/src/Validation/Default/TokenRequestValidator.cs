@@ -316,7 +316,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         if (authCode.ConsumedTime != null)
         {
             LogError("Authorization code reuse detected, revoking issued tokens", new { consumed = authCode.ConsumedTime });
-            await _tokenRevocationService.RevokeGrantFamily(authCode);
+            await _tokenRevocationService.RevokeGrantFamily(code, authCode);
             return Invalid(OidcConstants.TokenErrors.InvalidGrant);
         }
 

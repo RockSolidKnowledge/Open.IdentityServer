@@ -153,6 +153,7 @@ public static class IdentityServerBuilderExtensionsCore
         builder.Services.TryAddTransient<IKeyMaterialService, DefaultKeyMaterialService>();
         builder.Services.TryAddTransient<ITokenService, DefaultTokenService>();
         builder.Services.TryAddTransient<ITokenCreationService, DefaultTokenCreationService>();
+        builder.Services.TryAddTransient<ITokenRevocationService, DefaultTokenRevocationService>();
         builder.Services.TryAddTransient<IClaimsService, DefaultClaimsService>();
         builder.Services.TryAddTransient<IRefreshTokenService, DefaultRefreshTokenService>();
         builder.Services.TryAddTransient<IDeviceFlowCodeService, DefaultDeviceFlowCodeService>();

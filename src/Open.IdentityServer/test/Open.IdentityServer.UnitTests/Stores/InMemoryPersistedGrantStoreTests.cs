@@ -12,12 +12,7 @@ namespace Open.IdentityServer.UnitTests.Stores;
 
 public class InMemoryPersistedGrantStoreTests
 {
-    InMemoryPersistedGrantStore _subject;
-
-    public InMemoryPersistedGrantStoreTests()
-    {
-        _subject = new InMemoryPersistedGrantStore();
-    }
+    InMemoryPersistedGrantStore _subject = new();
 
     [Fact]
     public async Task Store_should_persist_value()
@@ -210,6 +205,42 @@ public class InMemoryPersistedGrantStoreTests
                 Types = ["typeA", "typeB"],
             }))
             .Select(x => x.Key).Should().BeEquivalentTo("key2", "key4");
+    }
+
+    [Fact]
+    public async Task RemoveAll_WhenKeysProvided_ShouldRemoveEveryGrantWithMatchingKey()
+    {
+        await Populate();
+
+        await _subject.RemoveAsync([
+            "key1", "key3", "key4", "key7"
+        ]);
+        
+        (await _subject.GetAsync("key1")).Should().BeNull();
+        (await _subject.GetAsync("key2")).Should().NotBeNull();
+        (await _subject.GetAsync("key3")).Should().BeNull();
+        (await _subject.GetAsync("key4")).Should().BeNull();
+        (await _subject.GetAsync("key5")).Should().NotBeNull();
+        (await _subject.GetAsync("key6")).Should().NotBeNull();
+        (await _subject.GetAsync("key7")).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RemoveAll_WhenKeysProvidedWithInvalidValue_ShouldSkipInvalidKey()
+    {
+        await Populate();
+
+        await _subject.RemoveAsync([
+            "key1", "key3", "key4", "key7", "invalidKey"
+        ]);
+        
+        (await _subject.GetAsync("key1")).Should().BeNull();
+        (await _subject.GetAsync("key2")).Should().NotBeNull();
+        (await _subject.GetAsync("key3")).Should().BeNull();
+        (await _subject.GetAsync("key4")).Should().BeNull();
+        (await _subject.GetAsync("key5")).Should().NotBeNull();
+        (await _subject.GetAsync("key6")).Should().NotBeNull();
+        (await _subject.GetAsync("key7")).Should().BeNull();
     }
 
     [Fact]

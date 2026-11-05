@@ -11,6 +11,7 @@ public interface ITokenRevocationService
     /// <summary>
     /// Revokes a grant family starting with an auth code. Will revoke any revocable token linked to provided auth code.
     /// </summary>
+    /// <param name="code">auth code value</param>
     /// <param name="authorizationCode">auth code for which to revoke all token</param>
-    public Task RevokeGrantFamily(AuthorizationCode authorizationCode);
+    public Task RevokeGrantFamily(string code, AuthorizationCode authorizationCode);
 }

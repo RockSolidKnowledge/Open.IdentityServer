@@ -56,6 +56,17 @@ public class InMemoryPersistedGrantStore : IPersistedGrantStore
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
+    public Task RemoveAsync(IEnumerable<string> keys)
+    {
+        foreach (var key in keys)
+        {
+            _repository.TryRemove(key, out _);
+        }
+        
+        return Task.CompletedTask;
+    }
+
     /// <inheritdoc/>
     public Task RemoveAllAsync(PersistedGrantFilter filter)
     {

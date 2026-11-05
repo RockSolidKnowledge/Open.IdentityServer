@@ -21,10 +21,12 @@ using Xunit;
 
 namespace Open.IdentityServer.EntityFramework.IntegrationTests.Stores;
 
-public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests, PersistedGrantDbContext, OperationalStoreOptions>
+public class
+    PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests, PersistedGrantDbContext,
+    OperationalStoreOptions>
 {
     private readonly ITelemetryService _telemetry = Mock.Of<ITelemetryService>();
-    
+
     public PersistedGrantStoreTests(DatabaseProviderFixture<PersistedGrantDbContext> fixture) : base(fixture)
     {
         foreach (var row in TestDatabaseProviders)
@@ -34,11 +36,12 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         }
     }
 
-    private static PersistedGrant CreateTestObject(string sub = null, string clientId = null, string sid = null, string type = null)
+    private static PersistedGrant CreateTestObject(string key = null, string sub = null, string clientId = null,
+        string sid = null, string type = null)
     {
         return new PersistedGrant
         {
-            Key = Guid.NewGuid().ToString(),
+            Key = key ?? Guid.NewGuid().ToString(),
             Type = type ?? "authorization_code",
             ClientId = clientId ?? Guid.NewGuid().ToString(),
             SubjectId = sub ?? Guid.NewGuid().ToString(),
@@ -50,13 +53,14 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task StoreAsync_WhenPersistedGrantStored_ExpectSuccess(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task StoreAsync_WhenPersistedGrantStored_ExpectSuccess(
+        DbContextOptions<PersistedGrantDbContext> options)
     {
         var persistedGrant = CreateTestObject();
 
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
             await store.StoreAsync(persistedGrant);
         }
 
@@ -68,7 +72,8 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task GetAsync_WithKeyAndPersistedGrantExists_ExpectPersistedGrantReturned(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task GetAsync_WithKeyAndPersistedGrantExists_ExpectPersistedGrantReturned(
+        DbContextOptions<PersistedGrantDbContext> options)
     {
         var persistedGrant = CreateTestObject();
 
@@ -81,7 +86,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         PersistedGrant foundPersistedGrant;
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
             foundPersistedGrant = await store.GetAsync(persistedGrant.Key);
         }
 
@@ -89,7 +94,8 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task GetAllAsync_WithSubAndTypeAndPersistedGrantExists_ExpectPersistedGrantReturned(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task GetAllAsync_WithSubAndTypeAndPersistedGrantExists_ExpectPersistedGrantReturned(
+        DbContextOptions<PersistedGrantDbContext> options)
     {
         var persistedGrant = CreateTestObject();
 
@@ -102,8 +108,9 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         IList<PersistedGrant> foundPersistedGrants;
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
-            foundPersistedGrants = (await store.GetAllAsync(new PersistedGrantFilter { SubjectId = persistedGrant.SubjectId })).ToList();
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            foundPersistedGrants =
+                (await store.GetAllAsync(new PersistedGrantFilter { SubjectId = persistedGrant.SubjectId })).ToList();
         }
 
         Assert.NotNull(foundPersistedGrants);
@@ -116,22 +123,31 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
             context.PersistedGrants.RemoveRange(context.PersistedGrants);
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t1").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t2").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t1").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t2").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t1").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t2").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t1").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t2").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c3", sid: "s3", type: "t3").ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t1")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t2")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t1")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t2")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t1")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t2")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t1")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t2")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c3", sid: "s3", type: "t3")
+                .ToEntity());
             context.PersistedGrants.Add(CreateTestObject().ToEntity());
             await context.SaveChangesAsync();
         }
 
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             (await store.GetAllAsync(new PersistedGrantFilter
             {
@@ -204,7 +220,8 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task RemoveAsync_WhenKeyOfExistingReceived_ExpectGrantDeleted(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task RemoveAsync_WhenKeyOfExistingReceived_ExpectGrantDeleted(
+        DbContextOptions<PersistedGrantDbContext> options)
     {
         var persistedGrant = CreateTestObject();
 
@@ -216,7 +233,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
 
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
             await store.RemoveAsync(persistedGrant.Key);
         }
 
@@ -228,7 +245,85 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task RemoveAllAsync_WhenSubIdAndClientIdOfExistingReceived_ExpectGrantDeleted(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task RemoveAsync_WhenKeysCollectionProvided_ShouldRemoveAllSpecifiedKeys(
+        DbContextOptions<PersistedGrantDbContext> options)
+    {
+        IEnumerable<string> keysToRemove = ["key-1", "key-3", "key-5", "key-8"];
+
+        IEnumerable<Entities.PersistedGrant> testEntities =
+        [
+            CreateTestObject(key: "key-1", sub: "sub1", clientId: "c1", sid: "s1", type: "t2").ToEntity(),
+            CreateTestObject(key: "key-2", sub: "sub1", clientId: "c1", sid: "s2", type: "t1").ToEntity(),
+            CreateTestObject(key: "key-3", sub: "sub1", clientId: "c1", sid: "s2", type: "t2").ToEntity(),
+            CreateTestObject(key: "key-4", sub: "sub1", clientId: "c2", sid: "s1", type: "t1").ToEntity(),
+            CreateTestObject(key: "key-5", sub: "sub1", clientId: "c2", sid: "s1", type: "t2").ToEntity(),
+            CreateTestObject(key: "key-6", sub: "sub1", clientId: "c2", sid: "s2", type: "t1").ToEntity(),
+            CreateTestObject(key: "key-7", sub: "sub1", clientId: "c2", sid: "s2", type: "t2").ToEntity(),
+            CreateTestObject(key: "key-8", sub: "sub1", clientId: "c3", sid: "s3", type: "t3").ToEntity(),
+        ];
+
+        await using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PersistedGrants.RemoveRange(context.PersistedGrants);
+            context.PersistedGrants.AddRange(testEntities);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            await store.RemoveAsync(keysToRemove);
+        }
+
+        await using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PersistedGrants.FirstOrDefault(x => x.Key == "key-1").Should().BeNull();
+            context.PersistedGrants.FirstOrDefault(x => x.Key == "key-3").Should().BeNull();
+            context.PersistedGrants.FirstOrDefault(x => x.Key == "key-5").Should().BeNull();
+            context.PersistedGrants.FirstOrDefault(x => x.Key == "key-8").Should().BeNull();
+            context.PersistedGrants.Count().Should().Be(4);
+        }
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task
+        RemoveAsync_WhenKeysCollectionProvidedWithInvalidKey_ShouldRemoveAllSpecifiedKeysSkippingInvalidOnes(
+            DbContextOptions<PersistedGrantDbContext> options)
+    {
+        IEnumerable<string> keysToRemove = ["key-1", "key-3", "key-invalid", "key-invalid-2"];
+
+        IEnumerable<Entities.PersistedGrant> testEntities =
+        [
+            CreateTestObject(key: "key-1", sub: "sub1", clientId: "c1", sid: "s1", type: "t2").ToEntity(),
+            CreateTestObject(key: "key-2", sub: "sub1", clientId: "c1", sid: "s2", type: "t1").ToEntity(),
+            CreateTestObject(key: "key-3", sub: "sub1", clientId: "c1", sid: "s2", type: "t2").ToEntity(),
+            CreateTestObject(key: "key-4", sub: "sub1", clientId: "c2", sid: "s1", type: "t1").ToEntity(),
+        ];
+
+        await using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PersistedGrants.RemoveRange(context.PersistedGrants);
+            context.PersistedGrants.AddRange(testEntities);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            await store.RemoveAsync(keysToRemove);
+        }
+
+        await using (var context = new PersistedGrantDbContext(options, StoreOptions))
+        {
+            context.PersistedGrants.FirstOrDefault(x => x.Key == "key-1").Should().BeNull();
+            context.PersistedGrants.FirstOrDefault(x => x.Key == "key-3").Should().BeNull();
+            context.PersistedGrants.Count().Should().Be(2);
+        }
+    }
+
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task RemoveAllAsync_WhenSubIdAndClientIdOfExistingReceived_ExpectGrantDeleted(
+        DbContextOptions<PersistedGrantDbContext> options)
     {
         var persistedGrant = CreateTestObject();
 
@@ -240,10 +335,11 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
 
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
-            await store.RemoveAllAsync(new PersistedGrantFilter { 
-                SubjectId = persistedGrant.SubjectId, 
-                ClientId = persistedGrant.ClientId 
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            await store.RemoveAllAsync(new PersistedGrantFilter
+            {
+                SubjectId = persistedGrant.SubjectId,
+                ClientId = persistedGrant.ClientId
             });
         }
 
@@ -255,7 +351,8 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task RemoveAllAsync_WhenSubIdClientIdAndTypeOfExistingReceived_ExpectGrantDeleted(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task RemoveAllAsync_WhenSubIdClientIdAndTypeOfExistingReceived_ExpectGrantDeleted(
+        DbContextOptions<PersistedGrantDbContext> options)
     {
         var persistedGrant = CreateTestObject();
 
@@ -267,11 +364,13 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
 
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
-            await store.RemoveAllAsync(new PersistedGrantFilter { 
-                SubjectId = persistedGrant.SubjectId, 
-                ClientId = persistedGrant.ClientId, 
-                Type = persistedGrant.Type });
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            await store.RemoveAllAsync(new PersistedGrantFilter
+            {
+                SubjectId = persistedGrant.SubjectId,
+                ClientId = persistedGrant.ClientId,
+                Type = persistedGrant.Type
+            });
         }
 
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
@@ -288,7 +387,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -300,7 +399,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -312,7 +411,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -324,7 +423,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context, _telemetry,  FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -337,7 +436,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -346,11 +445,11 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
             });
             context.PersistedGrants.Count().Should().Be(9);
         }
-        
+
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context,  _telemetry, FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -363,12 +462,12 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context, _telemetry,  FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
                 SubjectId = "sub1",
-                ClientId = "c1", 
+                ClientId = "c1",
                 SessionId = "s1"
             });
             context.PersistedGrants.Count().Should().Be(8);
@@ -377,7 +476,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context, _telemetry,  FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -391,13 +490,13 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context, _telemetry,  FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
                 SubjectId = "sub1",
                 ClientId = "c1",
-                SessionId = "s1", 
+                SessionId = "s1",
                 Type = "t1"
             });
             context.PersistedGrants.Count().Should().Be(9);
@@ -406,7 +505,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context, _telemetry,  FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -421,7 +520,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context, _telemetry,  FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -433,7 +532,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context, _telemetry,  FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -445,7 +544,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         await PopulateDb();
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context, _telemetry,  FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
 
             await store.RemoveAllAsync(new PersistedGrantFilter
             {
@@ -461,22 +560,32 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         {
             await using var context = new PersistedGrantDbContext(options, StoreOptions);
             context.PersistedGrants.RemoveRange(context.PersistedGrants.ToArray());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t1").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t2").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t1").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t2").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t1").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t2").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t1").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t2").ToEntity());
-            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c3", sid: "s3", type: "t3").ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t1")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s1", type: "t2")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t1")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c1", sid: "s2", type: "t2")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t1")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s1", type: "t2")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t1")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c2", sid: "s2", type: "t2")
+                .ToEntity());
+            context.PersistedGrants.Add(CreateTestObject(sub: "sub1", clientId: "c3", sid: "s3", type: "t3")
+                .ToEntity());
             context.PersistedGrants.Add(CreateTestObject().ToEntity());
             await context.SaveChangesAsync();
         }
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task Store_should_create_new_record_if_key_does_not_exist(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task Store_should_create_new_record_if_key_does_not_exist(
+        DbContextOptions<PersistedGrantDbContext> options)
     {
         var persistedGrant = CreateTestObject();
 
@@ -488,7 +597,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
 
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context, _telemetry,  FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
             await store.StoreAsync(persistedGrant);
         }
 
@@ -500,7 +609,8 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task Store_should_update_record_if_key_already_exists(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task Store_should_update_record_if_key_already_exists(
+        DbContextOptions<PersistedGrantDbContext> options)
     {
         var persistedGrant = CreateTestObject();
 
@@ -513,7 +623,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
         var newDate = persistedGrant.Expiration.Value.AddHours(1);
         await using (var context = new PersistedGrantDbContext(options, StoreOptions))
         {
-            var store = new PersistedGrantStore(context, _telemetry,  FakeLogger<PersistedGrantStore>.Create());
+            var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
             persistedGrant.Expiration = newDate;
             await store.StoreAsync(persistedGrant);
         }
@@ -525,19 +635,19 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
             Assert.Equal(newDate, persistedGrant.Expiration);
         }
     }
-    
+
     [Theory, MemberData(nameof(TestDatabaseProviders))]
     public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace(DbContextOptions<PersistedGrantDbContext> options)
     {
-        List<(Func<PersistedGrantStore, Task> actMethod, string traceMethodName)> methods
-            = new()
-            {
-                (store => store.StoreAsync(CreateTestObject()), "StoreAsync"),
-                (store => store.GetAsync("test"), "GetAsync"),
-                (store => store.GetAllAsync(new PersistedGrantFilter(){ ClientId = "test" }), "GetAllAsync"),
-                (store => store.RemoveAsync("test" ), "RemoveAsync"),
-                (store => store.RemoveAllAsync(new PersistedGrantFilter(){ ClientId = "clientid" }), "RemoveAllAsync")
-            };
+        List<(Func<PersistedGrantStore, Task> actMethod, string traceMethodName)> methods =
+        [
+            (store => store.StoreAsync(CreateTestObject()), "StoreAsync"),
+            (store => store.GetAsync("test"), "GetAsync"),
+            (store => store.GetAllAsync(new PersistedGrantFilter() { ClientId = "test" }), "GetAllAsync"),
+            (store => store.RemoveAsync("test"), "RemoveAsync"),
+            (store => store.RemoveAsync(["test1", "test2"]), "RemoveAsync"),
+            (store => store.RemoveAllAsync(new PersistedGrantFilter() { ClientId = "clientid" }), "RemoveAllAsync")
+        ];
 
         foreach (var method in methods)
         {
@@ -546,7 +656,7 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
                 .Returns(trace);
             Mock.Get(trace).Setup(t => t.AddTag(It.IsAny<string>(), It.IsAny<string>())).Returns(trace);
             Mock.Get(trace).Setup(t => t.AddTag(It.IsAny<string>(), It.IsAny<object>())).Returns(trace);
-            
+
             using (var context = new PersistedGrantDbContext(options, StoreOptions))
             {
                 var store = new PersistedGrantStore(context, _telemetry, FakeLogger<PersistedGrantStore>.Create());
@@ -558,13 +668,12 @@ public class PersistedGrantStoreTests : IntegrationTest<PersistedGrantStoreTests
                 Mock.Get(trace).Verify(t => t.Dispose(), Times.Once);
             }
         }
-        
+
         // Assert all methods covered
         typeof(PersistedGrantStore).GetMethods()
             .Where(m => m.IsPublic && !m.IsStatic && !m.IsSpecialName)
             .Where(m => m.DeclaringType == typeof(PersistedGrantStore))
             .Select(m => m.Name)
-            .Distinct()
             .Should().BeEquivalentTo(methods.Select(m => m.traceMethodName));
     }
 }

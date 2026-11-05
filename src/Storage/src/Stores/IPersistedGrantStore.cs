@@ -42,6 +42,13 @@ public interface IPersistedGrantStore
     Task RemoveAsync(string key);
 
     /// <summary>
+    /// Removes the grant by keys collection.
+    /// </summary>
+    /// <param name="keys">The keys.</param>
+    /// <returns>A <see cref="Task"/> that completes once the grants have been removed.</returns>
+    Task RemoveAsync(IEnumerable<string> keys);
+
+    /// <summary>
     /// Removes all grants based on the filter.
     /// </summary>
     /// <param name="filter">The filter.</param>
