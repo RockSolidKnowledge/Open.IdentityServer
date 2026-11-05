@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -40,6 +41,23 @@ internal class PushedAuthorizationRequestEndpoint(
         if (!HttpMethods.IsPost(requestContext.Request.Method))
         {
             return Error(OidcConstants.TokenErrors.InvalidRequest);
+        }
+
+        if (requestContext.Request.HasFormContentType)
+        {
+            try
+            {
+                await requestContext.Request.ReadFormAsync(requestContext.RequestAborted);
+            }
+            catch (BadHttpRequestException ex) when (ex.StatusCode == StatusCodes.Status413PayloadTooLarge)
+            {
+                logger.LogWarning("Pushed authorization request body exceeds the request size limit");
+                return new StatusCodeResult(HttpStatusCode.RequestEntityTooLarge);
+            }
+            catch (InvalidDataException)
+            {
+                return Error(OidcConstants.TokenErrors.InvalidRequest, "Form exceeds the server's form limits");
+            }
         }
 
         ClientSecretValidationResult? clientValidationResult = await clientSecretValidator.ValidateAsync(requestContext);
