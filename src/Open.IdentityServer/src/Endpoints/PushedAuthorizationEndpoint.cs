@@ -49,10 +49,10 @@ internal class PushedAuthorizationRequestEndpoint(
             {
                 await requestContext.Request.ReadFormAsync(requestContext.RequestAborted);
             }
-            catch (BadHttpRequestException ex) when (ex.StatusCode == StatusCodes.Status413PayloadTooLarge)
+            catch (BadHttpRequestException ex)
             {
-                logger.LogWarning("Pushed authorization request body exceeds the request size limit");
-                return new StatusCodeResult(HttpStatusCode.RequestEntityTooLarge);
+                logger.LogWarning("Pushed authorization request body could not be read: {StatusCode}", ex.StatusCode);
+                return new StatusCodeResult(ex.StatusCode);
             }
             catch (InvalidDataException)
             {
