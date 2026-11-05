@@ -157,16 +157,19 @@ public class PushedAuthorizationTests
         clientSecretValidator.Verify(csv => csv.ValidateAsync(It.IsAny<HttpContext>()), Times.Never);
     }
 
-    [Fact]
-    public async Task ProcessAsync_when_body_read_fails_for_another_reason_should_not_handle_it()
+    [Theory]
+    [InlineData(StatusCodes.Status400BadRequest)]
+    [InlineData(StatusCodes.Status408RequestTimeout)]
+    public async Task ProcessAsync_when_body_read_fails_for_another_reason_should_return_its_status_code(int statusCode)
     {
         var sut = CreateSut();
         var context = CreateHttpContext();
-        SetFormBodyThatThrows(context, new BadHttpRequestException("Unexpected end of request content.", StatusCodes.Status400BadRequest));
+        SetFormBodyThatThrows(context, new BadHttpRequestException("Request body could not be read.", statusCode));
 
-        Func<Task> act = () => sut.ProcessAsync(context);
+        IEndpointResult result = await sut.ProcessAsync(context);
 
-        await act.Should().ThrowAsync<BadHttpRequestException>();
+        ResultShouldBeStatusCodeOf(result, (HttpStatusCode)statusCode);
+        clientSecretValidator.Verify(csv => csv.ValidateAsync(It.IsAny<HttpContext>()), Times.Never);
     }
 
     [Fact]
