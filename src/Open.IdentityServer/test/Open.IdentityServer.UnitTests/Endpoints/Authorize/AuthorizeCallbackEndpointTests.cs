@@ -169,6 +169,41 @@ public class AuthorizeCallbackEndpointTests
 
     [Fact]
     [Trait("Category", Category)]
+    public async Task ProcessAsync_par_consent_missing_consent_data_should_remove_par_request()
+    {
+        string requestUri = IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix +
+                            "missing-consent-data";
+        var storedParameters = new NameValueCollection()
+        {
+            { "client_id", "client" },
+            { "nonce", "some_nonce" },
+            { "scope", "api1 api2" }
+        };
+        var parameters = new NameValueCollection()
+        {
+            { "client_id", "client" },
+            { "request_uri", requestUri }
+        };
+        var request = new ConsentRequest(storedParameters, _user.GetSubjectId());
+        _mockUserConsentResponseMessageStore.Messages.Add(
+            request.Id,
+            new Message<ConsentResponse>(null));
+
+        _mockUserSession.User = _user;
+        _context.Request.Method = "GET";
+        _context.Request.Path = new PathString("/connect/authorize/callback");
+        _context.Request.QueryString = new QueryString("?" + parameters.ToQueryString());
+        _parService.Setup(ps => ps.GetRequestAsync(requestUri)).ReturnsAsync(storedParameters);
+
+        var result = await _subject.ProcessAsync(_context);
+
+        result.Should().BeOfType<AuthorizeResult>();
+        ((AuthorizeResult)result).Response.IsError.Should().BeTrue();
+        _parService.Verify(ps => ps.RemoveRequestAsync(requestUri), Times.Once);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
     public async Task ProcessAsync_no_consent_message_should_return_redirect_for_consent()
     {
         _stubInteractionGenerator.Response.IsConsent = true;
