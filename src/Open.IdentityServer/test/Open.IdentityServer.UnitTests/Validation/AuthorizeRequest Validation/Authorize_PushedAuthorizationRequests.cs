@@ -192,7 +192,28 @@ public class Authorize_PushedAuthorizationRequests
     }
     
     [Fact]
-    public async Task ValidateAsync_when_called_with_a_different_client_id_than_associted_with_the_request_uri_should_return_error()
+    public async Task
+        ValidateAsync_when_called_with_par_request_and_later_validation_fails_should_preserve_pushed_authorization_uri()
+    {
+        string parRequestUri =
+            IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + "invalid-request";
+        var parRequestParameters = SetupValidParRequest(parRequestUri);
+        validAuthorizeParameters.Remove(OidcConstants.AuthorizeRequest.ResponseType);
+
+        var sut = CreateSut();
+
+        AuthorizeRequestValidationResult result = await sut.ValidateAsync(parRequestParameters);
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.UnsupportedResponseType);
+        result.ErrorDescription.Should().Be("Missing response_type");
+        // Uri must be present for PAR cleanup in other error cases
+        result.ValidatedRequest.PushedAuthorizationUri.Should().Be(parRequestUri);
+        parService.Verify(s => s.GetRequestAsync(parRequestUri), Times.Once);
+    }
+
+    [Fact]
+    public async Task ValidateAsync_when_called_with_a_different_client_id_than_associated_with_the_request_uri_should_return_error()
     {
         string requestUri = IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + "123";
     
@@ -215,8 +236,11 @@ public class Authorize_PushedAuthorizationRequests
         result.IsError.Should().BeTrue();
         result.ErrorDescription.Should().Be("Client Id is different between PAR request and authorize");
         result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+        // PAR request should not be cleaned up
+        result.ValidatedRequest.PushedAuthorizationUri.Should().BeNull();
+        parService.Verify(s => s.GetRequestAsync(requestUri), Times.Once);
+        parService.Verify(s => s.RemoveRequestAsync(It.IsAny<string>()), Times.Never);
     }
-
    
     private NameValueCollection SetupValidParRequest(string requestUri )
     {
