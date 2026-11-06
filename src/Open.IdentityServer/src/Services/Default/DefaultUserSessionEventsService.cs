@@ -159,7 +159,7 @@ public class DefaultUserSessionEventsService(
         {
             SubjectId = sessionEventContext.SubjectId,
             SessionId = sessionEventContext.SessionId,
-            ClientIds = sessionEventContext.ClientIds,
+            ClientIds = clientIds,
             Types = IdentityServerConstants.PersistedGrantTypes.PersistedGrantTokenTypes
         });
 

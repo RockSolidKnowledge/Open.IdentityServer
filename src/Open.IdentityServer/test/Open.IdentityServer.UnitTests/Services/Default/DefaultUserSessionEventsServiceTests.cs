@@ -143,6 +143,7 @@ public class DefaultUserSessionEventsServiceTests
                 f.SessionId == "fakeSession" &&
                 Enumerable.Contains(f.ClientIds, "fake-client-one") &&
                 Enumerable.Contains(f.ClientIds, "fake-client-two") &&
+                !Enumerable.Contains(f.ClientIds, "fake-client-three") &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
@@ -183,7 +184,9 @@ public class DefaultUserSessionEventsServiceTests
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(f => 
                 f.SubjectId == "fakeSubject" &&
                 f.SessionId == "fakeSession" &&
+                !Enumerable.Contains(f.ClientIds, "fake-client-one") &&
                 Enumerable.Contains(f.ClientIds, "fake-client-two") &&
+                !Enumerable.Contains(f.ClientIds, "fake-client-three") &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
@@ -223,6 +226,7 @@ public class DefaultUserSessionEventsServiceTests
                 f.SubjectId == "fakeSubject" &&
                 f.SessionId == "fakeSession" &&
                 Enumerable.Contains(f.ClientIds, "fake-client-one") &&
+                !Enumerable.Contains(f.ClientIds, "fake-non-found") &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
@@ -332,6 +336,7 @@ public class DefaultUserSessionEventsServiceTests
                 f.SessionId == "fakeSession" &&
                 Enumerable.Contains(f.ClientIds, "fake-client-one") &&
                 Enumerable.Contains(f.ClientIds, "fake-client-two") &&
+                !Enumerable.Contains(f.ClientIds, "fake-client-three") &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
@@ -341,7 +346,8 @@ public class DefaultUserSessionEventsServiceTests
                 c.SubjectId == "fakeSubject" &&
                 c.SessionId == "fakeSession" &&
                 c.ClientIds.Contains("fake-client-one") &&
-                c.ClientIds.Contains("fake-client-two"))));
+                c.ClientIds.Contains("fake-client-two") &&
+                !c.ClientIds.Contains("fake-client-three"))));
     }
     
     [Fact]
@@ -371,7 +377,9 @@ public class DefaultUserSessionEventsServiceTests
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(f => 
                 f.SubjectId == "fakeSubject" &&
                 f.SessionId == "fakeSession" &&
+                !Enumerable.Contains(f.ClientIds, "fake-client-one") &&
                 Enumerable.Contains(f.ClientIds, "fake-client-two") &&
+                !Enumerable.Contains(f.ClientIds, "fake-client-three") &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
@@ -380,7 +388,9 @@ public class DefaultUserSessionEventsServiceTests
             .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(c =>
                 c.SubjectId == "fakeSubject" &&
                 c.SessionId == "fakeSession" &&
-                c.ClientIds.Contains("fake-client-two"))));
+                !c.ClientIds.Contains("fake-client-one") &&
+                c.ClientIds.Contains("fake-client-two") &&
+                !c.ClientIds.Contains("fake-client-three"))));
     }
     
     [Fact]
@@ -410,7 +420,9 @@ public class DefaultUserSessionEventsServiceTests
             .Verify(x => x.RemoveAllAsync(It.Is<PersistedGrantFilter>(f => 
                 f.SubjectId == "fakeSubject" &&
                 f.SessionId == "fakeSession" &&
+                !Enumerable.Contains(f.ClientIds, "fake-client-one") &&
                 Enumerable.Contains(f.ClientIds, "fake-client-two") &&
+                !Enumerable.Contains(f.ClientIds, "fake-client-three") &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.RefreshToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.ReferenceToken) &&
                 Enumerable.Contains(f.Types, IdentityServerConstants.PersistedGrantTypes.AuthorizationCode))));
