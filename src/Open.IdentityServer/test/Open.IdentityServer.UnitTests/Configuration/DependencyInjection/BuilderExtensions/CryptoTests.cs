@@ -39,7 +39,7 @@ public class CryptoTests
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(IIdentityServerSigningCredentialStoreFactory) &&
             d.ImplementationType == typeof(IdentityServerSigningCredentialStoreFactory) &&
-            d.Lifetime == ServiceLifetime.Singleton);
+            d.Lifetime == ServiceLifetime.Scoped);
         
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(ISigningCredentialStore) &&
@@ -73,7 +73,7 @@ public class CryptoTests
         serviceCollection.Should().ContainSingle(d =>
             d.ServiceType == typeof(IIdentityServerSigningCredentialStoreFactory) &&
             d.ImplementationType == typeof(IdentityServerSigningCredentialStoreFactory) &&
-            d.Lifetime == ServiceLifetime.Singleton);
+            d.Lifetime == ServiceLifetime.Scoped);
 
         serviceCollection.Where(d =>
             d.ServiceType == typeof(ISigningCredentialStore) &&

@@ -316,7 +316,7 @@ public static class IdentityServerBuilderExtensionsCrypto
         builder.Services.AddTransient<DataProtectedIdentityServerKeyMaterialConverter>();
         builder.Services.AddScoped<IValidationKeysStore, IdentityServerValidationKeysStore>();
 
-        builder.Services.AddSingleton<IIdentityServerSigningCredentialStoreFactory, IdentityServerSigningCredentialStoreFactory>();
+        builder.Services.AddScoped<IIdentityServerSigningCredentialStoreFactory, IdentityServerSigningCredentialStoreFactory>();
 
         foreach (var supportedAlg in options.SupportedAlgorithms)
         {
