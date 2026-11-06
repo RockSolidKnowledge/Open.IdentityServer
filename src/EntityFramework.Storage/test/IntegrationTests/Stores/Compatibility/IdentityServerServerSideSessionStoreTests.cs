@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -1395,6 +1396,57 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     
         actual.Should().HaveCount(1);
         actual.Should().Contain(x => x.Key == "key-1");
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessionsWithQueryObject_WhenSubjectIdProvided_ShouldUseContainsMatch(DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+    
+        await context.ServerSideSessions.AddRangeAsync([
+            new Entities.ServerSideSession { Key = "key-1", Scheme = "cookie", SubjectId = "1", SessionId = "session-1", Data = "{\"value\":true}" },
+            new Entities.ServerSideSession { Key = "key-10", Scheme = "cookie", SubjectId = "10", SessionId = "session-10", Data = "{\"value\":true}" },
+        ]);
+        await context.SaveChangesAsync();
+    
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+
+        var actual = (await sut.FilterSessions(new SessionQuery()
+        {
+            SubjectId = "1"
+        }, CancellationToken.None)).Results.ToList();
+        
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == "key-1");
+        actual.Should().Contain(x => x.Key == "key-10");
+    }
+    
+    [Theory, MemberData(nameof(TestDatabaseProviders))]
+    public async Task FilterSessionsWithQueryObject_WhenSessionIdProvided_ShouldUseContainsMatch(
+        DbContextOptions<PersistedGrantDbContext> options)
+    {
+        await using PersistedGrantDbContext context = await CreateCleanContext(options);
+    
+        await context.ServerSideSessions.AddRangeAsync([
+            new Entities.ServerSideSession
+                { Key = "key-1", Scheme = "cookie", SubjectId = "subject-1", SessionId = "1", Data = "{\"value\":true}" },
+            new Entities.ServerSideSession
+            {
+                Key = "key-10", Scheme = "cookie", SubjectId = "subject-10", SessionId = "10", Data = "{\"value\":true}"
+            },
+        ]);
+        await context.SaveChangesAsync();
+    
+        IdentityServerServerSideSessionStore sut = CreateSut(context);
+    
+        var actual = (await sut.FilterSessions(new SessionQuery()
+        {
+            SessionId = "1"
+        }, CancellationToken.None)).Results.ToList();
+    
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == "key-1");
+        actual.Should().Contain(x => x.Key == "key-10");
     }
 
     private async Task<PersistedGrantDbContext> CreateCleanContext(DbContextOptions<PersistedGrantDbContext> options)

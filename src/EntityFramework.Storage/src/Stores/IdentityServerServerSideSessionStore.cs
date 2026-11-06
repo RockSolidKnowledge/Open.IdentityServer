@@ -183,7 +183,10 @@ public class IdentityServerServerSideSessionStore(
 
         SessionQuery query = inputQuery ?? new SessionQuery();
 
-        IQueryable<Entities.ServerSideSession> filteredResults = ApplyFilter(query, dbContext.ServerSideSessions.AsQueryable());
+        IQueryable<Entities.ServerSideSession> filteredResults = ApplyFilter(
+            query, 
+            dbContext.ServerSideSessions.AsQueryable(),
+            exactMatch: false);
 
         int count = await filteredResults.CountAsync(cancellationToken: ct);
 
@@ -249,18 +252,23 @@ public class IdentityServerServerSideSessionStore(
         return new ValueTuple<long, long>(tokenFirst, tokenLast);
     }
 
-    private IQueryable<Entities.ServerSideSession> ApplyFilter(SessionQuery query,
-        IQueryable<Entities.ServerSideSession> input)
+    private IQueryable<Entities.ServerSideSession> ApplyFilter(
+        SessionQuery query,
+        IQueryable<Entities.ServerSideSession> input,
+        bool exactMatch = true)
     {
         if (!string.IsNullOrWhiteSpace(query.SubjectId))
         {
-            input = input
-                .Where(x => x.SubjectId == query.SubjectId);
+            input = exactMatch
+                ? input.Where(x => x.SubjectId == query.SubjectId)
+                : input.Where(x => x.SubjectId.Contains(query.SubjectId));
         }
     
         if (!string.IsNullOrWhiteSpace(query.SessionId))
         {
-            input = input.Where(x => x.SessionId != null && x.SessionId == query.SessionId);
+            input = exactMatch
+                ? input.Where(x => x.SessionId != null && x.SessionId == query.SessionId)
+                : input.Where(x => x.SessionId != null && x.SessionId.Contains(query.SessionId));
         }
     
         if (!string.IsNullOrWhiteSpace(query.DisplayName))

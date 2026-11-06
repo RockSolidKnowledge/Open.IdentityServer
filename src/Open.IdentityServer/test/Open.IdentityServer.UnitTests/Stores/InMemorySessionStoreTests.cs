@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Open.IdentityServer.Models;
@@ -989,6 +990,44 @@ public class InMemorySessionStoreTests
     
         actual.Should().HaveCount(1);
         actual.Should().Contain(x => x.Key == "session-exact");
+    }
+    
+    [Fact]
+    public async Task FilterSessionsWithQueryObject_WhenSubjectIdProvided_ShouldReturnContainsMatch()
+    {
+        IEnumerable<ServerSideSession> seededSessions = [
+            new() { Key = "subject-exact", SubjectId = "1", SessionId = "sid-exact" },
+            new() { Key = "subject-partial", SubjectId = "10", SessionId = "sid-partial" },
+        ];
+        InMemorySessionStore sut = CreateSut(seededSessions);
+    
+        var actual = (await sut.FilterSessions(new SessionQuery()
+        {
+            SubjectId = "1"
+        }, CancellationToken.None)).Results.ToList();
+    
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == "subject-exact");
+        actual.Should().Contain(x => x.Key == "subject-partial");
+    }
+    
+    [Fact]
+    public async Task FilterSessionsWithQueryObject_WhenSessionIdProvided_ShouldReturnContainsMatch()
+    {
+        IEnumerable<ServerSideSession> seededSessions = [
+            new() { Key = "session-exact", SubjectId = "subject-exact", SessionId = "1" },
+            new() { Key = "session-partial", SubjectId = "subject-partial", SessionId = "10" },
+        ];
+        InMemorySessionStore sut = CreateSut(seededSessions);
+    
+        var actual = (await sut.FilterSessions(new SessionQuery()
+        {
+            SessionId = "1"
+        }, CancellationToken.None)).Results.ToList();
+    
+        actual.Should().HaveCount(2);
+        actual.Should().Contain(x => x.Key == "session-exact");
+        actual.Should().Contain(x => x.Key == "session-partial");
     }
 
     private static ServerSideSession FakeSessionSession(

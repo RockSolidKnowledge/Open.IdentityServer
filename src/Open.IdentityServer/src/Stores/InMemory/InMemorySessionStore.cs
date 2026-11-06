@@ -85,7 +85,7 @@ public class InMemorySessionStore : IIdentityServerServerSideSessionStore
     {
         SessionQuery query = inputQuery ?? new SessionQuery();
 
-        IEnumerable<ServerSideSession> filteredResults = ApplyFilter(query, repo.Values).ToList();
+        IEnumerable<ServerSideSession> filteredResults = ApplyFilter(query, repo.Values, exactMatch: false).ToList();
         
         int count = filteredResults.Count();
 
@@ -149,18 +149,23 @@ public class InMemorySessionStore : IIdentityServerServerSideSessionStore
         return new ValueTuple<string, string>(tokenFirst, tokenLast);
     }
 
-    private IEnumerable<ServerSideSession> ApplyFilter(SessionQuery query,
-        IEnumerable<ServerSideSession> input)
+    private IEnumerable<ServerSideSession> ApplyFilter(
+        SessionQuery query,
+        IEnumerable<ServerSideSession> input,
+        bool exactMatch = true)
     {
         if (!string.IsNullOrWhiteSpace(query.SubjectId))
         {
-            input = input
-                .Where(x => x.SubjectId == query.SubjectId);
+            input = exactMatch
+                ? input.Where(x => x.SubjectId == query.SubjectId)
+                : input.Where(x => x.SubjectId.Contains(query.SubjectId));
         }
 
         if (!string.IsNullOrWhiteSpace(query.SessionId))
         {
-            input = input.Where(x => x.SessionId != null && x.SessionId == query.SessionId);
+            input = exactMatch
+                ? input.Where(x => x.SessionId != null && x.SessionId == query.SessionId)
+                : input.Where(x => x.SessionId != null && x.SessionId.Contains(query.SessionId));
         }
 
         if (!string.IsNullOrWhiteSpace(query.DisplayName))
