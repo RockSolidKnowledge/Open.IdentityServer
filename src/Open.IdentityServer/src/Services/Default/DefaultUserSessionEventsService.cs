@@ -112,10 +112,13 @@ public class DefaultUserSessionEventsService(
                 sessionEventContext.SessionId))
             .ToList();
 
-        if (sessions.Count == 0 || sessions.All(x => x.Session.Expires.HasValue &&
-                                                     x.Session.Expires < timeProvider.GetUtcNow()))
+        if (sessions.Count == 0 || 
+            sessions.All(x => 
+                x.Session.Expires.HasValue 
+                && x.Session.Expires < timeProvider.GetUtcNow().UtcDateTime))
         {
-            logger.LogDebug("");
+            logger.LogDebug("no valid server-side sessions found for subject {subjectId} and session {sessionId}",
+                sessionEventContext.SubjectId, sessionEventContext.SessionId);
             return false;
         }
 

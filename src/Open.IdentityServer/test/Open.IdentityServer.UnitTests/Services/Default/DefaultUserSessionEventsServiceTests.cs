@@ -19,6 +19,8 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Services.Default;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.UnitTests.Common;
+using Open.IdentityServer.Test.Utilities;
+
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Services.Default;
@@ -723,7 +725,53 @@ public class DefaultUserSessionEventsServiceTests
         Mock.Get(serverSessionTicketStore)
             .Verify(x => x.RenewAsync(It.IsAny<string>(), It.IsAny<AuthenticationTicket>()));
     }
+    
+    [Theory]
+    [InlineData("UTC", -1, false)]
+    [InlineData("UTC", 1, true)]
+    [InlineData("China Standard Time", -1, false)]
+    [InlineData("China Standard Time", 1, true)]
+    [InlineData("America/Los_Angeles", -1, false)]
+    [InlineData("America/Los_Angeles", 1, true)]
+    public async Task ValidateSession_WhenExpiryKindIsUnspecified_ShouldTreatExpiryAsUtc(
+        string timeZoneId, int expiryOffsetHours, bool expectedValidity)
+    {
+        using var mockedTimezone = new LocalTimeZoneInfoMocker(TimeZoneInfo.FindSystemTimeZoneById(timeZoneId));
 
+        const string fakeSessionKey = "sessionKey";
+        const string fakeScheme = "authScheme";
+        const string fakeSessionId = "sessionId";
+        const string fakeSubjectId = "subjectId";
+        const string fakeDisplayName = "Fake User";
+
+        DateTime renewed = fakeNow.AddDays(-1);
+        DateTime expires = DateTime.SpecifyKind(
+            fakeNow.AddHours(expiryOffsetHours),
+            DateTimeKind.Unspecified);
+
+        ValidateUserSessionEventContext testCtx = new()
+        {
+            SubjectId = fakeSubjectId,
+            SessionId = fakeSessionId,
+            Client = new Client { CoordinateLifetimeWithUserSession = true }
+        };
+
+        ServerSideSession fakeSession = FakeSession(
+            fakeSessionKey, fakeScheme, fakeSessionId, fakeSubjectId, fakeDisplayName,
+            created: renewed, renewed: renewed, expires: expires);
+
+        Mock.Get(serverSessionTicketStore)
+            .Setup(x => x.FilterServerAuthenticationTickets(fakeSubjectId, fakeSessionId))
+            .ReturnsAsync([
+                new AuthenticationTicketFilterResult { Session = fakeSession },
+            ]);
+
+        DefaultUserSessionEventsService sut = CreateSut();
+        bool actual = await sut.ValidateSession(testCtx);
+
+        actual.Should().Be(expectedValidity);
+    }
+    
     [Fact]
     public async Task PublicMethods_WhenCalled_ShouldTelemetryTrace()
     {
