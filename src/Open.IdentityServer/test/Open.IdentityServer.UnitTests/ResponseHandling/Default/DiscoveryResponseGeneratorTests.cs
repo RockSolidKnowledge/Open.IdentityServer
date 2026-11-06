@@ -532,7 +532,7 @@ public class DiscoveryResponseGeneratorTests
     }
     
     [Fact]
-    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndRequestObjectSigningAlgorithmsDefault_ShouldShouldOmitSigningAlgorithms()
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndRequestObjectSigningAlgorithmsDefault_ShouldContainDefaultAlgorithms()
     {
         _options.Endpoints.EnableAuthorizeEndpoint = true;
         
@@ -540,7 +540,8 @@ public class DiscoveryResponseGeneratorTests
         
         var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/", "https://open.ids.url");
 
-        actual.Should().NotContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported);
+        actual.Should().ContainKey(OidcConstants.Discovery.RequestObjectSigningAlgorithmsSupported)
+            .WhoseValue.Should().BeEquivalentTo(IdentityServerConstants.SupportedSigningAlgorithms);
     }
 
     [Fact]

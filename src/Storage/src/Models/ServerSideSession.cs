@@ -4,6 +4,7 @@
 #nullable enable
 
 using System;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Open.IdentityServer.Models;
 
@@ -56,4 +57,9 @@ public class ServerSideSession
     /// Get or set data value
     /// </summary>
     public string Data { get; set; } = null!;
+    
+    /// <summary>
+    /// Get or set data value
+    /// </summary>
+    public AuthenticationTicket? AuthenticationTicket { get; set; }
 }
