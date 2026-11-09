@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "identity": "Open.IdentityServer.Empty",
+  "name": "Empty Open.IdentityServer",
+  "shortName": "open-identityserver-empty",
+  "sourceName": "T0_EmptyOpenIdentityServer",
+  "classifications": [ "Web", "IdentityServer" ],
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  }
+}
