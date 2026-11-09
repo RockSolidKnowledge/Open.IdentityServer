@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.IdentityServer.Templates", "src\Open.IdentityServer.Templates.csproj", "{D25E14BF-C8BC-4778-80B4-759C48063326}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D25E14BF-C8BC-4778-80B4-759C48063326}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D25E14BF-C8BC-4778-80B4-759C48063326}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D25E14BF-C8BC-4778-80B4-759C48063326}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D25E14BF-C8BC-4778-80B4-759C48063326}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
