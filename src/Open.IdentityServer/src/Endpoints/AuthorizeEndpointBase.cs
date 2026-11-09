@@ -78,6 +78,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         var result = await _validator.ValidateAsync(parameters, user);
         if (result.IsError)
         {
+            await ConsumeParAsync(result.ValidatedRequest);
             return await CreateErrorResultAsync(
                 "Request validation failed",
                 result.ValidatedRequest,
@@ -109,6 +110,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         var interactionResult = await _interactionGenerator.ProcessInteractionAsync(request, consent);
         if (interactionResult.IsError)
         {
+            await ConsumeParAsync(request);
             return await CreateErrorResultAsync("Interaction generator error", request, interactionResult.Error, interactionResult.ErrorDescription, false);
         }
         if (interactionResult.IsLogin)
@@ -130,17 +132,21 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
 
         var response = await _authorizeResponseGenerator.CreateResponseAsync(request);
        
-        // Remove PAR entry if this was a successfully applied PAR request
-        if (response.IsError == false && request.PushedAuthorizationUri != null)
-        {
-            await _parService.RemoveRequestAsync(request.PushedAuthorizationUri);
-        }
+        await ConsumeParAsync(request);
 
         await RaiseResponseEventAsync(response);
 
         LogResponse(response);
 
         return new AuthorizeResult(response);
+    }
+
+    private async Task ConsumeParAsync(ValidatedAuthorizeRequest request)
+    {
+        if (request.PushedAuthorizationUri != null)
+        {
+            await _parService.RemoveRequestAsync(request.PushedAuthorizationUri);
+        }
     }
 
     protected async Task<IEndpointResult> CreateErrorResultAsync(
