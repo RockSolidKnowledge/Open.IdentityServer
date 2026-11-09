@@ -55,4 +55,10 @@ internal static partial class Log
         EventName = nameof(SessionOverwriteRevokingGrants),
         Message = "Session overwrite detected for key {key}, subject {subjectId} and session {sessionId}, revoking grants")]
     internal static partial void SessionOverwriteRevokingGrants(this ILogger logger, string key, string subjectId, string sessionId);
+    
+    [LoggerMessage(
+        LogLevel.Debug,
+        EventName = nameof(SessionUserChangeDetectedRemovingSession),
+        Message = "Session user change detected for key {key}, old subject {oldSubject} and new session {newSubject}, removing session")]
+    internal static partial void SessionUserChangeDetectedRemovingSession(this ILogger logger, string key, string oldSubject, string newSubject);
 }
