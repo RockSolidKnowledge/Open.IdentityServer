@@ -236,10 +236,12 @@ public class Authorize_PushedAuthorizationRequests
         result.IsError.Should().BeTrue();
         result.ErrorDescription.Should().Be("Client Id is different between PAR request and authorize");
         result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
-        // PAR request should not be cleaned up
+        
+        // PAR request should be cleaned up
+        // This will not be cleaned at higher level as PushedAuthorizationUri is null
         result.ValidatedRequest.PushedAuthorizationUri.Should().BeNull();
         parService.Verify(s => s.GetRequestAsync(requestUri), Times.Once);
-        parService.Verify(s => s.RemoveRequestAsync(It.IsAny<string>()), Times.Never);
+        parService.Verify(s => s.RemoveRequestAsync(requestUri), Times.Once);
     }
    
     private NameValueCollection SetupValidParRequest(string requestUri )
