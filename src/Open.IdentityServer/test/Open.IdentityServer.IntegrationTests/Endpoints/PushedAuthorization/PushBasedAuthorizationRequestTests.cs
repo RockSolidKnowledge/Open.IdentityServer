@@ -31,6 +31,7 @@ public class PushBasedAuthorizationRequestTests
 
     private readonly Client parTestClient;
     private readonly Client otherParTestClient;
+    private readonly Client consentParTestClient;
 
     public PushBasedAuthorizationRequestTests()
     {
@@ -61,6 +62,20 @@ public class PushBasedAuthorizationRequestTests
         };
 
         mockPipeline.Clients.Add(otherParTestClient);
+
+        consentParTestClient = new Client
+        {
+            ClientId = "consent PAR test client",
+            ClientSecrets = [new Secret("secret".Sha256())],
+            AllowedGrantTypes = GrantTypes.Code,
+            RequireClientSecret = true,
+            RequireConsent = true,
+            RequirePkce = false,
+            AllowedScopes = ["openid", "profile", "api1", "api2"],
+            RedirectUris = ["https://consent-app.com/callback"],
+        };
+
+        mockPipeline.Clients.Add(consentParTestClient);
 
         mockPipeline.Users.Add(new TestUser
         {
@@ -137,7 +152,7 @@ public class PushBasedAuthorizationRequestTests
     }
     
     [Fact]
-    public async Task post_request_and_get_auth_code_should_return_redirect_with_code()
+    public async Task post_request_and_get_auth_code_should_return_redirect_with_code_and_consume_request()
     {
         HttpClient? client = mockPipeline.BackChannelClient;
         BrowserClient? browser = mockPipeline.BrowserClient;
@@ -206,6 +221,9 @@ public class PushBasedAuthorizationRequestTests
             .Select(c => c.Value).ToList();
 
         scopes.Should().BeEquivalentTo(requestedScopes);
+        
+        // Request consumed
+        await AssertParReplayIsRejectedAsync(browser!, url!);
     }
     
     [Fact]
@@ -245,20 +263,146 @@ public class PushBasedAuthorizationRequestTests
         json.RootElement.GetProperty("error").GetString().Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
     }
     
-    private async Task<HttpResponseMessage> SendRequestForUri(HttpClient client , params IEnumerable<string> scopes)
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task prompt_none_par_request_without_signed_in_user_should_return_login_required_and_reject_replay()
     {
+        HttpClient client = mockPipeline.BackChannelClient!;
+        BrowserClient browser = mockPipeline.BrowserClient!;
+
+        using var parResponse = await SendRequestForUriForClient(
+            client,
+            parTestClient,
+            ["openid", "api1"],
+            OidcConstants.PromptModes.None);
+
+        parResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        string requestUri = await ReadRequestUriAsync(parResponse);
+        string authorizeUrl = mockPipeline.CreateParUrl(parTestClient.ClientId, requestUri)!;
+
+        browser.AllowAutoRedirect = false;
+        using var authorizeResponse = await browser.GetAsync(
+            authorizeUrl,
+            TestContext.Current.CancellationToken);
+
+        authorizeResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
+        authorizeResponse.Headers.Location.Should().NotBeNull();
+        authorizeResponse.Headers.Location!.ToString()
+            .Should().StartWith(parTestClient.RedirectUris.First());
+
+        var authorization = new AuthorizeResponse(authorizeResponse.Headers.Location.ToString());
+        authorization.IsError.Should().BeTrue();
+        authorization.Error.Should().Be(OidcConstants.AuthorizeErrors.LoginRequired);
+
+        await AssertParReplayIsRejectedAsync(browser, authorizeUrl);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task par_request_should_round_trip_through_login_and_consent()
+    {
+        HttpClient client = mockPipeline.BackChannelClient!;
+        BrowserClient browser = mockPipeline.BrowserClient!;
+        mockPipeline.Subject = new IdentityServerUser("bob").CreatePrincipal();
+        mockPipeline.ConsentResponse = new ConsentResponse
+        {
+            ScopesValuesConsented = ["openid", "profile", "api1"]
+        };
+        browser.StopRedirectingAfter = 4;
+
+        using var parResponse = await SendRequestForUriForClient(
+            client,
+            consentParTestClient,
+            ["openid", "profile", "api1"]);
+
+        parResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        string requestUri = await ReadRequestUriAsync(parResponse);
+        string authorizeUrl = mockPipeline.CreateParUrl(consentParTestClient.ClientId, requestUri)!;
+
+        using var response = await browser.GetAsync(
+            authorizeUrl,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.SeeOther);
+        response.Headers.Location.Should().NotBeNull();
+        response.Headers.Location!.ToString()
+            .Should().StartWith(consentParTestClient.RedirectUris.First());
+
+        mockPipeline.LoginWasCalled.Should().BeTrue();
+        mockPipeline.LoginRequest.Should().NotBeNull();
+        mockPipeline.LoginRequest!.Client.ClientId.Should().Be(consentParTestClient.ClientId);
+        mockPipeline.ConsentWasCalled.Should().BeTrue();
+        mockPipeline.ConsentRequest.Should().NotBeNull();
+        mockPipeline.ConsentRequest!.Client.ClientId.Should().Be(consentParTestClient.ClientId);
+
+        var authorization = new AuthorizeResponse(response.Headers.Location.ToString());
+        authorization.IsError.Should().BeFalse();
+        authorization.State.Should().Be("1234567890");
+        authorization.Code.Should().NotBeNullOrWhiteSpace();
+    }
+
+    private Task<HttpResponseMessage> SendRequestForUri(HttpClient client, params IEnumerable<string> scopes)
+    {
+        return SendRequestForUriForClient(client, parTestClient, scopes);
+    }
+
+    private async Task<HttpResponseMessage> SendRequestForUriForClient(
+            HttpClient client,
+            Client requestClient,
+            IEnumerable<string> scopes,
+            string? prompt = null)
+    {
+        var parameters = new Dictionary<string, string>
+        {
+            [OidcConstants.AuthorizeRequest.ClientId] = requestClient.ClientId,
+            [OidcConstants.TokenRequest.ClientSecret] = "secret",
+            [OidcConstants.AuthorizeRequest.RedirectUri] = requestClient.RedirectUris.First(),
+            [OidcConstants.AuthorizeRequest.ResponseType] = OidcConstants.ResponseTypes.Code,
+            [OidcConstants.AuthorizeRequest.Scope] = String.Join(" ", scopes),
+            [OidcConstants.AuthorizeRequest.State] = "1234567890",
+        };
+
+        if (prompt != null)
+        {
+            parameters[OidcConstants.AuthorizeRequest.Prompt] = prompt;
+        }
+        
         HttpResponseMessage response = await client.PostAsync(
             IdentityServerPipeline.PushedAuthorizatioRequestEndpoint,
-            new FormUrlEncodedContent( new Dictionary<string, string>()
-            {
-                [OidcConstants.AuthorizeRequest.ClientId] = parTestClient.ClientId,
-                [OidcConstants.TokenRequest.ClientSecret] = "secret",
-                [OidcConstants.AuthorizeRequest.RedirectUri] = parTestClient.RedirectUris.First(),
-                [OidcConstants.AuthorizeRequest.ResponseType] = OidcConstants.ResponseTypes.Code,
-                [OidcConstants.AuthorizeRequest.Scope] = String.Join(" ",scopes),
-                [OidcConstants.AuthorizeRequest.State] = "1234567890",
-            }),
+            new FormUrlEncodedContent(parameters),
             TestContext.Current.CancellationToken);
         return response;
+    }
+    
+    private static async Task<string> ReadRequestUriAsync(HttpResponseMessage response)
+    {
+        string jsonAsString = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        using var json = System.Text.Json.JsonDocument.Parse(jsonAsString);
+        string? requestUri = json.RootElement.GetProperty("request_uri").GetString();
+        requestUri.Should().NotBeNullOrWhiteSpace();
+        return requestUri!;
+    }
+
+    private async Task AssertParReplayIsRejectedAsync(BrowserClient browser, string authorizeUrl)
+    {
+        using var replayResponse = await browser.GetAsync(
+            authorizeUrl,
+            TestContext.Current.CancellationToken);
+
+        replayResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
+        replayResponse.Headers.Location.Should().NotBeNull();
+        replayResponse.Headers.Location!.ToString()
+            .Should().StartWith(IdentityServerPipeline.ErrorPage);
+
+        using var errorPageResponse = await browser.GetAsync(
+            replayResponse.Headers.Location!,
+            TestContext.Current.CancellationToken);
+
+        errorPageResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        mockPipeline.ErrorWasCalled.Should().BeTrue();
+        mockPipeline.ErrorMessage.Should().NotBeNull();
+        mockPipeline.ErrorMessage!.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidRequest);
+        mockPipeline.ErrorMessage.ErrorDescription
+            .Should().Be("Expired or unknown pushed authorization request");
     }
 }

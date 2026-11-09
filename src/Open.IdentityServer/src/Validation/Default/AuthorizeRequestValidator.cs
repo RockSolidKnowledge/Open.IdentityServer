@@ -178,6 +178,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         string storedClientId = storedRequest.GetValues(OidcConstants.AuthorizeRequest.ClientId)?.Single();
         if (storedClientId != request.ClientId)
         {
+            await _parService.RemoveRequestAsync(parRequestUri);
             return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest,
                 "Client Id is different between PAR request and authorize");
         }
