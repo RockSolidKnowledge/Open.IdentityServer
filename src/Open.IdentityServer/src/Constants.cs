@@ -350,4 +350,10 @@ internal static class Constants
         public const string P384 = "1.3.132.0.34";
         public const string P521 = "1.3.132.0.35";
     }
+    
+    public static class PrivateKeyJwtSecretValidation
+    {
+        public const int MaxJtiLength = 256;
+        public static readonly TimeSpan MaxLifespanInMinutes  = TimeSpan.FromMinutes(5);
+    }
 }

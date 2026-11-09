@@ -1,11 +1,12 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
@@ -19,7 +20,7 @@ namespace Open.IdentityServer.Validation;
 /// <summary>
 /// Validates a secret based on RS256 signed JWT token
 /// </summary>
-public class PrivateKeyJwtSecretValidator : ISecretValidator
+public class PrivateKeyJwtSecretValidator: ISecretValidator
 {
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IReplayCache _replayCache;
@@ -116,18 +117,19 @@ public class PrivateKeyJwtSecretValidator : ISecretValidator
                 _logger.LogError("Both 'sub' and 'iss' in the client assertion token must have a value of client_id.");
                 return fail;
             }
-                
+            
+            var iat = new DateTimeOffset(jwtToken.Payload.IssuedAt).ToUnixTimeSeconds();
             var exp = jwtToken.Payload.Expiration;
-            if (!exp.HasValue)
+            if (!exp.HasValue || exp - iat > Constants.PrivateKeyJwtSecretValidation.MaxLifespanInMinutes.TotalSeconds)
             {
-                _logger.LogError("exp is missing.");
+                _logger.LogError("exp is missing or exceeds maximum of {MaxLifetime}", Constants.PrivateKeyJwtSecretValidation.MaxLifespanInMinutes.TotalSeconds);
                 return fail;
             }
                 
             var jti = jwtToken.Payload.Jti;
-            if (jti.IsMissing())
+            if (jti.IsMissing() || Encoding.UTF8.GetByteCount(jti) > Constants.PrivateKeyJwtSecretValidation.MaxJtiLength)
             {
-                _logger.LogError("jti is missing.");
+                _logger.LogError("jti is missing or exceeds maximum of {MaxJtiBytes} bytes", Constants.PrivateKeyJwtSecretValidation.MaxJtiLength);
                 return fail;
             }
 

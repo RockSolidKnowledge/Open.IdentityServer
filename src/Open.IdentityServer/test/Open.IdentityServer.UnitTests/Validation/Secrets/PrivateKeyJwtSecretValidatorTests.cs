@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,6 @@ using AwesomeAssertions;
 using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.UnitTests.Services.Default;
 using Open.IdentityServer.UnitTests.Validation.Setup;
-using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
@@ -24,12 +23,12 @@ using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Validation.Secrets;
 
-public class PrivateKeyJwtSecretValidation
+public class PrivateKeyJwtSecretValidatorTests
 {
     private readonly ISecretValidator _validator;
     private readonly IClientStore _clients;
 
-    public PrivateKeyJwtSecretValidation()
+    public PrivateKeyJwtSecretValidatorTests()
     {
         _validator = new PrivateKeyJwtSecretValidator(
             new MockHttpContextAccessor(
@@ -44,7 +43,7 @@ public class PrivateKeyJwtSecretValidation
         _clients = new InMemoryClientStore(ClientValidationTestClients.Get());
     }
 
-    private JwtSecurityToken CreateToken(string clientId, DateTime? nowOverride = null)
+    private JwtSecurityToken CreateToken(string clientId, DateTime? nowOverride = null, string jti = null, int minsToExpiry = 1)
     {
         var certificate = TestCert.Load();
         var now = nowOverride ?? DateTime.UtcNow;
@@ -54,12 +53,12 @@ public class PrivateKeyJwtSecretValidation
             "https://idsrv3.com/connect/token",
             new List<Claim>()
             {
-                new Claim("jti", Guid.NewGuid().ToString()),
+                new Claim("jti", jti ?? Guid.NewGuid().ToString()),
                 new Claim(JwtClaimTypes.Subject, clientId),
                 new Claim(JwtClaimTypes.IssuedAt, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             },
             now,
-            now.AddMinutes(1),
+            now.AddMinutes(minsToExpiry),
             new SigningCredentials(
                 new X509SecurityKey(certificate),
                 SecurityAlgorithms.RsaSha256
@@ -141,6 +140,42 @@ public class PrivateKeyJwtSecretValidation
         result.Success.Should().BeTrue();
             
         result = await _validator.ValidateAsync(client.ClientSecrets, secret);
+        result.Success.Should().BeFalse();
+    }
+        
+    [Fact]
+    public async Task Invalid_LifetimeTooLong()
+    {
+        var clientId = "certificate_base64_valid";
+        var client = await _clients.FindEnabledClientByIdAsync(clientId);
+        var token = new JwtSecurityTokenHandler().WriteToken(CreateToken(clientId, minsToExpiry: 10));
+            
+        var secret = new ParsedSecret
+        {
+            Id = clientId,
+            Credential = token,
+            Type = IdentityServerConstants.ParsedSecretTypes.JwtBearer
+        };
+
+        var result = await _validator.ValidateAsync(client.ClientSecrets, secret);
+        result.Success.Should().BeFalse();
+    }
+        
+    [Fact]
+    public async Task Invalid_JtiTooLong()
+    {
+        var clientId = "certificate_base64_valid";
+        var client = await _clients.FindEnabledClientByIdAsync(clientId);
+        var token = new JwtSecurityTokenHandler().WriteToken(CreateToken(clientId, jti: new string('a', 300)));
+            
+        var secret = new ParsedSecret
+        {
+            Id = clientId,
+            Credential = token,
+            Type = IdentityServerConstants.ParsedSecretTypes.JwtBearer
+        };
+
+        var result = await _validator.ValidateAsync(client.ClientSecrets, secret);
         result.Success.Should().BeFalse();
     }
 
