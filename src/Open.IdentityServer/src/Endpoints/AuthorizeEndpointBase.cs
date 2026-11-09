@@ -78,7 +78,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         var result = await _validator.ValidateAsync(parameters, user);
         if (result.IsError)
         {
-            await ConsumeParAsync(result.ValidatedRequest);
+            await ConsumeParStateIfPresentAsync(result.ValidatedRequest);
             return await CreateErrorResultAsync(
                 "Request validation failed",
                 result.ValidatedRequest,
@@ -110,7 +110,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         var interactionResult = await _interactionGenerator.ProcessInteractionAsync(request, consent);
         if (interactionResult.IsError)
         {
-            await ConsumeParAsync(request);
+            await ConsumeParStateIfPresentAsync(request);
             return await CreateErrorResultAsync("Interaction generator error", request, interactionResult.Error, interactionResult.ErrorDescription, false);
         }
         if (interactionResult.IsLogin)
@@ -132,7 +132,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
 
         var response = await _authorizeResponseGenerator.CreateResponseAsync(request);
        
-        await ConsumeParAsync(request);
+        await ConsumeParStateIfPresentAsync(request);
 
         await RaiseResponseEventAsync(response);
 
@@ -141,7 +141,7 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         return new AuthorizeResult(response);
     }
 
-    private async Task ConsumeParAsync(ValidatedAuthorizeRequest request)
+    private async Task ConsumeParStateIfPresentAsync(ValidatedAuthorizeRequest request)
     {
         if (request.PushedAuthorizationUri != null)
         {
