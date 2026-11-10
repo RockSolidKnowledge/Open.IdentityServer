@@ -129,7 +129,17 @@ public class InputLengthRestrictions
     public int CodeVerifierMaxLength { get; } = 128;
 
     /// <summary>
-    /// Max length for resource indicator parameter
+    /// Max length for the resource indicator parameter
     /// </summary>
     public int ResourceIndicatorMaxLength { get; } = 512;
+
+    /// <summary>
+    /// Max length for the dpop thumbprint value
+    /// </summary>
+    public int DPoPKeyThumbprint { get; set; } = Default;
+
+    /// <summary>
+    /// Max length for a dpop proof value
+    /// </summary>
+    public int DPoPProofToken { get; set; } = 4000;
 }

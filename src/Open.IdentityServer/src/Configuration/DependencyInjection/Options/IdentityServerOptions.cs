@@ -161,4 +161,9 @@ public class IdentityServerOptions
     /// PAR authorization options
     /// </summary>
     public PushedAuthorizationOptions PushedAuthorization {get;} = new PushedAuthorizationOptions();
+
+    /// <summary>
+    /// Gets or sets DPoP options
+    /// </summary>
+    public DPoPOptions DPoP { get; set; } = new DPoPOptions();
 }

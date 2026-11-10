@@ -7,6 +7,7 @@
 using Open.IdentityServer.Models;
 using System;
 using System.Collections.Generic;
+using Open.IdentityServer.Storage.Models;
 
 namespace Open.IdentityServer.EntityFramework.Entities;
 
@@ -66,14 +67,14 @@ public class Client
     public int DeviceCodeLifetime { get; set; } = 300;
     public bool NonEditable { get; set; }
     public bool? CoordinateLifetimeWithUserSession { get; set; }
+    public TimeSpan DPoPClockSkew { get; set; }
+    public DPoPTokenExpirationValidationMode DPoPValidationMode { get; set; }
+    public bool RequireDPoP { get; set; }
+    public int? PushedAuthorizationLifetime { get; set; }
+    public bool RequirePushedAuthorization { get; set; }
     
     //Unused Compatibility Properties
     public int? CibaLifetime { get; set; }
     public int? PollingInterval { get; set; }
     public string InitiateLoginUri { get; set; }
-    public TimeSpan DPoPClockSkew { get; set; }
-    public int DPoPValidationMode { get; set; }
-    public bool RequireDPoP { get; set; }
-    public int? PushedAuthorizationLifetime { get; set; }
-    public bool RequirePushedAuthorization { get; set; }
 }

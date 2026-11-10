@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 using System.Collections;
 using System.Diagnostics;
+using Open.IdentityServer.Storage.Models;
 
 namespace Open.IdentityServer.Models;
 
@@ -441,6 +442,31 @@ public class Client
     /// </value>
     public bool? CoordinateLifetimeWithUserSession { get; set; }
     
+    /// <summary>
+    /// Gets or sets DPoP clock skew
+    /// </summary>
+    public TimeSpan DPoPClockSkew { get; set; } = TimeSpan.FromMinutes(5);
+    
+    /// <summary>
+    /// Gets or sets DPoP validation mode
+    /// </summary>
+    public DPoPTokenExpirationValidationMode DPoPValidationMode { get; set; } = DPoPTokenExpirationValidationMode.Iat;
+    
+    /// <summary>
+    /// Gets or sets require DPoP
+    /// </summary>
+    public bool RequireDPoP { get; set; }
+    
+    /// <summary>
+    /// Gets or sets pushed authorization lifetime
+    /// </summary>
+    public int? PushedAuthorizationLifetime { get; set; }
+    
+    /// <summary>
+    /// Gets or sets require pushed authorization
+    /// </summary>
+    public bool RequirePushedAuthorization { get; set; }
+    
     //Unused Compatibility Properties
     /// <summary>
     /// Gets or sets CIBA lifetime (Unused, added for compatibility)
@@ -456,29 +482,4 @@ public class Client
     /// Gets or sets initiate login URI (Unused, added for compatibility)
     /// </summary>
     public string InitiateLoginUri { get; set; }
-    
-    /// <summary>
-    /// Gets or sets DPoP clock skew (Unused, added for compatibility)
-    /// </summary>
-    public TimeSpan DPoPClockSkew { get; set; } = TimeSpan.FromMinutes(5);
-    
-    /// <summary>
-    /// Gets or sets DPoP validation mode (Unused, added for compatibility)
-    /// </summary>
-    public int DPoPValidationMode { get; set; } = 0;
-    
-    /// <summary>
-    /// Gets or sets require DPoP (Unused, added for compatibility)
-    /// </summary>
-    public bool RequireDPoP { get; set; }
-    
-    /// <summary>
-    /// Gets or sets pushed authorization lifetime (Unused, added for compatibility)
-    /// </summary>
-    public int? PushedAuthorizationLifetime { get; set; }
-    
-    /// <summary>
-    /// Gets or sets require pushed authorization (Unused, added for compatibility)
-    /// </summary>
-    public bool RequirePushedAuthorization { get; set; }
 }
