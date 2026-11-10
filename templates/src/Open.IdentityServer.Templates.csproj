@@ -12,6 +12,9 @@
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageReleaseNotes>https://github.com/RockSolidKnowledge/Open.IdentityServer/releases</PackageReleaseNotes>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageType>Template</PackageType>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
 
@@ -25,6 +28,14 @@
     <ItemGroup>
         <None Include="../README.md" Pack="true" Visible="false" PackagePath=""/>
         <None Include="../../OpenIdentityServerIcon.png" Pack="true" Visible="false" PackagePath=""/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="templates/**/*"/>
+        <EmbeddedResource Remove="templates/**/*"/>
+        <Content Remove="templates/**/*"/>
+        <None Remove="templates/**/*"/>
+        <None Include="templates/**/*" Exclude="templates/**/bin/**;templates/**/obj/**" Pack="true" PackagePath="content/%(RecursiveDir)%(Filename)%(Extension)"/>
     </ItemGroup>
 
 </Project>
