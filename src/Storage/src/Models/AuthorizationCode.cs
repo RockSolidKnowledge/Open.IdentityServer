@@ -140,4 +140,9 @@ public class AuthorizationCode
     /// Requested resource indicators
     /// </value>
     public IEnumerable<string> RequestedResourceIndicators { get; set; }
+    
+    /// <summary>
+    /// Gets of sets the DPoP key thumbprint auth code is bound to, optional
+    /// </summary>
+    public string DPoPKeyThumbprint { get; set; }
 }

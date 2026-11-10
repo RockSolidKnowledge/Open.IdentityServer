@@ -119,4 +119,9 @@ public class RefreshToken
     /// Placeholder not utilised by Open.IdentityServer yet 
     /// </summary>
     public int? ProofType { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the DPoP key thumbprint the refresh token is bound to, optional
+    /// </summary>
+    public string? DPoPKeyThumbprint { get; set; }
 }

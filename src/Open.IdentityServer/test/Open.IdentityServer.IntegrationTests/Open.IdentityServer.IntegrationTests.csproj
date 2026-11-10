@@ -41,6 +41,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\Open.IdentityServer.Test.Utilities\Open.IdentityServer.Test.Utilities.csproj" />
         <ProjectReference Include="..\..\src\Open.IdentityServer.csproj"/>
     </ItemGroup>
 

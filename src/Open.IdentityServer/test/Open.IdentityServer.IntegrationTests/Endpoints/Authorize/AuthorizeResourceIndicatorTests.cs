@@ -255,7 +255,9 @@ public class AuthorizeResourceIndicatorTests: ResourceIndicatorTests
             ]));
 
         await mockPipeline.BrowserClient!.GetAsync(url, TestContext.Current.CancellationToken);
-        mockPipeline.ErrorWasCalled.Should().BeTrue();mockPipeline.ErrorMessage.Should().NotBeNull();
+        
+        mockPipeline.ErrorWasCalled.Should().BeTrue();
+        mockPipeline.ErrorMessage.Should().NotBeNull();
         mockPipeline.ErrorMessage!.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidTarget);
     }
 
