@@ -45,18 +45,30 @@ public class DefaultKeyMaterialService : IKeyMaterialService
     {
         using var trace = _telemetry.Trace(
             TelemetryConstants.TraceCategories.Services, this);
+
+        var allowed = allowedAlgorithms?.ToList() ?? [];
         
         if (_signingCredentialStores.Any())
         {
-            if (allowedAlgorithms.IsNullOrEmpty())
+            if (allowed.IsNullOrEmpty())
             {
-                return await _signingCredentialStores.First().GetSigningCredentialsAsync();
+                foreach (var signingCredentialStore in _signingCredentialStores)
+                {
+                    var firstCredential = await signingCredentialStore.GetSigningCredentialsAsync();
+
+                    if (firstCredential != null)
+                    {
+                        return firstCredential;
+                    }
+                }
+                
+                throw new InvalidOperationException("No signing credentials registered.");
             }
 
-            var credential = (await GetAllSigningCredentialsAsync()).FirstOrDefault(c => allowedAlgorithms.Contains(c.Algorithm));
+            var credential = (await GetAllSigningCredentialsAsync()).FirstOrDefault(c => allowed.Contains(c.Algorithm));
             if (credential is null)
             {
-                throw new InvalidOperationException($"No signing credential for algorithms ({allowedAlgorithms.ToSpaceSeparatedString()}) registered.");
+                throw new InvalidOperationException($"No signing credential for algorithms ({allowed.ToSpaceSeparatedString()}) registered.");
             }
 
             return credential;
