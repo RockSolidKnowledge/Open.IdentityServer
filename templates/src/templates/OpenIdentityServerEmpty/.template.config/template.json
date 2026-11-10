@@ -3,7 +3,7 @@
   "identity": "Open.IdentityServer.Empty",
   "name": "Open.IdentityServer Empty",
   "shortName": "oids-empty",
-  "sourceName": "T0_EmptyOpenIdentityServer",
+  "sourceName": "OpenIdentityServerEmpty",
   "classifications": [ "Web", "IdentityServer", "Open.IdentityServer" ],
   "tags": {
     "language": "C#",

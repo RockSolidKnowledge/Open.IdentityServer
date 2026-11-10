@@ -1,6 +1,6 @@
 using Serilog;
 
-namespace T0_EmptyOpenIdentityServer;
+namespace OpenIdentityServerEmpty;
 
 public class Program
 {
