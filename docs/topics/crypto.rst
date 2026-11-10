@@ -46,7 +46,7 @@ This process is also commonly referred to as key rotation. There are many ways t
 
 A commercial `key rotation component <https://www.identityserver.com/products/key-rotation>`_ for Open.IdentityServer is available, which will automate this process for you.
 
-.. Note:: With v1 of Open.IdentityServer you will be able to get :ref:`read-only access <refReadOnlyKeyStore>` to the keys managed by Duende IdentityServer but rotation will be disabled.
+.. Note:: With Open.IdentityServer you will be able to get :ref:`read-only access <refReadOnlyKeyStore>` to the keys managed by Duende IdentityServer but rotation will be disabled.
 
 Data protection
 ^^^^^^^^^^^^^^^
