@@ -1,6 +1,6 @@
 using Open.IdentityServer.Models;
 
-namespace T0_EmptyOpenIdentityServer;
+namespace OpenIdentityServerEmpty;
 
 public static class Config
 {
