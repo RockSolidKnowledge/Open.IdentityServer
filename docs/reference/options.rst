@@ -21,6 +21,10 @@ IdentityServer Options
 * ``StrictJarValidation``
     When enabled, applies strict JWT-secured authorization request validation, including typ and content-type checks, according to IETF spec. Defaults to ``false``.
 
+* ``StrictAuthorizeErrorResponses``
+    When enabled, the authorize endpoint returns every error to the client's redirect URI once the redirect URI and response mode have been validated, as RFC 6749 section 4.1.2.1 describes. Errors found before that still go to the error page: an unknown client or redirect URI, an invalid request object or ``request_uri``, and a missing or unknown ``response_type``.
+    Defaults to ``false``, which returns only ``access_denied``, ``account_selection_required``, ``login_required``, ``consent_required`` and ``interaction_required`` to the client.
+
 * ``EnableAuthorizeResponseIssuerParam``
     When enabled, the authorize response will include the issuer ``iss`` parameter, and advertises support in the discovery document. Defaults to ``false``.
 

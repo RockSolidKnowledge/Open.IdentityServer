@@ -51,6 +51,11 @@ public class IdentityServerOptions
     public bool StrictJarValidation { get; set; } = false;
 
     /// <summary>
+    /// Specifies whether the authorize endpoint returns all errors to the client once the redirect URI and response mode have been validated, as RFC 6749 section 4.1.2.1 describes.
+    /// </summary>
+    public bool StrictAuthorizeErrorResponses { get; set; } = false;
+
+    /// <summary>
     /// Gets or sets the supported JWT request object signing algorithms.
     /// Defaults to an empty collection.
     /// From version 4.0.0, will default to RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384, ES512.
