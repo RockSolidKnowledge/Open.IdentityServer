@@ -66,4 +66,30 @@ public class IdentityServerToolsTests
                     t.Audiences.Contains(audience3))),
             Times.Once);
     }
+
+    [Fact]
+    public async Task IssueJwtAsync_WhenCalledWithTokenType_ShouldSetTypeOnToken()
+    {
+        var sut = CreateSut();
+
+        await sut.IssueJwtAsync(300, "https://localhost:5000", IdentityServerConstants.TokenTypes.LogoutToken,
+            new List<Claim> { new(JwtClaimTypes.Subject, "bob") });
+
+        _tokenCreationService.Verify(x => x.CreateTokenAsync(It.Is<Token>(t =>
+                t.Type == IdentityServerConstants.TokenTypes.LogoutToken)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task IssueJwtAsync_WhenCalledWithoutTokenType_ShouldIssueAccessToken()
+    {
+        var sut = CreateSut();
+
+        await sut.IssueJwtAsync(3600, "https://localhost:5000",
+            new List<Claim> { new(JwtClaimTypes.Subject, "bob") });
+
+        _tokenCreationService.Verify(x => x.CreateTokenAsync(It.Is<Token>(t =>
+                t.Type == IdentityServerConstants.TokenTypes.AccessToken)),
+            Times.Once);
+    }
 }

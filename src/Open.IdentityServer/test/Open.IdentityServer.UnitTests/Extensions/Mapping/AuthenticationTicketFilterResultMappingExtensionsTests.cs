@@ -22,7 +22,7 @@ public class AuthenticationTicketFilterResultMappingExtensionsTests
         actualSession.Created.Should().Be(sut.Session.Created);
         actualSession.Renewed.Should().Be(sut.Session.Renewed);
         actualSession.Expires.Should().Be(sut.Session.Expires);
-        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.AuthTicket);
+        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.Session.AuthenticationTicket);
         actualSession.Issuer.Should().BeNullOrWhiteSpace();
         actualSession.ClientIds.Should().BeNullOrEmpty();
     }
@@ -42,8 +42,8 @@ public class AuthenticationTicketFilterResultMappingExtensionsTests
         actualSession.Renewed.Should().Be(sut.Session.Renewed);
         actualSession.Expires.Should().Be(sut.Session.Expires);
         actualSession.Issuer.Should().BeNullOrWhiteSpace();
-        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.AuthTicket);
-        actualSession.ClientIds.Should().BeEquivalentTo(sut.AuthTicket!.Properties.GetClientList());
+        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.Session.AuthenticationTicket);
+        actualSession.ClientIds.Should().BeEquivalentTo(sut.Session.AuthenticationTicket!.Properties.GetClientList());
     }
     
     [Fact]
@@ -63,7 +63,7 @@ public class AuthenticationTicketFilterResultMappingExtensionsTests
         actualSession.Renewed.Should().Be(sut.Session.Renewed);
         actualSession.Expires.Should().Be(sut.Session.Expires);
         actualSession.Issuer.Should().Be(fakeIssuer);
-        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.AuthTicket);
-        actualSession.ClientIds.Should().BeEquivalentTo(sut.AuthTicket!.Properties.GetClientList());
+        actualSession.AuthenticationTicket.Should().BeEquivalentTo(sut.Session.AuthenticationTicket);
+        actualSession.ClientIds.Should().BeEquivalentTo(sut.Session.AuthenticationTicket!.Properties.GetClientList());
     }
 }

@@ -15,6 +15,7 @@ using Open.IdentityServer.EntityFramework.Mappers;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
+using Open.IdentityServer.Stores.Serialization;
 
 namespace Open.IdentityServer.EntityFramework.Stores;
 
@@ -23,6 +24,7 @@ namespace Open.IdentityServer.EntityFramework.Stores;
 /// </summary>
 public class IdentityServerServerSideSessionStore(
     IPersistedGrantDbContext dbContext,
+    IAuthenticationTicketSerializer authTicketSerializer,
     ITelemetryService telemetry,
     TimeProvider timeProvider,
     ILogger<IdentityServerServerSideSessionStore> logger) : IIdentityServerServerSideSessionStore
@@ -35,8 +37,12 @@ public class IdentityServerServerSideSessionStore(
     /// <remarks>
     /// Makes it possible to return an extended model.
     /// </remarks>
-    protected virtual ServerSideSession? ToModel(Entities.ServerSideSession? entities) => 
-        entities?.ToModel();
+    protected virtual ServerSideSession? ToModel(Entities.ServerSideSession? entities)
+    {
+        var result = entities?.ToModel(authTicketSerializer);
+
+        return result;
+    }
     
     /// <inheritdoc />
     public async Task<ServerSideSession?> GetSession(string key)
@@ -68,7 +74,7 @@ public class IdentityServerServerSideSessionStore(
             return;
         }
 
-        Entities.ServerSideSession sessionEntity = session.ToEntity();
+        Entities.ServerSideSession sessionEntity = session.ToEntity(authTicketSerializer);
 
         await dbContext.ServerSideSessions.AddAsync(sessionEntity);
 
@@ -98,7 +104,7 @@ public class IdentityServerServerSideSessionStore(
             return;
         }
 
-        session.UpdateEntity(existing);
+        session.UpdateEntity(authTicketSerializer, existing);
 
         try
         {
