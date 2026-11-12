@@ -196,6 +196,8 @@ public static class IdentityServerBuilderExtensionsCore
 
         builder.Services.TryAddTransient<IDeviceFlowThrottlingService, DistributedDeviceFlowThrottlingService>();
         builder.Services.AddDistributedMemoryCache();
+        
+        builder.Services.TryAddTransient<IReplayCache, DefaultReplayCache>();
 
         return builder;
     }
@@ -222,6 +224,7 @@ public static class IdentityServerBuilderExtensionsCore
         builder.Services.TryAddTransient<IDeviceAuthorizationRequestValidator, DeviceAuthorizationRequestValidator>();
         builder.Services.TryAddTransient<IDeviceCodeValidator, DeviceCodeValidator>();
         builder.Services.TryAddTransient<IPushedAuthorizationRequestValidator, PushedAuthorizationRequestValidator>();
+        builder.Services.TryAddTransient<IDPoPProofValidator, DefaultDPoPProofValidator>();
         // optional
         builder.Services.TryAddTransient<ICustomTokenValidator, DefaultCustomTokenValidator>();
         builder.Services.TryAddTransient<ICustomAuthorizeRequestValidator, DefaultCustomAuthorizeRequestValidator>();

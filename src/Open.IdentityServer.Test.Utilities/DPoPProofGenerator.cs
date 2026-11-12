@@ -26,19 +26,22 @@ public class DPoPProofGenerator(TimeProvider timeProvider)
     public string CreateDPoPProof(
         string url,
         string method = "POST",
-        ECDsaSecurityKey? key = null,
+        ECDsaSecurityKey? signingKey = null,
+        ECDsaSecurityKey? headerKey = null,
         DateTimeOffset? iat = null,
         string? jti = null,
         string? nonce = null,
         string? accessToken = null,
         string? typ = "dpop+jwt",
-        bool includeJwk = true)
+        bool includeJwk = true,
+        bool includeWholeKey = false)
     {
-        key ??= CreateDPoPKey();
+        signingKey ??= CreateDPoPKey();
 
-        var jwk = JsonWebKeyConverter.ConvertFromECDsaSecurityKey(key);
+        JsonWebKey jwk = JsonWebKeyConverter.ConvertFromECDsaSecurityKey(headerKey ?? signingKey);
 
         // Only public parameters in the header
+        
         var publicJwk = new Dictionary<string, object>
         {
             ["kty"] = jwk.Kty,
@@ -54,7 +57,7 @@ public class DPoPProofGenerator(TimeProvider timeProvider)
         };
         if (includeJwk)
         {
-            header["jwk"] = publicJwk;
+            header["jwk"] = includeWholeKey ? JsonSerializer.SerializeToElement(jwk) : publicJwk;
         }
 
         var payload = new Dictionary<string, object>
@@ -80,7 +83,7 @@ public class DPoPProofGenerator(TimeProvider timeProvider)
         var handler = new JsonWebTokenHandler();
         return handler.CreateToken(
             JsonSerializer.Serialize(payload),
-            new SigningCredentials(key, SecurityAlgorithms.EcdsaSha256),
+            new SigningCredentials(signingKey, SecurityAlgorithms.EcdsaSha256),
             header);
     }
 }

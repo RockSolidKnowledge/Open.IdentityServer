@@ -60,4 +60,12 @@ public class RefreshTokenCreationRequest
     /// the requested resource indicator
     /// </value>
     public string? RequestedResourceIndicator { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the thumbprint of the DPoP key this token is bound to
+    /// </summary>
+    /// <value>
+    /// the requested resource indicator
+    /// </value>
+    public string? BoundDPoPThumbprint { get; set; }
 }

@@ -82,25 +82,28 @@ public class DefaultRefreshTokenServiceTests
     }
 
     [Fact]
-    public async Task CreateRefreshToken_should_match_absolute_lifetime()
+    public async Task CreateRefreshToken_WhenBoundThumbprintPresent_ShouldBindStoredTokenToThumbprint()
     {
+        const string thumbprint = "jflfjldksjflksdfjlksdfjlsdfjklsdjflsdjfldsjflsdjflksdjfjlsdk";
         var client = new Client
         {
             ClientId = "client1",
             RefreshTokenUsage = TokenUsage.ReUse,
             RefreshTokenExpiration = TokenExpiration.Absolute,
-            AbsoluteRefreshTokenLifetime = 10
+            AbsoluteRefreshTokenLifetime = 10,
         };
 
         var handle = await _subject.CreateRefreshTokenAsync(new RefreshTokenCreationRequest
         {
             Subject = _user, AccessToken = new Token(), Client = client, AuthorisedScopes = [],
+            BoundDPoPThumbprint = thumbprint,
         });
 
         var refreshToken = (await _store.GetRefreshTokenAsync(handle));
 
         refreshToken.Should().NotBeNull();
         refreshToken.Lifetime.Should().Be(client.AbsoluteRefreshTokenLifetime);
+        refreshToken.DPoPKeyThumbprint.Should().Be(thumbprint);
     }
 
     [Fact]

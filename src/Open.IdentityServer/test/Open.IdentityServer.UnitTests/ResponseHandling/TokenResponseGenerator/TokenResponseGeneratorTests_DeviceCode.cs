@@ -65,6 +65,7 @@ public class TokenResponseGeneratorTests_DeviceCode : TokenResponseGeneratorTest
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.AccessToken.Should().Be("device_token");
         response.AccessTokenLifetime.Should().Be(3600);
         response.Scope.Should().Be("resource");

@@ -12,6 +12,11 @@ namespace Open.IdentityServer.ResponseHandling;
 public class TokenResponse
 {
     /// <summary>
+    /// Get or sets the token type value, Bearer or BPoP
+    /// </summary>
+    public string TokenType { get; set; }
+
+    /// <summary>
     /// Gets or sets the identity token.
     /// </summary>
     /// <value>

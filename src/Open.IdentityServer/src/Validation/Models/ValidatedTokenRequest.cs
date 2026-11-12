@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System;
 using Open.IdentityServer.Models;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Open.IdentityServer.Validation;
 
@@ -90,4 +92,43 @@ public class ValidatedTokenRequest : ValidatedRequest
     /// The resource indicator
     /// </value>
     public string RequestedResourceIndicator { get; set; }
+
+    /// <summary>
+    /// Gets or sets the validated DPoP proof thumbprint
+    /// </summary>
+    /// <value>
+    /// If a DPoP proof is in the request and is valid, this is the public key thumbprint; if null, no proof is provided
+    /// </value>
+    public string ValidatedDPoPProofThumbprint {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(Confirmation))
+            {
+                return null;
+            }
+            
+            try
+            {
+                Dictionary<string, string> storeCnf =
+                    JsonSerializer.Deserialize<Dictionary<string, string>>(Confirmation);
+
+                return storeCnf[JwtClaimTypes.ConfirmationMethods.JwkThumbprint];
+            }
+            // If we are unable to deserialize the content of Confirmation, it was set by something else and a
+            // ValidatedDPoPProofThumbprint has not been set
+            catch(Exception)
+            {
+                return null;
+            }
+        }
+        set
+        {
+            Dictionary<string, string> newCnfClaim = new Dictionary<string, string>
+            {
+                [JwtClaimTypes.ConfirmationMethods.JwkThumbprint] = value
+            };
+
+            Confirmation = JsonSerializer.Serialize(newCnfClaim);
+        }
+    }
 }

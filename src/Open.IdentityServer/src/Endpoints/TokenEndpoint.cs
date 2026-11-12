@@ -88,6 +88,10 @@ internal class TokenEndpoint : IEndpointHandler
 
         // validate request
         var form = (await context.Request.ReadFormAsync()).AsNameValueCollection();
+        
+        // TODO: extract DPoP proof to be validated
+        // ...
+        
         _logger.LogTrace("Calling into token request validator: {type}", _requestValidator.GetType().FullName);
         var requestResult = await _requestValidator.ValidateRequestAsync(form, clientResult);
 

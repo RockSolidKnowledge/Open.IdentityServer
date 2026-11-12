@@ -35,6 +35,7 @@ public class TokenResponseGeneratorTests_Code : TokenResponseGeneratorTests
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.AccessToken.Should().Be("auth_code_token");
         response.AccessTokenLifetime.Should().Be(3600);
         response.Scope.Should().Be("resource");
@@ -72,6 +73,7 @@ public class TokenResponseGeneratorTests_Code : TokenResponseGeneratorTests
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.AccessToken.Should().Be("auth_code_token");
         response.AccessTokenLifetime.Should().Be(3600);
         response.Scope.Should().Be("urn:valid.resource:Read urn:valid.resource:Write valid:Read resource");
@@ -112,6 +114,7 @@ public class TokenResponseGeneratorTests_Code : TokenResponseGeneratorTests
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.AccessToken.Should().Be("auth_code_token");
         response.AccessTokenLifetime.Should().Be(3600);
         response.Scope.Should().Be("urn:valid.resource:Read urn:valid.resource:Write");

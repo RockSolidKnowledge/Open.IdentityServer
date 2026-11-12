@@ -3,7 +3,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Open.IdentityServer.UnitTests.Common;
@@ -163,8 +166,7 @@ public class DefaultTokenServiceTests
 
         result.Audiences.Count.Should().Be(0);
     }
-
-
+    
     [Fact]
     public async Task CreateAccessTokenAsync_when_no_session_should_not_include_sid()
     {

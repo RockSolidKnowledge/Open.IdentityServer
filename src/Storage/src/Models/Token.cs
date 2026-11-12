@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace Open.IdentityServer.Models;
 
@@ -152,10 +153,5 @@ public class Token
     /// <value>
     /// Boolean true or false value
     /// </value>
-    public bool IncludeJwtId { get; set; } 
-    
-    /// <summary>
-    /// Gets or sets the DPoP key thumbprint the token is bound to, optional
-    /// </summary>
-    public string DPoPKeyThumbprint { get; set; }
+    public bool IncludeJwtId { get; set; }
 }
