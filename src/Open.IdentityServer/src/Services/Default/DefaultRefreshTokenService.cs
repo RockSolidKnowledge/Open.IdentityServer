@@ -224,6 +224,7 @@ public class DefaultRefreshTokenService : IRefreshTokenService
                 { request.RequestedResourceIndicator ?? string.Empty, request.AccessToken }
             },
             AuthorizedResourceIndicators = request.AuthorisedResourceIndicators,
+            DPoPKeyThumbprint = request.BoundDPoPThumbprint,
         };
 
         var handle = await RefreshTokenStore.StoreRefreshTokenAsync(refreshToken);

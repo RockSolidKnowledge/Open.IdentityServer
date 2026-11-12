@@ -27,6 +27,7 @@ public class TokenResponseGeneratorTests_ExtentionGrant: TokenResponseGeneratorT
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.AccessToken.Should().Be("ext_token");
         response.AccessTokenLifetime.Should().Be(3600);
     }
@@ -52,6 +53,7 @@ public class TokenResponseGeneratorTests_ExtentionGrant: TokenResponseGeneratorT
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.RefreshToken.Should().Be("ext_refresh");
     }
 }

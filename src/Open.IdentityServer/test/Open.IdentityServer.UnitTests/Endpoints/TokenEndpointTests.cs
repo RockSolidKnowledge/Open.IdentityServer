@@ -1,6 +1,7 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -82,7 +83,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))
@@ -104,7 +105,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
             .ReturnsAsync(FailedRequestResult(OidcConstants.TokenErrors.InvalidGrant, "invalid_username_or_password"));
 
         var result = await subject.ProcessAsync(context);
@@ -135,7 +136,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))
@@ -165,7 +166,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
             .ReturnsAsync(FailedRequestResult(OidcConstants.TokenErrors.InvalidGrant, "invalid_username_or_password"));
 
         await subject.ProcessAsync(context);
@@ -186,7 +187,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))
@@ -196,5 +197,39 @@ public class TokenEndpointTests
 
         _telemetry.Verify(t => t.Trace(TelemetryConstants.TraceCategories.Basic, subject, "ProcessAsync"), Times.Once);
         _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Process_WhenDPoPProofPresent_ShouldPassProofIntoTokenRequestValidator()
+    {
+        const string fakeDPoPProof = "ksjfsjfsjfljsfksfs.sdfsdfdsfsdfdsfs.fdsfsdfsdfsdfsfdsd";
+        
+        _telemetry.Setup(t => t.Trace(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>()))
+            .Returns(_trace.Object);
+        
+        var subject = CreateSubject();
+        var context = CreatePostFormContext();
+
+        context.Request.Headers[OidcConstants.AuthenticationSchemes.AuthorizationHeaderDPoP] = fakeDPoPProof;
+
+        _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
+            .ReturnsAsync(ValidClientResult());
+
+        NameValueCollection parametersToValidate = null;
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+            .Callback<NameValueCollection, ClientSecretValidationResult>((parameters, _) => { parametersToValidate = parameters; })
+            .ReturnsAsync(ValidRequestResult());
+
+        _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))
+            .ReturnsAsync(new TokenResponse { AccessToken = "access_token" });
+
+        await subject.ProcessAsync(context);
+
+        _telemetry.Verify(t => t.Trace(TelemetryConstants.TraceCategories.Basic, subject, "ProcessAsync"), Times.Once);
+        _trace.Verify(t => t.Dispose(), Times.Once);
+
+        parametersToValidate[OidcConstants.AuthenticationSchemes.AuthorizationHeaderDPoP].Should().NotBeNull();
+        parametersToValidate[OidcConstants.AuthenticationSchemes.AuthorizationHeaderDPoP].Should().Be(fakeDPoPProof);
     }
 }

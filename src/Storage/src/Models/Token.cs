@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace Open.IdentityServer.Models;
 
@@ -144,18 +145,47 @@ public class Token
     /// The scopes.
     /// </value>
     public IEnumerable<string> Scopes => Claims.Where(x => x.Type == Constants.JwtClaimTypes.Scope).Select(x => x.Value);
-
-
+    
     /// <summary>
     /// Indicates if access tokens require a JTI claim (could be inferred by composition of existing access token)
     /// </summary>
     /// <value>
     /// Boolean true or false value
     /// </value>
-    public bool IncludeJwtId { get; set; } 
-    
+    public bool IncludeJwtId { get; set; }
+
     /// <summary>
-    /// Gets or sets the DPoP key thumbprint the token is bound to, optional
+    /// Gets the validated DPoP proof thumbprint
     /// </summary>
-    public string DPoPKeyThumbprint { get; set; }
+    /// <value>
+    /// If a Confirmation of a DPoP proof, this is the public key thumbprint; if null, no proof is provided
+    /// </value>
+    public string DPoPKeyThumbprint
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(Confirmation))
+            {
+                return null;
+            }
+
+            try
+            {
+                Dictionary<string, string> storeCnf =
+                    JsonSerializer.Deserialize<Dictionary<string, string>>(Confirmation);
+
+                return storeCnf[Constants.JwtClaimTypes.ConfirmationMethods.JwkThumbprint];
+            }
+            // If we are unable to deserialize the content of Confirmation, it was set by something else and a
+            // ValidatedDPoPProofThumbprint has not been set
+            catch (ArgumentException)
+            {
+                return null;
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+    }
 }

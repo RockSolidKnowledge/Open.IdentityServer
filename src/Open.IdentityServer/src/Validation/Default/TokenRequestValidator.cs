@@ -34,6 +34,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
     private readonly IResourceOwnerPasswordValidator _resourceOwnerValidator;
     private readonly IProfileService _profile;
     private readonly IDeviceCodeValidator _deviceCodeValidator;
+    private readonly IDPoPProofValidator _dPoPProofValidator;
     private readonly TimeProvider _clock;
     private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
@@ -55,6 +56,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
     /// <param name="tokenValidator">The token validator.</param>
     /// <param name="refreshTokenService">The refresh token service used to validate refresh tokens.</param>
     /// <param name="events">The events.</param>
+    /// <param name="dPoPProofValidator">DPoP proof validator</param>
     /// <param name="clock">The clock.</param>
     /// <param name="telemetry">the telemetry service</param>
     /// <param name="logger">The logger.</param>
@@ -70,6 +72,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         ITokenValidator tokenValidator,
         IRefreshTokenService refreshTokenService,
         IEventService events,
+        IDPoPProofValidator dPoPProofValidator,
         TimeProvider clock,
         ITelemetryService telemetry,
         ILogger<TokenRequestValidator> logger)
@@ -87,6 +90,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         _resourceStore = resourceStore;
         _tokenValidator = tokenValidator;
         _refreshTokenService = refreshTokenService;
+        _dPoPProofValidator = dPoPProofValidator;
         _events = events;
         _telemetry = telemetry;
     }
