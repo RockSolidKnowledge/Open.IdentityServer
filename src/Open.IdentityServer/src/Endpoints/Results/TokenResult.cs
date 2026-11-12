@@ -32,7 +32,7 @@ internal class TokenResult : IEndpointResult
             access_token = Response.AccessToken,
             refresh_token = Response.RefreshToken,
             expires_in = Response.AccessTokenLifetime,
-            token_type = OidcConstants.TokenResponse.BearerTokenType,
+            token_type = Response.TokenType,
             scope = Response.Scope,
                 
             Custom = Response.Custom

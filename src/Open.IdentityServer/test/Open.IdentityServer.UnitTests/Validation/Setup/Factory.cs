@@ -18,6 +18,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Open.IdentityServer.Test.Utilities;
 
 namespace Open.IdentityServer.UnitTests.Validation.Setup;
@@ -43,6 +44,7 @@ internal static class Factory
         IRefreshTokenService refreshTokenService = null,
         IResourceValidator resourceValidator = null,
         IEventService events = null,
+        IDPoPProofValidator dPoPProofValidator = null,
         ITelemetryService telemetry = null,
         MockLogger<TokenRequestValidator> logger = null)
     {
@@ -123,6 +125,11 @@ internal static class Factory
             telemetry = new NopTelemetryService();
         }
 
+        dPoPProofValidator ??= Mock.Of<IDPoPProofValidator>();
+        Mock.Get(dPoPProofValidator)
+            .Setup(x => x.ValidateProof(It.IsAny<Client>()))
+            .ReturnsAsync(DPoPProofValidationResult.NotPresent);
+
         return new TokenRequestValidator(
             options,
             authorizationCodeStore,
@@ -136,6 +143,7 @@ internal static class Factory
             tokenValidator,
             refreshTokenService,
             events,
+            dPoPProofValidator,
             new StubClock(), 
             telemetry,
             logger ?? TestLogger.Create<TokenRequestValidator>());

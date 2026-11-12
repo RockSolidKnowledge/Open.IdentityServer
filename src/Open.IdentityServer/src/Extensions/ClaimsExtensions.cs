@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Open.IdentityServer.Stores.Serialization;
 
 namespace Open.IdentityServer.Extensions;
@@ -99,5 +100,47 @@ internal static class ClaimsExtensions
     public static Claim[] ToClaims(this ClaimLite[] claims)
     {
         return claims.Select(x => new Claim(x.Type, x.Value, x.ValueType, x.Issuer)).ToArray();
+    }
+
+    public static string[] GetDPoPThumbprintConfirmation(this IEnumerable<Claim> claims)
+    {
+        return claims
+            .Where(x => x.Type == JwtClaimTypes.Confirmation)?
+            .Select(x => x.Value.DeserializeDPoPConfirmation())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToArray();
+    }
+    
+    public static string DeserializeDPoPConfirmation(this string confirmationClaimValue, ILogger logger = null)
+    {
+        if (string.IsNullOrWhiteSpace(confirmationClaimValue))
+        {
+            return null;
+        }
+
+        try
+        {
+            Dictionary<string, JsonElement> storeCnf =
+                JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(confirmationClaimValue);
+
+            if (storeCnf.TryGetValue(JwtClaimTypes.ConfirmationMethods.JwkThumbprint, out var jwk))
+            {
+                return jwk.GetString();
+            }
+            
+            return null;
+        }
+        // If we are unable to deserialize the content of Confirmation, it was set by something else and a
+        // ValidatedDPoPProofThumbprint has not been set
+        catch (ArgumentNullException)
+        {
+            logger?.LogDebug("DPoP confirmation deserialize failed value null");
+            return null;
+        }
+        catch (JsonException)
+        {
+            logger?.LogDebug("DPoP confirmation deserialize failed, invalid JSON format");
+            return null;
+        }
     }
 }

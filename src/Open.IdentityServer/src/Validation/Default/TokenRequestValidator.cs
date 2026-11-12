@@ -34,6 +34,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
     private readonly IResourceOwnerPasswordValidator _resourceOwnerValidator;
     private readonly IProfileService _profile;
     private readonly IDeviceCodeValidator _deviceCodeValidator;
+    private readonly IDPoPProofValidator _dPoPProofValidator;
     private readonly TimeProvider _clock;
     private readonly ITelemetryService _telemetry;
     private readonly ILogger _logger;
@@ -55,6 +56,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
     /// <param name="tokenValidator">The token validator.</param>
     /// <param name="refreshTokenService">The refresh token service used to validate refresh tokens.</param>
     /// <param name="events">The events.</param>
+    /// <param name="dPoPProofValidator">DPoP proof validator</param>
     /// <param name="clock">The clock.</param>
     /// <param name="telemetry">the telemetry service</param>
     /// <param name="logger">The logger.</param>
@@ -70,6 +72,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         ITokenValidator tokenValidator,
         IRefreshTokenService refreshTokenService,
         IEventService events,
+        IDPoPProofValidator dPoPProofValidator,
         TimeProvider clock,
         ITelemetryService telemetry,
         ILogger<TokenRequestValidator> logger)
@@ -87,6 +90,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         _resourceStore = resourceStore;
         _tokenValidator = tokenValidator;
         _refreshTokenService = refreshTokenService;
+        _dPoPProofValidator = dPoPProofValidator;
         _events = events;
         _telemetry = telemetry;
     }
@@ -106,7 +110,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         ClientSecretValidationResult clientValidationResult)
     {
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
-        
+
         _logger.LogDebug("Start token request validation");
 
         _validatedRequest = new ValidatedTokenRequest
@@ -135,6 +139,17 @@ internal class TokenRequestValidator : ITokenRequestValidator
 
             return Invalid(OidcConstants.TokenErrors.InvalidClient);
         }
+
+        /////////////////////////////////////////////
+        // check DPoP proof
+        /////////////////////////////////////////////
+        DPoPProofValidationResult result = await _dPoPProofValidator.ValidateProof(_validatedRequest.Client);
+        if (!result.IsValid())
+        {
+            LogError("DPoP proof is invalid");
+            return Invalid(result.ValidationError);
+        }
+        _validatedRequest.ValidatedDPoPProofThumbprint = result.Thumbprint;
 
         /////////////////////////////////////////////
         // check grant type
@@ -405,10 +420,46 @@ internal class TokenRequestValidator : ITokenRequestValidator
                 new { subjectId = _validatedRequest.AuthorizationCode.Subject.GetSubjectId() });
             return Invalid(OidcConstants.TokenErrors.InvalidGrant);
         }
-
+        
+        /////////////////////////////////////////////
+        // ensure bound DPoP thumbprint matches if present
+        /////////////////////////////////////////////
+        if (!ValidateBoundDPoPProof(_validatedRequest.AuthorizationCode.DPoPKeyThumbprint))
+        {
+            return Invalid(OidcConstants.TokenErrors.InvalidDPoPProof);
+        }
+        
         _logger.LogDebug("Validation of authorization code token request success");
 
         return Valid();
+    }
+
+    private bool ValidateBoundDPoPProof(string boundThumbprint)
+    {
+        bool isBound = !string.IsNullOrWhiteSpace(boundThumbprint);
+        bool proofPresent = !string.IsNullOrWhiteSpace(_validatedRequest.ValidatedDPoPProofThumbprint);
+        if (isBound)
+        {
+            if (!proofPresent)
+            {
+                LogError("bound and requires DPoP proof", new { _validatedRequest.GrantType });
+                return false;
+            }
+
+            if (!_validatedRequest.ValidatedDPoPProofThumbprint.Equals(boundThumbprint, StringComparison.Ordinal))
+            {
+                LogError("bound another public key", new { _validatedRequest.GrantType });
+                return false;
+            }
+        }
+
+        // if (_validatedRequest.GrantType == OidcConstants.GrantTypes.RefreshToken && !isBound && proofPresent)
+        // {
+        //     LogError("bound another public key", new { _validatedRequest.GrantType });
+        //     return false;
+        // }
+
+        return true;
     }
 
     private async Task<TokenRequestValidationResult> ValidateClientCredentialsRequestAsync(
@@ -629,6 +680,14 @@ internal class TokenRequestValidator : ITokenRequestValidator
                 LogError("refresh token not authorized for resource");
                 return Invalid(OidcConstants.TokenErrors.InvalidTarget);
             }
+        }
+        
+        /////////////////////////////////////////////
+        // ensure bound DPoP thumbprint matches if present
+        /////////////////////////////////////////////
+        if (!ValidateBoundDPoPProof(result.RefreshToken.DPoPKeyThumbprint))
+        {
+            return Invalid(OidcConstants.TokenErrors.InvalidDPoPProof);
         }
 
         _validatedRequest.RefreshToken = result.RefreshToken;

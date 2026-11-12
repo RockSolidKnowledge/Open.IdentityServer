@@ -311,7 +311,6 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddJwtBearerClientAuthentication(this IIdentityServerBuilder builder)
     {
-        builder.Services.TryAddTransient<IReplayCache, DefaultReplayCache>();
         builder.AddSecretParser<JwtBearerClientAssertionSecretParser>();
         builder.AddSecretValidator<PrivateKeyJwtSecretValidator>();
 

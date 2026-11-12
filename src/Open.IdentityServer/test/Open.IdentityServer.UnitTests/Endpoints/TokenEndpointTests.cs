@@ -1,6 +1,7 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -82,7 +83,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))
@@ -104,7 +105,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
             .ReturnsAsync(FailedRequestResult(OidcConstants.TokenErrors.InvalidGrant, "invalid_username_or_password"));
 
         var result = await subject.ProcessAsync(context);
@@ -135,7 +136,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))
@@ -165,7 +166,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
             .ReturnsAsync(FailedRequestResult(OidcConstants.TokenErrors.InvalidGrant, "invalid_username_or_password"));
 
         await subject.ProcessAsync(context);
@@ -186,7 +187,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))

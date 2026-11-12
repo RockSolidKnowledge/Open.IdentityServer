@@ -18,7 +18,7 @@ namespace Open.IdentityServer.IntegrationTests.Endpoints;
 public abstract class DPoPTests
 {
     protected readonly IdentityServerPipeline mockPipeline = new();
-    protected readonly FakeTimeProvider fakeTimeProvider = new();
+    protected readonly TimeProvider fakeTimeProvider = TimeProvider.System;
 
     protected IAuthorizationCodeStore authorizationCodeStore;
     protected IRefreshTokenStore refreshTokenStore;
@@ -26,7 +26,8 @@ public abstract class DPoPTests
 
     protected readonly DPoPProofGenerator dPoPProofGenerator;
 
-    protected readonly DateTimeOffset fakeNow = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    // protected readonly DateTimeOffset fakeNow = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    protected DateTimeOffset fakeNow => fakeTimeProvider.GetUtcNow();
 
     protected string client_id = "client";
     protected string client_secret = "secret";
@@ -60,6 +61,8 @@ public abstract class DPoPTests
 
     protected DPoPTests()
     {
+        // fakeTimeProvider.SetUtcNow(fakeNow);
+        
         dPoPProofGenerator = new DPoPProofGenerator(fakeTimeProvider);
         
         mockPipeline.Clients.Add(DPoPClient);

@@ -211,7 +211,7 @@ public class TokenEndpointDPoPTests: DPoPTests
         var keyThumb = DPoPProofGenerator.Thumprint(key);
         var code = await GetAuthorizationCodeAsync("openid api");
 
-        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var response = await PerformCodeFlowTokenRequest(code, proof);
         
@@ -256,7 +256,7 @@ public class TokenEndpointDPoPTests: DPoPTests
         
         var code = await GetAuthorizationCodeAsync("openid api", keyThumb);
 
-        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var response = await PerformCodeFlowTokenRequest(code, proof);
         
@@ -281,7 +281,7 @@ public class TokenEndpointDPoPTests: DPoPTests
         
         var code = await GetAuthorizationCodeAsync("openid api", keyThumb);
 
-        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var response = await PerformCodeFlowTokenRequest(code, proof);
         
@@ -307,7 +307,7 @@ public class TokenEndpointDPoPTests: DPoPTests
         
         var code = await GetAuthorizationCodeAsync("openid api", keyThumb);
 
-        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var response = await PerformCodeFlowTokenRequest(code, proof);
         
@@ -331,7 +331,7 @@ public class TokenEndpointDPoPTests: DPoPTests
         
         var code = await GetAuthorizationCodeAsync("openid api", keyThumb);
 
-        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var response = await PerformCodeFlowTokenRequest(code, proof);
         
@@ -347,7 +347,7 @@ public class TokenEndpointDPoPTests: DPoPTests
 
         serverNonce.Should().NotBeNull();
         
-        var proofWithNonce = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), nonce: serverNonce, key: key);
+        var proofWithNonce = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), nonce: serverNonce, signingKey: key);
         
         var nonceResponse = await PerformCodeFlowTokenRequest(code, proofWithNonce);
         
@@ -372,7 +372,7 @@ public class TokenEndpointDPoPTests: DPoPTests
         
         var code = await GetAuthorizationCodeAsync("offline_access openid api", keyThumb);
 
-        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var tokenResponse = await PerformCodeFlowTokenRequest(code, proof);
         var tokenJson = await tokenResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -394,7 +394,7 @@ public class TokenEndpointDPoPTests: DPoPTests
         
         var code = await GetAuthorizationCodeAsync("offline_access openid api", keyThumb);
 
-        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var tokenResponse = await PerformCodeFlowTokenRequest(code, proof);
         var tokenJson = await tokenResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -412,6 +412,36 @@ public class TokenEndpointDPoPTests: DPoPTests
 
     [Fact]
     [Trait("Category", Category)]
+    public async Task RefreshToken_WhenUnBound_AndProofPresent_ShouldReturnBoundDPoPTokens()
+    {
+        ConfigureClient();
+        
+        var key = DPoPProofGenerator.CreateDPoPKey();
+        var keyThumb = DPoPProofGenerator.Thumprint(key);
+        
+        var code = await GetAuthorizationCodeAsync("offline_access openid api", boundJkt: null);
+        
+        var tokenResponse = await PerformCodeFlowTokenRequest(code, dpopProof: null);
+        var tokenJson = await tokenResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var tokenResult = JsonElement.Parse(tokenJson);
+        tokenResult.TryGetProperty("refresh_token", out var refreshToken).Should().BeTrue();
+        
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
+        
+        var refreshResponse = await PerformRefreshTokenExchangeRequest(refreshToken.ToString(), dpopProof: proof);
+        
+        var json = await refreshResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var result = JsonElement.Parse(json);
+        
+        result.TryGetProperty("error", out _).Should().BeFalse();
+        result.TryGetString("token_type").Should().Be("DPoP");
+        result.TryGetString("access_token").Should().NotBeNullOrEmpty()
+            .And.BeAccessToken()
+            .WithClaim("cnf", $"{{\"jkt\":\"{keyThumb}\"}}");
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
     public async Task RefreshToken_WhenBound_AndProofDifferentPublicKey_ShouldReturnInvalidDPoPProof()
     {
         ConfigureClient();
@@ -421,7 +451,7 @@ public class TokenEndpointDPoPTests: DPoPTests
         
         var code = await GetAuthorizationCodeAsync("offline_access openid api", keyThumb);
 
-        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var tokenResponse = await PerformCodeFlowTokenRequest(code, proof);
         var tokenJson = await tokenResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -429,7 +459,7 @@ public class TokenEndpointDPoPTests: DPoPTests
         tokenResult.TryGetProperty("refresh_token", out var refreshToken).Should().BeTrue();
 
         var otherKey = DPoPProofGenerator.CreateDPoPKey();
-        var refreshProof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: otherKey);
+        var refreshProof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: otherKey);
         
         var refreshResponse = await PerformRefreshTokenExchangeRequest(refreshToken.ToString(), refreshProof);
         
@@ -451,14 +481,14 @@ public class TokenEndpointDPoPTests: DPoPTests
         
         var code = await GetAuthorizationCodeAsync("offline_access openid api", keyThumb);
 
-        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var tokenResponse = await PerformCodeFlowTokenRequest(code, proof);
         var tokenJson = await tokenResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var tokenResult = JsonElement.Parse(tokenJson);
         tokenResult.TryGetProperty("refresh_token", out var refreshToken).Should().BeTrue();
 
-        var refreshProof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var refreshProof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var refreshResponse = await PerformRefreshTokenExchangeRequest(refreshToken.ToString(), refreshProof);
         
@@ -487,7 +517,7 @@ public class TokenEndpointDPoPTests: DPoPTests
 
         var response = await PerformTokenRequest(data);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var result = JsonElement.Parse(json);
         
@@ -504,7 +534,7 @@ public class TokenEndpointDPoPTests: DPoPTests
         var key = DPoPProofGenerator.CreateDPoPKey();
         var keyThumb = DPoPProofGenerator.Thumprint(key);
         
-        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), key: key);
+        var proof = dPoPProofGenerator.CreateDPoPProof(IdentityServerPipeline.TokenEndpoint, HttpMethod.Post.Method, iat: fakeNow.AddSeconds(10), signingKey: key);
         
         var data = new Dictionary<string, string>
         {

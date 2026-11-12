@@ -177,4 +177,9 @@ public static class IdentityServerConstants
         public const string JwtRequestUriHttpClient = "IdentityServer:JwtRequestUriClient";
         public const string BackChannelLogoutHttpClient = "IdentityServer:BackChannelLogoutClient";
     }
+    
+    public static class ReplayCachePurposes
+    {
+        public const string DPoPJti = "DPoP.Jti.Replay.Cache";
+    }
 }

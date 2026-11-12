@@ -96,6 +96,8 @@ public class TokenResponseGenerator : ITokenResponseGenerator
         using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
         trace?.AddTag(TelemetryConstants.TagConstants.GrantType, request.ValidatedRequest.GrantType);
         
+        
+        
         switch (request.ValidatedRequest.GrantType)
         {
             case OidcConstants.GrantTypes.ClientCredentials:
@@ -149,24 +151,11 @@ public class TokenResponseGenerator : ITokenResponseGenerator
         Logger.LogTrace("Creating response for authorization code request");
 
         //////////////////////////
-        // access token
+        // access token and/or refresh token
         /////////////////////////
         var (accessToken, refreshToken) = await CreateAccessTokenAsync(request.ValidatedRequest);
-        var response = new TokenResponse
-        {
-            AccessToken = accessToken,
-            AccessTokenLifetime = request.ValidatedRequest.AccessTokenLifetime,
-            Custom = request.CustomResponse,
-            Scope = request.ValidatedRequest.ValidatedResources.RawScopeValues.ToSpaceSeparatedString()
-        };
-
-        //////////////////////////
-        // refresh token
-        /////////////////////////
-        if (refreshToken.IsPresent())
-        {
-            response.RefreshToken = refreshToken;
-        }
+        var response = GenerateTokenResponse(request, accessToken, refreshToken);
+        response.Scope = request.ValidatedRequest.ValidatedResources.RawScopeValues.ToSpaceSeparatedString();
 
         //////////////////////////
         // id token
@@ -256,16 +245,10 @@ public class TokenResponseGenerator : ITokenResponseGenerator
         var handle = await RefreshTokenService.UpdateRefreshTokenAsync(request.ValidatedRequest.RefreshTokenHandle,
             request.ValidatedRequest.RefreshToken, request.ValidatedRequest.Client);
 
-        return new TokenResponse
-        {
-            IdentityToken =
-                await CreateIdTokenFromRefreshTokenRequestAsync(request.ValidatedRequest, accessTokenString),
-            AccessToken = accessTokenString,
-            AccessTokenLifetime = request.ValidatedRequest.AccessTokenLifetime,
-            RefreshToken = handle,
-            Custom = request.CustomResponse,
-            Scope = validatedResources.RawScopeValues.ToSpaceSeparatedString()
-        };
+        var response = GenerateTokenResponse(request, accessTokenString, handle);
+        response.IdentityToken = await CreateIdTokenFromRefreshTokenRequestAsync(request.ValidatedRequest, accessTokenString);
+        response.Scope = validatedResources.RawScopeValues.ToSpaceSeparatedString();
+        return response;
     }
 
     /// <summary>
@@ -278,24 +261,11 @@ public class TokenResponseGenerator : ITokenResponseGenerator
         Logger.LogTrace("Creating response for device code request");
 
         //////////////////////////
-        // access token
+        // access token and/or refresh token
         /////////////////////////
         var (accessToken, refreshToken) = await CreateAccessTokenAsync(request.ValidatedRequest);
-        var response = new TokenResponse
-        {
-            AccessToken = accessToken,
-            AccessTokenLifetime = request.ValidatedRequest.AccessTokenLifetime,
-            Custom = request.CustomResponse,
-            Scope = request.ValidatedRequest.DeviceCode.AuthorizedScopes.ToSpaceSeparatedString()
-        };
-
-        //////////////////////////
-        // refresh token
-        /////////////////////////
-        if (refreshToken.IsPresent())
-        {
-            response.RefreshToken = refreshToken;
-        }
+        var response = GenerateTokenResponse(request, accessToken, refreshToken);
+        response.Scope = request.ValidatedRequest.DeviceCode.AuthorizedScopes.ToSpaceSeparatedString();
 
         //////////////////////////
         // id token
@@ -352,13 +322,23 @@ public class TokenResponseGenerator : ITokenResponseGenerator
     /// <returns>A task that resolves to a <see cref="TokenResponse"/> containing the issued access and optional refresh token.</returns>
     protected virtual async Task<TokenResponse> ProcessTokenRequestAsync(TokenRequestValidationResult validationResult)
     {
-        (var accessToken, var refreshToken) = await CreateAccessTokenAsync(validationResult.ValidatedRequest);
+        (string accessToken, string refreshToken) = await CreateAccessTokenAsync(validationResult.ValidatedRequest);
+
+        var response = GenerateTokenResponse(validationResult, accessToken, refreshToken);
+        response.Scope = validationResult.ValidatedRequest.ValidatedResources.RawScopeValues.ToSpaceSeparatedString();
+        return response;
+    }
+
+    private static TokenResponse GenerateTokenResponse(TokenRequestValidationResult validationResult, string accessToken, string refreshToken)
+    {
         var response = new TokenResponse
         {
             AccessToken = accessToken,
             AccessTokenLifetime = validationResult.ValidatedRequest.AccessTokenLifetime,
             Custom = validationResult.CustomResponse,
-            Scope = validationResult.ValidatedRequest.ValidatedResources.RawScopeValues.ToSpaceSeparatedString()
+            TokenType = string.IsNullOrWhiteSpace(validationResult.ValidatedRequest.ValidatedDPoPProofThumbprint)
+                ? OidcConstants.TokenResponse.BearerTokenType
+                : OidcConstants.TokenResponse.DPoPTokenType
         };
 
         if (refreshToken.IsPresent())
@@ -467,6 +447,7 @@ public class TokenResponseGenerator : ITokenResponseGenerator
                 AuthorisedScopes = preDownscopeScopes,
                 AuthorisedResourceIndicators = request.AuthorizationCode?.RequestedResourceIndicators?.ToList(),
                 RequestedResourceIndicator = request.RequestedResourceIndicator,
+                BoundDPoPThumbprint = request.ValidatedDPoPProofThumbprint,
             });
             return (accessToken, refreshToken);
         }

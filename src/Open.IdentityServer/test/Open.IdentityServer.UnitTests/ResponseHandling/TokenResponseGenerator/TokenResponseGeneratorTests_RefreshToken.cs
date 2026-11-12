@@ -48,6 +48,7 @@ public class TokenResponseGeneratorTests_RefreshToken : TokenResponseGeneratorTe
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.AccessToken.Should().Be("new_access_token");
         response.RefreshToken.Should().Be("new_refresh");
 
@@ -109,6 +110,7 @@ public class TokenResponseGeneratorTests_RefreshToken : TokenResponseGeneratorTe
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.AccessToken.Should().Be("reused_token");
         response.AccessTokenLifetime.Should().Be(2500);
 

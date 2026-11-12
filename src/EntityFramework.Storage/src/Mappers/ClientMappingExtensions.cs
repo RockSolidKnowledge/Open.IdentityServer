@@ -91,6 +91,9 @@ public static class ClientMappingExtensions
                 PushedAuthorizationLifetime = clientEntity.PushedAuthorizationLifetime,
                 Properties = clientEntity.Properties.ToModelDictionary(),
                 PollingInterval = clientEntity.PollingInterval,
+                RequireDPoP = clientEntity.RequireDPoP,
+                DPoPClockSkew = clientEntity.DPoPClockSkew,
+                DPoPValidationMode = clientEntity.DPoPValidationMode,
             };
         }
     }
@@ -198,6 +201,9 @@ public static class ClientMappingExtensions
                 RequirePushedAuthorization = clientModel.RequirePushedAuthorization,
                 Properties = clientModel.Properties.ToEntityList<Entities.ClientProperty>(),
                 PollingInterval = clientModel.PollingInterval,
+                RequireDPoP = clientModel.RequireDPoP,
+                DPoPClockSkew = clientModel.DPoPClockSkew,
+                DPoPValidationMode = clientModel.DPoPValidationMode,
             };
         }
     }

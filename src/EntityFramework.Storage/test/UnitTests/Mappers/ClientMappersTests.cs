@@ -134,10 +134,7 @@ public class ClientMappersTests
                 // Compatibility properties intentionally not mapped
                 nameof(Entities.Client.CibaLifetime),
                 nameof(Entities.Client.CoordinateLifetimeWithUserSession),
-                nameof(Entities.Client.InitiateLoginUri),
-                nameof(Entities.Client.DPoPClockSkew),
-                nameof(Entities.Client.DPoPValidationMode),
-                nameof(Entities.Client.RequireDPoP)
+                nameof(Entities.Client.InitiateLoginUri)
                 )
             .Verify(model => model.ToEntity());
     }
@@ -150,12 +147,7 @@ public class ClientMappersTests
                 // Compatibility properties intentionally not mapped
                 nameof(Client.CibaLifetime),
                 nameof(Client.CoordinateLifetimeWithUserSession),
-                nameof(Client.InitiateLoginUri),
-                nameof(Client.DPoPClockSkew),
-                nameof(Client.DPoPValidationMode),
-                nameof(Client.RequireDPoP),
-                nameof(Client.PushedAuthorizationLifetime),
-                nameof(Client.RequirePushedAuthorization))
+                nameof(Client.InitiateLoginUri))
             .Verify(entity => entity.ToModel());
     }
 }

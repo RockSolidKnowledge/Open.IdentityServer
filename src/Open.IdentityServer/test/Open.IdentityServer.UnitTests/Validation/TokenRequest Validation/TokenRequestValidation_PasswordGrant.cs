@@ -14,9 +14,9 @@ using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer.Validation;
 using Xunit;
 
-namespace Open.IdentityServer.UnitTests.Validation.Default;
+namespace Open.IdentityServer.UnitTests.Validation.TokenRequest_Validation;
 
-public class TokenRequestValidatorTests
+public class TokenRequestValidation_PasswordGrant
 {
     private static NameValueCollection PasswordGrantParameters(
         string userName = "bob", string password = "bob", string scope = "resource") =>

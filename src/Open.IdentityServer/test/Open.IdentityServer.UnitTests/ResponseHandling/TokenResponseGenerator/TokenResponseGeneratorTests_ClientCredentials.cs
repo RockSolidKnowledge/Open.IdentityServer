@@ -32,6 +32,7 @@ public class TokenResponseGeneratorTests_ClientCredentials : TokenResponseGenera
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.AccessToken.Should().Be("cc_token");
         response.AccessTokenLifetime.Should().Be(3600);
         response.RefreshToken.Should().BeNull();
@@ -64,6 +65,7 @@ public class TokenResponseGeneratorTests_ClientCredentials : TokenResponseGenera
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.AccessToken.Should().Be("cc_token");
         response.AccessTokenLifetime.Should().Be(3600);
         response.RefreshToken.Should().BeNull();
@@ -104,6 +106,7 @@ public class TokenResponseGeneratorTests_ClientCredentials : TokenResponseGenera
         var sut = CreateSut();
         var response = await sut.ProcessAsync(new TokenRequestValidationResult(request));
 
+        response.TokenType.Should().BeEquivalentTo(OidcConstants.TokenResponse.BearerTokenType);
         response.AccessToken.Should().Be("cc_token");
         response.RefreshToken.Should().Be("cc_refresh");
     }
