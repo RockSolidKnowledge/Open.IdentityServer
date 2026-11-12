@@ -274,6 +274,7 @@ public class AuthorizeResponseGenerator : IAuthorizeResponseGenerator
             WasConsentShown = request.WasConsentShown,
 
             RequestedResourceIndicators = request.RequestedResourceIndicators,
+            DPoPKeyThumbprint = request.DPoPThumbprint,
         };
 
         return code;

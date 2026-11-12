@@ -2,20 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Specialized;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Moq;
 using Open.IdentityServer.Models;
-using Open.IdentityServer.Validation;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.ResponseHandling.AuthorizeResponseGenerator;
 
 public class AuthorizeResponseGeneratorTests_Code : AuthorizeResponseGeneratorTests
 {
+    private const string Category = "AuthorizeResponse Generator - Code";
+    
     [Fact]
+    [Trait("Category", Category)]
     public async Task create_response_should_initiate_telemetry_trace()
     {
         Mock.Get(telemetry)
@@ -36,6 +36,7 @@ public class AuthorizeResponseGeneratorTests_Code : AuthorizeResponseGeneratorTe
     }
     
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_CodeFlow_ReturnsCodeResponse()
     {
         var request = CreateValidatedAuthorizeRequest(GrantType.AuthorizationCode);
@@ -54,6 +55,7 @@ public class AuthorizeResponseGeneratorTests_Code : AuthorizeResponseGeneratorTe
     }
 
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_CodeFlow_StoresAuthorizationCode()
     {
         var request = CreateValidatedAuthorizeRequest(GrantType.AuthorizationCode);
@@ -74,6 +76,7 @@ public class AuthorizeResponseGeneratorTests_Code : AuthorizeResponseGeneratorTe
     }
 
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_CodeFlow_WithRequestResourceIndicators_StoresAuthorizationCode_ContainingResourceIndicators()
     {
         var request = CreateValidatedAuthorizeRequest(GrantType.AuthorizationCode);
@@ -99,6 +102,7 @@ public class AuthorizeResponseGeneratorTests_Code : AuthorizeResponseGeneratorTe
     }
 
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_UnsupportedGrantType_Throws()
     {
         var request = CreateValidatedAuthorizeRequest("unsupported");
@@ -108,22 +112,4 @@ public class AuthorizeResponseGeneratorTests_Code : AuthorizeResponseGeneratorTe
         var act = () => sut.CreateResponseAsync(request);
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
-
-    private static ValidatedAuthorizeRequest CreateValidatedAuthorizeRequest(string grantType) => new()
-    {
-        GrantType = grantType,
-        Client = new Client
-        {
-            ClientId = "client",
-            AuthorizationCodeLifetime = 300,
-            AllowedIdentityTokenSigningAlgorithms = []
-        },
-        Subject = new ClaimsPrincipal(new ClaimsIdentity()),
-        ValidatedResources = new ResourceValidationResult(),
-        SessionId = "session",
-        RedirectUri = "https://example.com/callback",
-        CodeChallenge = "challenge",
-        CodeChallengeMethod = "S256",
-        Raw = new NameValueCollection()
-    };
 }

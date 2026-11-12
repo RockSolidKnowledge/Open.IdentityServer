@@ -12,7 +12,6 @@ using System;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Open.IdentityServer.Logging.Models;
 using Open.IdentityServer.Utility;
@@ -125,7 +124,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
             return scopeResult;
         }
 
-        // nonce, prompt, acr_values, login_hint etc.
+        // nonce, prompt, acr_values, login_hint, dpop_jkt etc.
         var optionalResult = await ValidateOptionalParametersAsync(request);
         if (optionalResult.IsError)
         {
@@ -950,6 +949,21 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
             }
         }
 
+        //////////////////////////////////////////////////////////
+        // check dpop key binding
+        //////////////////////////////////////////////////////////
+        var thumbprint = request.Raw.Get(OidcConstants.AuthorizeRequest.DPoPKeyThumbprint);
+        if (thumbprint.IsPresent() && request.ResponseType.Contains(OidcConstants.ResponseTypes.Code))
+        {
+            if (thumbprint.Length > _options.InputLengthRestrictions.DPoPKeyThumbprint)
+            {
+                LogError("DPoP Thumbprint values too long", request);
+                return Invalid(request, description: $"Invalid {OidcConstants.AuthorizeRequest.DPoPKeyThumbprint}");
+            }
+        
+            request.DPoPThumbprint = thumbprint;
+        }
+        
         return Valid(request);
     }
 

@@ -217,8 +217,11 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
     /// </summary>
     public string PushedAuthorizationUri { get; set; } = null;
 
-   
-
+    /// <summary>
+    /// The value provided in 'dpop_jkt'
+    /// </summary>
+    public string DPoPThumbprint { get; set; }
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="ValidatedAuthorizeRequest"/> class.
     /// </summary>

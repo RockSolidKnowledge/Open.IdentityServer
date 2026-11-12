@@ -34,9 +34,10 @@ public class AuthorizeDPoPTests: DPoPTests
             responseMode: "query",
             scope: "openid api",
             redirectUri: "https://server/cb",
-            extra: new Parameters([
+            extra:
+            [
                 new KeyValuePair<string, string>("dpop_jkt", ValidJkt)
-            ]));
+            ]);
 
         var response = await mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
@@ -68,9 +69,10 @@ public class AuthorizeDPoPTests: DPoPTests
             scope: "openid api",
             nonce: "123_nonce",
             redirectUri: "https://server/cb",
-            extra: new Parameters([
+            extra:
+            [
                 new KeyValuePair<string, string>("dpop_jkt", ValidJkt)
-            ]));
+            ]);
 
         var response = await mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
@@ -102,9 +104,10 @@ public class AuthorizeDPoPTests: DPoPTests
             scope: "openid api",
             redirectUri: "oob://implicit/cb",
             nonce: "123_nonce",
-            extra: new Parameters([
+            extra:
+            [
                 new KeyValuePair<string, string>("dpop_jkt", ValidJkt)
-            ]));
+            ]);
 
         var response = await mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
@@ -114,6 +117,7 @@ public class AuthorizeDPoPTests: DPoPTests
 
         var fragments = response.Headers.Location.Fragment.ParseFragment();
 
+        fragments.Should().ContainKey("token_type").WhoseValue.Should().Be("Bearer");
         fragments.Should().ContainKey("access_token");
     }
 }

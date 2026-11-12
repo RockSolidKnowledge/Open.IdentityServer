@@ -2,11 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Specialized;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
+using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
@@ -27,4 +30,55 @@ public abstract class AuthorizeResponseGeneratorTests
     
     protected Open.IdentityServer.ResponseHandling.AuthorizeResponseGenerator CreateSut() => 
         new(clock, tokenService, keyMaterialService, authorizationCodeStore, logger, events, telemetry);
+    
+    protected static ValidatedAuthorizeRequest CreateValidatedAuthorizeRequest(string grantType) => new()
+    {
+        GrantType = grantType,
+        Client = new Client
+        {
+            ClientId = "client",
+            AuthorizationCodeLifetime = 300,
+            AllowedIdentityTokenSigningAlgorithms = []
+        },
+        Subject = new ClaimsPrincipal(new ClaimsIdentity()),
+        ValidatedResources = new ResourceValidationResult(),
+        SessionId = "session",
+        RedirectUri = "https://example.com/callback",
+        CodeChallenge = "challenge",
+        CodeChallengeMethod = "S256",
+        Raw = new NameValueCollection()
+    };
+
+    protected static ValidatedAuthorizeRequest CreateHybridRequest(string responseType) => new()
+    {
+        GrantType = GrantType.Hybrid,
+        ResponseType = responseType,
+        Client = new Client
+        {
+            ClientId = "client",
+            AuthorizationCodeLifetime = 300,
+            AllowedIdentityTokenSigningAlgorithms = []
+        },
+        Subject = new ClaimsPrincipal(new ClaimsIdentity()),
+        ValidatedResources = new ResourceValidationResult(),
+        SessionId = "session",
+        RedirectUri = "https://example.com/callback",
+        CodeChallenge = "challenge",
+        CodeChallengeMethod = "S256",
+        Raw = new NameValueCollection()
+    };
+
+    protected static ValidatedAuthorizeRequest CreateImplicitRequest(string responseType) => new()
+    {
+        GrantType = GrantType.Implicit,
+        ResponseType = responseType,
+        Client = new Client
+        {
+            ClientId = "client",
+            AllowedIdentityTokenSigningAlgorithms = []
+        },
+        Subject = new ClaimsPrincipal(new ClaimsIdentity()),
+        ValidatedResources = new ResourceValidationResult(),
+        Raw = new NameValueCollection()
+    };
 }

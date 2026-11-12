@@ -15,7 +15,10 @@ namespace Open.IdentityServer.UnitTests.ResponseHandling.AuthorizeResponseGenera
 
 public class AuthorizeResponseGeneratorTests_Hybrid : AuthorizeResponseGeneratorTests
 {
+    private const string Category = "AuthorizeResponse Generator - Hybrid";
+    
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_HybridFlow_WithCodeAndIdToken_ReturnsCodeAndIdToken()
     {
         var request = CreateHybridRequest($"{OidcConstants.ResponseTypes.Code} {OidcConstants.ResponseTypes.IdToken}");
@@ -40,6 +43,7 @@ public class AuthorizeResponseGeneratorTests_Hybrid : AuthorizeResponseGenerator
     }
 
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_HybridFlow_WithCodeAndToken_ReturnsCodeAndAccessToken()
     {
         var request = CreateHybridRequest($"{OidcConstants.ResponseTypes.Code} {OidcConstants.ResponseTypes.Token}");
@@ -65,6 +69,7 @@ public class AuthorizeResponseGeneratorTests_Hybrid : AuthorizeResponseGenerator
     }
 
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_HybridFlow_StoresAuthorizationCode()
     {
         var request = CreateHybridRequest($"{OidcConstants.ResponseTypes.Code} {OidcConstants.ResponseTypes.IdToken}");
@@ -91,6 +96,7 @@ public class AuthorizeResponseGeneratorTests_Hybrid : AuthorizeResponseGenerator
     }
 
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_HybridFlow_WithRequestResourceIndicators_StoresAuthorizationCode_ContainingResourceIndicators()
     {
         var request = CreateHybridRequest($"{OidcConstants.ResponseTypes.Code} {OidcConstants.ResponseTypes.IdToken}");
@@ -120,23 +126,4 @@ public class AuthorizeResponseGeneratorTests_Hybrid : AuthorizeResponseGenerator
                 c.RequestedResourceIndicators == request.RequestedResourceIndicators
             )), Times.Once);
     }
-
-    private static ValidatedAuthorizeRequest CreateHybridRequest(string responseType) => new()
-    {
-        GrantType = GrantType.Hybrid,
-        ResponseType = responseType,
-        Client = new Client
-        {
-            ClientId = "client",
-            AuthorizationCodeLifetime = 300,
-            AllowedIdentityTokenSigningAlgorithms = []
-        },
-        Subject = new ClaimsPrincipal(new ClaimsIdentity()),
-        ValidatedResources = new ResourceValidationResult(),
-        SessionId = "session",
-        RedirectUri = "https://example.com/callback",
-        CodeChallenge = "challenge",
-        CodeChallengeMethod = "S256",
-        Raw = new NameValueCollection()
-    };
 }

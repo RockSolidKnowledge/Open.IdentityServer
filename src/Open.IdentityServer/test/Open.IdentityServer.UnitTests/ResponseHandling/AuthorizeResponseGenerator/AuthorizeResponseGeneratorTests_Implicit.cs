@@ -15,7 +15,10 @@ namespace Open.IdentityServer.UnitTests.ResponseHandling.AuthorizeResponseGenera
 
 public class AuthorizeResponseGeneratorTests_Implicit : AuthorizeResponseGeneratorTests
 {
+    private const string Category = "AuthorizeResponse Generator - Implicit";
+    
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_ImplicitFlow_WithTokenResponseType_ReturnsAccessToken()
     {
         var request = CreateImplicitRequest(OidcConstants.ResponseTypes.Token);
@@ -38,6 +41,7 @@ public class AuthorizeResponseGeneratorTests_Implicit : AuthorizeResponseGenerat
     }
     
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_ImplicitFlow_WithTokenResponseType_AndResourceIndicators_ReturnsAccessToken()
     {
         var request = CreateImplicitRequest(OidcConstants.ResponseTypes.Token);
@@ -61,6 +65,7 @@ public class AuthorizeResponseGeneratorTests_Implicit : AuthorizeResponseGenerat
     }
 
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_ImplicitFlow_WithIdTokenResponseType_ReturnsIdentityToken()
     {
         var request = CreateImplicitRequest(OidcConstants.ResponseTypes.IdToken);
@@ -81,6 +86,7 @@ public class AuthorizeResponseGeneratorTests_Implicit : AuthorizeResponseGenerat
     }
 
     [Fact]
+    [Trait("Category", Category)]
     public async Task CreateResponseAsync_ImplicitFlow_WithIdTokenAndToken_ReturnsBoth()
     {
         var request = CreateImplicitRequest($"{OidcConstants.ResponseTypes.IdToken} {OidcConstants.ResponseTypes.Token}");
@@ -107,18 +113,4 @@ public class AuthorizeResponseGeneratorTests_Implicit : AuthorizeResponseGenerat
         response.AccessToken.Should().Be("access_token_value");
         response.IdentityToken.Should().Be("id_token_jwt");
     }
-
-    private static ValidatedAuthorizeRequest CreateImplicitRequest(string responseType) => new()
-    {
-        GrantType = GrantType.Implicit,
-        ResponseType = responseType,
-        Client = new Client
-        {
-            ClientId = "client",
-            AllowedIdentityTokenSigningAlgorithms = []
-        },
-        Subject = new ClaimsPrincipal(new ClaimsIdentity()),
-        ValidatedResources = new ResourceValidationResult(),
-        Raw = new NameValueCollection()
-    };
 }
