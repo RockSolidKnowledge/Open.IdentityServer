@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -97,7 +98,7 @@ public class ServerSessionTicketStoreTests
         ServerSideSession? createdSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.CreateSession(It.IsAny<ServerSideSession>()))
-            .Callback<ServerSideSession>((session) => { createdSessionModel = session; });
+            .Callback<ServerSideSession>(session => { createdSessionModel = session; });
 
         ServerSessionTicketStore sut = CreateSut();
 
@@ -139,7 +140,7 @@ public class ServerSessionTicketStoreTests
         ServerSideSession? createdSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.CreateSession(It.IsAny<ServerSideSession>()))
-            .Callback<ServerSideSession>((session) => { createdSessionModel = session; });
+            .Callback<ServerSideSession>(session => { createdSessionModel = session; });
 
         // every read moves the clock on, so separate reads give different times
         fakeTimeProvider.AutoAdvanceAmount = TimeSpan.FromSeconds(1);
@@ -168,7 +169,7 @@ public class ServerSessionTicketStoreTests
         ServerSideSession? createdSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.CreateSession(It.IsAny<ServerSideSession>()))
-            .Callback<ServerSideSession>((session) => { createdSessionModel = session; });
+            .Callback<ServerSideSession>(session => { createdSessionModel = session; });
 
         ServerSessionTicketStore sut = CreateSut();
 
@@ -221,7 +222,7 @@ public class ServerSessionTicketStoreTests
         ServerSideSession? createdSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.CreateSession(It.IsAny<ServerSideSession>()))
-            .Callback<ServerSideSession>((session) => { createdSessionModel = session; });
+            .Callback<ServerSideSession>(session => { createdSessionModel = session; });
 
         ServerSessionTicketStore sut = CreateSut();
 
@@ -255,6 +256,50 @@ public class ServerSessionTicketStoreTests
     }
 
     [Fact]
+    public async Task RenewAsync_WhenDisplayNameClaimSet_ShouldUseValueAsDeterminedByClaim()
+    {
+        const string fakeDisplayNameClaimType = "alias";
+        const string fakeDisplayNameClaimValue = "jsmith232";
+        fakeOptions.ServerSideSessions.UserDisplayNameClaimType = fakeDisplayNameClaimType;
+        
+        ServerSideSession existingSession = new ServerSideSession
+        {
+            Key = Guid.NewGuid().ToString(), Scheme = "AuthScheme", SessionId = Guid.NewGuid().ToString(),
+            SubjectId = Guid.NewGuid().ToString(), DisplayName = "John Doe",
+            Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
+            Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
+            Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
+            Data = "EXISTING_PROTEXTEDDAAT",
+        };
+
+        const string authScheme = "FakeAuthScheme";
+        string subjectId = Guid.NewGuid().ToString();
+        string sessionId = Guid.NewGuid().ToString();
+
+        Claim[] claims = [
+            new(fakeDisplayNameClaimType, fakeDisplayNameClaimValue)
+        ];
+        
+        AuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, subjectId, sessionId, claims: claims);
+
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.GetSession(existingSession.Key))
+            .ReturnsAsync(existingSession);
+
+        ServerSideSession? createdSessionModel = null;
+        Mock.Get(serverServerSideSessionStore)
+            .Setup(x => x.UpdateSession(It.IsAny<ServerSideSession>()))
+            .Callback<ServerSideSession>(session => { createdSessionModel = session; });
+
+        ServerSessionTicketStore sut = CreateSut();
+
+        await sut.RenewAsync(existingSession.Key, authenticationTicket);
+
+        createdSessionModel.Should().NotBeNull();
+        createdSessionModel.DisplayName.Should().Be(fakeDisplayNameClaimValue);
+    }
+
+    [Fact]
     public async Task RenewAsync_WhenOptionalValuesNotProvided_ShouldUseCorrectDefaults()
     {
         ServerSideSession existingSession = new ServerSideSession
@@ -280,7 +325,7 @@ public class ServerSessionTicketStoreTests
         ServerSideSession? createdSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.UpdateSession(It.IsAny<ServerSideSession>()))
-            .Callback<ServerSideSession>((session) => { createdSessionModel = session; });
+            .Callback<ServerSideSession>(session => { createdSessionModel = session; });
 
         ServerSessionTicketStore sut = CreateSut();
 
@@ -390,6 +435,8 @@ public class ServerSessionTicketStoreTests
     [Fact]
     public async Task RenewAsync_WhenOptionalValuesProvided_ShouldUseThem()
     {
+        fakeOptions.ServerSideSessions.UserDisplayNameClaimType = JwtClaimTypes.Name;
+        
         ServerSideSession existingSession = new ServerSideSession
         {
             Key = Guid.NewGuid().ToString(), Scheme = "AuthScheme", SessionId = Guid.NewGuid().ToString(),
@@ -417,7 +464,7 @@ public class ServerSessionTicketStoreTests
         ServerSideSession? updatedSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.UpdateSession(It.IsAny<ServerSideSession>()))
-            .Callback<ServerSideSession>((session) => { updatedSessionModel = session; });
+            .Callback<ServerSideSession>(session => { updatedSessionModel = session; });
 
         ServerSessionTicketStore sut = CreateSut();
 
@@ -457,7 +504,7 @@ public class ServerSessionTicketStoreTests
         ServerSideSession? createdSessionModel = null;
         Mock.Get(serverServerSideSessionStore)
             .Setup(x => x.CreateSession(It.IsAny<ServerSideSession>()))
-            .Callback<ServerSideSession>((session) => { createdSessionModel = session; });
+            .Callback<ServerSideSession>(session => { createdSessionModel = session; });
 
         ServerSessionTicketStore sut = CreateSut();
         
