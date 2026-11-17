@@ -32,9 +32,9 @@ You should see a list of these templates:
      - Short Name
      - Language
      - Tags
-   * -
-     -
-     -
-     -
+   * - Open.IdentityServer Empty
+     - oids-empty
+     - C#
+     - Web/IdentityServer/Open.IdentityServer
 
 The next section gives a brief description of each template and its intended use.
