@@ -221,6 +221,58 @@ public class IdentityServerApplicationBuilderExtensionsTests
             .WithMessage("CreateAccountReturnUrlParameter is not configured");
     }
 
+    [Fact]
+    public void UseIdentityServer_WithMutualTlsEnabledAndSchemeMissing_ShouldThrowInvalidOperationException()
+    {
+        var options = new IdentityServerOptions();
+        options.MutualTls.Enabled = true;
+
+        var app = BuildAppBuilder(identityServerOptions: options);
+
+        Action act = () => app.UseIdentityServer(CreateNoOpMiddlewareOptions());
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*'Certificate' is not registered*");
+    }
+
+    [Fact]
+    public void UseIdentityServer_WithMutualTlsEnabledAndSchemeRegistered_ShouldNotThrow()
+    {
+        var options = new IdentityServerOptions();
+        options.MutualTls.Enabled = true;
+
+        var app = BuildAppBuilder(identityServerOptions: options, certificateScheme: "Certificate");
+
+        Action act = () => app.UseIdentityServer(CreateNoOpMiddlewareOptions());
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void UseIdentityServer_WithMutualTlsEnabledAndCustomSchemeNotRegistered_ShouldThrowInvalidOperationException()
+    {
+        var options = new IdentityServerOptions();
+        options.MutualTls.Enabled = true;
+        options.MutualTls.ClientCertificateAuthenticationScheme = "MyCerts";
+
+        var app = BuildAppBuilder(identityServerOptions: options, certificateScheme: "Certificate");
+
+        Action act = () => app.UseIdentityServer(CreateNoOpMiddlewareOptions());
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*'MyCerts' is not registered*");
+    }
+
+    [Fact]
+    public void UseIdentityServer_WithMutualTlsDisabledAndSchemeMissing_ShouldNotThrow()
+    {
+        var app = BuildAppBuilder();
+
+        Action act = () => app.UseIdentityServer(CreateNoOpMiddlewareOptions());
+
+        act.Should().NotThrow();
+    }
+
     private static IdentityServerMiddlewareOptions CreateNoOpMiddlewareOptions()
         => new()
         {
@@ -232,7 +284,8 @@ public class IdentityServerApplicationBuilderExtensionsTests
         bool registerPersistedGrantStore = true,
         bool registerClientStore = true,
         bool registerResourceStore = true,
-        IdentityServerOptions identityServerOptions = null)
+        IdentityServerOptions identityServerOptions = null,
+        string certificateScheme = null)
     {
         var services = new ServiceCollection();
 
@@ -241,7 +294,13 @@ public class IdentityServerApplicationBuilderExtensionsTests
             services.AddSingleton<Microsoft.Extensions.Logging.ILoggerFactory, Microsoft.Extensions.Logging.LoggerFactory>();
         }
 
-        services.AddAuthenticationCore();
+        services.AddAuthenticationCore(o =>
+        {
+            if (certificateScheme != null)
+            {
+                o.AddScheme(certificateScheme, b => b.HandlerType = typeof(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler));
+            }
+        });
         services.AddCors();
 
         services.AddSingleton(identityServerOptions ?? new IdentityServerOptions());

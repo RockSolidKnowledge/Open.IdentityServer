@@ -15,7 +15,11 @@ public class MutualTlsOptions
     public bool Enabled { get; set; }
 
     /// <summary>
-    /// Specifies the name of the authentication handler for X.509 client certificates
+    /// Specifies the name of the authentication handler for X.509 client certificates.
+    /// This scheme is required for MTLS client authentication: a client certificate is only accepted as a
+    /// credential once this scheme has authenticated it. It is normally registered with
+    /// <c>AddAuthentication().AddCertificate()</c> and is responsible for validating the certificate chain,
+    /// validity period and revocation.
     /// </summary>
     public string ClientCertificateAuthenticationScheme { get; set; } = "Certificate";
 

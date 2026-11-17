@@ -7,13 +7,17 @@ using System.Threading.Tasks;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Open.IdentityServer.Validation;
 
 /// <summary>
-/// Parses secret according to MTLS spec
+/// Parses secret according to MTLS spec.
+/// The client certificate is only returned if the certificate authentication scheme
+/// (<see cref="Configuration.MutualTlsOptions.ClientCertificateAuthenticationScheme"/>) accepts it,
+/// so that scheme must be registered.
 /// </summary>
 public class MutualTlsSecretParser : ISecretParser
 {
@@ -41,7 +45,8 @@ public class MutualTlsSecretParser : ISecretParser
     /// </summary>
     /// <param name="context">The current HTTP context from which the client certificate and form body are read.</param>
     /// <returns>
-    /// A <see cref="ParsedSecret"/> containing the client id and X.509 certificate when both are present and valid;
+    /// A <see cref="ParsedSecret"/> containing the client id and X.509 certificate when both are present and the
+    /// certificate has been accepted by the certificate authentication scheme;
     /// otherwise <see langword="null"/>.
     /// </returns>
     public async Task<ParsedSecret> ParseAsync(HttpContext context)
@@ -74,6 +79,13 @@ public class MutualTlsSecretParser : ISecretParser
                 if (clientCertificate is null)
                 {
                     _logger.LogDebug("Client certificate not present");
+                    return null;
+                }
+
+                var authResult = await context.AuthenticateAsync(_options.MutualTls.ClientCertificateAuthenticationScheme);
+                if (!authResult.Succeeded)
+                {
+                    _logger.LogWarning("Client certificate rejected by authentication scheme: {error}", authResult.Failure?.Message);
                     return null;
                 }
                     

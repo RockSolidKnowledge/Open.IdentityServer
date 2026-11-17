@@ -86,6 +86,16 @@ public static class IdentityServerApplicationBuilderExtensions
         var options = services.GetRequiredService<IdentityServerOptions>();
         var schemes = services.GetRequiredService<IAuthenticationSchemeProvider>();
 
+        if (options.MutualTls.Enabled)
+        {
+            var certificateScheme = options.MutualTls.ClientCertificateAuthenticationScheme;
+            if (await schemes.GetSchemeAsync(certificateScheme) == null)
+            {
+                var error = $"Mutual TLS is enabled but the client certificate authentication scheme '{certificateScheme}' is not registered. Register it with 'AddAuthentication().AddCertificate(\"{certificateScheme}\", ...)' or set MutualTls.ClientCertificateAuthenticationScheme to the name of your certificate scheme.";
+                logger.LogCritical(error);
+                throw new InvalidOperationException(error);
+            }
+        }
 
         if (await schemes.GetDefaultAuthenticateSchemeAsync() == null && options.Authentication.CookieAuthenticationScheme == null)
         {
