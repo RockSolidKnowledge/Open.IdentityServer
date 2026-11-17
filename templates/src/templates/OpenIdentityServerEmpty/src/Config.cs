@@ -4,6 +4,8 @@ namespace OpenIdentityServerEmpty;
 
 public static class Config
 {
+    public static IEnumerable<IdentityResource> IdentityResources => [];
+
     public static IEnumerable<Client> Clients => [];
 
     public static IEnumerable<ApiScope> ApiScopes => [];
