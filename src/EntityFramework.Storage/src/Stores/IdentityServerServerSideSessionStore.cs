@@ -94,7 +94,7 @@ public class IdentityServerServerSideSessionStore(
 
         if (existing == null)
         {
-            logger.LogError("failed updating '{SessionKey}' session in database, session not found", session.Key);
+            logger.LogDebug("failed updating '{SessionKey}' session in database, session not found", session.Key);
             return;
         }
 
@@ -122,7 +122,7 @@ public class IdentityServerServerSideSessionStore(
 
         if (existing == null)
         {
-            logger.LogError("failed deleting '{SessionKey}' session in database, session not found", key);
+            logger.LogDebug("failed deleting '{SessionKey}' session in database, session not found", key);
             return;
         }
 
