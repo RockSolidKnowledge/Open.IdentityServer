@@ -239,7 +239,7 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task UpdateSession_WhenSessionDoesntExistsWithKey_ShouldLogError(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task UpdateSession_WhenSessionDoesntExistsWithKey_ShouldLogAtDebugNotError(DbContextOptions<PersistedGrantDbContext> options)
     {
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         IdentityServerServerSideSessionStore sut = CreateSut(context);
@@ -248,7 +248,8 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
 
         await sut.UpdateSession(session);
         
-        fakeLogger.VerifyLog(LogLevel.Error, Times.AtLeastOnce());
+        fakeLogger.VerifyLog(LogLevel.Debug, "session not found");
+        fakeLogger.VerifyLog(LogLevel.Error, Times.Never());
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
@@ -312,14 +313,15 @@ public class IdentityServerServerSideSessionStoreTests: IntegrationTest<Identity
     }
     
     [Theory, MemberData(nameof(TestDatabaseProviders))]
-    public async Task DeleteSession_WhenSessionDoesntExistsWithKey_ShouldLogError(DbContextOptions<PersistedGrantDbContext> options)
+    public async Task DeleteSession_WhenSessionDoesntExistsWithKey_ShouldLogAtDebugNotError(DbContextOptions<PersistedGrantDbContext> options)
     {
         await using PersistedGrantDbContext context = await CreateCleanContext(options);
         IdentityServerServerSideSessionStore sut = CreateSut(context);
 
         await sut.DeleteSession("missing-delete-key");
         
-        fakeLogger.VerifyLog(LogLevel.Error, Times.AtLeastOnce());
+        fakeLogger.VerifyLog(LogLevel.Debug, "session not found");
+        fakeLogger.VerifyLog(LogLevel.Error, Times.Never());
     }
 
     [Theory, MemberData(nameof(TestDatabaseProviders))]
