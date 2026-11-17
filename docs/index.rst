@@ -6,7 +6,7 @@ Welcome to Open.IdentityServer
 
 Open.IdentityServer is an OpenID Connect and OAuth 2.0 framework for ASP.NET.
 
-.. note:: 
+.. note::
    Open.IdentityServer is an independent open‑source project led by Rock Solid Knowledge, based on the Apache 2.0 licensed IdentityServer4 codebase. It is not affiliated with or endorsed by Duende Software or the original IdentityServer4 authors.
 
    At Rock Solid Knowledge, we are committed to keeping Open.IdentityServer free open source indefinitely. Additional products and services are available on `IdentityServer.com <https://www.identityserver.com/>`_, which contribute to the long-term sustainability of the project.
@@ -14,13 +14,13 @@ Open.IdentityServer is an OpenID Connect and OAuth 2.0 framework for ASP.NET.
 
 Open.IdentityServer enables the following features in your applications:
 
-| **Authentication as a Service** 
+| **Authentication as a Service**
 | Centralized login logic and workflow for all of your applications (web, native, mobile, services). Open.IdentityServer is an implementation of OpenID Connect.
 
-| **Single Sign-on / Sign-out** 
+| **Single Sign-on / Sign-out**
 | Single sign-on (and out) over multiple application types.
 
-| **Access Control for APIs** 
+| **Access Control for APIs**
 | Issue access tokens for APIs for various types of clients, e.g. server to server, web applications, SPAs and native/mobile apps.
 
 | **Federation Gateway**
@@ -49,6 +49,14 @@ Open.IdentityServer enables the following features in your applications:
    intro/support
    intro/test
    intro/contributing
+
+.. toctree::
+   :maxdepth: 3
+   :hidden:
+   :caption: Templates
+
+   templates/dotnet_new
+   templates/descriptions
 
 .. toctree::
    :maxdepth: 3
