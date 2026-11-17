@@ -16,3 +16,7 @@ To create a .NET project using this template run the following command:
 This will create a barebones, no UI, Open.IdentityServer project. It contains 3 files: ``Config.cs``, ``Program.cs``, and ``HostingExtensions.cs``.
 
 ``Config.cs`` can be modified to add clients, scopes, and claims as these configurations will be loaded from in-memory collections.
+
+Launch settings can also be configured in ``Properties/launchSettings.json`` to set the application URL and port. The default is ``https://localhost:5500``.
+
+Build and run the project, then navigate to ``https://localhost:5500/.well-known/openid-configuration`` to see the OpenID Connect discovery document.
