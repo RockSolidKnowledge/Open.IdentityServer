@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -113,7 +114,7 @@ public class ServerSessionTicketStore(
         existingSession.Scheme = ticket.AuthenticationScheme;
         existingSession.SubjectId = ticket.Principal.GetSubjectId();
         existingSession.SessionId = ticket.Properties.GetSessionId();
-        existingSession.DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name);
+        existingSession.DisplayName = GetDisplayNameValue(ticket.Principal);
         existingSession.Renewed = issued;
         existingSession.Expires = ticket.Properties.ExpiresUtc?.UtcDateTime;
         existingSession.Data = ToProtectedDataString(ticket);
@@ -224,10 +225,8 @@ public class ServerSessionTicketStore(
         {
             ticket.Properties.Items[JwtClaimTypes.Issuer] = issuerUri;
         }
-        
-        string? displayName = string.IsNullOrWhiteSpace(options.ServerSideSessions.UserDisplayNameClaimType)
-            ? null
-            : ticket.Principal.FindFirstValue(options.ServerSideSessions.UserDisplayNameClaimType);
+
+        string? displayName = GetDisplayNameValue(ticket.Principal);
 
         var issued = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
         ServerSideSession serverSideSession = new ServerSideSession
@@ -246,6 +245,13 @@ public class ServerSessionTicketStore(
         await serverServerSideSessionStore.CreateSession(serverSideSession);
 
         return serverSideSession;
+    }
+
+    private string? GetDisplayNameValue(ClaimsPrincipal principal)
+    {
+        return string.IsNullOrWhiteSpace(options.ServerSideSessions.UserDisplayNameClaimType)
+            ? null
+            : principal.FindFirstValue(options.ServerSideSessions.UserDisplayNameClaimType);
     }
 
     private string ToProtectedDataString(AuthenticationTicket ticket)
@@ -277,12 +283,25 @@ public class ServerSessionTicketStore(
             logger.LogError("failed retrieving '{SessionKey}', deserialisation failed, incorrect version '{VersionOrNull}'", existingSession.Key, dataProtectedSessionData?.Version);
             return null;
         }
-            
-        string unprotectedData = dataProtector.Unprotect(dataProtectedSessionData.Payload);
 
-        SerializedAuthenticationTicket? serializedAuthTicket =
-            JsonSerializer.Deserialize<SerializedAuthenticationTicket>(unprotectedData);
+        try
+        {
+            string unprotectedData = dataProtector.Unprotect(dataProtectedSessionData.Payload);
 
-        return serializedAuthTicket?.ToAuthTicket(existingSession);
+            SerializedAuthenticationTicket? serializedAuthTicket =
+                JsonSerializer.Deserialize<SerializedAuthenticationTicket>(unprotectedData);
+
+            return serializedAuthTicket?.ToAuthTicket(existingSession);
+        }
+        catch (CryptographicException cryptException)
+        {
+            logger.LogError(cryptException, "failed to unprotect auth ticket data '{SessionKey}'", existingSession.Key);
+            return null;
+        }
+        catch (JsonException jsonException)
+        {
+            logger.LogError(jsonException, "failed deserialising unprotected auth ticket data '{SessionKey}'", existingSession.Key);
+            return null;
+        }
     }
 }
