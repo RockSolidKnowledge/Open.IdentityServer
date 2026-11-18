@@ -188,6 +188,9 @@ Mutual TLS
     Specifies if MTLS support should be enabled. Defaults to ``false``.
 * ``ClientCertificateAuthenticationScheme``
     Specifies the name of the authentication handler for X.509 client certificates. Defaults to ``"Certificate"``.
+    This handler is required for MTLS client authentication: a client certificate is only accepted once this handler has authenticated it,
+    so it must be registered (typically with ``AddAuthentication().AddCertificate()``). If you change this option, register the handler under the same scheme name,
+    e.g. ``AddCertificate("MyCertificateScheme", ...)``.
 * ``DomainName``
     Specifies either the name of the sub-domain or full domain for running the MTLS endpoints (will use path-based endpoints if not set).
     Use a simple string (e.g. "mtls") to set a sub-domain, use a full domain name (e.g. "identityserver-mtls.io") to set a full domain name.
