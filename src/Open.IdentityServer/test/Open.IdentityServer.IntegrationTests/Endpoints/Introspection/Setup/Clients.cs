@@ -60,6 +60,14 @@ internal class Clients
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                 AllowedScopes = { "api1", "api2", "api3-a", "api3-b" },
                 AccessTokenType = AccessTokenType.Reference
+            },
+            new Client
+            {
+                ClientId = "public.client",
+                RequireClientSecret = false,
+                AllowedGrantTypes = GrantTypes.ClientCredentials,
+                AllowedScopes = { "api1" },
+                AccessTokenType = AccessTokenType.Reference
             }
         };
     }

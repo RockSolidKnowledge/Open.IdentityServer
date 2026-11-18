@@ -443,4 +443,32 @@ public class IntrospectionTests : IDisposable
         introspectionResponse.IsActive.Should().Be(false);
         introspectionResponse.IsError.Should().Be(false);
     }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task public_client_without_api_secret_cannot_introspect_reference_token()
+    {
+        var tokenResponse = await _client.RequestClientCredentialsTokenAsync(
+            new ClientCredentialsTokenRequest
+            {
+                Address = TokenEndpoint,
+                ClientId = "public.client",
+                Scope = "api1"
+            },
+            TestContext.Current.CancellationToken);
+
+        tokenResponse.IsError.Should().BeFalse();
+        tokenResponse.AccessToken.Should().NotBeNullOrEmpty();
+
+        var response = await _client.PostAsync(
+            IntrospectionEndpoint,
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["client_id"] = "public.client",
+                ["token"] = tokenResponse.AccessToken!
+            }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }
