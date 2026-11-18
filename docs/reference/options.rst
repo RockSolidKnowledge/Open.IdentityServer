@@ -12,6 +12,9 @@ IdentityServer Options
 * ``AccessTokenJwtType``
     Specifies the value used for the JWT typ header for access tokens (defaults to ``at+jwt``).
 
+* ``LogoutTokenJwtType``
+    Specifies the value used for the JWT typ header for back-channel logout tokens (defaults to ``logout+jwt``). ``null`` or empty will use ``JWT``.
+
 * ``EmitScopesAsSpaceDelimitedStringInJwt``
     Specifies whether scopes in JWTs are emitted as array or string
 
@@ -25,7 +28,7 @@ IdentityServer Options
     When enabled, the authorize response will include the issuer ``iss`` parameter, and advertises support in the discovery document. Defaults to ``false``.
 
 * ``SupportedRequestObjectSigningAlgorithms``
-    Specifies the signing algorithms that are permitted for JWT request objects. Defaults to empty, will be ``RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384, ES512`` in the next major version.
+    Specifies the signing algorithms that are permitted for JWT request objects. Defaults to ``RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384, ES512``.
     When set to a non-empty list, the specified algorithms will be accepted for JWT request objects and published in the discovery document.
 
 Endpoints

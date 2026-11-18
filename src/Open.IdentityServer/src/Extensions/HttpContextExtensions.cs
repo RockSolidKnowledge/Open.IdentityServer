@@ -99,12 +99,11 @@ public static class HttpContextExtensions
     
     internal static void SetSessionExpired(
         this HttpContext context, 
-        ServerSideSession session,
-        AuthenticationTicket ticket)
+        ServerSideSession session)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
         context.Items[Constants.EnvironmentKeys.ExpiredSession] = session;
-        context.Items[Constants.EnvironmentKeys.ExpiredTicket] = ticket;
+        context.Items[Constants.EnvironmentKeys.ExpiredTicket] = session.AuthenticationTicket;
     }
     
     internal static (ServerSideSession Session, AuthenticationTicket Ticket) GetSessionExpired(this HttpContext context)

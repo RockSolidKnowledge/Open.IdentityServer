@@ -35,6 +35,14 @@ public class IdentityServerOptions
     public string AccessTokenJwtType { get; set; } = "at+jwt";
 
     /// <summary>
+    /// Gets or sets the value for the JWT typ header for logout tokens.
+    /// </summary>
+    /// <value>
+    /// The JWT typ value.
+    /// </value>
+    public string LogoutTokenJwtType { get; set; } = "logout+jwt";
+
+    /// <summary>
     /// Emits an aud claim with the format issuer/resources. That's needed for some older access token validation plumbing. Defaults to false.
     /// </summary>
     public bool EmitStaticAudienceClaim { get; set; } = false;
@@ -52,11 +60,11 @@ public class IdentityServerOptions
 
     /// <summary>
     /// Gets or sets the supported JWT request object signing algorithms.
-    /// Defaults to an empty collection.
-    /// From version 4.0.0, will default to RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384, ES512.
+    /// Defaults to RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384, ES512.
     /// A null or empty collection will omit the "request_object_signing_alg_values_supported" entry from the discovery document.
     /// </summary>
-    public ICollection<string> SupportedRequestObjectSigningAlgorithms { get; set; } = [];
+    public ICollection<string> SupportedRequestObjectSigningAlgorithms { get; set; } 
+        = IdentityServerConstants.SupportedSigningAlgorithms.ToHashSet();
 
     /// <summary>
     /// Gets or sets the endpoint configuration.
