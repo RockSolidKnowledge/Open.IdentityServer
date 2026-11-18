@@ -89,7 +89,7 @@ public class ServerSessionTicketStore(
 
         if (existingSession == null)
         {
-            await StoreNewSession(key, ticket);
+            logger.NoTicketFoundInStore(key);
             return;
         }
         
@@ -107,6 +107,15 @@ public class ServerSessionTicketStore(
             });
             
             existingSession.Created = issued;
+        }
+
+        var inputSubject = ticket.Principal.GetSubjectId();
+
+        if (existingSession.SubjectId != inputSubject)
+        {
+            logger.SessionUserChangeDetectedRemovingSession(key, existingSession.SubjectId, inputSubject);
+            await serverServerSideSessionStore.DeleteSession(key);
+            return;
         }
         
         logger.RenewingTicketInStore(key, ticket.Properties.ExpiresUtc);
