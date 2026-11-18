@@ -18,6 +18,7 @@ public interface IAuthorizeRequestValidator
     /// </summary>
     /// <param name="parameters">The query string or form parameters from the authorize request.</param>
     /// <param name="subject">The currently authenticated user, or <see langword="null"/> when the user has not yet signed in.</param>
+    /// <param name="isCallback">Specifies if request to validate is coming from authorization callback</param>
     /// <returns>An <see cref="AuthorizeRequestValidationResult"/> indicating whether the request is valid and carrying the validated context.</returns>
-    Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal subject = null);
+    Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal subject = null, bool isCallback = false);
 }

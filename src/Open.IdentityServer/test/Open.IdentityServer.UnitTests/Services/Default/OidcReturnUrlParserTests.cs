@@ -90,8 +90,8 @@ public class OidcReturnUrlParserTests
         
         NameValueCollection? parsedParams = null;
         Mock.Get(authorizeRequestValidator)
-            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _) =>
+            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>(), It.IsAny<bool>()))
+            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _, bool _) =>
             {
                 parsedParams = parameters;
                 return new AuthorizeRequestValidationResult(validatedRequest);
@@ -116,8 +116,8 @@ public class OidcReturnUrlParserTests
         
         NameValueCollection? parsedParams = null;
         Mock.Get(authorizeRequestValidator)
-            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _) =>
+            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>(), It.IsAny<bool>()))
+            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _, bool _) =>
             {
                 parsedParams = parameters;
                 return new AuthorizeRequestValidationResult(validatedRequest);
@@ -145,8 +145,8 @@ public class OidcReturnUrlParserTests
         
         NameValueCollection? parsedParams = null;
         Mock.Get(authorizeRequestValidator)
-            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _) =>
+            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>(), It.IsAny<bool>()))
+            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _, bool _) =>
             {
                 parsedParams = parameters;
                 return new AuthorizeRequestValidationResult(validatedRequest);
@@ -173,8 +173,8 @@ public class OidcReturnUrlParserTests
 
         NameValueCollection? parsedParams = null;
         Mock.Get(authorizeRequestValidator)
-            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _) =>
+            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>(), It.IsAny<bool>()))
+            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _, bool _) =>
             {
                 parsedParams = parameters;
                 return new AuthorizeRequestValidationResult(validatedRequest);

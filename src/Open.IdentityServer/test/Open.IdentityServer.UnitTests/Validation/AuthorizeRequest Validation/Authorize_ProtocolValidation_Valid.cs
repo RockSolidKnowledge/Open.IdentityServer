@@ -208,7 +208,7 @@ public class Authorize_ProtocolValidation_Valid
 
     [Fact]
     [Trait("Category", Category)]
-    public async Task processed_prompt_values_should_not_be_processed_again()
+    public async Task processed_prompt_values_should_not_be_processed_again_and_is_callback()
     {
         var parameters = new NameValueCollection
         {
@@ -222,7 +222,7 @@ public class Authorize_ProtocolValidation_Valid
         };
 
         var validator = Factory.CreateAuthorizeRequestValidator();
-        var result = await validator.ValidateAsync(parameters);
+        var result = await validator.ValidateAsync(parameters, isCallback: true);
 
         result.IsError.Should().BeFalse();
         result.ValidatedRequest.PromptModes.Should().BeEmpty();
@@ -231,7 +231,7 @@ public class Authorize_ProtocolValidation_Valid
 
     [Fact]
     [Trait("Category", Category)]
-    public async Task processed_max_age_should_not_be_processed_again_when_zero()
+    public async Task processed_max_age_should_not_be_processed_again_when_zero_and_is_callback()
     {
         var parameters = new NameValueCollection
         {
@@ -245,7 +245,7 @@ public class Authorize_ProtocolValidation_Valid
         };
 
         var validator = Factory.CreateAuthorizeRequestValidator();
-        var result = await validator.ValidateAsync(parameters);
+        var result = await validator.ValidateAsync(parameters, isCallback: true);
 
         result.IsError.Should().BeFalse();
         result.ValidatedRequest.MaxAge.Should().BeNull();

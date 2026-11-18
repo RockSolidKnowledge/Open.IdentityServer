@@ -339,20 +339,22 @@ public class IdentityServerPipeline
     }
 
     /* helpers */
-    public async Task LoginAsync(ClaimsPrincipal subject)
+    public async Task<HttpResponseMessage> LoginAsync(ClaimsPrincipal subject, string? url = null)
     {
         var old = BrowserClient!.AllowAutoRedirect;
         BrowserClient.AllowAutoRedirect = false;
 
         Subject = subject;
-        await BrowserClient.GetAsync(LoginPage);
+        var result = await BrowserClient.GetAsync(url ?? LoginPage);
         
         BrowserClient.AllowAutoRedirect = old;
+
+        return result;
     }
 
-    public async Task LoginAsync(string subject)
+    public async Task<HttpResponseMessage> LoginAsync(string subject, string? url = null)
     {
-        await LoginAsync(new IdentityServerUser(subject).CreatePrincipal());
+        return await LoginAsync(new IdentityServerUser(subject).CreatePrincipal(), url);
     }
 
     public void RemoveLoginCookie()
@@ -463,7 +465,7 @@ public class IdentityServerPipeline
         return new AuthorizeResponse(redirect);
     }
 
-    public string? CreateParUrl(string clientId, string requestUri)
+    public string? CreateParUrl(string clientId, string requestUri, IEnumerable<KeyValuePair<string, string>>? extraParams = null)
     {
         var url = new RequestUrl(AuthorizeEndpoint);
 
@@ -471,6 +473,11 @@ public class IdentityServerPipeline
         var clientIdParam = new KeyValuePair<string, string>(OidcConstants.AuthorizeRequest.ClientId, clientId);
         
         IEnumerable<KeyValuePair<string, string>> parameters = [ clientIdParam,requestUriParam];
+
+        if (extraParams != null)
+        {
+            parameters = [..parameters, ..extraParams];
+        }
 
         return url.Create(new Parameters(parameters));
     }

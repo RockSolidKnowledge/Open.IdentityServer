@@ -14,6 +14,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Open.IdentityServer.Endpoints;
 using Open.IdentityServer.Logging.Models;
 using Open.IdentityServer.Utility;
 
@@ -63,13 +64,14 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
     }
 
     public async Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters,
-        ClaimsPrincipal subject = null)
+        ClaimsPrincipal subject = null, bool isCallback = false)
     {
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogDebug("Start authorize request protocol validation");
 
         var request = new ValidatedAuthorizeRequest
         {
+            IsCallback = isCallback,
             Options = _options,
             Subject = subject ?? Principal.Anonymous,
             Raw = parameters ?? throw new ArgumentNullException(nameof(parameters))
@@ -803,11 +805,10 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
                 return Invalid(request, description: "Invalid prompt");
             }
 
-            // if prompt have been processed, aka validation is called in callback,
-            // then we don't want to prompt the user again, so skip handling of the parameter
-            var promptProcessed = request.OriginalRaw.Get(Constants.ProcessedParameters.PromptProcessed);
+            // if validation is called in callback, then we don't want to prompt the user again, so skip handling of
+            // the parameter
 
-            if (promptProcessed.IsPresent())
+            if (request.IsCallback)
             {
                 request.ProcessedPromptModes = prompts;
             }
@@ -856,12 +857,9 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
             {
                 if (seconds >= 0)
                 {
-                    // if max_age have been processed, aka validation is called in callback,
-                    // then we don't want to prompt the user again in the case where max_age = 0,
-                    // so skip handling of the parameter
-                    var maxAgeProcessed = request.OriginalRaw.Get(Constants.ProcessedParameters.MaxAgeProcessed);
-
-                    if (!(seconds == 0 && maxAgeProcessed.IsPresent()))
+                    // if validation is called in callback, then we don't want to prompt the user again in the case where
+                    // max_age = 0, so skip handling of the parameter
+                    if (!(seconds == 0 && request.IsCallback))
                     {
                         request.MaxAge = seconds;
                     }

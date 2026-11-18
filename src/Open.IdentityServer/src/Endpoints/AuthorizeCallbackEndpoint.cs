@@ -82,10 +82,6 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
 
         try
         {
-            // Add processed parameters to indicate that they have been processed
-            parameters.Add(Constants.ProcessedParameters.PromptProcessed, "true");
-            parameters.Add(Constants.ProcessedParameters.MaxAgeProcessed, "true");
-
             var result = await ProcessAuthorizeRequestAsync(parameters, user, consent?.Data);
 
             Logger.LogDebug("End authorize callback request. Result type: {0}", result?.GetType().ToString() ?? "-none-");
