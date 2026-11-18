@@ -12,6 +12,9 @@ IdentityServer Options
 * ``AccessTokenJwtType``
     Specifies the value used for the JWT typ header for access tokens (defaults to ``at+jwt``).
 
+* ``IdentityTokenJwtTypes``
+    Specifies the allowable JWT typ values during identity token validation. (defaults to ``JWT``).
+
 * ``EmitScopesAsSpaceDelimitedStringInJwt``
     Specifies whether scopes in JWTs are emitted as array or string
 
