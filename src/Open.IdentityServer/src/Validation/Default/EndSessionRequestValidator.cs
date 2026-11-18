@@ -122,18 +122,29 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
         };
 
         var idTokenHint = parameters.Get(OidcConstants.EndSessionRequest.IdTokenHint);
+        TokenValidationResult tokenValidationResult = null;
+
         if (idTokenHint.IsPresent())
         {
-            // validate id_token - no need to validate token life time
-            var tokenValidationResult = await TokenValidator.ValidateIdentityTokenAsync(idTokenHint, null, false);
-            if (tokenValidationResult.IsError)
+            var hintValidationResult = await TokenValidator.ValidateIdentityTokenAsync(idTokenHint, null, false);
+            var hasSubject = hintValidationResult.Claims?
+                .Any(c => c.Type == JwtClaimTypes.Subject && c.Value.IsPresent()) 
+                             ?? false;
+            
+            if (!hintValidationResult.IsError && hasSubject)
             {
-                return Invalid("Error validating id token hint", validatedRequest);
+                tokenValidationResult = hintValidationResult;
             }
+            else
+            {
+                Logger.LogWarning("Ignoring id_token_hint that is invalid or has no subject claim.");
+            }
+        }
 
+        if (tokenValidationResult != null)
+        {
             validatedRequest.Client = tokenValidationResult.Client;
-
-            // validate sub claim against currently logged on user
+            
             var subClaim = tokenValidationResult.Claims.FirstOrDefault(c => c.Type == JwtClaimTypes.Subject);
             if (subClaim != null && isAuthenticated)
             {
@@ -141,12 +152,12 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
                 {
                     return Invalid("Current user does not match identity token", validatedRequest);
                 }
-
+                
                 validatedRequest.Subject = subject;
                 validatedRequest.SessionId = await UserSession.GetSessionIdAsync();
                 validatedRequest.ClientIds = await UserSession.GetClientListAsync();
             }
-
+            
             var redirectUri = parameters.Get(OidcConstants.EndSessionRequest.PostLogoutRedirectUri);
             if (redirectUri.IsPresent())
             {
@@ -159,7 +170,7 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
                     Logger.LogWarning("Invalid PostLogoutRedirectUri: {postLogoutRedirectUri}", redirectUri);
                 }
             }
-
+            
             if (validatedRequest.PostLogOutUri != null)
             {
                 var state = parameters.Get(OidcConstants.EndSessionRequest.State);
@@ -171,7 +182,6 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
         }
         else
         {
-            // no id_token to authenticate the client, but we do have a user and a user session
             validatedRequest.Subject = subject;
             validatedRequest.SessionId = await UserSession.GetSessionIdAsync();
             validatedRequest.ClientIds = await UserSession.GetClientListAsync();

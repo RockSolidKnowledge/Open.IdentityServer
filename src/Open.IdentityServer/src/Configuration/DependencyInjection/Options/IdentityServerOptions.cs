@@ -33,6 +33,11 @@ public class IdentityServerOptions
     /// The JWT typ value.
     /// </value>
     public string AccessTokenJwtType { get; set; } = "at+jwt";
+    
+    /// <summary>
+    /// Gets or sets the accepted JWT typ header values for identity tokens.
+    /// </summary>
+    public ICollection<string> IdentityTokenJwtTypes { get; set; } = ["JWT"];
 
     /// <summary>
     /// Emits an aud claim with the format issuer/resources. That's needed for some older access token validation plumbing. Defaults to false.
