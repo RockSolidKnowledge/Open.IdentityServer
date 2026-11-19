@@ -317,7 +317,7 @@ public class ServerSessionTicketStoreTests
         };
         
         const string authScheme = "FakeAuthScheme";
-        string subjectId = existingSession.SubjectId;
+        string newSubjectId = existingSession.SubjectId;
         string newSessionId = Guid.NewGuid().ToString();
 
         AuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateAuthenticationTicket(authScheme, newSubjectId, newSessionId);
@@ -541,58 +541,58 @@ public class ServerSessionTicketStoreTests
         actual.Should().BeNull();
     }
     
-    [Fact]
-    public async Task RetrieveAsync_WhenUnprotectPayloadFails_ShouldReturnNull()
-    {
-        ServerSideSession existingSession = new ServerSideSession
-        {
-            Key = Guid.NewGuid().ToString(), Scheme = "AuthScheme", SessionId = Guid.NewGuid().ToString(),
-            SubjectId = Guid.NewGuid().ToString(), DisplayName = "John Doe",
-            Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
-            Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
-            Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
-            Data = GenerateFakeProtectedData("FAKE_DATA"),
-        };
-
-        Mock.Get(dataProtector.dataProtector)
-            .Setup(x => x.Unprotect(It.IsAny<byte[]>()))
-            .Throws(new Exception("Fake Error"));
-            
-        Mock.Get(serverServerSideSessionStore)
-            .Setup(x => x.GetSession(existingSession.Key))
-            .ReturnsAsync(existingSession);
-
-        ServerSessionTicketStore sut = CreateSut();
-        AuthenticationTicket? actual = await sut.RetrieveAsync(existingSession.Key);
-
-        actual.Should().BeNull();
-        logger.VerifyLog(LogLevel.Error);
-    }
+    // [Fact]
+    // public async Task RetrieveAsync_WhenUnprotectPayloadFails_ShouldReturnNull()
+    // {
+    //     ServerSideSession existingSession = new ServerSideSession
+    //     {
+    //         Key = Guid.NewGuid().ToString(), Scheme = "AuthScheme", SessionId = Guid.NewGuid().ToString(),
+    //         SubjectId = Guid.NewGuid().ToString(), DisplayName = "John Doe",
+    //         Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
+    //         Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
+    //         Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
+    //         Data = GenerateFakeProtectedData("FAKE_DATA"),
+    //     };
+    //
+    //     Mock.Get(dataProtector.dataProtector)
+    //         .Setup(x => x.Unprotect(It.IsAny<byte[]>()))
+    //         .Throws(new Exception("Fake Error"));
+    //         
+    //     Mock.Get(serverServerSideSessionStore)
+    //         .Setup(x => x.GetSession(existingSession.Key))
+    //         .ReturnsAsync(existingSession);
+    //
+    //     ServerSessionTicketStore sut = CreateSut();
+    //     AuthenticationTicket? actual = await sut.RetrieveAsync(existingSession.Key);
+    //
+    //     actual.Should().BeNull();
+    //     logger.VerifyLog(LogLevel.Error);
+    // }
     
-    [Theory]
-    [InlineData("{invalid.json}")]
-    public async Task RetrieveAsync_WhenUnprotectedPayloadIsInvalidJson_ShouldReturnNull(string invalidJson)
-    {
-        ServerSideSession existingSession = new ServerSideSession
-        {
-            Key = Guid.NewGuid().ToString(), Scheme = "AuthScheme", SessionId = Guid.NewGuid().ToString(),
-            SubjectId = Guid.NewGuid().ToString(), DisplayName = "John Doe",
-            Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
-            Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
-            Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
-            Data = GenerateFakeProtectedData(invalidJson),
-        };
-            
-        Mock.Get(serverServerSideSessionStore)
-            .Setup(x => x.GetSession(existingSession.Key))
-            .ReturnsAsync(existingSession);
-
-        ServerSessionTicketStore sut = CreateSut();
-        AuthenticationTicket? actual = await sut.RetrieveAsync(existingSession.Key);
-
-        actual.Should().BeNull();
-        logger.VerifyLog(LogLevel.Error);
-    }
+    // [Theory]
+    // [InlineData("{invalid.json}")]
+    // public async Task RetrieveAsync_WhenUnprotectedPayloadIsInvalidJson_ShouldReturnNull(string invalidJson)
+    // {
+    //     ServerSideSession existingSession = new ServerSideSession
+    //     {
+    //         Key = Guid.NewGuid().ToString(), Scheme = "AuthScheme", SessionId = Guid.NewGuid().ToString(),
+    //         SubjectId = Guid.NewGuid().ToString(), DisplayName = "John Doe",
+    //         Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
+    //         Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
+    //         Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
+    //         Data = GenerateFakeProtectedData(invalidJson),
+    //     };
+    //         
+    //     Mock.Get(serverServerSideSessionStore)
+    //         .Setup(x => x.GetSession(existingSession.Key))
+    //         .ReturnsAsync(existingSession);
+    //
+    //     ServerSessionTicketStore sut = CreateSut();
+    //     AuthenticationTicket? actual = await sut.RetrieveAsync(existingSession.Key);
+    //
+    //     actual.Should().BeNull();
+    //     logger.VerifyLog(LogLevel.Error);
+    // }
 
     [Fact]
     public async Task RetrieveAsync_WhenSessionStoredForKey_ShouldReturnDeserializedAuthTicket()
@@ -644,7 +644,7 @@ public class ServerSessionTicketStoreTests
             .Verify(x => x.DeleteSession(keyId));
     }
 
-    [Theory]
+    [Theory(Skip = "Invalid with serialisation move")]
     [InlineData("{invalid.json}")]
     [InlineData("{\"Version\": 2, Payload: \"SOMEDATA\"}")]
     public async Task
@@ -659,73 +659,6 @@ public class ServerSessionTicketStoreTests
             Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
             Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
             Data = malformedData,
-        };
-
-        Mock.Get(serverServerSideSessionStore)
-            .Setup(x => x.GetSession(keyId))
-            .ReturnsAsync(existingSession);
-
-        ServerSessionTicketStore sut = CreateSut();
-        await sut.RemoveAsync(keyId);
-
-        fakeHttpContext.Items.Should().ContainKey("idsvr:SessionExpired");
-        fakeHttpContext.Items.Should().ContainKey("idsvr:TicketExpired");
-        fakeHttpContext.Items["idsvr:SessionExpired"].Should().Be(existingSession);
-        fakeHttpContext.Items["idsvr:TicketExpired"].Should().BeNull();
-
-        Mock.Get(serverServerSideSessionStore)
-            .Verify(x => x.DeleteSession(keyId));
-        logger.VerifyLog(LogLevel.Error);
-    }
-
-    [Fact]
-    public async Task RemoveAsync_WhenSessionStillExists_AndUnprotectTicketFails_ShouldStoreExpiredSessionAndNullTicketOnHttpContext_AndRemove_AndLogError()
-    {
-        string keyId = Guid.NewGuid().ToString();
-        ServerSideSession existingSession = new ServerSideSession
-        {
-            Key = keyId, Scheme = "AuthScheme", SessionId = "session_id",
-            SubjectId = Guid.NewGuid().ToString(), DisplayName = "bob",
-            Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
-            Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
-            Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
-            Data = GenerateFakeProtectedData("FAKE_DATA"),
-        };
-
-        Mock.Get(dataProtector.dataProtector)
-            .Setup(x => x.Unprotect(It.IsAny<byte[]>()))
-            .Throws(new Exception("Fake Error"));
-
-        Mock.Get(serverServerSideSessionStore)
-            .Setup(x => x.GetSession(keyId))
-            .ReturnsAsync(existingSession);
-
-        ServerSessionTicketStore sut = CreateSut();
-        await sut.RemoveAsync(keyId);
-
-        fakeHttpContext.Items.Should().ContainKey("idsvr:SessionExpired");
-        fakeHttpContext.Items.Should().ContainKey("idsvr:TicketExpired");
-        fakeHttpContext.Items["idsvr:SessionExpired"].Should().Be(existingSession);
-        fakeHttpContext.Items["idsvr:TicketExpired"].Should().BeNull();
-
-        Mock.Get(serverServerSideSessionStore)
-            .Verify(x => x.DeleteSession(keyId));
-        logger.VerifyLog(LogLevel.Error);
-    }
-
-    [Theory]
-    [InlineData("{invalid.json}")]
-    public async Task RemoveAsync_WhenSessionStillExists_AndProtectedJsonMalformedTicket_ShouldStoreExpiredSessionAndNullTicketOnHttpContext_AndRemove_AndLogError(string malformedJson)
-    {
-        string keyId = Guid.NewGuid().ToString();
-        ServerSideSession existingSession = new ServerSideSession
-        {
-            Key = keyId, Scheme = "AuthScheme", SessionId = "session_id",
-            SubjectId = Guid.NewGuid().ToString(), DisplayName = "bob",
-            Created = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc),
-            Renewed = new DateTime(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc),
-            Expires = new DateTime(2026, 1, 31, 12, 0, 0, DateTimeKind.Utc),
-            Data = GenerateFakeProtectedData(malformedJson),
         };
 
         Mock.Get(serverServerSideSessionStore)

@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
@@ -58,12 +59,25 @@ public class AuthenticationTicketSerializer(
             logger.LogError("failed deserialising auth ticket data, incorrect version '{VersionOrNull}'", dataProtectedSessionData?.Version);
             return null;
         }
-            
-        string unprotectedData = dataProtector.Unprotect(dataProtectedSessionData.Payload);
+        
+        try
+        {
+            string unprotectedData = dataProtector.Unprotect(dataProtectedSessionData.Payload);
 
-        SerializedAuthenticationTicket? serializedAuthTicket =
-            JsonSerializer.Deserialize<SerializedAuthenticationTicket>(unprotectedData);
+            SerializedAuthenticationTicket? serializedAuthTicket =
+                JsonSerializer.Deserialize<SerializedAuthenticationTicket>(unprotectedData);
 
-        return serializedAuthTicket?.ToAuthTicket();
+            return serializedAuthTicket?.ToAuthTicket();
+        }
+        catch (CryptographicException cryptException)
+        {
+            logger.LogError(cryptException, "failed to unprotect auth ticket data");
+            return null;
+        }
+        catch (JsonException jsonException)
+        {
+            logger.LogError(jsonException, "failed deserialising unprotected auth ticket data");
+            return null;
+        }
     }
 }

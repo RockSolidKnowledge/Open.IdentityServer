@@ -68,7 +68,7 @@ public class DefaultSessionManagementService(
                     SubjectId = session.Session.SubjectId,
                     SessionId = session.Session.SessionId,
                     ClientIds = context.ClientIds.IsNullOrEmpty() ? sessionClientList : clientIds,
-                    Issuer = session.AuthenticationTicket?.Properties.GetString(JwtClaimTypes.Issuer)
+                    Issuer = session.Session.AuthenticationTicket?.Properties.GetString(JwtClaimTypes.Issuer)
                 });
             }
         }

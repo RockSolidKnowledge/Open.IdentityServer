@@ -203,8 +203,8 @@ public class DefaultSessionManagementServiceTests
 
         Mock.Get(backChannelLogoutService)
             .Verify(x => x.SendLogoutNotificationsAsync(It.Is<LogoutNotificationContext>(ctx =>
-                ctx.SessionId == fakeSession.SessionId &&
-                ctx.SubjectId == fakeSession.SubjectId &&
+                ctx.SessionId == fakeSession.Session.SessionId &&
+                ctx.SubjectId == fakeSession.Session.SubjectId &&
                 ctx.ClientIds.SequenceEqual(fakeClientIds))));
         
         Mock.Get(persistedGrantStore)
