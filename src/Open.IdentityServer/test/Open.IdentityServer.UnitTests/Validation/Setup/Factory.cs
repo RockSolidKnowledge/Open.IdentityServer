@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using AwesomeAssertions;
+using Microsoft.AspNetCore.Http;
 using Open.IdentityServer.UnitTests.Common;
 using Open.IdentityServer.Configuration;
 using Open.IdentityServer.Models;
@@ -18,6 +19,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Serialization;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Open.IdentityServer.Test.Utilities;
 
 namespace Open.IdentityServer.UnitTests.Validation.Setup;
@@ -213,6 +215,7 @@ internal static class Factory
         JwtRequestValidator jwtRequestValidator = null,
         IJwtRequestUriHttpClient jwtRequestUriHttpClient = null,
         ITelemetryService telemetry = null,
+        IHttpContextAccessor contextAccessor = null,
         MockLogger<AuthorizeRequestValidator> logger = null)
     {
         if (options == null)
@@ -286,6 +289,7 @@ internal static class Factory
             jwtRequestUriHttpClient,
             parService,
             telemetry,
+            contextAccessor ?? Mock.Of<IHttpContextAccessor>(),
             logger ?? TestLogger.Create<AuthorizeRequestValidator>());
     }
 

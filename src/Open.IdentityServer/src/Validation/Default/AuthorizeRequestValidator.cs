@@ -14,6 +14,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Open.IdentityServer.Endpoints;
 using Open.IdentityServer.Logging.Models;
 using Open.IdentityServer.Utility;
@@ -32,6 +33,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
     private readonly IJwtRequestUriHttpClient _jwtRequestUriHttpClient;
     private readonly IPushedAuthorizationRequestService _parService;
     private readonly ITelemetryService _telemetry;
+    private readonly IHttpContextAccessor _contextAccessor;
     private readonly ILogger _logger;
 
     private readonly ResponseTypeEqualityComparer
@@ -48,6 +50,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         IJwtRequestUriHttpClient jwtRequestUriHttpClient,
         IPushedAuthorizationRequestService parService,
         ITelemetryService telemetry,
+        IHttpContextAccessor contextAccessor,
         ILogger<AuthorizeRequestValidator> logger)
     {
         _options = options;
@@ -60,18 +63,19 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         _jwtRequestUriHttpClient = jwtRequestUriHttpClient;
         _parService = parService;
         _telemetry = telemetry;
+        _contextAccessor = contextAccessor;
         _logger = logger;
     }
 
     public async Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters,
-        ClaimsPrincipal subject = null, bool isCallback = false)
+        ClaimsPrincipal subject = null)
     {
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogDebug("Start authorize request protocol validation");
-
+        
         var request = new ValidatedAuthorizeRequest
         {
-            IsCallback = isCallback,
+            IsCallback = _contextAccessor.HttpContext.IsAuthorizationCallback(),
             Options = _options,
             Subject = subject ?? Principal.Anonymous,
             Raw = parameters ?? throw new ArgumentNullException(nameof(parameters))
@@ -807,10 +811,16 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
 
             // if validation is called in callback, then we don't want to prompt the user again, so skip handling of
             // the parameter
-
             if (request.IsCallback)
             {
-                request.ProcessedPromptModes = prompts;
+                string[] promptToIgnoreOnCallback = [
+                    OidcConstants.PromptModes.Login,
+                    OidcConstants.PromptModes.SelectAccount,
+                    OidcConstants.PromptModes.Create,
+                ];
+                
+                request.ProcessedPromptModes = prompts.Intersect(promptToIgnoreOnCallback);
+                request.PromptModes = prompts.Except(promptToIgnoreOnCallback);
             }
             else
             {

@@ -45,7 +45,7 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
         _telemetry = telemetry;
         _authorizationParametersMessageStore = authorizationParametersMessageStore;
     }
-
+    
     public override async Task<IEndpointResult> ProcessAsync(HttpContext context)
     {
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Basic, this);
@@ -82,6 +82,9 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
 
         try
         {
+            //Adds a flag to HttpContext.Items that defines if original request was into the authorize callback or not
+            context.MarkAuthorizationCallback();
+            
             var result = await ProcessAuthorizeRequestAsync(parameters, user, consent?.Data);
 
             Logger.LogDebug("End authorize callback request. Result type: {0}", result?.GetType().ToString() ?? "-none-");

@@ -73,9 +73,9 @@ internal abstract class AuthorizeEndpointBase : IEndpointHandler
         {
             Logger.LogDebug("No user present in authorize request");
         }
-
+        
         // validate request
-        var result = await _validator.ValidateAsync(parameters, user, this is AuthorizeCallbackEndpoint);
+        var result = await _validator.ValidateAsync(parameters, user);
         if (result.IsError)
         {
             await ConsumeParStateIfPresentAsync(result.ValidatedRequest);
