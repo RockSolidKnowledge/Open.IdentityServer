@@ -32,7 +32,7 @@ public class DefaultClientMetadataMapper : IMapClientMetadataDocumentToClient
         var tokenEndpointAuthMethod = document.TokenEndpointAuthMethod ?? "client_secret_basic";
         
          // Defaults to authorization_code if not specified according to the spec.
-        var grantTypes = document.GrantTypes ?? ["authorization_code"];
+        var grantTypes = document.GrantTypes ?? [GrantType.AuthorizationCode];
 
         var scopes = document.Scope?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         
@@ -47,7 +47,7 @@ public class DefaultClientMetadataMapper : IMapClientMetadataDocumentToClient
             AllowedScopes = scopes,
             RequireClientSecret = tokenEndpointAuthMethod != "none",
             ClientSecrets = CreateClientSecrets(document, tokenEndpointAuthMethod),
-            RequirePkce = grantTypes.Contains("authorization_code"),
+            RequirePkce = grantTypes.Contains(GrantType.AuthorizationCode),
             AllowOfflineAccess = scopes?.Contains("offline_access") == true || grantTypes.Contains("refresh_token"),
             FrontChannelLogoutUri = document.FrontChannelLogoutUri,
             BackChannelLogoutUri = document.BackChannelLogoutUri,
@@ -104,10 +104,11 @@ public class DefaultClientMetadataMapper : IMapClientMetadataDocumentToClient
     }
     
     /// <summary>
-    /// 
+    /// Creates the client secrets from data included in the metadata document
+    /// currently this is only for private_key_jwt
     /// </summary>
-    /// <param name="requestDto"></param>
-    /// <param name="tokenEndpointAuthMethod"></param>
+    /// <param name="requestDto">the metadata document describing the client</param>
+    /// <param name="tokenEndpointAuthMethod">How client authentication is performed</param>
     /// <returns>A collection of client secrets</returns>
     /// <exception cref="InvalidClientMetadataDocumentException"></exception>
     protected virtual ICollection<Secret> CreateClientSecrets(
@@ -123,26 +124,13 @@ public class DefaultClientMetadataMapper : IMapClientMetadataDocumentToClient
                 $"token_endpoint_auth_method '{tokenEndpointAuthMethod}' is not supported.")
         };
     }
-
+    
     /// <summary>
-    /// 
+    /// Generates the Secret values from the jwks material supplied in the metadata document
     /// </summary>
-    /// <param name="sharedSecret"></param>
-    /// <returns></returns>
-    protected virtual string HashSharedSecret(string sharedSecret)
-    {
-        var bytes = Encoding.UTF8.GetBytes(sharedSecret);
-        var hash = SHA256.HashData(bytes);
-
-        return Convert.ToBase64String(hash);
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="requestDto"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidClientMetadataDocumentException"></exception>
+    /// <param name="requestDto">The metadata document containing the key material</param>
+    /// <returns>a collection of secrets</returns>
+    /// <exception cref="InvalidClientMetadataDocumentException">thrown if endpoint is of the wrong type or no key material supplied</exception>
     protected virtual ICollection<Secret> CreateJwkSecrets(ClientMetadataDocument requestDto)
     {
         if (requestDto.JsonWebKeySet is null || requestDto.JsonWebKeySet.Value.ValueKind != JsonValueKind.Object)
@@ -162,7 +150,7 @@ public class DefaultClientMetadataMapper : IMapClientMetadataDocumentToClient
         return keysElement.EnumerateArray()
             .Select(key => new Secret
             {
-                Type = JsonWebKeySecretType,
+                Type =  JsonWebKeySecretType,
                 Value = key.GetRawText()
             })
             .ToList();

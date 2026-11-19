@@ -36,5 +36,5 @@ public interface IMapClientMetadataDocumentToClient
     /// <param name="document">Client Metadata Document</param>
     /// <param name="internalPropertyPrefix">The prefix for all properties added to the client property bag that do not have a mapping to the Client object</param>
     /// <returns>Mapped Client</returns>
-    public Client Map(ClientMetadataDocument document , string internalPropertyPrefix );
+    public Client Map(ClientMetadataDocument document , string internalPropertyPrefix  = "__cmd_property:");
 }
