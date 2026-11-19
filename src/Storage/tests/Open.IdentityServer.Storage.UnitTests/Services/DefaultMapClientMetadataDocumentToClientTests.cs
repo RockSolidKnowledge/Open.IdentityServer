@@ -118,13 +118,11 @@ public class DefaultClientMetadataMapperTests
     [Fact]
     public void register_should_create_expected_client()
     {
-        string extendedPropertiesPrefix = "__cmd:";
-        
         var request = CreateClientMetadataDocument();
 
         request.TokenEndpointAuthMethod = null;
         
-        var result = _subject.Map(request,extendedPropertiesPrefix );
+        var result = _subject.Map(request );
         
         result.ClientName.Should().Be("client_name");
         result.ClientUri.Should().Be("client_uri");
@@ -169,23 +167,18 @@ public class DefaultClientMetadataMapperTests
         result.UserCodeType.Should().Be("user_code_type");
         result.DeviceCodeLifetime.Should().Be(1);
         result.AllowedCorsOrigins.Should().BeEquivalentTo(new[] { "https://cors.test" });
-        
-        result.Properties[extendedPropertiesPrefix + "contacts"].Should().Be(JsonSerializer.Serialize(new[] { "contact" }));
-        result.Properties[extendedPropertiesPrefix + "tos_uri"].Should().Be("https://client.test/tos");
-        result.Properties[extendedPropertiesPrefix + "policy_uri"].Should().Be("policy_uri");
-        result.Properties[extendedPropertiesPrefix + "software_id"].Should().Be("software_id");
-        result.Properties[extendedPropertiesPrefix + "software_version"].Should().Be("software_version");
+
+        ClientSoftwareStatementAccessor softwareStatement = new ClientSoftwareStatementAccessor(result);
+        softwareStatement.Contacts.Should().BeEquivalentTo(new[] { "contact" });
+        softwareStatement.TermsOfService.Should().Be("https://client.test/tos");
+        softwareStatement.PolicyUri.Should().Be("policy_uri");
+        softwareStatement.SoftwareId.Should().Be("software_id");
+        softwareStatement.SoftwareVersion.Should().Be("software_version");
+
+        softwareStatement.GetAdditionalMetadata("custom_metadata")
+            .Should().Be("\"value\"");
     }
-
-    private static string HashSharedSecret(string sharedSecret)
-    {
-        var bytes = Encoding.UTF8.GetBytes(sharedSecret);
-        var hash = SHA256.HashData(bytes);
-
-        return Convert.ToBase64String(hash);
-    }
-
- 
+    
     private static ClientMetadataDocument CreateClientMetadataDocument() 
     {
         return new ClientMetadataDocument
@@ -200,7 +193,7 @@ public class DefaultClientMetadataMapperTests
             LogoUri = "logo_uri",
             AdditionalMetadata = new Dictionary<string, JsonElement>
             {
-                { "custom_metadata", JsonDocument.Parse("\"value\"").RootElement.Clone() }
+                { "custom_metadata", JsonDocument.Parse(""" "value" """).RootElement.Clone() }
             },
             ApplicationType = "web",
             BackChannelLogoutSessionRequired = true,

@@ -24,9 +24,8 @@ public class DefaultClientMetadataMapper : IMapClientMetadataDocumentToClient
     /// Default implementation of map from Client Metadata Document to Client
     /// </summary>
     /// <param name="document">Client Metadata Document</param>
-    /// <param name="internalPropertyPrefix"></param>
     /// <returns>Client</returns>
-    public Client Map(ClientMetadataDocument document , string internalPropertyPrefix = "__cmd_property:")
+    public Client Map(ClientMetadataDocument document)
     {
         
         var tokenEndpointAuthMethod = document.TokenEndpointAuthMethod ?? "client_secret_basic";
@@ -60,49 +59,46 @@ public class DefaultClientMetadataMapper : IMapClientMetadataDocumentToClient
 
         ApplyOpenIdentityServerParameters(document, client);
 
-        if(document.Contacts != null)
-        {
-            client.Properties[internalPropertyPrefix + "contacts"] = JsonSerializer.Serialize(document.Contacts);
-        }
+        ApplySoftwareStatementProperties(document, client);
+
+        return client;
+    }
+
+    private static void ApplySoftwareStatementProperties(ClientMetadataDocument document, Client client)
+    {
+        var softwareStatement = new ClientSoftwareStatementAccessor(client);
         
+        if (document.Contacts != null)
+        {
+            softwareStatement.Contacts = document.Contacts;
+        }
+
         if(document.PolicyUri != null)
         {
-            client.Properties[internalPropertyPrefix + "policy_uri"] = document.PolicyUri;
+            softwareStatement.PolicyUri = document.PolicyUri;
         }
         
         if(document.SoftwareId != null)
         {
-            client.Properties[internalPropertyPrefix + "software_id"] = document.SoftwareId;
+            softwareStatement.SoftwareId = document.SoftwareId;
         }
         
         if(document.SoftwareVersion != null)
         {
-            client.Properties[internalPropertyPrefix + "software_version"] = document.SoftwareVersion;
+            softwareStatement.SoftwareVersion = document.SoftwareVersion;
         }
         
         if(document.TermsOfServiceUri != null)
         {
-            client.Properties[internalPropertyPrefix + "tos_uri"] = document.TermsOfServiceUri;
-        }
-        
-        if (document.JsonWebKeySetUri != null)
-        {
-            client.Properties[internalPropertyPrefix + "jwks_uri"] = document.JsonWebKeySetUri;
-        }
-
-        if (document.JsonWebKeySet.HasValue)
-        {
-            client.Properties[internalPropertyPrefix + "jwks"] = document.JsonWebKeySet.Value.GetRawText();
+            softwareStatement.TermsOfService = document.TermsOfServiceUri;
         }
 
         foreach (var metadata in document.AdditionalMetadata ?? [])
         {
-            client.Properties[internalPropertyPrefix + metadata.Key] = metadata.Value.GetRawText();
+            softwareStatement.SetAdditionalMetadata(metadata.Key, metadata.Value.GetRawText());
         }
-
-        return client;
     }
-    
+
     /// <summary>
     /// Creates the client secrets from data included in the metadata document
     /// currently this is only for private_key_jwt

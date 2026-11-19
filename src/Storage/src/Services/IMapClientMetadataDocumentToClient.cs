@@ -14,10 +14,10 @@ namespace Open.IdentityServer.Storage.Services;
 public class InvalidClientMetadataDocumentException  : Exception
 {
     /// <summary>
-    /// 
+    /// Thrown if an error occurs when mapping a Client Metadata Document to a Client
     /// </summary>
-    /// <param name="error"></param>
-   /// <param name="innerException"></param>
+    /// <param name="error">The reason for the error</param>
+   /// <param name="innerException">Any inner exception</param>
     public InvalidClientMetadataDocumentException(string error,  Exception? innerException = null) : base(error, innerException)
     {
         
@@ -26,15 +26,13 @@ public class InvalidClientMetadataDocumentException  : Exception
 
 /// <summary>
 /// Maps a Client Metadata Document as per RFC to an
-/// IdentityServer Client
-/// </summary>
+/// IdentityServer Client </summary>
 public interface IMapClientMetadataDocumentToClient
 {
     /// <summary>
     /// Maps an instance of the Client Metadata Document as per RFC to an IdentityServer Client
     /// </summary>
     /// <param name="document">Client Metadata Document</param>
-    /// <param name="internalPropertyPrefix">The prefix for all properties added to the client property bag that do not have a mapping to the Client object</param>
     /// <returns>Mapped Client</returns>
-    public Client Map(ClientMetadataDocument document , string internalPropertyPrefix  = "__cmd_property:");
+    public Client Map(ClientMetadataDocument document);
 }
