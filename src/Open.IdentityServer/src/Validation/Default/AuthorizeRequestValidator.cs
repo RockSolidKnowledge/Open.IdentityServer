@@ -65,7 +65,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
     /// <inheritdoc/>
     public async Task<AuthorizeRequestValidationResult> ValidateAsync(AuthorizeRequestValidationContext validationContext)
     {
-        if (validationContext == null) throw new ArgumentNullException(nameof(validationContext));
+        ArgumentNullException.ThrowIfNull(validationContext);
 
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogDebug("Start authorize request protocol validation");
