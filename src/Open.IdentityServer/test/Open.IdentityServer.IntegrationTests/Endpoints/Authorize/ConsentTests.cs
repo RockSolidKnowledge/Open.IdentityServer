@@ -15,6 +15,7 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Stores.Default;
 using Open.IdentityServer.Test;
 using Microsoft.Extensions.DependencyInjection;
+using Open.IdentityServer;
 using Xunit;
 
 namespace IdentityServer.IntegrationTests.Endpoints.Authorize;
@@ -272,5 +273,44 @@ public class ConsentTests
         authorization.IsError.Should().BeTrue();
         authorization.Error.Should().Be("access_denied");
         authorization.State.Should().Be("123_state");
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task prompt_login_and_prompt_consent_used_should_show_consent_page()
+    {
+        await _mockPipeline.LoginAsync("bob");
+
+        var url = _mockPipeline.CreateAuthorizeUrl(
+            clientId: "client3",
+            responseType: "id_token",
+            scope: "openid",
+            redirectUri: "https://client3/callback",
+            state: "123_state",
+            nonce: "123_nonce",
+            prompt: $"{OidcConstants.PromptModes.Login} {OidcConstants.PromptModes.Consent}"
+        );
+        
+        _mockPipeline.BrowserClient.AllowAutoRedirect = false;
+        var authorizeResponse = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+        
+        authorizeResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
+        authorizeResponse.Headers.Location.Should().NotBeNull();
+        authorizeResponse.Headers.Location!.ToString().ToLowerInvariant()
+            .Should().StartWith(IdentityServerPipeline.LoginPage);
+        
+        var authorization = new AuthorizeResponse(authorizeResponse.Headers.Location.ToString());
+        authorization.IsError.Should().BeFalse();
+
+        var loginResponse = await _mockPipeline.LoginAsync("bob", authorizeResponse.Headers.Location.ToString());
+        
+        loginResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
+        loginResponse.Headers.Location!.ToString().Should().StartWith(IdentityServerPipeline.AuthorizeEndpoint + "/callback");
+        
+        var authorizeCallbackResponse = await _mockPipeline.BrowserClient.GetAsync(
+            loginResponse.Headers.Location!,
+            TestContext.Current.CancellationToken);
+        authorizeCallbackResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
+        authorizeCallbackResponse.Headers.Location!.ToString().Should().StartWith(IdentityServerPipeline.BaseUrl + "/consent");
     }
 }

@@ -113,6 +113,7 @@ internal static class Constants
         OidcConstants.PromptModes.SelectAccount
     };
 
+    [Obsolete("No longer used, and have no effect on authorize request validation")]
     public class ProcessedParameters
     {
         public const string PromptProcessed = OidcConstants.AuthorizeRequest.Prompt + "_processed";
@@ -260,6 +261,7 @@ internal static class Constants
         internal const string ExpiredSession = "idsvr:SessionExpired";
         internal const string ExpiredTicket = "idsvr:TicketExpired";
 
+        internal const string AuthorizeCallbackEndpointCalled = "idsvr:AuthorizeCallbackEndpointCalled";
     }
 
     public static class TokenTypeHints

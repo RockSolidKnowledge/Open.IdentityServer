@@ -117,7 +117,22 @@ public static class HttpContextExtensions
     {
         return context.Items.ContainsKey(Constants.EnvironmentKeys.SignOutCalled);
     }
-    
+
+    internal static void MarkAuthorizationCallback(this HttpContext context)
+    {
+        context.Items[Constants.EnvironmentKeys.AuthorizeCallbackEndpointCalled] = true;
+    }
+
+    internal static bool IsAuthorizationCallback(this HttpContext context)
+    {
+        if (context != null && context.Items.TryGetValue(Constants.EnvironmentKeys.AuthorizeCallbackEndpointCalled,
+                out object value))
+        {
+            return value is true;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Gets the host name of IdentityServer.

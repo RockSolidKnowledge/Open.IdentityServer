@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 
 namespace Open.IdentityServer.Validation;
@@ -13,6 +12,11 @@ namespace Open.IdentityServer.Validation;
 /// </summary>
 public class ValidatedAuthorizeRequest : ValidatedRequest
 {
+    /// <summary>
+    /// Get or sets is callback value specifying if authorise request type is callback
+    /// </summary>
+    public bool IsCallback { get; set; } = false;
+
     /// <summary>
     /// Gets or sets the type of the response.
     /// </summary>
