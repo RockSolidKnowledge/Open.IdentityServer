@@ -168,14 +168,14 @@ public class DefaultClientMetadataMapperTests
         result.DeviceCodeLifetime.Should().Be(1);
         result.AllowedCorsOrigins.Should().BeEquivalentTo(new[] { "https://cors.test" });
 
-        ClientSoftwareStatementAccessor softwareStatement = new ClientSoftwareStatementAccessor(result);
-        softwareStatement.Contacts.Should().BeEquivalentTo(new[] { "contact" });
-        softwareStatement.TermsOfService.Should().Be("https://client.test/tos");
-        softwareStatement.PolicyUri.Should().Be("policy_uri");
-        softwareStatement.SoftwareId.Should().Be("software_id");
-        softwareStatement.SoftwareVersion.Should().Be("software_version");
+        var properties = new ClientPropertyAccessor(result);
+        properties.Contacts.Should().BeEquivalentTo(new[] { "contact" });
+        properties.TermsOfService.Should().Be("https://client.test/tos");
+        properties.PolicyUri.Should().Be("policy_uri");
+        properties.SoftwareId.Should().Be("software_id");
+        properties.SoftwareVersion.Should().Be("software_version");
 
-        softwareStatement.GetAdditionalMetadata("custom_metadata")
+        properties.GetAdditionalMetadata("custom_metadata")
             .Should().Be("\"value\"");
     }
     

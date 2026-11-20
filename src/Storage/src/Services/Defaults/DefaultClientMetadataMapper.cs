@@ -66,7 +66,7 @@ public class DefaultClientMetadataMapper : IMapClientMetadataDocumentToClient
 
     private static void ApplySoftwareStatementProperties(ClientMetadataDocument document, Client client)
     {
-        var softwareStatement = new ClientSoftwareStatementAccessor(client);
+        var softwareStatement = new ClientPropertyAccessor(client);
         
         if (document.Contacts != null)
         {

@@ -8,18 +8,20 @@ using System.Text.Json;
 namespace Open.IdentityServer.Models;
 
 /// <summary>
-/// Provides a strongly typed abstraction onto a software statement associated with the client
+/// Provides a strongly typed abstraction onto a set of known extension properties associated with the client
+/// these properties typically do not provide any functional behaviour.
 /// </summary>
-/// <param name="client">The client associated with this software statement</param>
-public readonly struct ClientSoftwareStatementAccessor(Client client)
+/// <param name="client">The client that holds the properties</param>
+public readonly struct ClientPropertyAccessor(Client client)
 {
-    private static readonly string InternalPropertyPrefix = "software_statement:";
-    private static readonly string PolicyUriProperty = InternalPropertyPrefix + "policy_uri";
-    private static readonly string SoftwareIdProperty = InternalPropertyPrefix + "software_id";
-    private static readonly string SoftwareVersionProperty = InternalPropertyPrefix + "software_version";
-    private static readonly string TermsOfServiceProperty = InternalPropertyPrefix + "terms_of_service";
-    private static readonly string ContactsProperty = InternalPropertyPrefix + "contacts";
-    private static readonly string AdditionalMetadataPropertyPrefix = InternalPropertyPrefix + "metadata:";
+    private static readonly string SoftwareStatemementPropertyPrefix = "software_statement:";
+    private static readonly string DynamicClientPropertyPrefix = "dynamic_client:";
+    private static readonly string PolicyUriProperty = DynamicClientPropertyPrefix + "policy_uri";
+    private static readonly string SoftwareIdProperty = SoftwareStatemementPropertyPrefix + "software_id";
+    private static readonly string SoftwareVersionProperty = SoftwareStatemementPropertyPrefix + "software_version";
+    private static readonly string TermsOfServiceProperty = DynamicClientPropertyPrefix + "terms_of_service";
+    private static readonly string ContactsProperty = DynamicClientPropertyPrefix + "contacts";
+    private static readonly string AdditionalMetadataPropertyPrefix = DynamicClientPropertyPrefix + "metadata:";
     
     /// <summary>
     /// The Policy Uri
