@@ -1,6 +1,8 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+#nullable enable
+
 using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -24,7 +26,7 @@ public static class IAuthorizeRequestValidatorExtensions
     public static Task<AuthorizeRequestValidationResult> ValidateAsync(
         this IAuthorizeRequestValidator validator,
         NameValueCollection parameters,
-        ClaimsPrincipal subject = null)
+        ClaimsPrincipal? subject = null)
     {
         return validator.ValidateAsync(new AuthorizeRequestValidationContext(parameters, subject));
     }

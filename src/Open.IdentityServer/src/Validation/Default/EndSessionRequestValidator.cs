@@ -104,8 +104,13 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
     }
 
     /// <inheritdoc />
-    public async Task<EndSessionValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal subject)
+    public async Task<EndSessionValidationResult> ValidateAsync(EndSessionRequestValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
+        var parameters = validationContext.Parameters;
+        var subject = validationContext.Subject;
+
         using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         Logger.LogDebug("Start end session request validation");
 
@@ -234,15 +239,17 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
     }
 
     /// <inheritdoc />
-    public async Task<EndSessionCallbackValidationResult> ValidateCallbackAsync(NameValueCollection parameters)
+    public async Task<EndSessionCallbackValidationResult> ValidateCallbackAsync(EndSessionRequestValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
         using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         var result = new EndSessionCallbackValidationResult
         {
             IsError = true
         };
 
-        var endSessionId = parameters[Constants.UIConstants.DefaultRoutePathParams.EndSessionCallback];
+        var endSessionId = validationContext.Parameters[Constants.UIConstants.DefaultRoutePathParams.EndSessionCallback];
         var endSessionMessage = await EndSessionMessageStore.ReadAsync(endSessionId);
         if (endSessionMessage?.Data?.ClientIds?.Any() == true)
         {
