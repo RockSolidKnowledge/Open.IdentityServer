@@ -8,6 +8,7 @@ using AwesomeAssertions;
 using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer;
 using Open.IdentityServer.Stores;
+using Open.IdentityServer.Validation;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Validation.TokenRequest_Validation;

@@ -10,6 +10,7 @@ using AwesomeAssertions;
 using Open.IdentityServer.UnitTests.Validation.Setup;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Stores;
+using Open.IdentityServer.Validation;
 using Xunit;
 using Open.IdentityServer.Configuration;
 
