@@ -402,7 +402,8 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         //////////////////////////////////////////////////////////
         // check if redirect_uri is valid
         //////////////////////////////////////////////////////////
-        if (await _uriValidator.IsRedirectUriValidAsync(redirectUri, request.Client) == false)
+        if (await _uriValidator.IsRedirectUriValidAsync(
+                new RedirectUriValidationContext(redirectUri, request.Client)) == false)
         {
             LogError("Invalid redirect_uri", redirectUri, request);
             return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest, "Invalid redirect_uri");

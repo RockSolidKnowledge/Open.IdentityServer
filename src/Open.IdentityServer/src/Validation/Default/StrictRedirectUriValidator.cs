@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -32,26 +33,28 @@ public class StrictRedirectUriValidator : IRedirectUriValidator
     /// <summary>
     /// Determines whether a redirect URI is valid for a client.
     /// </summary>
-    /// <param name="requestedUri">The requested URI.</param>
-    /// <param name="client">The client.</param>
+    /// <param name="validationContext">The context encapsulating the requested URI and the client.</param>
     /// <returns>
     ///   <c>true</c> is the URI is valid; <c>false</c> otherwise.
     /// </returns>
-    public virtual Task<bool> IsRedirectUriValidAsync(string requestedUri, Client client)
+    public virtual Task<bool> IsRedirectUriValidAsync(RedirectUriValidationContext validationContext)
     {
-        return Task.FromResult(StringCollectionContainsString(client.RedirectUris, requestedUri));
+        ArgumentNullException.ThrowIfNull(validationContext);
+
+        return Task.FromResult(StringCollectionContainsString(validationContext.Client.RedirectUris, validationContext.RequestedUri));
     }
 
     /// <summary>
     /// Determines whether a post logout URI is valid for a client.
     /// </summary>
-    /// <param name="requestedUri">The requested URI.</param>
-    /// <param name="client">The client.</param>
+    /// <param name="validationContext">The context encapsulating the requested URI and the client.</param>
     /// <returns>
     ///   <c>true</c> is the URI is valid; <c>false</c> otherwise.
     /// </returns>
-    public virtual Task<bool> IsPostLogoutRedirectUriValidAsync(string requestedUri, Client client)
+    public virtual Task<bool> IsPostLogoutRedirectUriValidAsync(RedirectUriValidationContext validationContext)
     {
-        return Task.FromResult(StringCollectionContainsString(client.PostLogoutRedirectUris, requestedUri));
+        ArgumentNullException.ThrowIfNull(validationContext);
+
+        return Task.FromResult(StringCollectionContainsString(validationContext.Client.PostLogoutRedirectUris, validationContext.RequestedUri));
     }
 }

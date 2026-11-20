@@ -30,18 +30,17 @@ public class StrictRedirectUriValidatorAppAuth : StrictRedirectUriValidator
     /// <summary>
     /// Determines whether a redirect URI is valid for a client.
     /// </summary>
-    /// <param name="requestedUri">The requested URI.</param>
-    /// <param name="client">The client.</param>
+    /// <param name="validationContext">The context encapsulating the requested URI and the client.</param>
     /// <returns>
     /// <c>true</c> is the URI is valid; <c>false</c> otherwise.
     /// </returns>
-    public override async Task<bool> IsRedirectUriValidAsync(string requestedUri, Client client)
+    public override async Task<bool> IsRedirectUriValidAsync(RedirectUriValidationContext validationContext)
     {
-        var isAllowed = await base.IsRedirectUriValidAsync(requestedUri, client);
+        var isAllowed = await base.IsRedirectUriValidAsync(validationContext);
         if (isAllowed) return isAllowed;
 
         // since this is appauth specific, we can require pkce
-        if (client.RequirePkce && client.RedirectUris.Contains("http://127.0.0.1")) return IsLoopback(requestedUri);
+        if (validationContext.Client.RequirePkce && validationContext.Client.RedirectUris.Contains("http://127.0.0.1")) return IsLoopback(validationContext.RequestedUri);
 
         return false;
     }
@@ -49,18 +48,17 @@ public class StrictRedirectUriValidatorAppAuth : StrictRedirectUriValidator
     /// <summary>
     /// Determines whether a post logout URI is valid for a client.
     /// </summary>
-    /// <param name="requestedUri">The requested URI.</param>
-    /// <param name="client">The client.</param>
+    /// <param name="validationContext">The context encapsulating the requested URI and the client.</param>
     /// <returns>
     /// <c>true</c> is the URI is valid; <c>false</c> otherwise.
     /// </returns>
-    public override async Task<bool> IsPostLogoutRedirectUriValidAsync(string requestedUri, Client client)
+    public override async Task<bool> IsPostLogoutRedirectUriValidAsync(RedirectUriValidationContext validationContext)
     {
-        var isAllowed = await base.IsPostLogoutRedirectUriValidAsync(requestedUri, client);
+        var isAllowed = await base.IsPostLogoutRedirectUriValidAsync(validationContext);
         if (isAllowed) return isAllowed;
 
         // since this is appauth specific, we can require pkce
-        if (client.RequirePkce && client.PostLogoutRedirectUris.Contains("http://127.0.0.1")) return IsLoopback(requestedUri);
+        if (validationContext.Client.RequirePkce && validationContext.Client.PostLogoutRedirectUris.Contains("http://127.0.0.1")) return IsLoopback(validationContext.RequestedUri);
 
         return false;
     }

@@ -13,12 +13,12 @@ public class StubRedirectUriValidator : IRedirectUriValidator
     public bool IsRedirectUriValid { get; set; }
     public bool IsPostLogoutRedirectUriValid { get; set; }
 
-    public Task<bool> IsPostLogoutRedirectUriValidAsync(string requestedUri, Client client)
+    public Task<bool> IsPostLogoutRedirectUriValidAsync(RedirectUriValidationContext validationContext)
     {
         return Task.FromResult(IsPostLogoutRedirectUriValid);
     }
 
-    public Task<bool> IsRedirectUriValidAsync(string requestedUri, Client client)
+    public Task<bool> IsRedirectUriValidAsync(RedirectUriValidationContext validationContext)
     {
         return Task.FromResult(IsRedirectUriValid);
     }
