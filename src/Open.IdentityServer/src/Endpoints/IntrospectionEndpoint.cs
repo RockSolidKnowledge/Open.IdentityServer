@@ -104,7 +104,8 @@ internal class IntrospectionEndpoint : IEndpointHandler
 
         // request validation
         _logger.LogTrace("Calling into introspection request validator: {type}", _requestValidator.GetType().FullName);
-        var validationResult = await _requestValidator.ValidateAsync(body.AsNameValueCollection(), apiResult.Resource);
+        var validationResult = await _requestValidator.ValidateAsync(
+            new IntrospectionRequestValidationContext(body.AsNameValueCollection(), apiResult.Resource));
         if (validationResult.IsError)
         {
             _telemetry.CountTokenIntrospection(apiResult.Resource.Name, error: validationResult.Error);
