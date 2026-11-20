@@ -16,4 +16,8 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\Open.IdentityServer.Storage.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Models\" />
+    </ItemGroup>
 </Project>
