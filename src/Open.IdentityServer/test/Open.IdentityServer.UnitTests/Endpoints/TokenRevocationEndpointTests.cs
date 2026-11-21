@@ -73,7 +73,7 @@ public class TokenRevocationEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<Client>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<TokenRevocationRequestValidationContext>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRevocationRequestValidationResult>()))
@@ -99,7 +99,7 @@ public class TokenRevocationEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<Client>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<TokenRevocationRequestValidationContext>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRevocationRequestValidationResult>()))
@@ -127,7 +127,7 @@ public class TokenRevocationEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(clientResult);
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<Client>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<TokenRevocationRequestValidationContext>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRevocationRequestValidationResult>()))
@@ -155,7 +155,7 @@ public class TokenRevocationEndpointTests
         requestValidationResult.IsError = true;
         requestValidationResult.Error = OidcConstants.TokenErrors.InvalidRequest;
         
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<Client>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<TokenRevocationRequestValidationContext>()))
             .ReturnsAsync(requestValidationResult);
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRevocationRequestValidationResult>()))
@@ -179,7 +179,7 @@ public class TokenRevocationEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<Client>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<TokenRevocationRequestValidationContext>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRevocationRequestValidationResult>()))

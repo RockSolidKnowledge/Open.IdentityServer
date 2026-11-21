@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -31,29 +32,17 @@ internal class TokenRevocationRequestValidator : ITokenRevocationRequestValidato
     /// <summary>
     /// Validates the request.
     /// </summary>
-    /// <param name="parameters">The parameters.</param>
-    /// <param name="client">The client.</param>
-    /// <returns></returns>
-    /// <exception cref="System.ArgumentNullException">
-    /// parameters
-    /// or
-    /// client
-    /// </exception>
-    public Task<TokenRevocationRequestValidationResult> ValidateRequestAsync(NameValueCollection parameters, Client client)
+    /// <param name="validationContext">The context encapsulating the token revocation request parameters and the client.</param>
+    /// <returns>A <see cref="TokenRevocationRequestValidationResult"/> indicating whether the revocation request is valid.</returns>
+    /// <exception cref="System.ArgumentNullException"><paramref name="validationContext"/> is <see langword="null"/>.</exception>
+    public Task<TokenRevocationRequestValidationResult> ValidateRequestAsync(TokenRevocationRequestValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
         _logger.LogTrace("ValidateRequestAsync called");
 
-        if (parameters == null)
-        {
-            _logger.LogError("no parameters passed");
-            throw new ArgumentNullException(nameof(parameters));
-        }
-
-        if (client == null)
-        {
-            _logger.LogError("no client passed");
-            throw new ArgumentNullException(nameof(client));
-        }
+        var parameters = validationContext.Parameters;
+        var client = validationContext.Client;
 
         ////////////////////////////
         // make sure token is present
