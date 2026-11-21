@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -14,9 +15,9 @@ public interface IUserInfoRequestValidator
     /// <summary>
     /// Validates a userinfo request.
     /// </summary>
-    /// <param name="accessToken">The access token from the userinfo request to validate.</param>
+    /// <param name="validationContext">The context containing the access token from the userinfo request to validate.</param>
     /// <returns>
     /// A task that resolves to a <see cref="UserInfoRequestValidationResult"/> indicating whether the request is valid.
     /// </returns>
-    Task<UserInfoRequestValidationResult> ValidateRequestAsync(string accessToken);
+    Task<UserInfoRequestValidationResult> ValidateRequestAsync(UserInfoRequestValidationContext validationContext);
 }
