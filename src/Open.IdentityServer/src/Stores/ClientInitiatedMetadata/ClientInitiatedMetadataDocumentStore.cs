@@ -9,6 +9,7 @@ using Open.IdentityServer.Services;
 using Open.IdentityServer.Validation;
 
 namespace Open.IdentityServer.Stores;
+#nullable enable
 
 /// <summary>
 /// Decorates the registered configuration store
@@ -43,18 +44,19 @@ public class ClientInitiatedMetadataDocumentStore(
                 "client ID : {client_id} is a store request ",clientId);
             return await configurationStore.FindClientByIdAsync(clientId);
         }
-
+        
         logger.Log(LogLevel.Information,
             "client ID : {client_id} is considered a CIMD request",clientId);
-        
-        if (! await validator.IsValidMetadataReference(clientId))
+
+        ValidateMetadataReferenceResult validationResult = await validator.ValidateMetadataReference(clientId);
+        if (validationResult.Success == false)
         {
             logger.Log(LogLevel.Error,
                 "client ID : {client_id} is not a valid URL or trusted ",clientId);
             return null;
         }
 
-        Client client = await loader.Load(clientId);
+        Client? client = await loader.Load(validationResult.MetadataReference);
 
         if (client == null)
         {

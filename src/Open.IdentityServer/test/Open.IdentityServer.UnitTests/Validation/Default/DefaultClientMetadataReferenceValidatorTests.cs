@@ -50,9 +50,9 @@ public class DefaultClientMetadataReferenceValidatorTests
 
         SetupTrustPolicyResult(validReference, true);
         
-        bool result = await sut.IsValidMetadataReference(validReference);
+        ValidateMetadataReferenceResult result = await sut.ValidateMetadataReference(validReference);
 
-        result.Should().BeTrue();
+        result.Success.Should().BeTrue();
     }
     
     // http://client.example/oauth-client.json
@@ -64,9 +64,9 @@ public class DefaultClientMetadataReferenceValidatorTests
     {
         var sut = CreateSut();
 
-        bool result = await sut.IsValidMetadataReference(input);
+        ValidateMetadataReferenceResult result = await sut.ValidateMetadataReference(input);
 
-        result.Should().BeFalse();
+        result.Success.Should().BeFalse();
     }
     
     // https://andrew@client.example/oauth-client.json
@@ -75,9 +75,9 @@ public class DefaultClientMetadataReferenceValidatorTests
     public async Task IsValidMetadataReference_when_given_a_reference_that_contains_userinfo_should_return_false()
     {
         var sut = CreateSut();
-        bool result = await sut.IsValidMetadataReference("https://andrew@client.example/oauth-client.json");
+        ValidateMetadataReferenceResult result = await sut.ValidateMetadataReference("https://andrew@client.example/oauth-client.json");
 
-        result.Should().BeFalse();
+        result.Success.Should().BeFalse();
     }
    
    
@@ -87,9 +87,9 @@ public class DefaultClientMetadataReferenceValidatorTests
     public async Task IsValidMetadataReference_when_given_a_reference_that_contains_no_path_should_return_false()
     {
         var sut = CreateSut();
-        bool result = await sut.IsValidMetadataReference("https://client.example");
+        ValidateMetadataReferenceResult result = await sut.ValidateMetadataReference("https://client.example");
 
-        result.Should().BeFalse();
+        result.Success.Should().BeFalse();
     }
     
     // https://client.example/oauth/./client.json
@@ -99,9 +99,9 @@ public class DefaultClientMetadataReferenceValidatorTests
    public async Task IsValidMetadataReference_when_given_a_reference_that_contains_a_path_with_dot_segment_should_return_false()
    {
        var sut = CreateSut();
-       bool result = await sut.IsValidMetadataReference("https://client.example/foo/bar/./blah");
+       ValidateMetadataReferenceResult result = await sut.ValidateMetadataReference("https://client.example/foo/bar/./blah");
 
-       result.Should().BeFalse();
+       result.Success.Should().BeFalse();
    }
     // https://client.example/oauth/../client.json
     // ^ ".." path component
@@ -109,9 +109,9 @@ public class DefaultClientMetadataReferenceValidatorTests
     public async Task IsValidMetadataReference_when_given_a_reference_that_contains_a_path_with_double_dot_segment_should_return_false()
     {
         var sut = CreateSut();
-        bool result = await sut.IsValidMetadataReference("https://client.example/foo/bar/../blah");
+        var result = await sut.ValidateMetadataReference("https://client.example/foo/bar/../blah");
 
-        result.Should().BeFalse();
+        result.Success.Should().BeFalse();
     }
     
     // https://client.example/oauth-client.json#v1
@@ -122,9 +122,9 @@ public class DefaultClientMetadataReferenceValidatorTests
    public async Task IsValidMetadataReference_when_given_a_reference_that_contains_a_fragment_should_return_false()
    {
        var sut = CreateSut();
-       bool result = await sut.IsValidMetadataReference("https://client.example/foo/bar#blah");
+       ValidateMetadataReferenceResult result = await sut.ValidateMetadataReference("https://client.example/foo/bar#blah");
 
-       result.Should().BeFalse();
+       result.Success.Should().BeFalse();
    }
     //     DISCOURAGED, BUT NOT NECESSARILY INVALID
    //
@@ -134,9 +134,9 @@ public class DefaultClientMetadataReferenceValidatorTests
     public async Task IsValidMetadataReference_when_given_a_reference_that_contains_a_query_argument_should_return_false()
     {
         var sut = CreateSut();
-        bool result = await sut.IsValidMetadataReference("https://client.example/foo/bar?blah");
+        ValidateMetadataReferenceResult result = await sut.ValidateMetadataReference("https://client.example/foo/bar?blah");
 
-        result.Should().BeFalse();
+        result.Success.Should().BeFalse();
     }
     
     [Fact]
@@ -147,9 +147,9 @@ public class DefaultClientMetadataReferenceValidatorTests
         
         var sut = CreateSut();
         SetupTrustPolicyResult(expectedUrl,true);
-        bool result = await sut.IsValidMetadataReference(expectedUrl);
+        ValidateMetadataReferenceResult result = await sut.ValidateMetadataReference(expectedUrl);
 
-        result.Should().BeTrue();
+        result.Success.Should().BeTrue();
     }
 
     [Fact]
@@ -161,9 +161,9 @@ public class DefaultClientMetadataReferenceValidatorTests
 
         SetupTrustPolicyResult(expectedUrl, true);
         
-        bool result = await sut.IsValidMetadataReference(expectedUrl);
+        ValidateMetadataReferenceResult result = await sut.ValidateMetadataReference(expectedUrl);
 
-        result.Should().BeTrue();
+        result.Success.Should().BeTrue();
     }
 
     private void SetupTrustPolicyResult(string expectedUrl, bool value)
@@ -181,11 +181,10 @@ public class DefaultClientMetadataReferenceValidatorTests
 
         SetupTrustPolicyResult(expectedUrl, false);
         
-        bool result = await sut.IsValidMetadataReference(expectedUrl);
+        ValidateMetadataReferenceResult result = await sut.ValidateMetadataReference(expectedUrl);
 
-        result.Should().BeFalse();
+        result.Success.Should().BeFalse();
     }
-    
     
     private DefaultClientMetadataReferenceValidator CreateSut()
     {

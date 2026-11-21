@@ -1,9 +1,29 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 #nullable enable
 namespace Open.IdentityServer.Validation;
+
+/// <summary>
+/// Represents the result of validating a client id which represents a metadata reference
+/// </summary>
+/// <param name="MetadataReference"></param>
+public record struct ValidateMetadataReferenceResult(Uri? MetadataReference)
+{
+    /// <summary>
+    /// Represents general failure
+    /// </summary>
+    public static ValidateMetadataReferenceResult Failure => new ValidateMetadataReferenceResult(null);
+    
+    /// <summary>
+    /// Indicates if the validation was a success
+    /// </summary>
+    [MemberNotNullWhen(true, nameof(MetadataReference))]
+    public bool Success => MetadataReference != null;
+}
 
 /// <summary>
 /// Validates if a client id should be treated as a client metadata identifier
@@ -28,5 +48,5 @@ public interface IClientMetadataReferenceValidator
     /// </summary>
     /// <param name="clientId"></param>
     /// <returns>true if the reference is valid</returns>
-    ValueTask<bool> IsValidMetadataReference(string clientId);
+    ValueTask<ValidateMetadataReferenceResult> ValidateMetadataReference(string clientId);
 }

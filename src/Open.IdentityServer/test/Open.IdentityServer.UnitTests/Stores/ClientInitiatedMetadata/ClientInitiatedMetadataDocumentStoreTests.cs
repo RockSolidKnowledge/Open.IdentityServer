@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
@@ -9,7 +10,8 @@ using Open.IdentityServer.Validation;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Stores.ClientInitiatedMetadata;
-
+#nullable enable
+    
 public class ClientInitiatedMetadataDocumentStoreTests
 {
     private readonly Mock<ILogger<ClientInitiatedMetadataDocumentStore>> logger = new();
@@ -84,7 +86,7 @@ public class ClientInitiatedMetadataDocumentStoreTests
     {
         AddClientReference(expectedClientId, true);
         loader
-            .Setup(l => l.Load(expectedClientId))
+            .Setup(l => l.Load(new Uri(expectedClientId)))
             .ReturnsAsync(client);
     }
 
@@ -98,8 +100,10 @@ public class ClientInitiatedMetadataDocumentStoreTests
         validator.Setup(v => v.IsMetadataReference(expectedClientId))
             .Returns(true);
 
-        validator.Setup(v => v.IsValidMetadataReference(expectedClientId))
-            .ReturnsAsync(isValid);
+        Uri? uri = isValid ? new Uri(expectedClientId) : null;
+        
+        validator.Setup(v => v.ValidateMetadataReference(expectedClientId))
+            .ReturnsAsync(new ValidateMetadataReferenceResult(uri));
     }
 
     private void AddClientToStore(string expectedClientId, Client expectedClient)

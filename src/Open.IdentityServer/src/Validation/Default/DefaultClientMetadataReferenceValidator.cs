@@ -48,12 +48,12 @@ public class DefaultClientMetadataReferenceValidator(
     /// </summary>
     /// <param name="clientId">The client id from the OAuth request</param>
     /// <returns>true if the client id is a valid metadata reference, and is trusted</returns>
-    public async ValueTask<bool> IsValidMetadataReference(string clientId)
+    public async ValueTask<ValidateMetadataReferenceResult> ValidateMetadataReference(string clientId)
     {
         if (Uri.TryCreate(clientId, UriKind.Absolute, out Uri? metadataReference) == false)
         {
             LogValidationFailure(clientId,"Can't Parse");
-            return false;
+            return new ValidateMetadataReferenceResult(null);
         }
 
         bool validationResult = Validate(metadataReference, ValidationSteps);
@@ -67,7 +67,9 @@ public class DefaultClientMetadataReferenceValidator(
             }
         }
 
-        return validationResult;
+        return validationResult ? 
+            new ValidateMetadataReferenceResult(metadataReference) : 
+            ValidateMetadataReferenceResult.Failure;
     }
 
     private void LogValidationFailure(string clientId, string reason)
