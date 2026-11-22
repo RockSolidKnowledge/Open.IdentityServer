@@ -131,7 +131,8 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
 
         if (idTokenHint.IsPresent())
         {
-            var hintValidationResult = await TokenValidator.ValidateIdentityTokenAsync(idTokenHint, null, false);
+            var hintValidationResult = await TokenValidator.ValidateIdentityTokenAsync(
+                new IdentityTokenValidationContext(idTokenHint, null, false));
             var hasSubject = hintValidationResult.Claims?
                 .Any(c => c.Type == JwtClaimTypes.Subject && c.Value.IsPresent()) 
                              ?? false;

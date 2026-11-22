@@ -63,8 +63,15 @@ internal class TokenValidator : ITokenValidator
         _log = new TokenValidationLog();
     }
 
-    public async Task<TokenValidationResult> ValidateIdentityTokenAsync(string token, string clientId = null, bool validateLifetime = true)
+    /// <inheritdoc/>
+    public async Task<TokenValidationResult> ValidateIdentityTokenAsync(IdentityTokenValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
+        var token = validationContext.Token;
+        var clientId = validationContext.ClientId;
+        var validateLifetime = validationContext.ValidateLifetime;
+
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogDebug("Start identity token validation");
 
@@ -129,8 +136,14 @@ internal class TokenValidator : ITokenValidator
         return customResult;
     }
 
-    public async Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string expectedScope = null)
+    /// <inheritdoc/>
+    public async Task<TokenValidationResult> ValidateAccessTokenAsync(AccessTokenValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
+        var token = validationContext.Token;
+        var expectedScope = validationContext.ExpectedScope;
+
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogTrace("Start access token validation");
 

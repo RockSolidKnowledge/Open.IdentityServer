@@ -60,8 +60,7 @@ internal class UserInfoRequestValidator : IUserInfoRequestValidator
         
         // the access token needs to be valid and have at least the openid scope
         var tokenResult = await _tokenValidator.ValidateAccessTokenAsync(
-            accessToken,
-            IdentityServerConstants.StandardScopes.OpenId);
+            new AccessTokenValidationContext(accessToken, IdentityServerConstants.StandardScopes.OpenId));
 
         if (tokenResult.IsError)
         {

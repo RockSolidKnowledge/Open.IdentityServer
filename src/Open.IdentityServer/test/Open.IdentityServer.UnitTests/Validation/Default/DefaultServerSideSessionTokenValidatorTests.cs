@@ -30,7 +30,7 @@ public class DefaultServerSideSessionTokenValidatorTests
     public DefaultServerSideSessionTokenValidatorTests()
     {
         Mock.Get(decoratedService)
-            .Setup(x => x.ValidateAccessTokenAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .Setup(x => x.ValidateAccessTokenAsync(It.IsAny<AccessTokenValidationContext>()))
             .ReturnsAsync(new TokenValidationResult());
     }
 
@@ -42,7 +42,7 @@ public class DefaultServerSideSessionTokenValidatorTests
         var fakeResult = new TokenValidationResult { Claims = null, IsError = true, Error = "fake_error" };
 
         Mock.Get(decoratedService)
-            .Setup(x => x.ValidateAccessTokenAsync(fakeToken, It.IsAny<string>()))
+            .Setup(x => x.ValidateAccessTokenAsync(It.Is<AccessTokenValidationContext>(c => c.Token == fakeToken)))
             .ReturnsAsync(fakeResult);
 
         DefaultServerSideSessionTokenValidator sut = CreateSut();
@@ -65,7 +65,7 @@ public class DefaultServerSideSessionTokenValidatorTests
         var fakeResult = new TokenValidationResult { Claims = [], IsError = true, Error = "fake_error" };
 
         Mock.Get(decoratedService)
-            .Setup(x => x.ValidateAccessTokenAsync(fakeToken, It.IsAny<string>()))
+            .Setup(x => x.ValidateAccessTokenAsync(It.Is<AccessTokenValidationContext>(c => c.Token == fakeToken)))
             .ReturnsAsync(fakeResult);
 
         DefaultServerSideSessionTokenValidator sut = CreateSut();
@@ -88,7 +88,7 @@ public class DefaultServerSideSessionTokenValidatorTests
         var fakeResult = new TokenValidationResult { Claims = [], IsError = false, };
 
         Mock.Get(decoratedService)
-            .Setup(x => x.ValidateAccessTokenAsync(fakeToken, It.IsAny<string>()))
+            .Setup(x => x.ValidateAccessTokenAsync(It.Is<AccessTokenValidationContext>(c => c.Token == fakeToken)))
             .ReturnsAsync(fakeResult);
 
         DefaultServerSideSessionTokenValidator sut = CreateSut();
@@ -122,7 +122,7 @@ public class DefaultServerSideSessionTokenValidatorTests
         };
 
         Mock.Get(decoratedService)
-            .Setup(x => x.ValidateAccessTokenAsync(fakeToken, It.IsAny<string>()))
+            .Setup(x => x.ValidateAccessTokenAsync(It.Is<AccessTokenValidationContext>(c => c.Token == fakeToken)))
             .ReturnsAsync(fakeResult);
 
         Mock.Get(userSessionEventsService)
@@ -163,7 +163,7 @@ public class DefaultServerSideSessionTokenValidatorTests
         };
 
         Mock.Get(decoratedService)
-            .Setup(x => x.ValidateAccessTokenAsync(fakeToken, It.IsAny<string>()))
+            .Setup(x => x.ValidateAccessTokenAsync(It.Is<AccessTokenValidationContext>(c => c.Token == fakeToken)))
             .ReturnsAsync(fakeResult);
 
         Mock.Get(userSessionEventsService)
@@ -195,14 +195,14 @@ public class DefaultServerSideSessionTokenValidatorTests
         DefaultServerSideSessionTokenValidator sut = CreateSut();
 
         Mock.Get(decoratedService)
-            .Setup(x => x.ValidateIdentityTokenAsync(fakeToken, fakeClientId, fakeValidateLifetime))
+            .Setup(x => x.ValidateIdentityTokenAsync(It.Is<IdentityTokenValidationContext>(c => c.Token == fakeToken && c.ClientId == fakeClientId && c.ValidateLifetime == fakeValidateLifetime)))
             .ReturnsAsync(fakeResult);
 
         TokenValidationResult actual =
             await sut.ValidateIdentityTokenAsync(fakeToken, fakeClientId, fakeValidateLifetime);
 
         Mock.Get(decoratedService)
-            .Verify(x => x.ValidateIdentityTokenAsync(fakeToken, fakeClientId, fakeValidateLifetime));
+            .Verify(x => x.ValidateIdentityTokenAsync(It.Is<IdentityTokenValidationContext>(c => c.Token == fakeToken && c.ClientId == fakeClientId && c.ValidateLifetime == fakeValidateLifetime)));
 
         actual.Should().Be(fakeResult);
     }

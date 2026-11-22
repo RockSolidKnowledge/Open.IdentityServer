@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using Open.IdentityServer.Models;
@@ -16,12 +17,12 @@ class TestTokenValidator : ITokenValidator
         _result = result;
     }
 
-    public Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string expectedScope = null)
+    public Task<TokenValidationResult> ValidateAccessTokenAsync(AccessTokenValidationContext validationContext)
     {
         return Task.FromResult(_result);
     }
 
-    public Task<TokenValidationResult> ValidateIdentityTokenAsync(string token, string clientId = null, bool validateLifetime = true)
+    public Task<TokenValidationResult> ValidateIdentityTokenAsync(IdentityTokenValidationContext validationContext)
     {
         return Task.FromResult(_result);
     }
