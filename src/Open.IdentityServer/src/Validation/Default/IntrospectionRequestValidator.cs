@@ -61,8 +61,7 @@ internal class IntrospectionRequestValidator : IIntrospectionRequestValidator
         }
 
         // validate token
-        var tokenValidationResult = await _tokenValidator.ValidateAccessTokenAsync(
-            new AccessTokenValidationContext(token));
+        var tokenValidationResult = await _tokenValidator.ValidateAccessTokenAsync(new AccessTokenValidationContext(token));
 
         // invalid or unknown token
         if (tokenValidationResult.IsError)

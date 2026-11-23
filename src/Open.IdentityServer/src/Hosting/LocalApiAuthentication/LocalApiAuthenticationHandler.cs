@@ -69,8 +69,7 @@ public class LocalApiAuthenticationHandler : AuthenticationHandler<LocalApiAuthe
 
         _logger.LogTrace("Token found: {token}", token);
 
-        TokenValidationResult result = await _tokenValidator.ValidateAccessTokenAsync(
-            new AccessTokenValidationContext(token, Options.ExpectedScope));
+        var result = await _tokenValidator.ValidateAccessTokenAsync(new AccessTokenValidationContext(token, Options.ExpectedScope));
 
         if (result.IsError)
         {
@@ -87,10 +86,10 @@ public class LocalApiAuthenticationHandler : AuthenticationHandler<LocalApiAuthe
 
         if (Options.SaveToken)
         {
-            authenticationProperties.StoreTokens(new[]
-            {
+            authenticationProperties.StoreTokens(
+            [
                 new AuthenticationToken { Name = "access_token", Value = token }
-            });
+            ]);
         }
 
         var claimsTransformationContext = new ClaimsTransformationContext

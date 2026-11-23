@@ -43,8 +43,7 @@ internal class EndSessionCallbackEndpoint : IEndpointHandler
         _logger.LogDebug("Start signout callback request");
 
         var parameters = context.Request.Query.AsNameValueCollection();
-        var result = await _endSessionRequestValidator.ValidateCallbackAsync(
-            new EndSessionRequestValidationContext(parameters));
+        var result = await _endSessionRequestValidator.ValidateCallbackAsync(new EndSessionRequestValidationContext(parameters));
 
         if (!result.IsError)
         {

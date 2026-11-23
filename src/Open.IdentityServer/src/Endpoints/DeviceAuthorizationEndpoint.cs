@@ -85,8 +85,7 @@ internal class DeviceAuthorizationEndpoint : IEndpointHandler
         
         // validate request
         var form = (await context.Request.ReadFormAsync()).AsNameValueCollection();
-        var requestResult = await _requestValidator.ValidateAsync(
-            new DeviceAuthorizationRequestValidationContext(form, clientResult));
+        var requestResult = await _requestValidator.ValidateAsync(new DeviceAuthorizationRequestValidationContext(form, clientResult));
 
         if (requestResult.IsError)
         {
