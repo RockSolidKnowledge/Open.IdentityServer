@@ -83,7 +83,7 @@ public class DefaultUserSessionTests
     }
 
     [Fact]
-    public async Task CreateSessionId_WhenPropsArgDoesNotContainKey_ShouldPreserveSid()
+    public async Task CreateSessionId_WhenPropsArgDoesNotContainKeyAndSameSubject_ShouldPreserveSid()
     {
         string existingSid = "999";
         
@@ -99,7 +99,7 @@ public class DefaultUserSessionTests
     }
 
     [Fact]
-    public async Task CreateSessionId_WhenPropsArgDoesNotContainKey_ShouldPreserveClientList()
+    public async Task CreateSessionId_WhenPropsArgDoesNotContainKeyAndSameSubject_ShouldPreserveClientList()
     {
         string existingSid = "999";
         string[] existingClientList = ["clientA", "clientB"];
@@ -115,6 +115,51 @@ public class DefaultUserSessionTests
         await _subject.CreateSessionIdAsync(_user, _props);
 
         _props.GetClientList().Should().BeEquivalentTo(existingClientList);
+    }
+
+    [Fact]
+    public async Task CreateSessionId_WhenPropsArgDoesNotContainKeyAndNewSubject_ShouldNotPreserveClientList()
+    {
+        string existingSid = "999";
+        string[] existingClientList = ["clientA", "clientB"];
+        
+        var propsAuthResult = _props.Clone();
+        propsAuthResult.SetSessionId(existingSid);
+        propsAuthResult.SetClientList(existingClientList);
+        
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, propsAuthResult, "scheme"));
+
+        _props.GetSessionId().Should().BeNull();
+
+        var newSubject = new IdentityServerUser("456").CreatePrincipal();
+
+        await _subject.CreateSessionIdAsync(newSubject, _props);
+
+        _props.GetClientList().Should().NotBeEquivalentTo(existingClientList);
+    }
+
+    [Fact]
+    public async Task CreateSessionId_WhenSameSubjectWithExplicitClientList_ShouldNotPreserveOldClientList()
+    {
+        string existingSid = "999";
+        string[] existingClientList = ["clientA", "clientB"];
+        string[] newClientList = ["clientC", "clientD"];
+        
+        var propsAuthResult = _props.Clone();
+        propsAuthResult.SetSessionId(existingSid);
+        propsAuthResult.SetClientList(existingClientList);
+        
+        _props.SetClientList(newClientList);
+        
+        _mockAuthenticationHandler.Result = AuthenticateResult.Success(new AuthenticationTicket(_user, propsAuthResult, "scheme"));
+
+        _props.GetSessionId().Should().BeNull();
+
+        var newSubject = new IdentityServerUser("456").CreatePrincipal();
+
+        await _subject.CreateSessionIdAsync(newSubject, _props);
+
+        _props.GetClientList().Should().BeEquivalentTo(newClientList);
     }
 
     [Fact]

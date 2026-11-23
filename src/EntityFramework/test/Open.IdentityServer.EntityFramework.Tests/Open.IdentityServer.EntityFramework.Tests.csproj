@@ -13,6 +13,7 @@
         <PackageReference Include="xunit.v3"/>
         <PackageReference Include="xunit.runner.visualstudio"/>
         <PackageReference Include="AwesomeAssertions"/>
+        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing"/>
 
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
         <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3"/>

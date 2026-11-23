@@ -7,6 +7,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Moq;
+using Open.IdentityServer;
+using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.UnitTests.Validation.Setup;
 using Xunit;
@@ -106,5 +108,28 @@ public class IdentityTokenValidation
         telemetry.Verify(t => t.Trace(
             TelemetryConstants.TraceCategories.Validation, validator, "ValidateIdentityTokenAsync"));
         trace.Verify(t => t.Dispose(), Times.Once);
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Signed_AccessToken_with_ClientId_Audience_ShouldNotValidateAs_IdentityToken()
+    {
+        var client = new Client { ClientId = "roclient" };
+        var accessToken = TokenFactory.CreateAccessToken(client, "valid", 600, "read");
+        accessToken.Audiences.Clear();
+        accessToken.Audiences.Add(client.ClientId);
+
+        var creator = Factory.CreateDefaultTokenCreator();
+        var jwt = await creator.CreateTokenAsync(accessToken);
+        new JwtSecurityTokenHandler().ReadJwtToken(jwt).Header.Typ.Should().Be("at+jwt");
+
+        var validator = Factory.CreateTokenValidator();
+        var identityResult = await validator.ValidateIdentityTokenAsync(jwt);
+
+        identityResult.IsError.Should().BeTrue();
+        identityResult.Error.Should().Be(OidcConstants.ProtectedResourceErrors.InvalidToken);
+
+        var accessResult = await validator.ValidateAccessTokenAsync(jwt);
+        accessResult.IsError.Should().BeFalse();
     }
 }

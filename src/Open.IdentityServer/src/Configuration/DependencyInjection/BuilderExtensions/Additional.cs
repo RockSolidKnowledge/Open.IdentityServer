@@ -337,6 +337,15 @@ public static class IdentityServerBuilderExtensionsAdditional
     /// <summary>
     /// Adds the X509 secret validators for mutual TLS.
     /// </summary>
+    /// <remarks>
+    /// Client certificates are only accepted as credentials after the certificate authentication scheme
+    /// (<c>MutualTls.ClientCertificateAuthenticationScheme</c>, "Certificate" by default)
+    /// has authenticated them, on every endpoint that authenticates clients.
+    /// The scheme must be registered, usually with <c>services.AddAuthentication().AddCertificate()</c>,
+    /// otherwise client authentication with a certificate fails.
+    /// The scheme (not the secret validators) performs chain, validity and revocation checks, so configure its
+    /// <c>AllowedCertificateTypes</c> and revocation settings appropriately.
+    /// </remarks>
     /// <param name="builder">The builder.</param>
     /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
     public static IIdentityServerBuilder AddMutualTlsSecretValidators(this IIdentityServerBuilder builder)

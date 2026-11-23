@@ -120,9 +120,25 @@ Migration Steps
    `installation guide <https://docs.identityserver.com/key-rotation/installation/>`_ for Open.IdentityServer.
    
    .. warning::
-       If configuring the read-only key store, all keys created within a 90 days will be considered valid, and the newest 
-       key within this timespan will be registered as a signing key. The extension method used to register the 
-       compatibility store allows you to configure this ``.AddCompatibilityKeyStores(opt => opt.MaxLifetime = TimeSpan.FromDays(120))``.
+       If using the compatibility key store, all keys created within 90 days will be considered valid. The newest 
+       key within this time span, and with the configured list of supported algorithms (defaults to just ``["RS256"]``), 
+       will be registered as a signing key.
+
+       The order of registration matters with compatibility store; if ``.AddCompatibilityKeyStores()`` is called before any 
+       other ISigningCredentialStore registration and a valid signing key is present in the DB, it will be used by default. 
+       If any other ISigningCredentialStore implementation is registered before this, that will be used by default.
+       
+       The extension method used to register the compatibility store allows you to configure these settings, here is an
+       example. These settings should reflect those used when configuring Duende IdentityServer
+       Key Management if your solution configured these values.
+       
+       .. code-block:: c#
+
+           .AddCompatibilityKeyStores(opt => {
+                opt.MaxLifetime = TimeSpan.FromDays(120);
+                opt.SupportedAlgorithms = [ "RS256", "ES256" ];
+                opt.KeyPropagationTime = TimeSpan.FromDays(7);
+           })
 
        
 5. **Migrate the database schema (if applicable)**

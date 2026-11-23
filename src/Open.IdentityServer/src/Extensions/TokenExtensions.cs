@@ -33,12 +33,14 @@ public static class TokenExtensions
     public static JwtPayload CreateJwtPayload(this Token token, TimeProvider clock, IdentityServerOptions options, ILogger logger)
     {
         var now = clock.GetUtcNow();
+        DateTime? issuedAt = token.Claims.Any(x => x.Type == JwtClaimTypes.IssuedAt) ? null : now.UtcDateTime;
         var payload = new JwtPayload(
             token.Issuer,
             null,
             null,
             now.UtcDateTime,
-            now.UtcDateTime.AddSeconds(token.Lifetime));
+            now.UtcDateTime.AddSeconds(token.Lifetime),
+            issuedAt);
 
         foreach (var aud in token.Audiences)
         {

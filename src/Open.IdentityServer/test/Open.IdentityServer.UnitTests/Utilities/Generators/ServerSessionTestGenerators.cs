@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
@@ -21,7 +23,8 @@ public static class ServerSessionTestGenerators
         DateTimeOffset? issuedUtc = null, 
         DateTimeOffset? expiresUtc = null,
         string? issuer = null,
-        string[]? clientIds = null)
+        string[]? clientIds = null,
+        Claim[]? claims = null)
     {
         IdentityServerUser user = new(subjectId);
         AuthenticationProperties properties = new();
@@ -31,6 +34,11 @@ public static class ServerSessionTestGenerators
         user.DisplayName = displayName;
         properties.IssuedUtc = issuedUtc;
         properties.ExpiresUtc = expiresUtc;
+
+        foreach (var claim in claims ?? [])
+        {
+            user.AdditionalClaims.Add(claim);
+        }
 
         foreach (var clientId in clientIds ?? [])
         {

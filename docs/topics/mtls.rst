@@ -12,8 +12,24 @@ Setting up MTLS involves a couple of steps.
 
 Server setup
 ^^^^^^^^^^^^
-It's the hosting layer's responsibility to do the actual validation of the client certificate.
-Open.IdentityServer will then use that information to associate the certificate with a client and embed the certificate information in the access tokens.
+The hosting layer (Kestrel, IIS, a reverse proxy) must be configured to request a client certificate and make it available to ASP.NET Core.
+
+.. Important:: The hosting layer should validate client certificates, as a first line of defence. Configure your server or reverse proxy to reject any client
+    certificate that does not chain to a trusted CA, is expired, or has been revoked, **before** the request reaches Open.IdentityServer:
+
+    * Kestrel: do not use ``AllowAnyClientCertificate()``. Validate the certificate chain against your trusted CAs in ``ClientCertificateValidation`` and enable revocation checking.
+    * Reverse proxies (e.g. nginx): the proxy must validate the certificate (e.g. ``ssl_verify_client on``) and only forward certificates it has validated.
+      Forwarding a certificate that has not been validated has the same effect as accepting any certificate.
+    * Consider hosting the MTLS endpoints on a separate domain (``MutualTls.DomainName``) and not requesting client certificates on your main domain.
+
+    Note that rejecting untrusted certificates in the hosting layer also rejects self-signed certificates. If you rely on those (e.g. thumbprint-based secrets),
+    allow them in the hosting layer and restrict them with the certificate authentication handler's ``AllowedCertificateTypes``.
+
+.. Warning:: Open.IdentityServer does not rely on the hosting layer alone. A client certificate is only accepted as a credential
+    after the ASP.NET Core certificate authentication handler (see below) has authenticated it. This handler is **required** for MTLS client authentication
+    and performs the chain, validity period and revocation checks. Validating in both places means a misconfiguration of one layer does not expose your clients.
+    Never rely on the secret matching (name or thumbprint) as proof that the certificate is trusted.
+
 
 Depending which server you are using, those steps are different. Consult documentation for the type of server you are using for guidance on setting up this.
 
@@ -53,9 +69,33 @@ If you are using Nginx (which we found is the most flexible hosting option), you
         };
     });
 
-Once, the certificate has been loaded, you also need to setup the authentication handler.
+Once, the certificate has been loaded, you also need to setup the certificate authentication handler. This step is **required**: without it, clients cannot authenticate with a certificate.
+Open.IdentityServer authenticates a client certificate with this handler on every endpoint that authenticates clients, and rejects the request if the handler does not accept the certificate.
 In this scenario we want to support self-signed certificates, hence the ``CertificateType.All`` and no revocation checking.
-These settings might be different in your environment
+These settings might be different in your environment. For production, prefer the defaults (``CertificateTypes.Chained`` with revocation checking enabled) unless you specifically need self-signed certificates.
+
+Custom scheme name
+~~~~~~~~~~~~~~~~~~
+By default the handler is registered as ``Certificate``, which matches the default value of ``options.MutualTls.ClientCertificateAuthenticationScheme``.
+If you change that option, you must register the certificate authentication handler under the same scheme name:
+
+.. code-block:: csharp
+
+    services.AddIdentityServer(options =>
+    {
+        options.MutualTls.Enabled = true;
+        options.MutualTls.ClientCertificateAuthenticationScheme = "MyCertificateScheme";
+    });
+
+    services.AddAuthentication()
+        .AddCertificate("MyCertificateScheme", options =>
+        {
+            options.AllowedCertificateTypes = CertificateTypes.Chained;
+        });
+
+.. Warning:: If no handler is registered under the configured scheme name, MTLS client authentication fails with an
+    ``InvalidOperationException`` ("No authentication handler is registered for the scheme ..."). The scheme must also be a certificate authentication
+    handler, since it reads the client certificate from the connection.
 
 .. code-block:: csharp
 
@@ -69,7 +109,7 @@ These settings might be different in your environment
 Open.IdentityServer setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 Next step is to enable MTLS in Open.IdentityServer. For that you need to specify the name of the certificate authentication handler you set-up in the last step (defaults to ``Certificate``),
-and the MTLS hosting strategy.
+and the MTLS hosting strategy. The handler named here must be registered (``AddCertificate``), otherwise MTLS client authentication fails.
 
 In Open.IdentityServer, the mutual TLS endpoints, can be configured in three ways (assuming Open.IdentityServer is running on ``https://identityserver.com``:
 
@@ -106,6 +146,10 @@ Use the :ref:`Open.IdentityServer builder <refStartup>` to add the services to D
 
     builder.AddMutualTlsSecretValidators();
 
+.. Note:: The secret validators only match the certificate against the client's secret (name or thumbprint). They do not validate the certificate.
+    The certificate authentication handler configured in ``MutualTls.ClientCertificateAuthenticationScheme`` must be registered and must accept the certificate first.
+    Name-based secrets are only as trustworthy as that validation, because anyone can create a self-signed certificate with any subject name.
+    If you allow self-signed certificates (``CertificateTypes.All`` or ``SelfSigned``), prefer thumbprint-based secrets.
 Finally, for the :ref:`client configuration <refClient>` add to the ``ClientSecrets`` collection a secret type of either ``SecretTypes.X509CertificateName`` 
 if you wish to authenticate the client from the certificate distinguished name or ``SecretTypes.X509CertificateThumbprint`` if you wish to authenticate the client by certificate thumbprint.
 

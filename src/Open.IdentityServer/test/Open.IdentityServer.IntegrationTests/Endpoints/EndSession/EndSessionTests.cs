@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
@@ -19,6 +20,7 @@ using IdentityServer.IntegrationTests.Utility;
 using Open.IdentityServer;
 using Open.IdentityServer.Utility;
 using Xunit;
+using System.IdentityModel.Tokens.Jwt;
 using static Open.IdentityServer.IdentityServerConstants;
 using QueryHelpers = Microsoft.AspNetCore.WebUtilities.QueryHelpers;
 
@@ -97,6 +99,23 @@ public class EndSessionTests
         _mockPipeline.IdentityScopes.AddRange([
             new IdentityResources.OpenId()
         ]);
+        
+        _mockPipeline.Clients.Add(new Client
+        {
+            ClientId = "orders",
+            ClientSecrets = { new Secret("secret".Sha256()) },
+            AllowedGrantTypes = GrantTypes.ClientCredentials,
+            AllowedScopes = { "orders.read" },
+            AccessTokenType = AccessTokenType.Jwt,
+            PostLogoutRedirectUris = { "https://attacker.example/post-logout" }
+        });
+
+        _mockPipeline.ApiResources.Add(new ApiResource
+        {
+            Name = "orders",
+            Scopes = { "orders.read" }
+        });
+        _mockPipeline.ApiScopes.Add(new ApiScope { Name = "orders.read" });
 
         _mockPipeline.Initialize();
     }
@@ -627,5 +646,43 @@ public class EndSessionTests
             TestContext.Current.CancellationToken);
 
         _mockPipeline.BackChannelMessageHandler.InvokeWasCalled.Should().BeTrue();
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task client_credentials_access_token_for_client_id_collision_should_require_logout_prompt()
+    {
+        await _mockPipeline.LoginAsync("bob");
+
+        var tokenResponse = await _mockPipeline.BackChannelClient!.RequestClientCredentialsTokenAsync(
+            new ClientCredentialsTokenRequest
+            {
+                Address = IdentityServerPipeline.TokenEndpoint,
+                ClientId = "orders",
+                ClientSecret = "secret",
+                Scope = "orders.read"
+            },
+            TestContext.Current.CancellationToken);
+
+        tokenResponse.IsError.Should().BeFalse();
+        tokenResponse.AccessToken.Should().NotBeNullOrEmpty();
+
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(tokenResponse.AccessToken!);
+        jwt.Audiences.Should().Contain("orders");
+        jwt.Header.Typ.Should().Be("at+jwt");
+        jwt.Payload.ContainsKey(JwtClaimTypes.Subject).Should().BeFalse();
+        jwt.Payload.ContainsKey(JwtClaimTypes.SessionId).Should().BeFalse();
+
+        var endSessionUrl = IdentityServerPipeline.EndSessionEndpoint
+                            + "?id_token_hint=" + Uri.EscapeDataString(tokenResponse.AccessToken!)
+                            + "&post_logout_redirect_uri="
+                            + Uri.EscapeDataString("https://attacker.example/post-logout");
+
+        await _mockPipeline.BrowserClient!.GetAsync(endSessionUrl, TestContext.Current.CancellationToken);
+
+        _mockPipeline.LogoutRequest.Should().NotBeNull();
+        _mockPipeline.LogoutRequest.ShowSignoutPrompt.Should().BeTrue();
+        _mockPipeline.LogoutRequest.ClientId.Should().BeNull();
+        _mockPipeline.LogoutRequest.PostLogoutRedirectUri.Should().BeNull();
     }
 }

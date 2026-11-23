@@ -89,6 +89,22 @@ public class AuthorizeEndpointBaseTests
         result.Should().BeOfType<AuthorizeResult>();
         ((AuthorizeResult)result).Response.IsError.Should().BeTrue();
     }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task authorize_request_validation_error_page_should_consume_par()
+    {
+        const string expectedUri = "urn:blah:validation-error";
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.PushedAuthorizationUri = expectedUri;
+        _stubAuthorizeRequestValidator.Result.IsError = true;
+        _stubAuthorizeRequestValidator.Result.Error = "some_error";
+ 
+        var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+ 
+        result.Should().BeOfType<AuthorizeResult>();
+        ((AuthorizeResult)result).Response.IsError.Should().BeTrue();
+        _parService.Verify(ps => ps.RemoveRequestAsync(expectedUri), Times.Once);
+    }
 
     [Fact]
     [Trait("Category", Category)]
@@ -99,6 +115,20 @@ public class AuthorizeEndpointBaseTests
         var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
 
         result.Should().BeOfType<ConsentPageResult>();
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task interaction_generator_consent_result_should_not_consume_par()
+    {
+        const string expectedUri = "urn:blah:consent";
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.PushedAuthorizationUri = expectedUri;
+        _stubInteractionGenerator.Response.IsConsent = true;
+ 
+        var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+ 
+        result.Should().BeOfType<ConsentPageResult>();
+        _parService.Verify(ps => ps.RemoveRequestAsync(expectedUri), Times.Never);
     }
 
     [Fact]
@@ -111,6 +141,21 @@ public class AuthorizeEndpointBaseTests
 
         result.Should().BeOfType<AuthorizeResult>();
         ((AuthorizeResult)result).Response.IsError.Should().BeTrue();
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task interaction_error_page_should_consume_par()
+    {
+        const string expectedUri = "urn:blah:interaction-error";
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.PushedAuthorizationUri = expectedUri;
+        _stubInteractionGenerator.Response.Error = "error";
+ 
+        var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+ 
+        result.Should().BeOfType<AuthorizeResult>();
+        ((AuthorizeResult)result).Response.IsError.Should().BeTrue();
+        _parService.Verify(ps => ps.RemoveRequestAsync(expectedUri), Times.Once);
     }
 
     [Fact]
@@ -139,6 +184,20 @@ public class AuthorizeEndpointBaseTests
         var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
 
         result.Should().BeOfType<LoginPageResult>();
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task interaction_login_result_should_not_consume_par()
+    {
+        const string expectedUri = "urn:blah:login";
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.PushedAuthorizationUri = expectedUri;
+        _stubInteractionGenerator.Response.IsLogin = true;
+ 
+        var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+ 
+        result.Should().BeOfType<LoginPageResult>();
+        _parService.Verify(ps => ps.RemoveRequestAsync(expectedUri), Times.Never);
     }
 
     [Fact]
@@ -226,6 +285,24 @@ public class AuthorizeEndpointBaseTests
         var evt = _fakeEventService.AssertEventWasRaised<TokenIssuedFailureEvent>();
         evt.Error.Should().Be("access_denied");
         evt.ErrorDescription.Should().Be("user denied access");
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task authorize_response_error_should_consume_par()
+    {
+        const string expectedUri = "urn:blah:response-error";
+        _stubAuthorizeRequestValidator.Result.ValidatedRequest.PushedAuthorizationUri = expectedUri;
+        _stubAuthorizeResponseGenerator.Response.Error = "access_denied";
+        _stubAuthorizeResponseGenerator.Response.ErrorDescription = "user denied access";
+ 
+        var result = await _subject.ProcessAuthorizeRequestAsync(_params, _user, null);
+ 
+        result.Should().BeOfType<AuthorizeResult>();
+        var evt = _fakeEventService.AssertEventWasRaised<TokenIssuedFailureEvent>();
+        evt.Error.Should().Be("access_denied");
+        evt.ErrorDescription.Should().Be("user denied access");
+        _parService.Verify(ps => ps.RemoveRequestAsync(expectedUri), Times.Once);
     }
     
     [Fact]

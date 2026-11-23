@@ -67,6 +67,12 @@ public class OperationalStoreOptions: StoreOptions
     /// </value>
     public int TokenCleanupBatchSize { get; set; } = 100;
     
+    /// <summary>
+    /// Gets or sets whether the first token cleanup run is delayed by a random amount up to <see cref="TokenCleanupInterval"/>,
+    /// so instances started together don't clean up at the same time. Defaults to <c>true</c>.
+    /// </summary>
+    public bool FuzzTokenCleanupStart { get; set; } = true;
+
     //Schema compatibility, placeholders unused
     
     /// <summary>

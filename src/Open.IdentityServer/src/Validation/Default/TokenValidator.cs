@@ -99,7 +99,12 @@ internal class TokenValidator : ITokenValidator
         _logger.LogDebug("Client found: {clientId} / {clientName}", client.ClientId, client.ClientName);
 
         var keys = await _keys.GetValidationKeysAsync();
-        var result = await ValidateJwtAsync(token, keys, audience: clientId, validateLifetime: validateLifetime);
+        var result = await ValidateJwtAsync(
+            token, 
+            keys, 
+            validateLifetime: validateLifetime,
+            audience: clientId, 
+            expectedJwtTypes: _options.IdentityTokenJwtTypes ?? Array.Empty<string>());
 
         result.Client = client;
 
@@ -248,7 +253,12 @@ internal class TokenValidator : ITokenValidator
         return customResult;
     }
 
-    private async Task<TokenValidationResult> ValidateJwtAsync(string jwt, IEnumerable<SecurityKeyInfo> validationKeys, bool validateLifetime = true, string audience = null)
+    private async Task<TokenValidationResult> ValidateJwtAsync(
+        string jwt, 
+        IEnumerable<SecurityKeyInfo> validationKeys, 
+        bool validateLifetime = true, 
+        string audience = null,
+        IEnumerable<string> expectedJwtTypes = null)
     {
         var handler = new JwtSecurityTokenHandler();
         handler.InboundClaimTypeMap.Clear();
@@ -274,8 +284,15 @@ internal class TokenValidator : ITokenValidator
             var id = handler.ValidateToken(jwt, parameters, out var securityToken);
             var jwtSecurityToken = securityToken as JwtSecurityToken;
 
+            if (expectedJwtTypes != null)
+            {
+                if (!expectedJwtTypes.Contains(jwtSecurityToken.Header.Typ, StringComparer.Ordinal))
+                {
+                    return Invalid(OidcConstants.ProtectedResourceErrors.InvalidToken);
+                }
+            }
             // if no audience is specified, we make at least sure that it is an access token
-            if (audience.IsMissing())
+             else if (audience.IsMissing())
             {
                 if (_options.AccessTokenJwtType.IsPresent())
                 {

@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -71,7 +73,7 @@ public class ServerSessionTicketStore(
 
         if (existingSession == null)
         {
-            await StoreNewSession(key, ticket);
+            logger.NoTicketFoundInStore(key);
             return;
         }
         
@@ -90,13 +92,22 @@ public class ServerSessionTicketStore(
             
             existingSession.Created = issued;
         }
+
+        var inputSubject = ticket.Principal.GetSubjectId();
+
+        if (existingSession.SubjectId != inputSubject)
+        {
+            logger.SessionUserChangeDetectedRemovingSession(key, existingSession.SubjectId, inputSubject);
+            await serverServerSideSessionStore.DeleteSession(key);
+            return;
+        }
         
         logger.RenewingTicketInStore(key, ticket.Properties.ExpiresUtc);
 
         existingSession.Scheme = ticket.AuthenticationScheme;
         existingSession.SubjectId = ticket.Principal.GetSubjectId();
         existingSession.SessionId = ticket.Properties.GetSessionId();
-        existingSession.DisplayName = ticket.Principal.FindFirstValue(JwtClaimTypes.Name);
+        existingSession.DisplayName = GetDisplayNameValue(ticket.Principal);
         existingSession.Renewed = issued;
         existingSession.Expires = ticket.Properties.ExpiresUtc?.UtcDateTime;
         existingSession.AuthenticationTicket = ticket;
@@ -191,10 +202,8 @@ public class ServerSessionTicketStore(
         {
             ticket.Properties.Items[JwtClaimTypes.Issuer] = issuerUri;
         }
-        
-        string? displayName = string.IsNullOrWhiteSpace(options.ServerSideSessions.UserDisplayNameClaimType)
-            ? null
-            : ticket.Principal.FindFirstValue(options.ServerSideSessions.UserDisplayNameClaimType);
+
+        string? displayName = GetDisplayNameValue(ticket.Principal);
 
         var issued = ticket.Properties.IssuedUtc?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
         ServerSideSession serverSideSession = new ServerSideSession
@@ -214,20 +223,11 @@ public class ServerSessionTicketStore(
 
         return serverSideSession;
     }
-    
-    // private AuthenticationTicket? DeserializeAuthTicket(ServerSideSession existingSession)
-    // {
-    //     AuthenticationTicket? authenticationTicket = authenticationTicketSerializer.Deserialize(existingSession.Data);
-    //
-    //     if (authenticationTicket != null)
-    //     {
-    //         authenticationTicket.Properties.IssuedUtc = new DateTimeOffset(existingSession.Renewed, TimeSpan.Zero);
-    //         if (existingSession.Expires.HasValue)
-    //         {
-    //             authenticationTicket.Properties.ExpiresUtc = new DateTimeOffset(existingSession.Expires.Value, TimeSpan.Zero);
-    //         }
-    //     }
-    //     
-    //     return authenticationTicket;
-    // }
+
+    private string? GetDisplayNameValue(ClaimsPrincipal principal)
+    {
+        return string.IsNullOrWhiteSpace(options.ServerSideSessions.UserDisplayNameClaimType)
+            ? null
+            : principal.FindFirstValue(options.ServerSideSessions.UserDisplayNameClaimType);
+    }
 }

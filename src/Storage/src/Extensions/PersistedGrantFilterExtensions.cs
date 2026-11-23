@@ -1,6 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 
 using Open.IdentityServer.Stores;
 using System;
@@ -21,10 +21,10 @@ public static class PersistedGrantFilterExtensions
     {
         ArgumentNullException.ThrowIfNull(filter);
 
-        if (filter.ClientIds.Any(string.IsNullOrWhiteSpace) &&
+        if (filter.ClientIds.All(string.IsNullOrWhiteSpace) &&
             string.IsNullOrWhiteSpace(filter.SessionId) &&
-            string.IsNullOrWhiteSpace(filter.SubjectId) &&
-            filter.Types.Any(string.IsNullOrWhiteSpace))
+            string.IsNullOrWhiteSpace(filter.SubjectId) && 
+            filter.Types.All(string.IsNullOrWhiteSpace))
         {
             throw new ArgumentException("No filter values set.", nameof(filter));
         }

@@ -345,6 +345,12 @@ public class DiscoveryResponseGenerator : IDiscoveryResponseGenerator
                     Options.SupportedRequestObjectSigningAlgorithms);
             }
             
+            if (Options.UserInteraction.SupportedPromptModes != null &&
+                Options.UserInteraction.SupportedPromptModes.Count != 0)
+            {
+                entries.Add(OidcConstants.Discovery.PromptValuesSupported, Options.UserInteraction.SupportedPromptModes);
+            }
+            
             if (Options.Endpoints.EnableJwtRequestUri)
             {
                 entries.Add(OidcConstants.Discovery.RequestUriParameterSupported, true);
