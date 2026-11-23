@@ -35,7 +35,6 @@ public class ValidatedRequest
         }
     }
 
-    
     /// <summary>
     /// Captures the original Raw value so it can be used in constructing Return URLs
     /// that look the same as the inbound request.

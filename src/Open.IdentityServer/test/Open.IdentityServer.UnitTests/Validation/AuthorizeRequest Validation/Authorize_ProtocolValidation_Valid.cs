@@ -7,11 +7,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
-using Microsoft.AspNetCore.Http;
-using Moq;
 using Open.IdentityServer.UnitTests.Validation.Setup;
-using Open.IdentityServer;
-using Open.IdentityServer.Extensions;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;
@@ -19,16 +15,6 @@ namespace Open.IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;
 public class Authorize_ProtocolValidation_Valid
 {
     private const string Category = "AuthorizeRequest Protocol Validation - Valid";
-
-    private readonly IHttpContextAccessor _contextAccessor = Mock.Of<IHttpContextAccessor>();
-    private readonly HttpContext _context = new DefaultHttpContext();
-
-    public Authorize_ProtocolValidation_Valid()
-    {
-        Mock.Get(_contextAccessor)
-            .Setup(x => x.HttpContext)
-            .Returns(_context);
-    }
 
     [Fact]
     [Trait("Category", Category)]
@@ -223,8 +209,6 @@ public class Authorize_ProtocolValidation_Valid
     [Trait("Category", Category)]
     public async Task when_authorization_callback_processed_prompt_values_should_not_be_processed_again()
     {
-        _context.MarkAuthorizationCallback();
-        
         var parameters = new NameValueCollection
         {
             { OidcConstants.AuthorizeRequest.ClientId, "codeclient" },
@@ -233,9 +217,10 @@ public class Authorize_ProtocolValidation_Valid
             { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
             { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
             { OidcConstants.AuthorizeRequest.Prompt, OidcConstants.PromptModes.Login },
+            { Constants.ProcessedParameters.PromptProcessed, OidcConstants.PromptModes.Login },
         };
 
-        var validator = Factory.CreateAuthorizeRequestValidator(contextAccessor: _contextAccessor);
+        var validator = Factory.CreateAuthorizeRequestValidator();
         var result = await validator.ValidateAsync(parameters);
 
         result.IsError.Should().BeFalse();
@@ -247,8 +232,6 @@ public class Authorize_ProtocolValidation_Valid
     [Trait("Category", Category)]
     public async Task when_authorization_callback_processed_max_age_should_not_be_processed_again_when_zero()
     {
-        _context.MarkAuthorizationCallback();
-        
         var parameters = new NameValueCollection
         {
             { OidcConstants.AuthorizeRequest.ClientId, "codeclient" },
@@ -257,9 +240,10 @@ public class Authorize_ProtocolValidation_Valid
             { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
             { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
             { OidcConstants.AuthorizeRequest.MaxAge, "0" },
+            { Constants.ProcessedParameters.MaxAgeProcessed, "0" },
         };
 
-        var validator = Factory.CreateAuthorizeRequestValidator(contextAccessor: _contextAccessor);
+        var validator = Factory.CreateAuthorizeRequestValidator();
         var result = await validator.ValidateAsync(parameters);
 
         result.IsError.Should().BeFalse();
@@ -270,8 +254,6 @@ public class Authorize_ProtocolValidation_Valid
     [Trait("Category", Category)]
     public async Task processed_max_age_should_be_processed_again_when_not_zero()
     {
-        _context.MarkAuthorizationCallback();
-        
         var parameters = new NameValueCollection
         {
             { OidcConstants.AuthorizeRequest.ClientId, "codeclient" },
@@ -280,6 +262,7 @@ public class Authorize_ProtocolValidation_Valid
             { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
             { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
             { OidcConstants.AuthorizeRequest.MaxAge, "10" },
+            { Constants.ProcessedParameters.MaxAgeProcessed, "10" },
         };
 
         var validator = Factory.CreateAuthorizeRequestValidator();

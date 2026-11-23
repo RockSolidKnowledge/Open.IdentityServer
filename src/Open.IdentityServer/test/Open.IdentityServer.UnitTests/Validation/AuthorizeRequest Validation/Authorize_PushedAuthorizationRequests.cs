@@ -31,7 +31,6 @@ public class Authorize_PushedAuthorizationRequests
     private readonly Mock<IRedirectUriValidator> uriValidator = new();
     private readonly Mock<IResourceValidator> resourceValidator = new();
     private readonly Mock<IUserSession> userSession = new();
-    private readonly Mock<IHttpContextAccessor> contextAccessor = new();
 
     private readonly JwtRequestValidator jwtRequestValidator =
         new JwtRequestValidator("", new NopTelemetryService(), new Mock<ILogger<JwtRequestValidator>>().Object);
@@ -42,8 +41,6 @@ public class Authorize_PushedAuthorizationRequests
     private readonly NameValueCollection validAuthorizeParameters = new NameValueCollection();
     
     private const string ValidRedirectUri = "https://open.identityServer.com/sign-in";
-
-    private readonly HttpContext fakeHettpContext = new DefaultHttpContext();
    
     private readonly Client parClient = new Client()
     {
@@ -56,8 +53,6 @@ public class Authorize_PushedAuthorizationRequests
     
     public Authorize_PushedAuthorizationRequests()
     {
-        contextAccessor.Setup(x => x.HttpContext).Returns(fakeHettpContext);
-        
         validAuthorizeParameters.Add("client_id",parClient.ClientId);
         validAuthorizeParameters.Add(OidcConstants.AuthorizeRequest.RedirectUri,ValidRedirectUri);
         validAuthorizeParameters.Add(OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code);
@@ -144,12 +139,12 @@ public class Authorize_PushedAuthorizationRequests
     public async Task
         ValidateAsync_when_called_with_valid_par_request_uri_with_prompt_login_and_context_flagged_authorization_callback_should_capture_validated_prompts()
     {
-        fakeHettpContext.MarkAuthorizationCallback();
-        
         var parRequestParameters = SetupValidParRequest(
             IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + "blah");
         
         validAuthorizeParameters.Add("prompt","login");
+        
+        parRequestParameters.Add(Constants.ProcessedParameters.PromptProcessed, "login");
         
         var sut = CreateSut();
     
@@ -164,12 +159,12 @@ public class Authorize_PushedAuthorizationRequests
     public async Task
         ValidateAsync_when_called_with_valid_par_request_uri_with_max_age_0_and_context_flagged_authorization_callback_should_capture_validated_prompts()
     {
-        fakeHettpContext.MarkAuthorizationCallback();
-        
         var parRequestParameters = SetupValidParRequest(
             IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + "blah");
         
         validAuthorizeParameters.Add("max_age","0");
+        
+        parRequestParameters.Add(Constants.ProcessedParameters.MaxAgeProcessed, "0");
         
         var sut = CreateSut();
     
@@ -275,7 +270,6 @@ public class Authorize_PushedAuthorizationRequests
             jwtRequestUriHttpClient.Object,
             parService.Object,
             telemetry.Object,
-            contextAccessor.Object,
             logger.Object);
     }
 }

@@ -343,7 +343,7 @@ public class PushBasedAuthorizationRequestTests
     
     [Fact]
     [Trait("Category", Category)]
-    public async Task prompt_login_par_request_with_signed_in_user_prompt_processed_true_should_redirect_to_login_page()
+    public async Task prompt_login_par_request_with_signed_in_user_prompt_processed_login_should_ignore_processed_prompt()
     {
         HttpClient client = mockPipeline.BackChannelClient!;
         BrowserClient browser = mockPipeline.BrowserClient!;
@@ -354,12 +354,12 @@ public class PushBasedAuthorizationRequestTests
             client,
             parTestClient,
             ["openid", "api1"],
-            OidcConstants.PromptModes.Login);
+            prompt: OidcConstants.PromptModes.Login);
 
         parResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         string requestUri = await ReadRequestUriAsync(parResponse);
         string authorizeUrl = mockPipeline.CreateParUrl(parTestClient.ClientId, requestUri, [
-            new KeyValuePair<string, string>("prompt_processed", "true"),
+            new KeyValuePair<string, string>("prompt_processed", "login"),
         ])!;
 
         browser.AllowAutoRedirect = false;
@@ -369,26 +369,13 @@ public class PushBasedAuthorizationRequestTests
 
         authorizeResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         authorizeResponse.Headers.Location.Should().NotBeNull();
-        authorizeResponse.Headers.Location!.ToString().ToLowerInvariant()
-            .Should().StartWith(IdentityServerPipeline.LoginPage);
-
-        var authorization = new AuthorizeResponse(authorizeResponse.Headers.Location.ToString());
-        authorization.IsError.Should().BeFalse();
-
-        var loginResponse = await mockPipeline.LoginAsync("bob", authorizeResponse.Headers.Location.ToString());
-        loginResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
-        loginResponse.Headers.Location!.ToString().Should().StartWith(IdentityServerPipeline.AuthorizeEndpoint + "/callback");
         
-        var authorizeCallbackResponse = await browser.GetAsync(
-            loginResponse.Headers.Location!,
-            TestContext.Current.CancellationToken);
-        authorizeCallbackResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
-        authorizeCallbackResponse.Headers.Location!.ToString().Should().StartWith("https://app.com/callback");
+        authorizeResponse.Headers.Location!.ToString().Should().StartWith("https://app.com/callback");
     }
     
     [Fact]
     [Trait("Category", Category)]
-    public async Task max_age_0_par_request_with_signed_in_user_max_age_processed_true_should_redirect_to_login_page()
+    public async Task max_age_0_par_request_with_signed_in_user_max_age_processed_true_should_should_ignore_processed_max_age()
     {
         HttpClient client = mockPipeline.BackChannelClient!;
         BrowserClient browser = mockPipeline.BrowserClient!;
@@ -404,7 +391,7 @@ public class PushBasedAuthorizationRequestTests
         parResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         string requestUri = await ReadRequestUriAsync(parResponse);
         string authorizeUrl = mockPipeline.CreateParUrl(parTestClient.ClientId, requestUri, [
-            new KeyValuePair<string, string>("max_age_processed", "true"),
+            new KeyValuePair<string, string>("max_age_processed", "0"),
         ])!;
 
         browser.AllowAutoRedirect = false;
@@ -414,21 +401,8 @@ public class PushBasedAuthorizationRequestTests
 
         authorizeResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
         authorizeResponse.Headers.Location.Should().NotBeNull();
-        authorizeResponse.Headers.Location!.ToString().ToLowerInvariant()
-            .Should().StartWith(IdentityServerPipeline.LoginPage);
-
-        var authorization = new AuthorizeResponse(authorizeResponse.Headers.Location.ToString());
-        authorization.IsError.Should().BeFalse();
-
-        var loginResponse = await mockPipeline.LoginAsync("bob", authorizeResponse.Headers.Location.ToString());
-        loginResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
-        loginResponse.Headers.Location!.ToString().Should().StartWith(IdentityServerPipeline.AuthorizeEndpoint + "/callback");
         
-        var authorizeCallbackResponse = await browser.GetAsync(
-            loginResponse.Headers.Location!,
-            TestContext.Current.CancellationToken);
-        authorizeCallbackResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
-        authorizeCallbackResponse.Headers.Location!.ToString().Should().StartWith("https://app.com/callback");
+        authorizeResponse.Headers.Location!.ToString().Should().StartWith("https://app.com/callback");
     }
 
     private Task<HttpResponseMessage> SendRequestForUri(HttpClient client, params IEnumerable<string> scopes)

@@ -13,11 +13,6 @@ namespace Open.IdentityServer.Validation;
 public class ValidatedAuthorizeRequest : ValidatedRequest
 {
     /// <summary>
-    /// Get or sets is callback value specifying if authorise request type is callback
-    /// </summary>
-    public bool IsCallback { get; set; } = false;
-
-    /// <summary>
     /// Gets or sets the type of the response.
     /// </summary>
     /// <value>
@@ -232,5 +227,31 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
         RequestedResourceIndicators = [];
         AuthenticationContextReferenceClasses = [];
     }
-    
+
+    internal void MarkProomptProcessed()
+    {
+        string[] promptToIgnoreOnCallback = [
+            OidcConstants.PromptModes.Login,
+            OidcConstants.PromptModes.SelectAccount,
+            OidcConstants.PromptModes.Create,
+        ];
+
+        string[] prompts = [.. PromptModes];
+                
+        string[] newPromptValue = [.. prompts.Except(promptToIgnoreOnCallback)];
+        string processedValue = string.Join(' ', [.. prompts.Intersect(promptToIgnoreOnCallback)]);
+
+        PromptModes = newPromptValue;
+        
+        OriginalRaw.Set(Constants.ProcessedParameters.PromptProcessed, processedValue);
+    }
+
+    internal void MarkMaxAgeProcessed()
+    {
+        if (MaxAge.HasValue)
+        {
+            OriginalRaw.Set(Constants.ProcessedParameters.MaxAgeProcessed, MaxAge.Value.ToString());
+            MaxAge = null;
+        }
+    }
 }
