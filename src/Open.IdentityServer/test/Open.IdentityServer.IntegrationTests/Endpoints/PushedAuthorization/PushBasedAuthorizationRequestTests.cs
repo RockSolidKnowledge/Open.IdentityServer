@@ -340,6 +340,70 @@ public class PushBasedAuthorizationRequestTests
         authorization.State.Should().Be("1234567890");
         authorization.Code.Should().NotBeNullOrWhiteSpace();
     }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task prompt_login_par_request_with_signed_in_user_prompt_processed_login_should_ignore_processed_prompt()
+    {
+        HttpClient client = mockPipeline.BackChannelClient!;
+        BrowserClient browser = mockPipeline.BrowserClient!;
+        
+        await mockPipeline.LoginAsync("bob");
+        
+        using var parResponse = await SendRequestForUriForClient(
+            client,
+            parTestClient,
+            ["openid", "api1"],
+            prompt: OidcConstants.PromptModes.Login);
+
+        parResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        string requestUri = await ReadRequestUriAsync(parResponse);
+        string authorizeUrl = mockPipeline.CreateParUrl(parTestClient.ClientId, requestUri, [
+            new KeyValuePair<string, string>("prompt_processed", "login"),
+        ])!;
+
+        browser.AllowAutoRedirect = false;
+        using var authorizeResponse = await browser.GetAsync(
+            authorizeUrl,
+            TestContext.Current.CancellationToken);
+
+        authorizeResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
+        authorizeResponse.Headers.Location.Should().NotBeNull();
+        
+        authorizeResponse.Headers.Location!.ToString().Should().StartWith("https://app.com/callback");
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task max_age_0_par_request_with_signed_in_user_max_age_processed_true_should_should_ignore_processed_max_age()
+    {
+        HttpClient client = mockPipeline.BackChannelClient!;
+        BrowserClient browser = mockPipeline.BrowserClient!;
+        
+        await mockPipeline.LoginAsync("bob");
+        
+        using var parResponse = await SendRequestForUriForClient(
+            client,
+            parTestClient,
+            ["openid", "api1"],
+            maxAge: 0);
+
+        parResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        string requestUri = await ReadRequestUriAsync(parResponse);
+        string authorizeUrl = mockPipeline.CreateParUrl(parTestClient.ClientId, requestUri, [
+            new KeyValuePair<string, string>("max_age_processed", "0"),
+        ])!;
+
+        browser.AllowAutoRedirect = false;
+        using var authorizeResponse = await browser.GetAsync(
+            authorizeUrl,
+            TestContext.Current.CancellationToken);
+
+        authorizeResponse.StatusCode.Should().Be(HttpStatusCode.SeeOther);
+        authorizeResponse.Headers.Location.Should().NotBeNull();
+        
+        authorizeResponse.Headers.Location!.ToString().Should().StartWith("https://app.com/callback");
+    }
 
     private Task<HttpResponseMessage> SendRequestForUri(HttpClient client, params IEnumerable<string> scopes)
     {
@@ -347,10 +411,11 @@ public class PushBasedAuthorizationRequestTests
     }
 
     private async Task<HttpResponseMessage> SendRequestForUriForClient(
-            HttpClient client,
-            Client requestClient,
-            IEnumerable<string> scopes,
-            string? prompt = null)
+        HttpClient client,
+        Client requestClient,
+        IEnumerable<string> scopes,
+        string? prompt = null,
+        int? maxAge = null)
     {
         var parameters = new Dictionary<string, string>
         {
@@ -365,6 +430,11 @@ public class PushBasedAuthorizationRequestTests
         if (prompt != null)
         {
             parameters[OidcConstants.AuthorizeRequest.Prompt] = prompt;
+        }
+
+        if (maxAge != null)
+        {
+            parameters[OidcConstants.AuthorizeRequest.MaxAge] = $"{maxAge}";
         }
         
         HttpResponseMessage response = await client.PostAsync(

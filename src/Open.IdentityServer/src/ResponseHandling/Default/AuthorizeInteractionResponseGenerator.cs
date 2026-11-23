@@ -138,6 +138,17 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
             request.PromptModes.Contains(OidcConstants.PromptModes.SelectAccount))
         {
             Logger.LogInformation("Showing login: request contains prompt={0}", request.PromptModes.ToSpaceSeparatedString());
+            
+            request.MarkProomptProcessed();
+
+            return new InteractionResponse { IsLogin = true };
+        }
+
+        if (request.MaxAge == 0)
+        {
+            Logger.LogInformation("Showing login: request contains max_age=0");
+            
+            request.MarkMaxAgeProcessed();
 
             return new InteractionResponse { IsLogin = true };
         }
@@ -247,6 +258,8 @@ public class AuthorizeInteractionResponseGenerator : IAuthorizeInteractionRespon
         {
             Logger.LogInformation("Showing create account: request contains prompt=create");
 
+            request.MarkProomptProcessed();
+            
             response.IsCreateAccount = true;
         }
 

@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 
 namespace Open.IdentityServer.Validation;
@@ -228,5 +227,31 @@ public class ValidatedAuthorizeRequest : ValidatedRequest
         RequestedResourceIndicators = [];
         AuthenticationContextReferenceClasses = [];
     }
-    
+
+    internal void MarkProomptProcessed()
+    {
+        string[] promptToIgnoreOnCallback = [
+            OidcConstants.PromptModes.Login,
+            OidcConstants.PromptModes.SelectAccount,
+            OidcConstants.PromptModes.Create,
+        ];
+
+        string[] prompts = [.. PromptModes];
+                
+        string[] newPromptValue = [.. prompts.Except(promptToIgnoreOnCallback)];
+        string processedValue = string.Join(' ', [.. prompts.Intersect(promptToIgnoreOnCallback)]);
+
+        PromptModes = newPromptValue;
+        
+        OriginalRaw.Set(Constants.ProcessedParameters.PromptProcessed, processedValue);
+    }
+
+    internal void MarkMaxAgeProcessed()
+    {
+        if (MaxAge.HasValue)
+        {
+            OriginalRaw.Set(Constants.ProcessedParameters.MaxAgeProcessed, MaxAge.Value.ToString());
+            MaxAge = null;
+        }
+    }
 }

@@ -1196,7 +1196,10 @@ public class AuthorizeTests
         await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
         _mockPipeline.CreateWasCalled.Should().BeTrue();
-        _mockPipeline.CreateRequest.PromptModes.Should().Contain("create");
+        
+        _mockPipeline.CreateRequest.Should().NotBeNull();
+        _mockPipeline.CreateRequest!.PromptModes.Should().NotContain("create");
+        _mockPipeline.CreateRequest.Parameters[Constants.ProcessedParameters.PromptProcessed].Should().Contain("create");
     }
 
     [Fact]
@@ -1220,7 +1223,10 @@ public class AuthorizeTests
         await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
 
         _mockPipeline.LoginWasCalled.Should().BeTrue();
-        _mockPipeline.LoginRequest.PromptModes.Should().Contain("login");
+        
+        _mockPipeline.LoginRequest.Should().NotBeNull();
+        _mockPipeline.LoginRequest!.PromptModes.Should().NotContain("login");
+        _mockPipeline.LoginRequest.Parameters[Constants.ProcessedParameters.PromptProcessed].Should().Contain("login");
     }
 
     [Fact]

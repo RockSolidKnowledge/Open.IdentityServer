@@ -4,10 +4,12 @@
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Open.IdentityServer.Configuration;
+using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
@@ -17,7 +19,6 @@ using Xunit;
 
 #nullable enable
 namespace Open.IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;
-
 
 public class Authorize_PushedAuthorizationRequests
 {
@@ -40,7 +41,6 @@ public class Authorize_PushedAuthorizationRequests
     private readonly NameValueCollection validAuthorizeParameters = new NameValueCollection();
     
     private const string ValidRedirectUri = "https://open.identityServer.com/sign-in";
-
    
     private readonly Client parClient = new Client()
     {
@@ -137,14 +137,14 @@ public class Authorize_PushedAuthorizationRequests
     
     [Fact]
     public async Task
-        ValidateAsync_when_called_with_valid_par_request_uri_with_prompt_processed_should_capture_validated_prompts()
+        ValidateAsync_when_called_with_valid_par_request_uri_with_prompt_login_and_context_flagged_authorization_callback_should_capture_validated_prompts()
     {
         var parRequestParameters = SetupValidParRequest(
             IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + "blah");
         
         validAuthorizeParameters.Add("prompt","login");
         
-        parRequestParameters.Add(Constants.ProcessedParameters.PromptProcessed, "true");
+        parRequestParameters.Add(Constants.ProcessedParameters.PromptProcessed, "login");
         
         var sut = CreateSut();
     
@@ -152,19 +152,19 @@ public class Authorize_PushedAuthorizationRequests
         
         result.IsError.Should().BeFalse();
         result.ValidatedRequest.Should().NotBeNull();
-        result.ValidatedRequest.ProcessedPromptModes.Should().BeEquivalentTo(["login"]);
+        result.ValidatedRequest.ProcessedPromptModes.Should().BeEquivalentTo("login");
     }
     
     [Fact]
     public async Task
-        ValidateAsync_when_called_with_valid_par_request_uri_with_max_age_processed_should_capture_validated_prompts()
+        ValidateAsync_when_called_with_valid_par_request_uri_with_max_age_0_and_context_flagged_authorization_callback_should_capture_validated_prompts()
     {
         var parRequestParameters = SetupValidParRequest(
             IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix + "blah");
         
         validAuthorizeParameters.Add("max_age","0");
         
-        parRequestParameters.Add(Constants.ProcessedParameters.MaxAgeProcessed, "true");
+        parRequestParameters.Add(Constants.ProcessedParameters.MaxAgeProcessed, "0");
         
         var sut = CreateSut();
     
@@ -244,7 +244,7 @@ public class Authorize_PushedAuthorizationRequests
         parService.Verify(s => s.RemoveRequestAsync(requestUri), Times.Once);
     }
    
-    private NameValueCollection SetupValidParRequest(string requestUri )
+    private NameValueCollection SetupValidParRequest(string requestUri)
     {
         var parRequestParameters = new NameValueCollection
         {

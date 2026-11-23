@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Open.IdentityServer.UnitTests.Validation.Setup;
-using Open.IdentityServer;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;
@@ -208,7 +207,7 @@ public class Authorize_ProtocolValidation_Valid
 
     [Fact]
     [Trait("Category", Category)]
-    public async Task processed_prompt_values_should_not_be_processed_again()
+    public async Task when_authorization_callback_processed_prompt_values_should_not_be_processed_again()
     {
         var parameters = new NameValueCollection
         {
@@ -218,7 +217,7 @@ public class Authorize_ProtocolValidation_Valid
             { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
             { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
             { OidcConstants.AuthorizeRequest.Prompt, OidcConstants.PromptModes.Login },
-            { Constants.ProcessedParameters.PromptProcessed, "true" }
+            { Constants.ProcessedParameters.PromptProcessed, OidcConstants.PromptModes.Login },
         };
 
         var validator = Factory.CreateAuthorizeRequestValidator();
@@ -231,7 +230,7 @@ public class Authorize_ProtocolValidation_Valid
 
     [Fact]
     [Trait("Category", Category)]
-    public async Task processed_max_age_should_not_be_processed_again_when_zero()
+    public async Task when_authorization_callback_processed_max_age_should_not_be_processed_again_when_zero()
     {
         var parameters = new NameValueCollection
         {
@@ -241,7 +240,7 @@ public class Authorize_ProtocolValidation_Valid
             { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
             { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
             { OidcConstants.AuthorizeRequest.MaxAge, "0" },
-            { Constants.ProcessedParameters.MaxAgeProcessed, "true" }
+            { Constants.ProcessedParameters.MaxAgeProcessed, "0" },
         };
 
         var validator = Factory.CreateAuthorizeRequestValidator();
@@ -263,7 +262,7 @@ public class Authorize_ProtocolValidation_Valid
             { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
             { OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.Fragment },
             { OidcConstants.AuthorizeRequest.MaxAge, "10" },
-            { Constants.ProcessedParameters.MaxAgeProcessed, "true" }
+            { Constants.ProcessedParameters.MaxAgeProcessed, "10" },
         };
 
         var validator = Factory.CreateAuthorizeRequestValidator();

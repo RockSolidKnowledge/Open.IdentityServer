@@ -37,7 +37,8 @@ public class AuthorizeInteractionResponseGeneratorTests_Create
             ResponseMode = OidcConstants.ResponseModes.Fragment,
             State = "12345",
             RedirectUri = "https://client.com/callback",
-            PromptModes = [OidcConstants.PromptModes.Create]
+            PromptModes = [OidcConstants.PromptModes.Create],
+            Raw = [],
         };
 
         var result = await _subject.ProcessCreateAsync(request);
@@ -65,5 +66,4 @@ public class AuthorizeInteractionResponseGeneratorTests_Create
 
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
-
 }

@@ -117,7 +117,7 @@ public static class HttpContextExtensions
     {
         return context.Items.ContainsKey(Constants.EnvironmentKeys.SignOutCalled);
     }
-    
+
 
     /// <summary>
     /// Gets the host name of IdentityServer.
