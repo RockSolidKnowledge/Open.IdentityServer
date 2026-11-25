@@ -32,14 +32,14 @@ public class IdentityServerServerSideSessionStore(
     /// <summary>
     /// Maps the <see cref="Entities.ServerSideSession"/> to the <see cref="Open.IdentityServer.Models.ServerSideSession"/>.
     /// </summary>
-    /// <param name="entities">The <see cref="Entities.ServerSideSession"/>.</param>
+    /// <param name="entity">The <see cref="Entities.ServerSideSession"/>.</param>
     /// <returns>The <see cref="Open.IdentityServer.Models.ServerSideSession"/> or an object extending Client.</returns>
     /// <remarks>
     /// Makes it possible to return an extended model.
     /// </remarks>
-    protected virtual ServerSideSession? ToModel(Entities.ServerSideSession? entities)
+    protected virtual ServerSideSession? ToModel(Entities.ServerSideSession? entity)
     {
-        var result = entities?.ToModel(authTicketSerializer);
+        var result = entity?.ToModel(authTicketSerializer);
 
         return result;
     }

@@ -32,7 +32,7 @@ public class AuthenticationTicketSerializerTests
     private AuthenticationTicketSerializer CreateSut() => new(dataProtectionProvider, logger);
     
     [Fact]
-    public async Task Serialize_When_Should()
+    public async Task Serialize_ShouldSerializeAuthTicketAndDataProtectItWrappingInProtectedDataContainer()
     {
         const string authScheme = "FakeAuthScheme";
         string subjectId = Guid.NewGuid().ToString();
@@ -63,8 +63,59 @@ public class AuthenticationTicketSerializerTests
         dataProtector.ValidateProtectedData(actualPayload, expectedJson);
     }
 
+    [Theory]
+    [InlineData("{invalid.json}")]
+    [InlineData("{\"Version\": 2, Payload: \"SOMEDATA\"}")]
+    public async Task Deserialize_WhenSessionDataDeserialisationFails_ShouldReturnNull(string data)
+    {
+        AuthenticationTicketSerializer sut = CreateSut();
+        
+        AuthenticationTicket? actual = sut.Deserialize(data);
+
+        actual.Should().BeNull();
+    }
+
     [Fact]
-    public async Task Deserialize_When_Should()
+    public async Task Deserialize_WhenUnprotectPayloadFails_ShouldReturnNull()
+    {
+        const string authScheme = "FakeAuthScheme";
+        string subjectId = Guid.NewGuid().ToString();
+        string sessionId = Guid.NewGuid().ToString();
+        const string displayName = "Fake User";
+        DateTime issuedUtc = new(2026, 02, 19, 12, 0, 0, DateTimeKind.Utc);
+        DateTime expiresUtc = new(2026, 02, 19, 12, 0, 0, DateTimeKind.Utc);
+        string fakeIssuer = "https://fake.issuer.com";
+        
+        SerializedAuthenticationTicket authenticationTicket = ServerSessionTestGenerators.GenerateSerializedAuthenticationTicket(authScheme, subjectId, sessionId, displayName, issuedUtc, expiresUtc, issuer: fakeIssuer);
+
+        Mock.Get(dataProtector.dataProtector)
+            .Setup(x => x.Unprotect(It.IsAny<byte[]>()))
+            .Throws(new Exception("Fake Error"));
+        AuthenticationTicketSerializer sut = CreateSut();
+
+        string fakeProtectedData = GenerateFakeProtectedData(authenticationTicket);
+        AuthenticationTicket? actual = sut.Deserialize(fakeProtectedData);
+
+        actual.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("{invalid.json}")]
+    public async Task Deserialize_WhenUnprotectedPayloadIsInvalidJson_ShouldReturnNull(string invalidJson)
+    {
+        Mock.Get(dataProtector.dataProtector)
+            .Setup(x => x.Unprotect(It.IsAny<byte[]>()))
+            .Throws(new Exception("Fake Error"));
+        AuthenticationTicketSerializer sut = CreateSut();
+
+        string fakeProtectedData = GenerateFakeProtectedData(invalidJson);
+        AuthenticationTicket? actual = sut.Deserialize(fakeProtectedData);
+
+        actual.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Deserialize_WhenValidProtectedData_ShouldSuccessfullyUnprotectAndDeserialize()
     {
         const string authScheme = "FakeAuthScheme";
         string subjectId = Guid.NewGuid().ToString();
@@ -93,24 +144,17 @@ public class AuthenticationTicketSerializerTests
         actual.Properties.Items.Should().BeEquivalentTo(authenticationTicket.Items);
     }
 
-    [Theory]
-    [InlineData("{invalid.json}")]
-    [InlineData("{\"Version\": 2, Payload: \"SOMEDATA\"}")]
-    public async Task Deserialize_WhenSessionDataDeserialisationFails_ShouldReturnNull(string data)
+    private string GenerateFakeProtectedData(SerializedAuthenticationTicket serializedAuthenticationTicket)
     {
-        AuthenticationTicketSerializer sut = CreateSut();
-        
-        AuthenticationTicket? actual = sut.Deserialize(data);
-
-        actual.Should().BeNull();
+        return GenerateFakeProtectedData(JsonSerializer.Serialize(serializedAuthenticationTicket,
+            AuthenticationTicketSerializer.JsonSettings));
     }
 
-    private string GenerateFakeProtectedData(SerializedAuthenticationTicket serializedAuthenticationTicket)
+    private string GenerateFakeProtectedData(string serializedAuthenticationTicket)
     {
         DataProtectedSessionData sessionData = new DataProtectedSessionData
         {
-            Payload = dataProtector.GenerateFakeProtectedData(JsonSerializer.Serialize(serializedAuthenticationTicket,
-                AuthenticationTicketSerializer.JsonSettings))
+            Payload = dataProtector.GenerateFakeProtectedData(serializedAuthenticationTicket)
         };
 
         return JsonSerializer.Serialize(sessionData, AuthenticationTicketSerializer.JsonSettings);

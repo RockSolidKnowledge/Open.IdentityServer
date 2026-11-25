@@ -13,7 +13,7 @@ public interface IAuthenticationTicketSerializer
     /// Serializes the <see cref="AuthenticationTicket"/> object passed in into a string
     /// </summary>
     /// <param name="ticket">ticket to be serialized</param>
-    /// <returns>string contaimng data from ticket serialized</returns>
+    /// <returns>string containing data from ticket serialized</returns>
     string Serialize(AuthenticationTicket ticket);
 
     /// <summary>

@@ -762,15 +762,13 @@ public class DefaultUserSessionEventsServiceTests
             Client = new Client { CoordinateLifetimeWithUserSession = true }
         };
 
-        ServerSideSession fakeSession = FakeSession(
+        AuthenticationTicketFilterResult fakeSession = FakeSession(
             fakeSessionKey, fakeScheme, fakeSessionId, fakeSubjectId, fakeDisplayName,
             created: renewed, renewed: renewed, expires: expires);
 
         Mock.Get(serverSessionTicketStore)
             .Setup(x => x.FilterServerAuthenticationTickets(fakeSubjectId, fakeSessionId))
-            .ReturnsAsync([
-                new AuthenticationTicketFilterResult { Session = fakeSession },
-            ]);
+            .ReturnsAsync([fakeSession]);
 
         DefaultUserSessionEventsService sut = CreateSut();
         bool actual = await sut.ValidateSession(testCtx);
