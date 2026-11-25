@@ -81,9 +81,26 @@ public class ClientInitiatedMetadataDocumentStoreTests
 
         result.Should().Be(client);
     }
+    
+    [Fact] 
+    public async Task FindByClientIdAsync_when_called_with_a_and_client_url_resolves_a_client_with_different_client_id_to_uri_should_fail()
+    {
+        string expectedClientId = "https://open.identityserver.com/clients/123";
+        Client client = new Client();
+        
+        AddValidClientReference(expectedClientId , client);
+        client.ClientId = "rubbish";
+        
+        var sut = CreateSut();
+        Client result = await sut.FindClientByIdAsync(expectedClientId);
+
+        result.Should().BeNull();
+    }
+
 
     private void AddValidClientReference(string expectedClientId, Client client)
     {
+        client.ClientId = expectedClientId;
         AddClientReference(expectedClientId, true);
         loader
             .Setup(l => l.Load(new Uri(expectedClientId)))

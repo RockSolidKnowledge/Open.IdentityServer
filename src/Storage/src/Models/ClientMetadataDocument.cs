@@ -63,6 +63,16 @@ public record ClientMetadataDocument
     [JsonPropertyName("response_types")]
     public string[]? ResponseTypes { get; set; }
 
+    
+    /// <summary>
+    /// OPTIONAL. id of the client to be presented to the end user.
+    /// </summary>
+    /// <remarks>
+    /// Required for client initiated metadata document
+    /// </remarks>
+    [JsonPropertyName("client_id")]
+    public string? ClientId{ get; set; }
+    
     /// <summary>
     /// OPTIONAL. Name of the client to be presented to the end user.
     /// </summary>

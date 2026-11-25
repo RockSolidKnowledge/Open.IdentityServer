@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services.Default;
+using Open.IdentityServer.Storage.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -498,6 +499,40 @@ public static class IdentityServerBuilderExtensionsAdditional
         
         //Add Management Service
         builder.Services.TryAddScoped<ISessionManagementService, DefaultSessionManagementService>();
+
+        return builder;
+    }
+
+
+    /// <summary>
+    /// Adds support for client initiated metadata document support
+    /// </summary>
+    /// <param name="builder">the DI builder</param>
+    /// <param name="configureClient">Configure the HttpClient used to obtain the client metadata document</param>
+    /// <returns>The DI builder</returns>
+    public static IIdentityServerBuilder AddClientInitiatedMetadataDocumentStore<TTrustValidator>(
+        this IIdentityServerBuilder builder , Action<HttpClient> configureClient = null )
+    where TTrustValidator : class,IClientMetadataReferenceTrustValidator
+    {
+        configureClient ??= c =>
+        {
+            c.MaxResponseContentBufferSize = 64 * 1024; // 64 KB
+            c.Timeout = TimeSpan.FromSeconds(10);
+        };
+        
+        builder.Services.AddTransient<IClientMetadataReferenceTrustValidator, TTrustValidator>();
+        builder.Services.AddTransient<IClientMetadataReferenceValidator, DefaultClientMetadataReferenceValidator>();
+        builder.Services.AddTransient<IClientInitiatedMetadataDocumentLoader, ClientInitiatedMetadataDocumentLoader>();
+        builder.Services.AddTransient<IMapClientMetadataDocumentToClient, DefaultClientMetadataMapper>();
+        
+        builder.Services.AddHttpClient<IClientMetadataDocumentClient,ClientMetadataDocumentHttpClient>(configureClient)
+            .ConfigurePrimaryHttpMessageHandler(sp => new HttpClientHandler()
+        {
+            // Need to prevent fetching documents from non verified URLs
+            AllowAutoRedirect = false,
+        });
+        
+        builder.Services.Decorate<IClientStore, ClientInitiatedMetadataDocumentStore>();
 
         return builder;
     }

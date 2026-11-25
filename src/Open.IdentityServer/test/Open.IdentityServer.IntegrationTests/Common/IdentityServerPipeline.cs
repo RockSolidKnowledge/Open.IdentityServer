@@ -96,7 +96,15 @@ public class IdentityServerPipeline
         Initialize(_ => { }, basePath, enableLogging);
     }
 
-    public void Initialize(Action<IServiceCollection> configureServices , string? basePath = null, bool enableLogging = false)
+    public void Initialize(
+        Action<IServiceCollection> configureServices,
+        string? basePath = null, bool enableLogging = false) =>
+        Initialize(configureServices, _ => { }, basePath, enableLogging);
+
+    public void Initialize(
+        Action<IServiceCollection> configureServices ,
+        Action<IApplicationBuilder> configureApp,
+        string? basePath = null, bool enableLogging = false)
     {
         var hostBuilder = new HostBuilder()
             .ConfigureWebHost(webBuilder =>
@@ -105,8 +113,8 @@ public class IdentityServerPipeline
 
                 webBuilder.ConfigureServices(sc =>
                 {
-                    configureServices(sc);
                     ConfigureServices(sc);
+                    configureServices(sc);
                 });
                 webBuilder.Configure(app =>
                 {
@@ -118,6 +126,8 @@ public class IdentityServerPipeline
                     {
                         ConfigureApp(app);
                     }
+
+                    configureApp(app);
                 });
 
                 if (enableLogging)

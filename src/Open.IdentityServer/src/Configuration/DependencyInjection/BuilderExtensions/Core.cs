@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using Open.IdentityServer.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -317,5 +318,62 @@ public static class IdentityServerBuilderExtensionsCore
             services.Add(new ServiceDescriptor(typeof(Decorator<TService>), innerType, ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(type, type, registration.Lifetime));
         }
+    }
+    
+    /// <summary>
+    /// Uses standard decoration, 
+    /// </summary>
+    /// <param name="services">the DI services collection</param>
+    /// <typeparam name="TService">The service to decorate</typeparam>
+    /// <typeparam name="TDecorator">The decorator implementation</typeparam>
+    /// <returns>the DI services collection</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is no base to decorate</exception>
+    public static IServiceCollection Decorate<TService, TDecorator>(this IServiceCollection services)
+        where TService : class
+        where TDecorator : class, TService
+    {
+        var serviceType = typeof(TService);
+        var decoratorType = typeof(TDecorator);
+
+        // Find the last registration for TService (matches Scrutor behavior)
+        var index = services
+            .Select((descriptor, i) => new { descriptor, i })
+            .LastOrDefault(x => x.descriptor.ServiceType == serviceType)?.i ?? 
+                    throw new InvalidOperationException($"Could not find any registered services for type '{serviceType.FullName}'.");
+
+        var originalDescriptor = services[index];
+        services.RemoveAt(index);
+
+        // Re-register TService so that it creates: decorator(originalInstance)
+        services.Insert(index, ServiceDescriptor.Describe(
+            serviceType,
+            sp =>
+            {
+                var original = CreateInstance(sp, originalDescriptor);
+                return (TService)ActivatorUtilities.CreateInstance(sp, decoratorType, original);
+            },
+            originalDescriptor.Lifetime));
+
+        return services;
+    }
+
+    private static object CreateInstance(IServiceProvider sp, ServiceDescriptor descriptor)
+    {
+        if (descriptor.ImplementationInstance is not null)
+        {
+            return descriptor.ImplementationInstance;
+        }
+
+        if (descriptor.ImplementationFactory is not null)
+        {
+            return descriptor.ImplementationFactory(sp);
+        }
+
+        if (descriptor.ImplementationType is not null)
+        {
+            return ActivatorUtilities.GetServiceOrCreateInstance(sp, descriptor.ImplementationType);
+        }
+
+        throw new InvalidOperationException("Unsupported service descriptor.");
     }
 }

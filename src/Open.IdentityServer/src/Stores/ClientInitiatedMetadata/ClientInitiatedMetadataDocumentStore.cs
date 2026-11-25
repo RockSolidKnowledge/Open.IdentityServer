@@ -42,7 +42,7 @@ public class ClientInitiatedMetadataDocumentStore(
         {
             logger.Log(LogLevel.Information,
                 "client ID : {client_id} is a store request ",clientId);
-            return await configurationStore.FindClientByIdAsync(clientId);
+            return await configurationStore.FindClientByIdAsync(clientId)!;
         }
         
         logger.Log(LogLevel.Information,
@@ -53,7 +53,7 @@ public class ClientInitiatedMetadataDocumentStore(
         {
             logger.Log(LogLevel.Error,
                 "client ID : {client_id} is not a valid URL or trusted ",clientId);
-            return null;
+            return null!;
         }
 
         Client? client = await loader.Load(validationResult.MetadataReference);
@@ -62,6 +62,15 @@ public class ClientInitiatedMetadataDocumentStore(
         {
             logger.Log(LogLevel.Error,
                 "Failed to load CIMD : {client_id} ",clientId);
+            return null!;
+        }
+
+        if (client.ClientId != clientId)
+        {
+            logger.Log(LogLevel.Error,
+                "The loaded metadata document client_id ({client_id}) is different to the URI {cimd_uri} used to load the document", 
+                client.ClientId,clientId);
+            return null!;
         }
 
         return client;

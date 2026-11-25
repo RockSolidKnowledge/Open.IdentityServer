@@ -37,6 +37,7 @@ public class DefaultClientMetadataMapper : IMapClientMetadataDocumentToClient
         
         var client = new Client()
         {
+            ClientId = document.ClientId,
             ClientName = document.ClientName,
             ClientUri = document.ClientUri,
             LogoUri = document.LogoUri,
@@ -54,7 +55,7 @@ public class DefaultClientMetadataMapper : IMapClientMetadataDocumentToClient
             InitiateLoginUri = document.InitiateLoginUri,
             Claims = document.ClientClaims?
                 .Select(claim => new ClientClaim(claim.Key, claim.Value.ToString()))
-                .ToList()
+                .ToList() ?? []
         };
 
         ApplyOpenIdentityServerParameters(document, client);

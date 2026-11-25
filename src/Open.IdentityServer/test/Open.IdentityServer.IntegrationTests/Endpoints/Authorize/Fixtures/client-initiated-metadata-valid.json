@@ -1,0 +1,22 @@
+{
+  "client_id": "https://server/clients/client1.json",
+  "client_name": "HR App Test Client",
+  "redirect_uris": [
+    "https://localhost/signin-oidc"
+  ],
+  "require_pkce": false,
+  "grant_types": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "response_types": [
+    "code"
+  ],
+  "token_endpoint_auth_method": "none",
+  "scope": "openid profile api1 api2 offline_access",
+  "contacts": [
+    "test-owner@localhost"
+  ],
+  "client_uri": "https://localhost/hr-app"
+}
+

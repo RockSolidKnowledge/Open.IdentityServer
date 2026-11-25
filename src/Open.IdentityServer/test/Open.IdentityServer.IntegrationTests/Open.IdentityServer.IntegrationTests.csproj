@@ -48,4 +48,8 @@
       <Folder Include="Utility\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <EmbeddedResource Include="Endpoints\Authorize\Fixtures\client-initiated-metadata-valid.json" />
+    </ItemGroup>
+
 </Project>
