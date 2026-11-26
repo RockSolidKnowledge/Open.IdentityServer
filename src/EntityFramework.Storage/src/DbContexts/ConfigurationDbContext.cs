@@ -91,6 +91,14 @@ public class ConfigurationDbContext<TContext> : DbContext, IConfigurationDbConte
     /// The API resources.
     /// </value>
     public DbSet<ApiScope> ApiScopes { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the identity providers.
+    /// </summary>
+    /// <value>
+    /// The identity providers.
+    /// </value>
+    public DbSet<IdentityServerIdentityProvider> IdentityProviders { get; set; }
 
     /// <summary>
     /// Override this method to further configure the model that was discovered by convention from the entity types
@@ -112,14 +120,4 @@ public class ConfigurationDbContext<TContext> : DbContext, IConfigurationDbConte
 
         base.OnModelCreating(modelBuilder);
     }
-    
-    //Schema compatibility, placeholders unused
-    
-    /// <summary>
-    /// Gets or sets the identity providers.
-    /// </summary>
-    /// <value>
-    /// The identity providers.
-    /// </value>
-    public DbSet<IdentityServerIdentityProvider> IdentityProviders { get; set; }
 }
