@@ -104,8 +104,13 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
     }
 
     /// <inheritdoc />
-    public async Task<EndSessionValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal subject)
+    public async Task<EndSessionValidationResult> ValidateAsync(EndSessionRequestValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
+        var parameters = validationContext.Parameters;
+        var subject = validationContext.Subject;
+
         using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         Logger.LogDebug("Start end session request validation");
 
@@ -126,7 +131,8 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
 
         if (idTokenHint.IsPresent())
         {
-            var hintValidationResult = await TokenValidator.ValidateIdentityTokenAsync(idTokenHint, null, false);
+            var hintValidationResult = await TokenValidator.ValidateIdentityTokenAsync(
+                new IdentityTokenValidationContext(idTokenHint, null, false));
             var hasSubject = hintValidationResult.Claims?
                 .Any(c => c.Type == JwtClaimTypes.Subject && c.Value.IsPresent()) 
                              ?? false;
@@ -161,7 +167,7 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
             var redirectUri = parameters.Get(OidcConstants.EndSessionRequest.PostLogoutRedirectUri);
             if (redirectUri.IsPresent())
             {
-                if (await UriValidator.IsPostLogoutRedirectUriValidAsync(redirectUri, validatedRequest.Client))
+                if (await UriValidator.IsPostLogoutRedirectUriValidAsync(new RedirectUriValidationContext(redirectUri, validatedRequest.Client)))
                 {
                     validatedRequest.PostLogOutUri = redirectUri;
                 }
@@ -234,15 +240,17 @@ public class EndSessionRequestValidator : IEndSessionRequestValidator
     }
 
     /// <inheritdoc />
-    public async Task<EndSessionCallbackValidationResult> ValidateCallbackAsync(NameValueCollection parameters)
+    public async Task<EndSessionCallbackValidationResult> ValidateCallbackAsync(EndSessionRequestValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
         using var trace = Telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         var result = new EndSessionCallbackValidationResult
         {
             IsError = true
         };
 
-        var endSessionId = parameters[Constants.UIConstants.DefaultRoutePathParams.EndSessionCallback];
+        var endSessionId = validationContext.Parameters[Constants.UIConstants.DefaultRoutePathParams.EndSessionCallback];
         var endSessionMessage = await EndSessionMessageStore.ReadAsync(endSessionId);
         if (endSessionMessage?.Data?.ClientIds?.Any() == true)
         {

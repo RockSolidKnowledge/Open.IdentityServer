@@ -21,11 +21,13 @@ internal class DefaultServerSideSessionTokenValidator(
     private ITokenValidator decoratedService = decorator.Instance ?? throw new ArgumentNullException(nameof(decorator));
     
     /// <inheritdoc />
-    public async Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string? expectedScope = null)
+    public async Task<TokenValidationResult> ValidateAccessTokenAsync(AccessTokenValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
-        
-        TokenValidationResult validatedAccessToken = await decoratedService.ValidateAccessTokenAsync(token, expectedScope);
+
+        TokenValidationResult validatedAccessToken = await decoratedService.ValidateAccessTokenAsync(validationContext);
         
         if (validatedAccessToken.IsError)
         {
@@ -60,6 +62,6 @@ internal class DefaultServerSideSessionTokenValidator(
     }
 
     /// <inheritdoc />
-    public Task<TokenValidationResult> ValidateIdentityTokenAsync(string token, string? clientId = null, bool validateLifetime = true) => 
-        decoratedService.ValidateIdentityTokenAsync(token, clientId, validateLifetime);
+    public Task<TokenValidationResult> ValidateIdentityTokenAsync(IdentityTokenValidationContext validationContext) =>
+        decoratedService.ValidateIdentityTokenAsync(validationContext);
 }

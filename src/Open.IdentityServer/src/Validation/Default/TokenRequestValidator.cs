@@ -94,28 +94,25 @@ internal class TokenRequestValidator : ITokenRequestValidator
     /// <summary>
     /// Validates the request.
     /// </summary>
-    /// <param name="parameters">The parameters.</param>
-    /// <param name="clientValidationResult">The client validation result.</param>
+    /// <param name="validationContext">The context encapsulating the token request parameters and the client validation result.</param>
     /// <returns>A <see cref="TokenRequestValidationResult"/> indicating whether the token request is valid, carrying the validated request context or error details.</returns>
-    /// <exception cref="System.ArgumentNullException">
-    /// parameters
-    /// or
-    /// client
-    /// </exception>
-    public async Task<TokenRequestValidationResult> ValidateRequestAsync(NameValueCollection parameters,
-        ClientSecretValidationResult clientValidationResult)
+    /// <exception cref="System.ArgumentNullException"><paramref name="validationContext"/> is <see langword="null"/>.</exception>
+    public async Task<TokenRequestValidationResult> ValidateRequestAsync(TokenRequestValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
+        var parameters = validationContext.Parameters;
+        var clientValidationResult = validationContext.ClientValidationResult;
+
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         
         _logger.LogDebug("Start token request validation");
 
         _validatedRequest = new ValidatedTokenRequest
         {
-            Raw = parameters ?? throw new ArgumentNullException(nameof(parameters)),
+            Raw = parameters,
             Options = _options
         };
-
-        if (clientValidationResult == null) throw new ArgumentNullException(nameof(clientValidationResult));
 
         _validatedRequest.SetClient(clientValidationResult.Client, clientValidationResult.Secret,
             clientValidationResult.Confirmation);

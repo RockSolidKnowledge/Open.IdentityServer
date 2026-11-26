@@ -62,17 +62,19 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         _logger = logger;
     }
 
-    public async Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters,
-        ClaimsPrincipal subject = null)
+    /// <inheritdoc/>
+    public async Task<AuthorizeRequestValidationResult> ValidateAsync(AuthorizeRequestValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogDebug("Start authorize request protocol validation");
 
         var request = new ValidatedAuthorizeRequest
         {
             Options = _options,
-            Subject = subject ?? Principal.Anonymous,
-            Raw = parameters ?? throw new ArgumentNullException(nameof(parameters))
+            Subject = validationContext.Subject ?? Principal.Anonymous,
+            Raw = validationContext.Parameters
         };
 
         // load client_id
@@ -400,7 +402,7 @@ internal class AuthorizeRequestValidator : IAuthorizeRequestValidator
         //////////////////////////////////////////////////////////
         // check if redirect_uri is valid
         //////////////////////////////////////////////////////////
-        if (await _uriValidator.IsRedirectUriValidAsync(redirectUri, request.Client) == false)
+        if (await _uriValidator.IsRedirectUriValidAsync(new RedirectUriValidationContext(redirectUri, request.Client)) == false)
         {
             LogError("Invalid redirect_uri", redirectUri, request);
             return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest, "Invalid redirect_uri");

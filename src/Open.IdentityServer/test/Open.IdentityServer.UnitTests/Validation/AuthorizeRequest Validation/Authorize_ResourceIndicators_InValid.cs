@@ -7,6 +7,7 @@ using Open.IdentityServer.Configuration;
 using Open.IdentityServer.UnitTests.Validation.Setup;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using Open.IdentityServer.Validation;
 using Xunit;
 
 namespace Open.IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;

@@ -37,18 +37,20 @@ internal class DeviceAuthorizationRequestValidator : IDeviceAuthorizationRequest
     }
 
     /// <inheritdoc/>
-    public async Task<DeviceAuthorizationRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClientSecretValidationResult clientValidationResult)
+    public async Task<DeviceAuthorizationRequestValidationResult> ValidateAsync(DeviceAuthorizationRequestValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         _logger.LogDebug("Start device authorization request validation");
 
         var request = new ValidatedDeviceAuthorizationRequest
         {
-            Raw = parameters ?? throw new ArgumentNullException(nameof(parameters)),
+            Raw = validationContext.Parameters,
             Options = _options
         };
 
-        var clientResult = ValidateClient(request, clientValidationResult);
+        var clientResult = ValidateClient(request, validationContext.ClientValidationResult);
         if (clientResult.IsError)
         {
             return clientResult;

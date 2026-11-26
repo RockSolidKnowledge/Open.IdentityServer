@@ -123,11 +123,11 @@ public class DeviceAuthorizationEndpointTests
             });
 
         _requestValidator.Setup(x =>
-                x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
-            .ReturnsAsync((NameValueCollection nvc, ClientSecretValidationResult csrv) =>
+                x.ValidateAsync(It.IsAny<DeviceAuthorizationRequestValidationContext>()))
+            .ReturnsAsync((DeviceAuthorizationRequestValidationContext ctx) =>
                 new DeviceAuthorizationRequestValidationResult
                 (
-                    new ValidatedDeviceAuthorizationRequest(){ Raw = nvc },
+                    new ValidatedDeviceAuthorizationRequest(){ Raw = ctx.Parameters },
                     error: OidcConstants.TokenErrors.InvalidScope,
                     errorDescription: "Invalid scope requested"
                 ));
@@ -160,11 +160,11 @@ public class DeviceAuthorizationEndpointTests
             });
 
         _requestValidator.Setup(x =>
-                x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
-            .ReturnsAsync((NameValueCollection nvc, ClientSecretValidationResult csrv) =>
+                x.ValidateAsync(It.IsAny<DeviceAuthorizationRequestValidationContext>()))
+            .ReturnsAsync((DeviceAuthorizationRequestValidationContext ctx) =>
                 new DeviceAuthorizationRequestValidationResult
                 (
-                    new ValidatedDeviceAuthorizationRequest(){ Raw = nvc },
+                    new ValidatedDeviceAuthorizationRequest(){ Raw = ctx.Parameters },
                     error: OidcConstants.TokenErrors.InvalidScope,
                     errorDescription: "Invalid scope requested"
                 ));
@@ -200,7 +200,7 @@ public class DeviceAuthorizationEndpointTests
                 Client = client
             });
 
-        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<DeviceAuthorizationRequestValidationContext>()))
             .ReturnsAsync(validatedRequest);
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<DeviceAuthorizationRequestValidationResult>(), It.IsAny<string>()))
@@ -244,7 +244,7 @@ public class DeviceAuthorizationEndpointTests
                 Client = client
             });
 
-        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<DeviceAuthorizationRequestValidationContext>()))
             .ReturnsAsync(validatedRequest);
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<DeviceAuthorizationRequestValidationResult>(), It.IsAny<string>()))
@@ -273,7 +273,7 @@ public class DeviceAuthorizationEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(new ClientSecretValidationResult { IsError = false, Client = client });
 
-        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<DeviceAuthorizationRequestValidationContext>()))
             .ReturnsAsync(validatedRequest);
 
         string capturedBaseUrl = null;
@@ -304,7 +304,7 @@ public class DeviceAuthorizationEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(new ClientSecretValidationResult { IsError = false, Client = client });
         
-        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<DeviceAuthorizationRequestValidationContext>()))
             .ReturnsAsync(validatedRequest);
         
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<DeviceAuthorizationRequestValidationResult>(), It.IsAny<string>()))

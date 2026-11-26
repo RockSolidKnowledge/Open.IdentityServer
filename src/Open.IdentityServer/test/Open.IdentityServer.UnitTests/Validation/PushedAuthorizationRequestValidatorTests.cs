@@ -64,15 +64,13 @@ public class PushedAuthorizationRequestValidatorTests
             .ValidateAsync(new PushedAuthorizationRequestValidationContext(parameters, callingClient),CancellationToken.None);
 
         authorizeRequestValidator.Verify(arv=>arv.ValidateAsync(
-                parameters,
-                null),Times.Once);
+                It.Is<AuthorizeRequestValidationContext>(c => c.Parameters == parameters && c.Subject == null)),Times.Once);
     }
 
     private void StubAuthorizeRequestValidatorSuccess(NameValueCollection? parameters = null)
     {
         authorizeRequestValidator.Setup(arv=>arv.ValidateAsync(
-                parameters ?? new NameValueCollection(),
-                null))
+                It.Is<AuthorizeRequestValidationContext>(c => c.Parameters == (parameters ?? new NameValueCollection()) && c.Subject == null)))
             .ReturnsAsync(new AuthorizeRequestValidationResult(new ValidatedAuthorizeRequest()));
     }
 
@@ -87,8 +85,7 @@ public class PushedAuthorizationRequestValidatorTests
         var expectedValidatedAuthorizeRequest = new ValidatedAuthorizeRequest();
         
         authorizeRequestValidator.Setup(arv=>arv.ValidateAsync(
-                parameters,
-                null))
+                It.Is<AuthorizeRequestValidationContext>(c => c.Parameters == parameters && c.Subject == null)))
             .ReturnsAsync(new AuthorizeRequestValidationResult(expectedValidatedAuthorizeRequest));
         
         PushAuthorizationRequestValidationResult result = await sut
@@ -111,8 +108,7 @@ public class PushedAuthorizationRequestValidatorTests
         var expectedErrorDescription = "authorize validation failed description";
         
         authorizeRequestValidator.Setup(arv=>arv.ValidateAsync(
-                parameters,
-                null))
+                It.Is<AuthorizeRequestValidationContext>(c => c.Parameters == parameters && c.Subject == null)))
             .ReturnsAsync(new AuthorizeRequestValidationResult(expectedValidatedAuthorizeRequest,expectedError,expectedErrorDescription));
         
         PushAuthorizationRequestValidationResult result = await sut

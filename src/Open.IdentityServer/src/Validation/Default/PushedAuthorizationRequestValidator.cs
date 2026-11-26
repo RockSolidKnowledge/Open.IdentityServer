@@ -33,7 +33,8 @@ internal class PushedAuthorizationRequestValidator(
                 $"{OidcConstants.AuthorizeRequest.RequestUri} can only be used at the authorization endpoint");
         }
 
-        AuthorizeRequestValidationResult authorizeRequestValidationResult = await authorizeRequestValidator.ValidateAsync(validationContext.RequestParameters, null);
+        AuthorizeRequestValidationResult authorizeRequestValidationResult = await authorizeRequestValidator.ValidateAsync(
+            new AuthorizeRequestValidationContext(validationContext.RequestParameters));
         
         if (authorizeRequestValidationResult.IsError)
         {

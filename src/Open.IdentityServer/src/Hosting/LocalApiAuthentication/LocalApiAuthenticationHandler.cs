@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -68,7 +69,7 @@ public class LocalApiAuthenticationHandler : AuthenticationHandler<LocalApiAuthe
 
         _logger.LogTrace("Token found: {token}", token);
 
-        TokenValidationResult result = await _tokenValidator.ValidateAccessTokenAsync(token, Options.ExpectedScope);
+        var result = await _tokenValidator.ValidateAccessTokenAsync(new AccessTokenValidationContext(token, Options.ExpectedScope));
 
         if (result.IsError)
         {
@@ -85,10 +86,10 @@ public class LocalApiAuthenticationHandler : AuthenticationHandler<LocalApiAuthe
 
         if (Options.SaveToken)
         {
-            authenticationProperties.StoreTokens(new[]
-            {
+            authenticationProperties.StoreTokens(
+            [
                 new AuthenticationToken { Name = "access_token", Value = token }
-            });
+            ]);
         }
 
         var claimsTransformationContext = new ClaimsTransformationContext

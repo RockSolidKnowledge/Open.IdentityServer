@@ -34,18 +34,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../../../README.md" Pack="true" Visible="false" PackagePath=""/>
-        <None Include="../../../OpenIdentityServerIcon.png" Pack="true" Visible="false" PackagePath=""/>
+        <None Include="../../../README.md" Pack="true" Visible="false" PackagePath="" />
+        <None Include="../../../OpenIdentityServerIcon.png" Pack="true" Visible="false" PackagePath="" />
     </ItemGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Open.IdentityServer.Storage"/>
-        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect"/>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect"/>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+        <PackageReference Include="Open.IdentityServer.Storage" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
     </ItemGroup>
 </Project>

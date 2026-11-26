@@ -66,7 +66,7 @@ public class IntrospectionEndpointTests
                 Resource = api
             });
 
-        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), api))
+        _requestValidator.Setup(x => x.ValidateAsync(It.Is<IntrospectionRequestValidationContext>(c => c.Api == api)))
             .ReturnsAsync(new IntrospectionRequestValidationResult
             {
                 IsError = true,
@@ -98,7 +98,7 @@ public class IntrospectionEndpointTests
                 Resource = api
             });
 
-        _requestValidator.Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), api))
+        _requestValidator.Setup(x => x.ValidateAsync(It.Is<IntrospectionRequestValidationContext>(c => c.Api == api)))
             .ReturnsAsync(new IntrospectionRequestValidationResult
             {
                 IsError = true,

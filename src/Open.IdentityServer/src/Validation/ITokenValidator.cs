@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -14,21 +15,18 @@ public interface ITokenValidator
     /// <summary>
     /// Validates an access token.
     /// </summary>
-    /// <param name="token">The access token.</param>
-    /// <param name="expectedScope">The scope the token is expected to contain, or <c>null</c> to skip scope validation.</param>
+    /// <param name="validationContext">The context containing the access token and the scope it is expected to contain.</param>
     /// <returns>
     /// A task that resolves to a <see cref="TokenValidationResult"/> indicating whether the access token is valid.
     /// </returns>
-    Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string expectedScope = null);
-        
+    Task<TokenValidationResult> ValidateAccessTokenAsync(AccessTokenValidationContext validationContext);
+
     /// <summary>
     /// Validates an identity token.
     /// </summary>
-    /// <param name="token">The identity token to validate.</param>
-    /// <param name="clientId">The client identifier.</param>
-    /// <param name="validateLifetime">if set to <c>true</c> the lifetime gets validated. Otherwise not.</param>
+    /// <param name="validationContext">The context containing the identity token, the client identifier and whether to validate the lifetime.</param>
     /// <returns>
     /// A task that resolves to a <see cref="TokenValidationResult"/> indicating whether the identity token is valid.
     /// </returns>
-    Task<TokenValidationResult> ValidateIdentityTokenAsync(string token, string clientId = null, bool validateLifetime = true);
+    Task<TokenValidationResult> ValidateIdentityTokenAsync(IdentityTokenValidationContext validationContext);
 }

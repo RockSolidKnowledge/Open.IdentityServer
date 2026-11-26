@@ -61,7 +61,7 @@ public class Authorize_PushedAuthorizationRequests
         clients.Setup(c => c.FindClientByIdAsync(ClientIdentifer))
             .ReturnsAsync(parClient);
 
-        uriValidator.Setup(uv => uv.IsRedirectUriValidAsync(ValidRedirectUri,parClient)).ReturnsAsync(true);
+        uriValidator.Setup(uv => uv.IsRedirectUriValidAsync(It.Is<RedirectUriValidationContext>(c => c.RequestedUri == ValidRedirectUri && c.Client == parClient))).ReturnsAsync(true);
         resourceValidator.Setup(rv => rv.ValidateRequestedResourcesAsync(It.IsAny<ResourceValidationRequest>()))
             .ReturnsAsync(new ResourceValidationResult()
             {

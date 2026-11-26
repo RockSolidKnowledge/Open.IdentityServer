@@ -71,7 +71,7 @@ public class OidcReturnUrlParserTests
         authorizationParametersMessageStore = null;
 
         Mock.Get(authorizeRequestValidator)
-            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), fakeUser))
+            .Setup(x => x.ValidateAsync(It.Is<AuthorizeRequestValidationContext>(c => c.Subject == fakeUser)))
             .ReturnsAsync(new AuthorizeRequestValidationResult(new ValidatedAuthorizeRequest(), "Fake Error"));
         
         var sut = CreateSut();
@@ -90,10 +90,10 @@ public class OidcReturnUrlParserTests
         
         NameValueCollection? parsedParams = null;
         Mock.Get(authorizeRequestValidator)
-            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _) =>
+            .Setup(x => x.ValidateAsync(It.IsAny<AuthorizeRequestValidationContext>()))
+            .ReturnsAsync((AuthorizeRequestValidationContext context) =>
             {
-                parsedParams = parameters;
+                parsedParams = context.Parameters;
                 return new AuthorizeRequestValidationResult(validatedRequest);
             });
 
@@ -116,10 +116,10 @@ public class OidcReturnUrlParserTests
         
         NameValueCollection? parsedParams = null;
         Mock.Get(authorizeRequestValidator)
-            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _) =>
+            .Setup(x => x.ValidateAsync(It.IsAny<AuthorizeRequestValidationContext>()))
+            .ReturnsAsync((AuthorizeRequestValidationContext context) =>
             {
-                parsedParams = parameters;
+                parsedParams = context.Parameters;
                 return new AuthorizeRequestValidationResult(validatedRequest);
             });
 
@@ -128,7 +128,7 @@ public class OidcReturnUrlParserTests
         var actual = await sut.ParseAsync(input);
 
         Mock.Get(authorizeRequestValidator)
-            .Verify(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), fakeUser));
+            .Verify(x => x.ValidateAsync(It.Is<AuthorizeRequestValidationContext>(c => c.Subject == fakeUser)));
 
         actual.Should().BeEquivalentTo(new AuthorizationRequest(validatedRequest));
         parsedParams.Should().NotBeNull();
@@ -145,10 +145,10 @@ public class OidcReturnUrlParserTests
         
         NameValueCollection? parsedParams = null;
         Mock.Get(authorizeRequestValidator)
-            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _) =>
+            .Setup(x => x.ValidateAsync(It.IsAny<AuthorizeRequestValidationContext>()))
+            .ReturnsAsync((AuthorizeRequestValidationContext context) =>
             {
-                parsedParams = parameters;
+                parsedParams = context.Parameters;
                 return new AuthorizeRequestValidationResult(validatedRequest);
             });
 
@@ -157,7 +157,7 @@ public class OidcReturnUrlParserTests
         var actual = await sut.ParseAsync(input);
 
         Mock.Get(authorizeRequestValidator)
-            .Verify(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), fakeUser));
+            .Verify(x => x.ValidateAsync(It.Is<AuthorizeRequestValidationContext>(c => c.Subject == fakeUser)));
 
         actual.Should().BeEquivalentTo(new AuthorizationRequest(validatedRequest));
         parsedParams.Should().NotBeNull();
@@ -173,10 +173,10 @@ public class OidcReturnUrlParserTests
 
         NameValueCollection? parsedParams = null;
         Mock.Get(authorizeRequestValidator)
-            .Setup(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync((NameValueCollection parameters, ClaimsPrincipal _) =>
+            .Setup(x => x.ValidateAsync(It.IsAny<AuthorizeRequestValidationContext>()))
+            .ReturnsAsync((AuthorizeRequestValidationContext context) =>
             {
-                parsedParams = parameters;
+                parsedParams = context.Parameters;
                 return new AuthorizeRequestValidationResult(validatedRequest);
             });
         
@@ -193,7 +193,7 @@ public class OidcReturnUrlParserTests
         var actual = await sut.ParseAsync(input);
         
         Mock.Get(authorizeRequestValidator)
-            .Verify(x => x.ValidateAsync(It.IsAny<NameValueCollection>(), fakeUser));
+            .Verify(x => x.ValidateAsync(It.Is<AuthorizeRequestValidationContext>(c => c.Subject == fakeUser)));
 
         actual.Should().BeEquivalentTo(new AuthorizationRequest(validatedRequest));
         parsedParams.Should().NotBeNull();

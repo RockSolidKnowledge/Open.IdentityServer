@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
@@ -46,16 +47,20 @@ internal class UserInfoRequestValidator : IUserInfoRequestValidator
     /// <summary>
     /// Validates a userinfo request.
     /// </summary>
-    /// <param name="accessToken">The access token.</param>
-    /// <returns></returns>
-    public async Task<UserInfoRequestValidationResult> ValidateRequestAsync(string accessToken)
+    /// <param name="validationContext">The context containing the access token to validate.</param>
+    /// <returns>A task that resolves to a <see cref="UserInfoRequestValidationResult"/> indicating whether the request is valid.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="validationContext"/> is <c>null</c>.</exception>
+    public async Task<UserInfoRequestValidationResult> ValidateRequestAsync(UserInfoRequestValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
+        var accessToken = validationContext.AccessToken;
+
         using var trace = _telemetry.Trace(TelemetryConstants.TraceCategories.Validation, this);
         
         // the access token needs to be valid and have at least the openid scope
         var tokenResult = await _tokenValidator.ValidateAccessTokenAsync(
-            accessToken,
-            IdentityServerConstants.StandardScopes.OpenId);
+            new AccessTokenValidationContext(accessToken, IdentityServerConstants.StandardScopes.OpenId));
 
         if (tokenResult.IsError)
         {

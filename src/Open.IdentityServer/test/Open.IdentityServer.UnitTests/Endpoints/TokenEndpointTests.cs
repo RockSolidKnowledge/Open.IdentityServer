@@ -82,7 +82,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<TokenRequestValidationContext>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))
@@ -104,7 +104,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<TokenRequestValidationContext>()))
             .ReturnsAsync(FailedRequestResult(OidcConstants.TokenErrors.InvalidGrant, "invalid_username_or_password"));
 
         var result = await subject.ProcessAsync(context);
@@ -135,7 +135,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<TokenRequestValidationContext>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))
@@ -165,7 +165,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<TokenRequestValidationContext>()))
             .ReturnsAsync(FailedRequestResult(OidcConstants.TokenErrors.InvalidGrant, "invalid_username_or_password"));
 
         await subject.ProcessAsync(context);
@@ -186,7 +186,7 @@ public class TokenEndpointTests
         _clientValidator.Setup(x => x.ValidateAsync(It.IsAny<HttpContext>()))
             .ReturnsAsync(ValidClientResult());
 
-        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<System.Collections.Specialized.NameValueCollection>(), It.IsAny<ClientSecretValidationResult>()))
+        _requestValidator.Setup(x => x.ValidateRequestAsync(It.IsAny<TokenRequestValidationContext>()))
             .ReturnsAsync(ValidRequestResult());
 
         _responseGenerator.Setup(x => x.ProcessAsync(It.IsAny<TokenRequestValidationResult>()))

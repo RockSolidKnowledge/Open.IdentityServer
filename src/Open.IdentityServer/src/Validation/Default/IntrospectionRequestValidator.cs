@@ -1,7 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using Open.IdentityServer.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.Specialized;
@@ -32,11 +34,15 @@ internal class IntrospectionRequestValidator : IIntrospectionRequestValidator
     /// <summary>
     /// Validates the request.
     /// </summary>
-    /// <param name="parameters">The parameters.</param>
-    /// <param name="api">The API.</param>
-    /// <returns></returns>
-    public async Task<IntrospectionRequestValidationResult> ValidateAsync(NameValueCollection parameters, ApiResource api)
+    /// <param name="validationContext">The context encapsulating the introspection request parameters and the API.</param>
+    /// <returns>An <see cref="IntrospectionRequestValidationResult"/> indicating whether the token is active and carrying the associated claims.</returns>
+    public async Task<IntrospectionRequestValidationResult> ValidateAsync(IntrospectionRequestValidationContext validationContext)
     {
+        ArgumentNullException.ThrowIfNull(validationContext);
+
+        var parameters = validationContext.Parameters;
+        var api = validationContext.Api;
+
         _logger.LogDebug("Introspection request validation started.");
 
         // retrieve required token
@@ -55,7 +61,7 @@ internal class IntrospectionRequestValidator : IIntrospectionRequestValidator
         }
 
         // validate token
-        var tokenValidationResult = await _tokenValidator.ValidateAccessTokenAsync(token);
+        var tokenValidationResult = await _tokenValidator.ValidateAccessTokenAsync(new AccessTokenValidationContext(token));
 
         // invalid or unknown token
         if (tokenValidationResult.IsError)

@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -15,16 +16,14 @@ public interface IRedirectUriValidator
     /// <summary>
     /// Determines whether a redirect URI is valid for a client.
     /// </summary>
-    /// <param name="requestedUri">The requested URI.</param>
-    /// <param name="client">The client.</param>
+    /// <param name="validationContext">The context encapsulating the requested URI and the client.</param>
     /// <returns><c>true</c> is the URI is valid; <c>false</c> otherwise.</returns>
-    Task<bool> IsRedirectUriValidAsync(string requestedUri, Client client);
+    Task<bool> IsRedirectUriValidAsync(RedirectUriValidationContext validationContext);
         
     /// <summary>
     /// Determines whether a post logout URI is valid for a client.
     /// </summary>
-    /// <param name="requestedUri">The requested URI.</param>
-    /// <param name="client">The client.</param>
+    /// <param name="validationContext">The context encapsulating the requested URI and the client.</param>
     /// <returns><c>true</c> is the URI is valid; <c>false</c> otherwise.</returns>
-    Task<bool> IsPostLogoutRedirectUriValidAsync(string requestedUri, Client client);
+    Task<bool> IsPostLogoutRedirectUriValidAsync(RedirectUriValidationContext validationContext);
 }
