@@ -15,6 +15,7 @@ using Open.IdentityServer.EntityFramework.Mappers;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores;
+using Open.IdentityServer.Stores.Serialization;
 
 namespace Open.IdentityServer.EntityFramework.Stores;
 
@@ -23,6 +24,7 @@ namespace Open.IdentityServer.EntityFramework.Stores;
 /// </summary>
 public class IdentityServerServerSideSessionStore(
     IPersistedGrantDbContext dbContext,
+    IAuthenticationTicketSerializer authTicketSerializer,
     ITelemetryService telemetry,
     TimeProvider timeProvider,
     ILogger<IdentityServerServerSideSessionStore> logger) : IIdentityServerServerSideSessionStore
@@ -30,13 +32,17 @@ public class IdentityServerServerSideSessionStore(
     /// <summary>
     /// Maps the <see cref="Entities.ServerSideSession"/> to the <see cref="Open.IdentityServer.Models.ServerSideSession"/>.
     /// </summary>
-    /// <param name="entities">The <see cref="Entities.ServerSideSession"/>.</param>
+    /// <param name="entity">The <see cref="Entities.ServerSideSession"/>.</param>
     /// <returns>The <see cref="Open.IdentityServer.Models.ServerSideSession"/> or an object extending Client.</returns>
     /// <remarks>
     /// Makes it possible to return an extended model.
     /// </remarks>
-    protected virtual ServerSideSession? ToModel(Entities.ServerSideSession? entities) => 
-        entities?.ToModel();
+    protected virtual ServerSideSession? ToModel(Entities.ServerSideSession? entity)
+    {
+        var result = entity?.ToModel(authTicketSerializer);
+
+        return result;
+    }
     
     /// <inheritdoc />
     public async Task<ServerSideSession?> GetSession(string key)
@@ -68,7 +74,7 @@ public class IdentityServerServerSideSessionStore(
             return;
         }
 
-        Entities.ServerSideSession sessionEntity = session.ToEntity();
+        Entities.ServerSideSession sessionEntity = session.ToEntity(authTicketSerializer);
 
         await dbContext.ServerSideSessions.AddAsync(sessionEntity);
 
@@ -98,7 +104,7 @@ public class IdentityServerServerSideSessionStore(
             return;
         }
 
-        session.UpdateEntity(existing);
+        session.UpdateEntity(authTicketSerializer, existing);
 
         try
         {

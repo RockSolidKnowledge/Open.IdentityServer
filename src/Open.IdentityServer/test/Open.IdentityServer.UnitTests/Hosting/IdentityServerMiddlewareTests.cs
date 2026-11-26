@@ -282,9 +282,9 @@ public class IdentityServerMiddlewareTests
         var ticketProperties = new AuthenticationProperties();
         ticketProperties.AddClientId("client-1");
         ticketProperties.AddClientId("client-2");
-        var expiredTicket = new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity()), ticketProperties, "cookie");
+        expiredSession.AuthenticationTicket = new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity()), ticketProperties, "cookie");
 
-        _context.SetSessionExpired(expiredSession, expiredTicket);
+        _context.SetSessionExpired(expiredSession);
 
         EndUserSessionEventContext actualContext = null;
         Mock.Get(userSessionEventsService)

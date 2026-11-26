@@ -13,16 +13,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Open.IdentityServer.Configuration;
-using Open.IdentityServer.DataProtection;
 using Open.IdentityServer.Extensions;
 using Open.IdentityServer.Models;
 using Open.IdentityServer.Services;
 using Open.IdentityServer.Stores.Default;
-using Open.IdentityServer.Stores.Serialization;
 
 namespace Open.IdentityServer.Stores;
 
@@ -31,7 +28,6 @@ namespace Open.IdentityServer.Stores;
 /// implementation in Open.IdentityServer
 /// </summary>
 /// <param name="serverServerSideSessionStore"></param>
-/// <param name="dataProtectionProvider">data protection provider</param>
 /// <param name="persistedGrantStore">persisted grant store</param>
 /// <param name="handleGenerationService">handle generation service</param>
 /// <param name="timeProvider">time provider</param>
@@ -41,7 +37,6 @@ namespace Open.IdentityServer.Stores;
 /// <param name="logger">the logger</param>
 public class ServerSessionTicketStore(
     IIdentityServerServerSideSessionStore serverServerSideSessionStore,
-    IDataProtectionProvider dataProtectionProvider,
     IPersistedGrantStore persistedGrantStore,
     IHandleGenerationService handleGenerationService,
     TimeProvider timeProvider,
@@ -50,17 +45,6 @@ public class ServerSessionTicketStore(
     ITelemetryService telemetry,
     ILogger<ServerSessionTicketStore> logger): IServerSessionTicketStore
 {
-    private readonly IDataProtector dataProtector =
-        dataProtectionProvider.CreateProtector(DataProtectionConstants.ServerSideTicketStorePurpose);
-
-    /// <summary>
-    /// <see cref="JsonSerializerOptions"/> to be used for storing server side sessions
-    /// </summary>
-    public static readonly JsonSerializerOptions JsonSettings = new()
-    {
-        IncludeFields = true,
-    };
-
     /// <inheritdoc />
     public async Task<string> StoreAsync(AuthenticationTicket ticket)
     {
@@ -126,7 +110,7 @@ public class ServerSessionTicketStore(
         existingSession.DisplayName = GetDisplayNameValue(ticket.Principal);
         existingSession.Renewed = issued;
         existingSession.Expires = ticket.Properties.ExpiresUtc?.UtcDateTime;
-        existingSession.Data = ToProtectedDataString(ticket);
+        existingSession.AuthenticationTicket = ticket;
 
         await serverServerSideSessionStore.UpdateSession(existingSession);
     }
@@ -149,17 +133,16 @@ public class ServerSessionTicketStore(
             return null;
         }
        
-        var authTicket = DeserializeAuthTicket(existingSession);
-        if(authTicket == null)
+        if(existingSession.AuthenticationTicket == null)
         {
             logger.FailedToRetrieveTicketFromStore(key);
         }
         else
         {
-            logger.TicketFoundInStore(key, authTicket.Properties.ExpiresUtc);
+            logger.TicketFoundInStore(key, existingSession.AuthenticationTicket.Properties.ExpiresUtc);
         }
         
-        return authTicket;
+        return existingSession.AuthenticationTicket;
     }
 
     /// <inheritdoc />
@@ -176,7 +159,7 @@ public class ServerSessionTicketStore(
         var session = await serverServerSideSessionStore.GetSession(key);
         if(session != null)
         {
-            httpContextAccessor.HttpContext.SetSessionExpired(session, DeserializeAuthTicket(session));
+            httpContextAccessor.HttpContext.SetSessionExpired(session);
         }
         
         await serverServerSideSessionStore.DeleteSession(key);
@@ -187,13 +170,8 @@ public class ServerSessionTicketStore(
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
-        IEnumerable<ServerSideSession> sessions = await serverServerSideSessionStore.FilterSessions(subjectId, sessionId);
-        
-        return sessions.Select(x => new AuthenticationTicketFilterResult
-        {
-            Session = x,
-            AuthTicket = DeserializeAuthTicket(x),
-        }).Where(x => x.AuthTicket != null);
+        return (await serverServerSideSessionStore.FilterSessions(subjectId, sessionId))
+            .Select(x => new AuthenticationTicketFilterResult { Session = x });
     }
 
     /// <inheritdoc />
@@ -201,13 +179,8 @@ public class ServerSessionTicketStore(
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
         
-        QueryResult<ServerSideSession> sessions = await serverServerSideSessionStore.FilterSessions(query, ct);
-
-        return sessions.MapTo<AuthenticationTicketFilterResult>(x => new AuthenticationTicketFilterResult
-        {
-            Session = x,
-            AuthTicket = DeserializeAuthTicket(x),
-        });
+        return (await serverServerSideSessionStore.FilterSessions(query, ct))
+            .MapTo(x => new AuthenticationTicketFilterResult { Session = x });
     }
 
     /// <inheritdoc />
@@ -215,13 +188,8 @@ public class ServerSessionTicketStore(
     {
         using ITrace? trace = telemetry.Trace(TelemetryConstants.TraceCategories.Stores, this);
 
-        var sessionRemoved = await serverServerSideSessionStore.GetAndRemoveExpiredSessions(batchSize);
-        
-        return sessionRemoved.Select(x => new AuthenticationTicketFilterResult
-        {
-            Session = x,
-            AuthTicket = DeserializeAuthTicket(x),
-        });
+        return (await serverServerSideSessionStore.GetAndRemoveExpiredSessions(batchSize))
+            .Select(x => new AuthenticationTicketFilterResult { Session = x });
     }
 
     private async Task<ServerSideSession> StoreNewSession(string key, AuthenticationTicket ticket)
@@ -248,7 +216,7 @@ public class ServerSessionTicketStore(
             Created = issued,
             Renewed = issued,
             Expires = ticket.Properties.ExpiresUtc?.UtcDateTime,
-            Data = ToProtectedDataString(ticket),
+            AuthenticationTicket = ticket,
         };
 
         await serverServerSideSessionStore.CreateSession(serverSideSession);
@@ -261,56 +229,5 @@ public class ServerSessionTicketStore(
         return string.IsNullOrWhiteSpace(options.ServerSideSessions.UserDisplayNameClaimType)
             ? null
             : principal.FindFirstValue(options.ServerSideSessions.UserDisplayNameClaimType);
-    }
-
-    private string ToProtectedDataString(AuthenticationTicket ticket)
-    {
-        string serializedTicket = JsonSerializer.Serialize(ticket.ToSerializableObj());
-
-        return JsonSerializer.Serialize(new DataProtectedSessionData
-        {
-            Payload = dataProtector.Protect(serializedTicket),
-        }, JsonSettings);
-    }
-    
-    private AuthenticationTicket? DeserializeAuthTicket(ServerSideSession existingSession)
-    {
-        DataProtectedSessionData? dataProtectedSessionData;
-
-        try
-        {
-            dataProtectedSessionData = JsonSerializer.Deserialize<DataProtectedSessionData>(existingSession.Data, JsonSettings);
-        }
-        catch (JsonException exception)
-        {
-            logger.LogError(exception, "failed deserialising auth ticket data '{SessionKey}'", existingSession.Key);
-            return null;
-        }
-        
-        if (dataProtectedSessionData is not { Version: 1 })
-        {
-            logger.LogError("failed retrieving '{SessionKey}', deserialisation failed, incorrect version '{VersionOrNull}'", existingSession.Key, dataProtectedSessionData?.Version);
-            return null;
-        }
-
-        try
-        {
-            string unprotectedData = dataProtector.Unprotect(dataProtectedSessionData.Payload);
-
-            SerializedAuthenticationTicket? serializedAuthTicket =
-                JsonSerializer.Deserialize<SerializedAuthenticationTicket>(unprotectedData);
-
-            return serializedAuthTicket?.ToAuthTicket(existingSession);
-        }
-        catch (CryptographicException cryptException)
-        {
-            logger.LogError(cryptException, "failed to unprotect auth ticket data '{SessionKey}'", existingSession.Key);
-            return null;
-        }
-        catch (JsonException jsonException)
-        {
-            logger.LogError(jsonException, "failed deserialising unprotected auth ticket data '{SessionKey}'", existingSession.Key);
-            return null;
-        }
     }
 }
