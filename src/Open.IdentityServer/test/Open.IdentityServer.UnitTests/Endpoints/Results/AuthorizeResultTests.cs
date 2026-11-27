@@ -98,6 +98,69 @@ public class AuthorizeResultTests
     }
 
     [Theory]
+    [InlineData(OidcConstants.AuthorizeErrors.InvalidRequest)]
+    [InlineData(OidcConstants.AuthorizeErrors.TemporarilyUnavailable)]
+    [InlineData(OidcConstants.AuthorizeErrors.UnmetAuthenticationRequirements)]
+    public async Task OtherErrors_WhenStrictAuthorizeErrorResponsesDisabled_ShouldRedirectToErrorPage(string error)
+    {
+        _response.Error = error;
+        _response.Request = new ValidatedAuthorizeRequest
+        {
+            ResponseMode = OidcConstants.ResponseModes.Query,
+            RedirectUri = "http://client/callback"
+        };
+
+        await _subject.ExecuteAsync(_context);
+
+        _mockErrorMessageStore.Messages.Count.Should().Be(1);
+        _context.Response.Headers["Location"].First().Should().StartWith("https://server/error");
+    }
+
+    [Theory]
+    [InlineData(OidcConstants.AuthorizeErrors.InvalidRequest)]
+    [InlineData(OidcConstants.AuthorizeErrors.TemporarilyUnavailable)]
+    [InlineData(OidcConstants.AuthorizeErrors.UnmetAuthenticationRequirements)]
+    [InlineData("some_error")]
+    public async Task OtherErrors_WhenStrictAuthorizeErrorResponsesEnabled_ShouldReturnToClient(string error)
+    {
+        _options.StrictAuthorizeErrorResponses = true;
+        _response.Error = error;
+        _response.Request = new ValidatedAuthorizeRequest
+        {
+            ResponseMode = OidcConstants.ResponseModes.Query,
+            RedirectUri = "http://client/callback"
+        };
+
+        await _subject.ExecuteAsync(_context);
+
+        _mockErrorMessageStore.Messages.Should().BeEmpty();
+        var location = _context.Response.Headers["Location"].First();
+        location.Should().StartWith("http://client/callback");
+        QueryHelpers.ParseQuery(new Uri(location).Query)["error"].First().Should().Be(error);
+    }
+
+    [Theory]
+    [InlineData(OidcConstants.ResponseModes.Query, null)]
+    [InlineData(null, "http://client/callback")]
+    public async Task OtherErrors_WhenStrictAuthorizeErrorResponsesEnabled_AndResponseNotRoutable_ShouldRedirectToErrorPage(
+        string responseMode, string redirectUri)
+    {
+        // the validator sets these only once the redirect uri and response mode are known to be valid
+        _options.StrictAuthorizeErrorResponses = true;
+        _response.Error = OidcConstants.AuthorizeErrors.InvalidRequest;
+        _response.Request = new ValidatedAuthorizeRequest
+        {
+            ResponseMode = responseMode,
+            RedirectUri = redirectUri
+        };
+
+        await _subject.ExecuteAsync(_context);
+
+        _mockErrorMessageStore.Messages.Count.Should().Be(1);
+        _context.Response.Headers["Location"].First().Should().StartWith("https://server/error");
+    }
+
+    [Theory]
     [InlineData(OidcConstants.AuthorizeErrors.AccountSelectionRequired)]
     [InlineData(OidcConstants.AuthorizeErrors.LoginRequired)]
     [InlineData(OidcConstants.AuthorizeErrors.ConsentRequired)]
