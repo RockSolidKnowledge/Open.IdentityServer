@@ -106,7 +106,8 @@ Additional services
     Adds support for client authentication using JWT bearer assertions.
 
 * ``AddMutualTlsSecretValidators``
-    Adds the X509 secret validators for mutual TLS.
+    Adds the X509 secret validators for mutual TLS. Requires the certificate authentication handler (``AddAuthentication().AddCertificate()``) to be registered;
+    client certificates are only accepted once that handler has authenticated them.
 
 Caching
 ^^^^^^^

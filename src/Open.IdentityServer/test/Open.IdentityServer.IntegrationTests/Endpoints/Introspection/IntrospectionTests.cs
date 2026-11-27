@@ -1,4 +1,5 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 #nullable enable
 
@@ -442,5 +443,33 @@ public class IntrospectionTests : IDisposable
 
         introspectionResponse.IsActive.Should().Be(false);
         introspectionResponse.IsError.Should().Be(false);
+    }
+    
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task public_client_without_api_secret_cannot_introspect_reference_token()
+    {
+        var tokenResponse = await _client.RequestClientCredentialsTokenAsync(
+            new ClientCredentialsTokenRequest
+            {
+                Address = TokenEndpoint,
+                ClientId = "public.client",
+                Scope = "api1"
+            },
+            TestContext.Current.CancellationToken);
+
+        tokenResponse.IsError.Should().BeFalse();
+        tokenResponse.AccessToken.Should().NotBeNullOrEmpty();
+
+        var response = await _client.PostAsync(
+            IntrospectionEndpoint,
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["client_id"] = "public.client",
+                ["token"] = tokenResponse.AccessToken!
+            }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

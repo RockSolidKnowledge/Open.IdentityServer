@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Http;
@@ -127,6 +129,47 @@ public class PushedAuthorizationTests
 
         IEndpointResult result = await sut.ProcessAsync(context);
         ResultShouldBeTokenErrorResult(result, OidcConstants.TokenErrors.InvalidRequest);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_when_body_exceeds_the_request_size_limit_should_return_413()
+    {
+        var sut = CreateSut();
+        var context = CreateHttpContext();
+        SetFormBodyThatThrows(context, new BadHttpRequestException("Request body too large.", StatusCodes.Status413PayloadTooLarge));
+
+        IEndpointResult result = await sut.ProcessAsync(context);
+
+        ResultShouldBeStatusCodeOf(result, HttpStatusCode.RequestEntityTooLarge);
+        clientSecretValidator.Verify(csv => csv.ValidateAsync(It.IsAny<HttpContext>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_when_form_exceeds_the_form_limits_should_return_invalid_request()
+    {
+        var sut = CreateSut();
+        var context = CreateHttpContext();
+        SetFormBodyThatThrows(context, new InvalidDataException("Form value count limit exceeded."));
+
+        IEndpointResult result = await sut.ProcessAsync(context);
+
+        ResultShouldBeTokenErrorResult(result, OidcConstants.TokenErrors.InvalidRequest);
+        clientSecretValidator.Verify(csv => csv.ValidateAsync(It.IsAny<HttpContext>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData(StatusCodes.Status400BadRequest)]
+    [InlineData(StatusCodes.Status408RequestTimeout)]
+    public async Task ProcessAsync_when_body_read_fails_for_another_reason_should_return_its_status_code(int statusCode)
+    {
+        var sut = CreateSut();
+        var context = CreateHttpContext();
+        SetFormBodyThatThrows(context, new BadHttpRequestException("Request body could not be read.", statusCode));
+
+        IEndpointResult result = await sut.ProcessAsync(context);
+
+        ResultShouldBeStatusCodeOf(result, (HttpStatusCode)statusCode);
+        clientSecretValidator.Verify(csv => csv.ValidateAsync(It.IsAny<HttpContext>()), Times.Never);
     }
 
     [Fact]
@@ -378,6 +421,21 @@ public class PushedAuthorizationTests
             mockHttpContext.HttpContext!.Request.ContentType = "application/x-www-form-urlencoded";
             mockHttpContext.HttpContext!.Request.Method = "POST";
             mockHttpContext.HttpContext!.Request.Form = formCollection;
+    }
+
+    private static void SetFormBodyThatThrows(HttpContext context, Exception exception)
+    {
+        context.Request.ContentType = "application/x-www-form-urlencoded";
+        context.Request.Body = new ThrowingStream(exception);
+    }
+
+    private sealed class ThrowingStream(Exception exception) : MemoryStream
+    {
+        public override int Read(byte[] buffer, int offset, int count) => throw exception;
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) => throw exception;
+
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => throw exception;
     }
 
     private static void ResultShouldBeStatusCodeOf(IEndpointResult result , HttpStatusCode expectedStatusCode)

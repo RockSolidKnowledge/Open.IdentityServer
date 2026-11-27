@@ -1,6 +1,7 @@
 // Copyright (c) 2026, Rock Solid Knowledge Ltd
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -72,6 +73,38 @@ public class DefaultKeyMaterialServiceTests
         var actual = await sut.GetSigningCredentialsAsync();
 
         actual.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetSigningCredentialsAsync_WhenNoSigningCredentialsReturnedFromStores_ShouldThrowInvalidOperationException()
+    {
+        signingCredentialStores = [
+            new TestSigningCredentialStore(null),
+            new TestSigningCredentialStore(null),
+            new TestSigningCredentialStore(null),
+        ];
+        
+        var sut = CreateSut();
+
+        Func<Task> act = async () => await sut.GetSigningCredentialsAsync();
+
+        await act.Should().ThrowExactlyAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetSigningCredentialsAsync_WhenNullCredentialSuppliedInFirstStore_ShouldReturnCredentialsFromFirstStoreWithNonNullResponse()
+    {
+        signingCredentialStores = [
+            new TestSigningCredentialStore(null),
+            new TestSigningCredentialStore(fakeSigningCredentials1),
+            new TestSigningCredentialStore(fakeSigningCredentials3),
+        ];
+        
+        var sut = CreateSut();
+
+        var actual = await sut.GetSigningCredentialsAsync();
+
+        actual.Should().BeEquivalentTo(fakeSigningCredentials1);
     }
 
     [Fact]

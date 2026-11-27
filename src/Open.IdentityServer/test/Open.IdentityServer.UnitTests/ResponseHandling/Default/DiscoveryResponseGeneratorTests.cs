@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
@@ -870,6 +871,45 @@ public class DiscoveryResponseGeneratorTests
             .ContainKey(OidcConstants.Discovery.RequirePushedAuthorizationRequests)
             .WhoseValue.Should().Be(isEnforced);
     }
-    
-    
+
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndSupportedPromptsIsEmpty_ShouldNotContainPromptValuesSupported()
+    {
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
+        _options.UserInteraction.SupportedPromptModes.Clear();
+        
+        var sut = CreateSut();
+
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
+
+        actual.Should().NotContainKey(OidcConstants.Discovery.PromptValuesSupported);
+    }
+
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenSupportedPromptsHasValuesAndAuthorizeEndpointDisabled_ShouldNotContainPromptValuesSupported()
+    {
+        _options.Endpoints.EnableAuthorizeEndpoint = false;
+        _options.UserInteraction.SupportedPromptModes = Constants.SupportedPromptModes;
+        
+        var sut = CreateSut();
+
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
+
+        actual.Should().NotContainKey(OidcConstants.Discovery.PromptValuesSupported);
+    }
+
+    [Fact]
+    public async Task CreateDiscoveryDocumentAsync_WhenAuthorizeEndpointEnabledAndSupportedPromptModesHasValues_ShouldContainPromptModes()
+    {
+        _options.Endpoints.EnableAuthorizeEndpoint = true;
+        List<string> promptModes = [.. Constants.SupportedPromptModes, OidcConstants.PromptModes.Create];
+        _options.UserInteraction.SupportedPromptModes = promptModes;
+
+        var sut = CreateSut();
+        
+        var actual = await sut.CreateDiscoveryDocumentAsync("https://open.ids.url/somepath", "https://open.ids.url");
+        
+        actual.Should().ContainKey(OidcConstants.Discovery.PromptValuesSupported)
+            .WhoseValue.Should().BeEquivalentTo(promptModes);
+    }
 }

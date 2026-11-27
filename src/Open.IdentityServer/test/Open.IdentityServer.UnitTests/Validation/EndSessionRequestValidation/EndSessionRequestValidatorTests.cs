@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Modified by Rock Solid Knowledge Ltd. Copyright in modifications 2026, Rock Solid Knowledge Ltd.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -231,5 +232,32 @@ public class EndSessionRequestValidatorTests
         _telemetry.Verify(t => t.Trace(
             TelemetryConstants.TraceCategories.Validation, _subject, "ValidateCallbackAsync"));
         _trace.Verify(t => t.Dispose(), Times.Once);
+    }
+    
+    [Fact]
+    public async Task id_token_hint_without_subject_or_session_should_be_ignored_and_show_signout_prompt()
+    {
+        _stubTokenValidator.IdentityTokenValidationResult = new TokenValidationResult
+        {
+            IsError = false,
+            Claims = new Claim[] { },
+            Client = new Client { ClientId = "client" }
+        };
+        _stubRedirectUriValidator.IsPostLogoutRedirectUriValid = true;
+
+        var parameters = new NameValueCollection
+        {
+            ["id_token_hint"] = "id_token",
+            ["post_logout_redirect_uri"] = "https://client/signout-callback"
+        };
+
+        var result = await _subject.ValidateAsync(parameters, _user);
+
+        result.IsError.Should().BeFalse();
+        result.ValidatedRequest.Client.Should().BeNull();
+        result.ValidatedRequest.PostLogOutUri.Should().BeNull();
+
+        var logoutRequest = new LogoutRequest(null, new LogoutMessage(result.ValidatedRequest));
+        logoutRequest.ShowSignoutPrompt.Should().BeTrue();
     }
 }

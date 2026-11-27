@@ -70,13 +70,13 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
 
         var consentParameters = await ApplyPushedBasedAuthorization(parameters);
 
-
         var user = await UserSession.GetUserAsync();
         var consentRequest = new ConsentRequest(consentParameters, user?.GetSubjectId());
         var consent = await _consentResponseStore.ReadAsync(consentRequest.Id);
 
         if (consent != null && consent.Data == null)
         {
+            await ConsumeParAsync(parameters);
             return await CreateErrorResultAsync("consent message is missing data");
         }
 
@@ -104,12 +104,25 @@ internal class AuthorizeCallbackEndpoint : AuthorizeEndpointBase
     private async Task<NameValueCollection> ApplyPushedBasedAuthorization(NameValueCollection parameters)
     {
         NameValueCollection consentParameters = parameters;
-        string requestUri = parameters.Get(OidcConstants.AuthorizeRequest.RequestUri);
-        if (requestUri != null && requestUri.StartsWith(IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix))
+        if (TryGetParUri(parameters, out string requestUri))
         {
             consentParameters = (await _parService.GetRequestAsync(requestUri)) ?? parameters;
         }
 
         return consentParameters;
+    }
+    
+    private async Task ConsumeParAsync(NameValueCollection parameters)
+    {
+        if (TryGetParUri(parameters, out string requestUri))
+        {
+            await _parService.RemoveRequestAsync(requestUri);
+        }
+    }
+    
+    private bool TryGetParUri(NameValueCollection parameters, out string requestUri)
+    {
+        requestUri = parameters.Get(OidcConstants.AuthorizeRequest.RequestUri);
+        return requestUri != null && requestUri.StartsWith(IdentityServerConstants.PushedAuthorizationRequest.UriRequestPrefix);
     }
 }
