@@ -6,7 +6,7 @@ namespace Open.IdentityServer.EntityFramework.Mappers;
 /// <summary>
 /// Mapping extension methods for IdentityServerKeyMaterial objects
 /// </summary>
-public static class IdentityServerKeyMaterialMappingExtentions
+public static class IdentityServerKeyMaterialMappingExtensions
 {
     /// <summary>
     /// Mapping extension methods for <see cref="Entities.IdentityServerKeyMaterial"/>
